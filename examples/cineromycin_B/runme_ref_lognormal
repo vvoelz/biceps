@@ -1,0 +1,5 @@
+python sample_cineromycinB.py --lognormal 0.0 results_ref_lognormal 10000000
+python sample_cineromycinB.py --lognormal 0.5 results_ref_lognormal 10000000
+python sample_cineromycinB.py --lognormal 1.0 results_ref_lognormal 10000000
+python calc_MBAR_fromresults.py results_ref_lognormal BF_ref_lognormal.dat populations_ref_lognormal.dat
+python plot_results.py results_ref_lognormal populations_ref_lognormal.dat

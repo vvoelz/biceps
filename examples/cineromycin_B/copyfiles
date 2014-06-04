@@ -1,0 +1,15 @@
+#cp results_ref_normal/traj_lambda0.00.yaml results_ref_noref_normal_exp/traj_lambda1.00.yaml
+#cp results_noref_normal/traj_lambda0.00.yaml results_ref_noref_normal_exp/traj_lambda0.00.yaml
+#cp results_ref_lognormal/traj_lambda0.00.yaml results_ref_noref_lognormal_exp/traj_lambda1.00.yaml
+#cp results_noref_lognormal/traj_lambda0.00.yaml results_ref_noref_lognormal_exp/traj_lambda0.00.yaml
+
+#cp results_ref_normal/sampler_lambda0.00.pkl results_ref_noref_normal_exp/sampler_lambda1.00.pkl
+#cp results_noref_normal/sampler_lambda0.00.pkl results_ref_noref_normal_exp/sampler_lambda0.00.pkl
+#cp results_ref_lognormal/sampler_lambda0.00.pkl results_ref_noref_lognormal_exp/sampler_lambda1.00.pkl
+#cp results_noref_lognormal/sampler_lambda0.00.pkl results_ref_noref_lognormal_exp/sampler_lambda0.00.pkl
+
+python calc_MBAR_fromresults.py results_ref_noref_normal_exp BF_ref_noref_normal_exp.dat populations_ref_noref_normal_exp.dat
+python calc_MBAR_fromresults.py results_ref_noref_lognormal_exp BF_ref_noref_lognormal_exp.dat populations_ref_noref_lognormal_exp.dat
+
+
+
