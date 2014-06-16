@@ -1,6 +1,10 @@
 import os, sys, glob
 import numpy as np
-from msmbuilder import Conformation
+import mdtraj
+try:
+    from msmbuilder import Conformation
+except:
+    pass
 import yaml
 
 from KarplusRelation import *
@@ -15,7 +19,7 @@ class Structure(object):
                        dloggamma=np.log(1.01), gamma_min=0.5, gamma_max=2.0):
         """Initialize the class.
         INPUTS
-	conf		A molecular structure as an msmbuilder Conformation() object.
+	    conf		    A molecular structure as an msmbuilder Conformation() object.
                         NOTE: For cases where the structure is an ensemble (say, from clustering)
                         and the modeled NOE distances and coupling constants are averaged, 
                         the structure itself can just be a placeholder with the right atom names
@@ -26,10 +30,16 @@ class Structure(object):
 
         self.PDB_filename = PDB_filename
         self.expdata_filename = expdata_filename
-        self.conf = Conformation.load_from_pdb(PDB_filename)
-        # Convert the coordinates from nm to Angstrom units 
-        self.conf["XYZ"] = self.conf["XYZ"]*10.0 
-
+        try:
+            self.conf = Conformation.load_from_pdb(PDB_filename)
+            # Convert the coordinates from nm to Angstrom units
+            self.conf["XYZ"] = self.conf["XYZ"]*10.0
+        except:
+            try:
+                self.conf = mdtraj.load_pdb(PDB_filename).xyz*10.0
+            except:
+                print "Cannot load pdb file. Either of msmbuilder.Conformation or mdtraj is needed."
+                sys.exit()
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.free_energy = free_energy
 
@@ -159,8 +169,12 @@ class Structure(object):
 
         # if the modeled distance is not specified, compute the distance from the conformation
         if model_distance == None:
-            ri = self.conf["XYZ"][i,:]
-            rj = self.conf["XYZ"][j,:]
+            try:
+                ri = self.conf["XYZ"][i,:]
+                rj = self.conf["XYZ"][j,:]
+            except:
+                ri = self.conf[0,i,:]
+                rj = self.conf[0,j,:]
             dr = rj-ri
             model_distance = np.dot(dr,dr)**0.5
 
@@ -177,7 +191,10 @@ class Structure(object):
         # if the modeled Jcoupling value is not specified, compute it from the
         # angle corresponding to the conformation, and the Karplus relation
         if model_Jcoupling == None:
-            ri, rj, rk, rl = [self.conf["XYZ"][x,:] for x in [i, j, k, l]]
+            try:
+                ri, rj, rk, rl = [self.conf["XYZ"][x,:] for x in [i, j, k, l]]
+            except:
+                ri, rj, rk, rl = [self.conf[0,x,:] for x in [i,j,k,l]]
             model_angle = self.dihedral_angle(ri,rj,rk,rl)
          
             ###########################
