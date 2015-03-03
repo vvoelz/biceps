@@ -1,0 +1,4 @@
+# no .pyc files
+*.pyc
+# no pycharm configure
+.idea
