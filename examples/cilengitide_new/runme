@@ -1,0 +1,12 @@
+#python sample_cilengitide.py 0.0  results_ref_normal 10000000
+#python sample_cilengitide.py 0.5  results_ref_normal 10000000
+#python sample_cilengitide.py 1.0  results_ref_normal 10000000
+#python calc_MBAR_fromresults.py results_ref_normal BF_ref_normal.dat populations_ref_normal.dat
+python plot_results.py results_ref_normal populations_ref_normal.dat
+
+#python sample_cilengitide.py 0.0  plainavg_ref_normal 10000000
+#python sample_cilengitide.py 0.5  plainavg_ref_normal 10000000
+#python sample_cilengitide.py 1.0  plainavg_ref_normal 10000000
+#python calc_MBAR_fromresults.py plainavg_ref_normal plainavg_BF_ref_normal.dat plainavg_populations_ref_normal.dat
+#python plot_results.py plainavg_ref_normal plainavg_populations_ref_normal.dat
+

@@ -1,0 +1,75 @@
+#atom1  #atom2  #1      #2      #avg    #low    #up     #pair   #1      #2
+ARG1HN	ARG1HA	1	3	0	217	300	1	
+ARG1HN	ARG1HB	1	5 	0	265	322	2		
+ARG1HN  ARG1HB  1       6       0       265     322     2
+ARG1HN	ARG1HG	1	8	0	271	346	3		
+ARG1HN  ARG1HG  1       9       0       271     346     3
+ARG1HA	ARG1HB	3	5 	0	217	265	4			
+ARG1HA  ARG1HB  3       6       0       217     265     4
+ARG1HA	ARG1HG	3	8	0	224	282	5				
+ARG1HA  ARG1HG  3       9       0       224     282     5
+ARG1HB	ARG1HD	5	11	0	199	243	6			
+ARG1HB  ARG1HD  5       12      0       199     243     6
+ARG1HB  ARG1HD  6       11      0       199     243     6
+ARG1HB  ARG1HD  6       12      0       199     243     6
+ARG1HN	GLY2HN	1	25	0	313	383	7			
+ARG1HN	VAL5HA	1	71	0	246	342	8			
+ARG1HN	VAL5HB	1	72 	0	266	349	9			
+ARG1HN	VAL5C	1	73	0	286	370	10		#PROrHG	
+ARG1HN  VAL5C   1       74      0       286     370     10              #PROrHG
+ARG1HN  VAL5C   1       75      0       286     370     10              #PROrHG
+ARG1HN	VAL5N	1	79	0	262	320	11		#(CH3)		
+ARG1HN  VAL5N   1       80      0       262     320     11              #(CH3)      
+ARG1HN  VAL5N   1       81      0       262     320     11              #(CH3)      
+ARG1HG	VAL5C	1	76	0	222	306	12		#proRHG	
+ARG1HG  VAL5C   1       77      0       222     306     12              #proRHG
+ARG1HG  VAL5C   1       78      0       222     306     12              #proRHG
+GLY2HN	ARG1HA	25	3	0	243	323	13				
+GLY2HN	ARG1HB	25	5 	0	299	410	14			
+GLY2HN  ARG1HB  25      6       0       299     410     14
+GLY2HN	ARG1HG	25	8	0	409	500	15			
+GLY2HN  ARG1HG  25      9       0       409     500     15
+GLY2HN	GLY2HA	25	27	0	242	329	16		#PROr		
+GLY2HN  GLY2HA  25      28      0       275     361     17              #PROs
+GLY2HN	VAL5N	25	79	0	385	503	18		#(CH3)	
+GLY2HN  VAL5N   25      80      0       385     503     18              #(CH3)  
+GLY2HN  VAL5N   25      81      0       385     503     18              #(CH3)  
+ASP3HN	GLY2HA  32	27	0	260	373	19		#PROr
+ASP3HN  GLY2HA  32      28      0       241     328     20              #PROs
+ASP3HN	ASP3HA	32	34	0	256	313	21			
+ASP3HN	ASP3HB	32	36	0	277	376	22		#PROr
+ASP3HN  ASP3HB  32      37      0       297     401     23              #PROs
+ASP3HN	PHE4HN	32	44	0	355	460	24	
+ASP3HN	VAL5N   32	79	0	384	480	25		#(CH3)
+ASP3HN  VAL5N   32      80      0       384     480     25              #(CH3)
+ASP3HN  VAL5N   32      81      0       384     480     25              #(CH3)
+PHE4HN	GLY2HA	44	27	0	392	479	26		#PROr	
+PHE4HN  GLY2HA  44      28      0       392     479     26              #PROr
+PHE4HN	ASP3HA	44	34	0	215	263	27				
+PHE4HN	ASP3HB  44	36	0	381	465	28		#PROr		
+PHE4HN  ASP3HB  44      37      0       371     453     29              #PROs
+PHE4HN	PHE4HA	44	46	0	275	349	30				
+PHE4HN	PHE4HB	44	48	0	227	295	31				
+PHE4HN  PHE4HB  44      49      0       227     295     31
+PHE4HN	PHE4HD	44	52	0	334	426	32				
+PHE4HA	PHE4HB	46	48 	0	215	301	33				
+PHE4HA  PHE4HB  46      49      0       215     301     33
+PHE4HN	VAL5HA	44	71	0	420	513	34			
+PHE4HN	VAL5N   44	79	0	327	435	35		#(CH3)	
+PHE4HN  VAL5N   44      80      0       327     435     35              #(CH3)
+PHE4HN  VAL5N   44      81      0       327     435     35              #(CH3)
+PHE4HA	VAL5N   46	79	0	210	276	36		#(CH3)	
+PHE4HA  VAL5N   46      80      0       210     276     36              #(CH3)
+PHE4HA  VAL5N   46      81      0       210     276     36              #(CH3)   
+PHE4HB	PHE4HD	48	52	0	211	257	37				
+PHE4HB  PHE4HD  49      52      0       211     257     37
+VAL5HA	VAL5HB	71	72	0	263	336	38				
+VAL5HA	VAL5C	71	76	0	220	302	39		#PRORHG		
+VAL5HA  VAL5C   71      77      0       220     302     39              #PRORHG
+VAL5HA  VAL5C   71      78      0       220     302     39              #PRORHG
+VAL5HA	VAL5C   71	73	0	221	286	40		#PROSHG		
+VAL5HA  VAL5C   71      74      0       221     286     40              #PROSHG
+VAL5HA  VAL5C   71      75      0       221     286     40              #PROSHG
+VAL5HB	VAL5N   72 	79	0	192	245	41		#(CH3)  
+VAL5HB  VAL5N   72      80      0       192     245     41              #(CH3)
+VAL5HB  VAL5N   72      81      0       192     245     41              #(CH3)
