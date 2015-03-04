@@ -52,9 +52,6 @@ Currently there is support for the following experimental observables:
   <li><i>cis</i>/<i>trans</i> amide equilibrium constants</li>
 </ol>
 
-$$ 
-P(\mathbf{Y} = \mathbf{y}|\mathbf{X}) = exp[{\theta } ^{T} g(\mathbf{y},\mathbf{X})]/k(\theta ) 
-$$
 
 <pre><code>$ cd your_repo_root/repo_name
 $ git fetch origin
@@ -82,10 +79,13 @@ $$
 P(X|D) \propto P(D|X) P(X)
 $$
 
-where <i>X</i> is one of a set of molecular conformations, and <i>D</i> represents the experimental data. <i>P(X)</i> is a prior probability function, calculated from the results of molecular simulation. <i>P(D|X)</i> is a likelihood function representing experimental restraints.
+where <i>X</i> is one of a set of molecular conformations, and <i>D</i> represents the experimental data. <i>P(X)</i> is a prior probability function, estimated from computational methods as the predicted equilibrium populations. <i>P(D|X)</i> is a likelihood function representing experimental restraints.
 
-<h4>Reference priors</h4>
+<h4>Restraints and reference priors</h4>
 
+<h4>MCMC sampling</h4>
+
+<h4>Estimating Bayes Factors</h4>
 
 <h3>
 <a id="publications" class="anchor" href="#publications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Publications featuring BICePs</h3>
