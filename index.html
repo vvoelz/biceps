@@ -52,26 +52,8 @@ Currently there is support for the following experimental observables:
   <li><i>cis</i>/<i>trans</i> amide equilibrium constants</li>
 </ol>
 
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
-
-
 <h3>
 <a id="theory" class="anchor" href="#theory" aria-hidden="true"><span class="octicon octicon-link"></span></a>Theory</h3>
-
-<!-- Here is an example MathJax inline rendering \\( 1/x^{2} \\), and here is a block rendering: 
-\\[ \frac{1}{n^{2}} \\]
--->
-
-<p>
-Here is an example MathJax inline rendering \\( 1/x^{2} \\), and here is a block rendering: 
-\\[ \frac{1}{n^{2}} \\]
-
-</p>
-
 
 <p>BICePs uses a Bayesian approach to infer a distribution of conformational populations, by sampling a posterior probability function</p>
 
@@ -79,9 +61,17 @@ $$
 P(X|D) \propto P(D|X) P(X)
 $$
 
-where <i>X</i> is one of a set of molecular conformations, and <i>D</i> represents the experimental data. <i>P(X)</i> is a prior probability function, estimated from computational methods as the predicted equilibrium populations. <i>P(D|X)</i> is a likelihood function representing experimental restraints.
+<p>where <i>X</i> is one of a set of molecular conformations, and <i>D</i> represents the experimental data. <i>P(X)</i> is a prior probability function, estimated from computational methods as the predicted equilibrium populations. <i>P(D|X)</i> is a likelihood function representing experimental restraints. We assume normally-distributed errors in the experimental measurements, parameterized by a standard deviation $\sigma$
+
+$$
+P(D | X, \sigma) = \prod_j \frac{1}{\sqrt{2 \pi \sigma^2}}\exp(-[r_j(X)-r^{exp}_j]^2/2\sigma^2)
+$$
+
+Since $\sigma$ is undetermined, we treat it as a nuisance parameter, including it in the joint posterior of possible $X$ and $\sigma$:
 
 <h4>Restraints and reference priors</h4>
+
+<p></p>
 
 <h4>MCMC sampling</h4>
 
