@@ -67,9 +67,16 @@ $$
 
 <p></p>Since \( \sigma \) is undetermined, we treat it as a nuisance parameter, including it in the joint posterior of possible \( X \) and \( \sigma \). </p>
 
-<h4>Reference priors</h4>
+<h4>Reference potentials</h4>
 
-<p></p>
+<p>To correctly use the likelihood model as experimental restraints, a proper reference potential must be used for the experimental observables</p>
+
+$$
+P(X|D) \propto \left[ \frac{P(\mathbf{r}(X)|D)}{P_{\text{ref}}(\mathbf{r}(X))} \right] P(X)
+$$
+The bracketed term is a potential of mean force (PMF) along the reaction coordinates defined by $\mathbf{r}(X)$.  
+
+The reference potential is needed to properly normalize the observed PMF. 
 
 <h4>MCMC sampling</h4>
 
