@@ -72,7 +72,7 @@ $$
 $$
 P(X|D) \propto \left[ \frac{P(\mathbf{r}(X)|D)}{P_{\text{ref}}(\mathbf{r}(X))} \right] P(X)
 $$
-<p>The bracketed term is a potential of mean force (PMF) along the reaction coordinates defined by \( \mathbf{r}(X) \).  The reference potential is needed to properly normalize the observed PMF.</p>
+<p>The bracketed term is a potential of mean force (PMF) along the reaction coordinates defined by \( \mathbf{r}(X) \).  The reference potential is needed to properly normalize the observed PMF.  For distances \( r_j \), we conservatively model the reference potentials \( P_{\text{ref}}(r_j(X)|\beta_j) \) as exponential distributions whose first moments \( \beta_j \) are set to the estimated mean distance across all conformational clusters.</p>
 
 <h4>MCMC sampling</h4>
 
@@ -98,7 +98,7 @@ $$
 \hat{g_k} = - \ln \sum_{j=1}^K \sum_{n=1}^{N_j} \frac{\exp\left[-E_i(x_{jn})\right]}{\sum_{k=1}^K N_k \exp\left[\hat{g_k} - E_k(x_{jn})\right]}
 $$
 
-<p>where \( x_{kn} \) is the \( n^{\text{th}} \) sample of \( (X,\sigma) \) from model \( M_k \).  We commonly want to compute \( K_{BF} \) in the case where \( M_2 \) is a "null distrubution" with no information from computation (i.e. a uniform \( P(X) \) ), and \( M_1 \) is the full posterior model.  In this case, we sample multiple ensembles using priors \( P_k(X)' \propto P(X)^{\lambda_k} \), for \( 0 \leq \lambda_k \leq 1 \).</p>
+<p>where \( x_{kn} \) is the \( n^{\text{th}} \) sample of \( (X,\sigma) \) from model \( M_k \).  We commonly want to compute \( K_{BF} \) in the case where \( M_2 \) is a "null distribution" with no information from computation (i.e. a uniform \( P(X) \) ), and \( M_1 \) is the full posterior model.  In this case, we sample multiple models \( M_k \) using priors \( P_k(X) \propto P(X)^{\lambda_k} \), for \( 0 \leq \lambda_k \leq 1 \).</p>
 
 <h3>
 <a id="publications" class="anchor" href="#publications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Publications featuring BICePs</h3>
