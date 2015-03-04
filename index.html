@@ -67,18 +67,42 @@ $$
 
 <h4>Reference potentials</h4>
 
-<p>To correctly use the likelihood model as experimental restraints, a proper reference potential must be used for the experimental observables \( \mathbf{r}(X) \)</p>
+<p>To correctly use the likelihood model as experimental restraints, a proper reference potential \( P_{\text{ref}}(\mathbf{r}(X)) \) must be used for the experimental observables \( \mathbf{r}(X) \)</p>
 
 $$
 P(X|D) \propto \left[ \frac{P(\mathbf{r}(X)|D)}{P_{\text{ref}}(\mathbf{r}(X))} \right] P(X)
 $$
-The bracketed term is a potential of mean force (PMF) along the reaction coordinates defined by \( \mathbf{r}(X) \).  
-
-The reference potential is needed to properly normalize the observed PMF. 
+<p>The bracketed term is a potential of mean force (PMF) along the reaction coordinates defined by \( \mathbf{r}(X) \).  The reference potential is needed to properly normalize the observed PMF.</p>
 
 <h4>MCMC sampling</h4>
 
+<p>Markov Chain Monte Carlo is used to sample from the posterior distribution of conformations \( X \) as well as nuisance parameter(s) \( \sigma \) (and, for distances, scaling parameters \( \gamma' \), see our Voelz JCC 2014 paper).</p>
+
 <h4>Estimating Bayes Factors</h4>
+
+<p>A major advantage of BICePs is the quantitative estimatation of the Bayes factor, $K_{BF}$, defined as</p>
+
+$$
+K_{BF} = \frac{P(D|M_1)}{P(D|M_2)} = \frac{\int P(\sigma,X|M_1)P(D|\sigma,X,M_1)}{\int P(\sigma,X|M_2)P(D|\sigma,X,M_2))}
+$$
+
+<p>The Bayes factor represents the strength of evidence in support of model $M_1$ over $M_2$, and is analogous to the likelihood ratio test used in classical hypothesis testing. Each integral is simply the expectation value of the posterior probability \( P(\sigma,X|D) \) for a given model over all values of \( \sigma, X \).  Thus, if we consider joint energy functions \( E_1 = -\ln P(\sigma,X|D, M_1) \) and \( E_2 = -\ln P(\sigma,X|D, M_2) \), the Bayes Factor is given by
+
+$$
+\ln K_{BF} = \ln \frac{\langle \exp(-E_1) \rangle_1}{\langle \exp(-E_2) \rangle_2}.
+$$
+
+<p>To efficiently compute \( K_{BF} \) where \( M_2 \) is a "null distrubution" with no information from computation (i.e. a uniform \( P(X) \) ), and \( M_1 \) is the full posterior model, we use the Multistate Bennett Acceptance Ratio (MBAR) method of Shirts and Chodera\cite{Shirts:2008ez} to estimate \( g_k = -\ln \langle \exp(-E_k) \rangle \) for any number of models \( M_k \), \( k=1,..,K \).   The MBAR estimate \( \hat{g_k} \) is obtained by solving the self-consistent set of equations</p>
+
+$$
+\hat{g_k} = - \ln \sum_{j=1}^K \sum_{n=1}^{N_j} \frac{\exp\left[-E_i(x_{jn})\right]}{\sum_{k=1}^K N_k \exp\left[\hat{g_k} - E_k(x_{jn})\right]}
+$$
+
+<p>where \( x_{kn} \) is the \( n^{\text{th}} \) sample of \( (X,\sigma) \) from model \( M_k \).</p>  
+
+
+<p>In some cases, we sample multiple ensembles using free energies $f_i' = \lambda f_i$, for $0 \leq \lambda \leq 1$, and use the MBAR algorithm\cite{Shirts:2008ez} to obtain estimates of conformational state populations $P_{\lambda}(X)$ with ($\lambda = 1$) and without information from computational modeling ($\lambda = 0$, i.e. a uniform prior $P(X)$).</p>
+
 
 <h3>
 <a id="publications" class="anchor" href="#publications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Publications featuring BICePs</h3>
@@ -105,12 +129,8 @@ Vincent A. Voelz and Guangfeng Zhou.  Journal of Computational Chemistry, 35(30)
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>BICePs is written and maintained by Vincent Voelz (<a href="https://github.com/vvoelz" class="user-mention">@voelz</a>), to whom you can send questions and comments.</p>
 
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="https://help.github.com/pages">https://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/vvoelz">vvoelz</a></p>
