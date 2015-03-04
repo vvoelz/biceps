@@ -11,6 +11,7 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
   </head>
   <body>
     <div class="wrapper">
@@ -31,26 +32,82 @@
         <h3>
 <a id="bayesian-inference-of-conformational-populations" class="anchor" href="#bayesian-inference-of-conformational-populations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bayesian inference of conformational populations</h3>
 
-<p>Bayesian inference of conformational populations (BICePs)</p>
+<p>Bayesian inference of conformational populations (BICePs) uses Bayesian inference to optimally combine computational predictions and experimental measurements to estimate conformational state populations. Features of BICePs include:</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<ul>
+  <li>Correct use of reference priors</li>
+  <li>MCMC sampling of the posterior distribution of states, along with nuisance parameters</li>
+  <li>Estimation of Bayes Factors for model selection</li>
+    
+</ul>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+Currently there is support for the following experimental observables:
+<ol>
+  <li>NOE distances</li>
+  <li>J-coupling constants</li>
+  <li><i>cis</i>/<i>trans</i> amide equilibrium constants</li>
+</ol>
 
 <h3>
 <a id="theory" class="anchor" href="#theory" aria-hidden="true"><span class="octicon octicon-link"></span></a>Theory</h3>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>BICePs uses a Bayesian approach to infer a distribution of conformational populations, by sampling a posterior probability function</p>
+
+$$
+P(X|D) \propto P(D|X) P(X)
+$$
+
+<p>where \( X \) is one of a set of molecular conformations, and \( D \) represents the experimental data. \( P(X) \) is a prior probability function, estimated from computational methods as the predicted equilibrium populations. \( P(D|X) \) is a likelihood function representing experimental restraints. We assume normally-distributed errors in the experimental measurements, parameterized by a standard deviation \( \sigma \) </p>
+
+$$
+P(D | X, \sigma) = \prod_j \frac{1}{\sqrt{2 \pi \sigma^2}}\exp(-[r_j(X)-r^{exp}_j]^2/2\sigma^2)
+$$
+
+<p></p>Since \( \sigma \) is undetermined, we treat it as a nuisance parameter, including it in the joint posterior of possible \( X \) and \( \sigma \). </p>
+
+<h4>Reference potentials</h4>
+
+<p>To correctly use the likelihood model as experimental restraints, a proper reference potential \( P_{\text{ref}}(\mathbf{r}(X)) \) must be used for the experimental observables \( \mathbf{r}(X) \)</p>
+
+$$
+P(X|D) \propto \left[ \frac{P(\mathbf{r}(X)|D)}{P_{\text{ref}}(\mathbf{r}(X))} \right] P(X)
+$$
+<p>The bracketed term is a potential of mean force (PMF) along the reaction coordinates defined by \( \mathbf{r}(X) \).  The reference potential is needed to properly normalize the observed PMF.  For distances \( r_j \), we conservatively model the reference potentials \( P_{\text{ref}}(r_j(X)|\beta_j) \) as exponential distributions whose first moments \( \beta_j \) are set to the estimated mean distance across all conformational clusters.</p>
+
+<h4>MCMC sampling</h4>
+
+<p>Markov Chain Monte Carlo is used to sample from the posterior distribution of conformations \( X \) as well as nuisance parameter(s) \( \sigma \) (and, for distances, scaling parameters \( \gamma' \), see our Voelz JCC 2014 paper).</p>
+
+<h4>Estimating Bayes Factors</h4>
+
+<p>A major advantage of BICePs is the quantitative estimatation of the Bayes factor, \( K_{BF} \), defined as</p>
+
+$$
+K_{BF} = \frac{P(D|M_1)}{P(D|M_2)} = \frac{\int P(\sigma,X|M_1)P(D|\sigma,X,M_1)}{\int P(\sigma,X|M_2)P(D|\sigma,X,M_2))}
+$$
+
+<p>The Bayes factor represents the strength of evidence in support of model \( M_1 \) over \( M_2 \), and is analogous to the likelihood ratio test used in classical hypothesis testing. Each integral is simply the expectation value of the posterior probability \( P(\sigma,X|D) \) for a given model over all values of \( \sigma, X \).  Thus, if we consider joint energy functions \( E_1 = -\ln P(\sigma,X|D, M_1) \) and \( E_2 = -\ln P(\sigma,X|D, M_2) \), the Bayes Factor is given by
+
+$$
+\ln K_{BF} = \ln \frac{\langle \exp(-E_1) \rangle_1}{\langle \exp(-E_2) \rangle_2}.
+$$
+
+<p>To efficiently compute \( K_{BF} \), we use the Multistate Bennett Acceptance Ratio (MBAR) method of Shirts and Chodera\cite{Shirts:2008ez} to estimate \( g_k = -\ln \langle \exp(-E_k) \rangle \) for any number of models \( M_k \), \( k=1,..,K \).   The MBAR estimate \( \hat{g_k} \) is obtained by solving the self-consistent set of equations</p>
+
+$$
+\hat{g_k} = - \ln \sum_{j=1}^K \sum_{n=1}^{N_j} \frac{\exp\left[-E_i(x_{jn})\right]}{\sum_{k=1}^K N_k \exp\left[\hat{g_k} - E_k(x_{jn})\right]}
+$$
+
+<p>where \( x_{kn} \) is the \( n^{\text{th}} \) sample of \( (X,\sigma) \) from model \( M_k \).  We commonly want to compute \( K_{BF} \) in the case where \( M_2 \) is a "null distribution" with no information from computation (i.e. a uniform \( P(X) \) ), and \( M_1 \) is the full posterior model.  In this case, we sample multiple models \( M_k \) using priors \( P_k(X) \propto P(X)^{\lambda_k} \), for \( 0 \leq \lambda_k \leq 1 \).</p>
 
 <h3>
-<a id="publications" class="anchor" href="#publications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Publications</h3>
+<a id="publications" class="anchor" href="#publications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Publications featuring BICePs</h3>
 
 <ul>
   <li>Leveraging sparse experimental observables with Bayesian inference: application of BICePs to molecular simulation of peptidomimetics.  Sudipto Mukherjee, Guangfeng Zhou, Christopher Michel and Vincent A Voelz. <i>Submitted</i> (2015)</li>
   <li>Molecular simulation of conformational pre-organization in cyclic RGD peptides.  Amanda E. Wakefield, William M. Wuest, and Vincent A. Voelz. <i>Submitted</i> (2014)</li>
+  <li>Bayesian inference of conformational state populations from computational models and sparse experimental observables
+Vincent A. Voelz and Guangfeng Zhou.  Journal of Computational Chemistry, 35(30):2215–2224 (2014)</li>
 </ul>
 
 
@@ -68,12 +125,8 @@ Vincent A. Voelz and Guangfeng Zhou.  Journal of Computational Chemistry, 35(30)
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>BICePs is written and maintained by Vincent Voelz (<a href="https://github.com/vvoelz" class="user-mention">@vvoelz</a>), to whom you can send questions and comments.</p>
 
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="https://help.github.com/pages">https://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/vvoelz">vvoelz</a></p>
