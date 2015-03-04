@@ -32,9 +32,7 @@
         <h3>
 <a id="bayesian-inference-of-conformational-populations" class="anchor" href="#bayesian-inference-of-conformational-populations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bayesian inference of conformational populations</h3>
 
-<p>Bayesian inference of conformational populations (BICePs)</p>
-
-<p>BICePs uses Bayesian inference to optimally combine computational predictions and experimental measurements to estimate conformational state populations. Features of BICePs include:</p>
+<p>Bayesian inference of conformational populations (BICePs) uses Bayesian inference to optimally combine computational predictions and experimental measurements to estimate conformational state populations. Features of BICePs include:</p>
 
 <ul>
   <li>Correct use of reference priors</li>
@@ -69,12 +67,12 @@ $$
 
 <h4>Reference potentials</h4>
 
-<p>To correctly use the likelihood model as experimental restraints, a proper reference potential must be used for the experimental observables</p>
+<p>To correctly use the likelihood model as experimental restraints, a proper reference potential must be used for the experimental observables \( \mathbf{r}(X) \)</p>
 
 $$
 P(X|D) \propto \left[ \frac{P(\mathbf{r}(X)|D)}{P_{\text{ref}}(\mathbf{r}(X))} \right] P(X)
 $$
-The bracketed term is a potential of mean force (PMF) along the reaction coordinates defined by $\mathbf{r}(X)$.  
+The bracketed term is a potential of mean force (PMF) along the reaction coordinates defined by \( \mathbf{r}(X) \).  
 
 The reference potential is needed to properly normalize the observed PMF. 
 
