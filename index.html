@@ -59,13 +59,13 @@ $$
 P(X|D) \propto P(D|X) P(X)
 $$
 
-<p>where <i>X</i> is one of a set of molecular conformations, and <i>D</i> represents the experimental data. <i>P(X)</i> is a prior probability function, estimated from computational methods as the predicted equilibrium populations. <i>P(D|X)</i> is a likelihood function representing experimental restraints. We assume normally-distributed errors in the experimental measurements, parameterized by a standard deviation \(( sigma \))
+<p>where <i>X</i> is one of a set of molecular conformations, and <i>D</i> represents the experimental data. \(( P(X) \)) is a prior probability function, estimated from computational methods as the predicted equilibrium populations. <i>P(D|X)</i> is a likelihood function representing experimental restraints. We assume normally-distributed errors in the experimental measurements, parameterized by a standard deviation \(( \sigma \))
 
 $$
 P(D | X, \sigma) = \prod_j \frac{1}{\sqrt{2 \pi \sigma^2}}\exp(-[r_j(X)-r^{exp}_j]^2/2\sigma^2)
 $$
 
-Since $\sigma$ is undetermined, we treat it as a nuisance parameter, including it in the joint posterior of possible $X$ and $\sigma$:
+Since \(( \sigma \)) is undetermined, we treat it as a nuisance parameter, including it in the joint posterior of possible \(( X \)) and \(( \sigma \)):
 
 <h4>Restraints and reference priors</h4>
 
