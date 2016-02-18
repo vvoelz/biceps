@@ -1,0 +1,106 @@
+!See Lecomte et al., Protein Science 1999, 8:1484–1491
+!residue    2
+assign (resid    1 and name c ) (resid    2 and name n )
+       (resid    2 and name ca) (resid    2 and name c ) 1.0 -130.0 50.0 2
+!residue    4
+assign (resid    3 and name c ) (resid    4 and name n )
+       (resid    4 and name ca) (resid    4 and name c ) 1.0  -50.0 40.0 2
+!residue    6
+assign (resid    5 and name c ) (resid    6 and name n )
+       (resid    6 and name ca) (resid    6 and name c ) 1.0  -50.0 40.0 2
+!residue    14
+assign (resid   13 and name c ) (resid   14 and name n )
+       (resid   14 and name ca) (resid   14 and name c ) 1.0  -50.0 40.0 2
+!residue    15
+assign (resid   14 and name c ) (resid   15 and name n )
+       (resid   15 and name ca) (resid   15 and name c ) 1.0  -50.0 40.0 2
+!residue    16
+assign (resid   15 and name c ) (resid   16 and name n )
+       (resid   16 and name ca) (resid   16 and name c ) 1.0  -50.0 40.0 2
+!residue    17
+assign (resid   16 and name c ) (resid   17 and name n )
+       (resid   17 and name ca) (resid   17 and name c ) 1.0  -50.0 40.0 2
+!residue    18
+assign (resid   17 and name c ) (resid   18 and name n )
+       (resid   18 and name ca) (resid   18 and name c ) 1.0  -50.0 40.0 2
+!residue    19
+assign (resid   18 and name c ) (resid   19 and name n )
+       (resid   19 and name ca) (resid   19 and name c ) 1.0  -50.0 40.0 2
+!residue    20
+!assign (resid   19 and name c ) (resid   20 and name n )
+!       (resid   20 and name ca) (resid   20 and name c ) 1.0  -50.0 40.0 2
+!residue    22
+assign (resid   21 and name c ) (resid   22 and name n )
+       (resid   22 and name ca) (resid   22 and name c ) 1.0  -50.0 40.0 2
+!residue    34
+assign (resid   33 and name c ) (resid   34 and name n )
+       (resid   34 and name ca) (resid   34 and name c ) 1.0  -50.0 40.0 2
+!residue    39
+assign (resid   38 and name c ) (resid   39 and name n )
+       (resid   39 and name ca) (resid   39 and name c ) 1.0 -130.0 50.0 2
+!residue    42
+!assign (resid   41 and name c ) (resid   42 and name n )
+!       (resid   42 and name ca) (resid   42 and name c ) 1.0 -130.0 50.0 2
+!residue    43
+assign (resid   42 and name c ) (resid   43 and name n )
+       (resid   43 and name ca) (resid   43 and name c ) 1.0 -130.0 50.0 2
+!residue    46
+assign (resid   45 and name c ) (resid   46 and name n )
+       (resid   46 and name ca) (resid   46 and name c ) 1.0 -130.0 50.0 2
+!residue    51
+assign (resid   50 and name c ) (resid   51 and name n )
+       (resid   51 and name ca) (resid   51 and name c ) 1.0 -130.0 50.0 2
+!residue    54
+assign (resid   53 and name c ) (resid   54 and name n )
+       (resid   54 and name ca) (resid   54 and name c ) 1.0  -50.0 40.0 2
+!residue    55
+assign (resid   54 and name c ) (resid   55 and name n )
+       (resid   55 and name ca) (resid   55 and name c ) 1.0  -50.0 40.0 2
+!residue    58
+assign (resid   57 and name c ) (resid   58 and name n )
+       (resid   58 and name ca) (resid   58 and name c ) 1.0  -50.0 40.0 2
+!residue    60
+assign (resid   59 and name c ) (resid   60 and name n )
+       (resid   60 and name ca) (resid   60 and name c ) 1.0  -50.0 40.0 2
+!residue    62
+assign (resid   61 and name c ) (resid   62 and name n )
+       (resid   62 and name ca) (resid   62 and name c ) 1.0  -50.0 40.0 2
+!residue    63
+assign (resid   62 and name c ) (resid   63 and name n )
+       (resid   63 and name ca) (resid   63 and name c ) 1.0  -50.0 40.0 2
+!residue    64
+assign (resid   63 and name c ) (resid   64 and name n )
+       (resid   64 and name ca) (resid   64 and name c ) 1.0  -50.0 40.0 2
+!residue    67
+assign (resid   66 and name c ) (resid   67 and name n )
+       (resid   67 and name ca) (resid   67 and name c ) 1.0  -50.0 40.0 2
+!residue    68
+assign (resid   67 and name c ) (resid   68 and name n )
+       (resid   68 and name ca) (resid   68 and name c ) 1.0  -50.0 40.0 2
+!residue    71
+assign (resid   70 and name c ) (resid   71 and name n )
+       (resid   71 and name ca) (resid   71 and name c ) 1.0  -50.0 40.0 2
+!residue    75
+!assign (resid   74 and name c ) (resid   75 and name n )
+!       (resid   75 and name ca) (resid   75 and name c ) 1.0 -130.0 50.0 2
+!residue   116
+assign (resid  115 and name c ) (resid  116 and name n )
+       (resid  116 and name ca) (resid  116 and name c ) 1.0  -50.0 40.0 2
+!residue   117
+assign (resid  116 and name c ) (resid  117 and name n )
+       (resid  117 and name ca) (resid  117 and name c ) 1.0  -50.0 40.0 2
+!residue   118
+assign (resid  117 and name c ) (resid  118 and name n )
+       (resid  118 and name ca) (resid  118 and name c ) 1.0  -50.0 40.0 2
+!residue   119
+assign (resid  118 and name c ) (resid  119 and name n )
+       (resid  119 and name ca) (resid  119 and name c ) 1.0 -130.0 50.0 2
+!residue   123
+assign (resid  122 and name c ) (resid  123 and name n )
+       (resid  123 and name ca) (resid  123 and name c ) 1.0 -130.0 50.0 2
+!residue   127
+assign (resid  126 and name c ) (resid  127 and name n )
+       (resid  127 and name ca) (resid  127 and name c ) 1.0  -50.0 40.0 2
+!residue   130
+assign (resid  129 and name c ) (resid  130 and name n )
+       (resid  130 and name ca) (resid  130 and name c ) 1.0  -50.0 40.0 2

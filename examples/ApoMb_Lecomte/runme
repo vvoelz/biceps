@@ -1,0 +1,2 @@
+python convert_xplor_to_biceps.py ApoMb_Lecomte/apomb_distances_reformat.tbl ApoMb_Lecomte/deposit_reformat.pdb > apomb_distances.biceps
+
