@@ -1,0 +1,8 @@
+# Make a text file "atom_pair_indices.dat" containing the atom pair indices for each NOE distance
+# NOTE these values are taken from  NOE/ind.txt 
+python make_atom_pair_indices.py
+
+# By hand, copy and paste <r^-6>^-1/6  from exp (nm) from noe_total.xlsx
+# into "noe_distances.txt"
+
+
