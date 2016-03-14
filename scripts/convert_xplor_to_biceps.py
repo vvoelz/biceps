@@ -38,6 +38,9 @@
 import os, sys, string
 import mdtraj as md
 
+sys.path.append('../src')
+from RestraintFile import *
+
 usage = """Usage: python convert_xplor_to_biceps.py xplorfile pdbfile
 
     REQUIRED INPUTS
@@ -121,35 +124,6 @@ def indices_from_xplor_selection(sel, topology):
 
     return Ind
 
-
-def biceps_restraint_line(restraint_index, i, j, topology, distance):
-    """Returns a formatted string for a line in BICePs restraint file.
-
-    0             restraint_index
-    1             atom index 1
-    2             residue 1
-    3             atom name 1
-    4             atom index 2
-    5             residue 2
-    6             atom name 2
-    7             distance (in Angstroms)
-    """
-
-    resname1  = [atom.residue for atom in topology.atoms if atom.index == i][0]
-    atomname1 = [atom.name for atom in topology.atoms if atom.index == i][0]
-
-    resname2  = [atom.residue for atom in topology.atoms if atom.index == j][0]
-    atomname2 = [atom.name for atom in topology.atoms if atom.index == j][0]
-
-    #resname1, atomname1 = topology.atoms[i].residue, topology.atoms[i].name
-    #resname2, atomname2 = topology.atoms[j].residue, topology.atoms[j].name
-
-    return '%-8d     %-8d %-8s %-8s     %-8d %-8s %-8s     %8.3f'%(restraint_index, i, resname1, atomname1, j, resname2, atomname2, distance) 
-
-def biceps_restraint_line_header():
-    """Returns a header string the the biceps restraint file."""
-
-    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'atom_index2', 'res2', 'atom_name2', 'distance(A)'], ' ')
 
 
 ### PARSE the XPLOR distance restraint file

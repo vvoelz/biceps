@@ -1,5 +1,37 @@
-import os, sys glob
+import os, sys, glob, string
 import numpy as np
+
+
+# NOTES on BICePs restraint format:
+#
+# FORMAT
+# column        description
+#
+# 0             restraint index
+#
+# 1             atom index 1
+# 2             residue 1
+# 3             atom name 1
+#
+# 4             atom index 2
+# 5             residue 2
+# 6             atom name 2
+#
+# 7             distance (in Angstroms)
+#
+# 
+# EQUIVALENT PROTONS
+# Multiple restraints can share the same restraint index -- this means they are equivalent protons
+# 
+# AMBIGUOUS ASSIGNMENTS
+# There may be two (or more) sets of protons assigned different distances, but we don't know which is which.
+# BICePs has limited capabilities to deal with this situation, with the ambiguous restraint info read in separately.
+#
+# UPPER and LOWER BOUNDS
+# BICePs restraints do not have upper/lower bounds, only a mean distance value.  Any values specified in  
+# XPLOR/CNS files are ignored.
+
+
 
 def biceps_restraint_line(restraint_index, i, j, topology, distance):
     """Returns a formatted string for a line in BICePs restraint file.
@@ -23,7 +55,7 @@ def biceps_restraint_line(restraint_index, i, j, topology, distance):
     #resname1, atomname1 = topology.atoms[i].residue, topology.atoms[i].name
     #resname2, atomname2 = topology.atoms[j].residue, topology.atoms[j].name
 
-    return '%-8d     %-8d %-8s %-8s     %-8d %-8s %-8s     %8.3f'%(restraint_index, i, resname1, atomname1, j, resname2, atomname2, distance) 
+    return '%-8d     %-8d %-8s %-8s     %-8d %-8s %-8s     %8.4f'%(restraint_index, i, resname1, atomname1, j, resname2, atomname2, distance) 
 
 
 def biceps_restraint_line_header():
@@ -59,7 +91,7 @@ class RestraintFile(object):
             self.header = lines.pop(0).strip()
 
         # store other '#' lines as comments
-        while lines[0][0] == '#'
+        while lines[0][0] == '#':
             self.comments.append( lines.pop(0).strip() )
 
         # read the other lines 
@@ -67,7 +99,7 @@ class RestraintFile(object):
             self.lines.append( lines.pop(0).strip() )
 
 
-    def write(self, filename):
+    def write(self, filename, verbose=True):
         """Write stored BICePs restraint information to file."""
 
         fout = open(filename, 'w')
@@ -76,7 +108,15 @@ class RestraintFile(object):
             fout.write(line+'\n')
         for line in self.lines:
             fout.write(line+'\n')
+        fout.close()
 
+        print 'Wrote', filename
+
+
+    def add_line(self, restraint_index, i, j, topology, distance):
+        """Add a line to the BICePs file."""
+
+        self.lines.append(biceps_restraint_line(restraint_index, i, j, topology, distance))
 
     def parse_line(line):
         """Parse a BICePs data line and return the values
