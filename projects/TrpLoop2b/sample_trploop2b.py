@@ -49,33 +49,39 @@ if not os.path.exists(args.outdir):
 
 # exp data
 #expdata_filename = 'cilengitide_NOE_Data_VAV_USETHIS.yaml'
-expdata_filename = 'cilengitide_NOE_Data_VAV_USETHIS_plainavg.yaml'
-
+#expdata_filename = 'cilengitide_NOE_Data_VAV_USETHIS_plainavg.yaml'
+expdata_filename='trploop2b.biceps' #GYH:how to read this .biceps file?
 
 # model energies
 if (1):
-    nclusters = 100
-    energies_filename = 'updated/reduced_free_energies.dat'
-    energies = loadtxt(energies_filename)
-    print 'energies.shape', energies.shape
-    energies -= energies.min()  # set ground state to zero, just in case
+    nclusters = 250
+#    energies_filename = 'updated/reduced_free_energies.dat'
+#    energies = loadtxt(energies_filename)
+#    print 'energies.shape', energies.shape
+#    energies -= energies.min()  # set ground state to zero, just in case
 
 
 if (1):
     # model distances 
-    model_distances = loadtxt('updated_VAV/minus6distances-for-%d.dat'%nclusters)**(-1./6.)
+    model_distances = loadtxt('NOE/rminus6_state%d'%nclusters) #GYH:We have rminus6 data already
     print 'model_distances.shape', model_distances.shape
     print 'model_distances', model_distances
 
     # There are 41 distances, but these are averaged over equivalent pairs!
     model_distance_column_index = []  # a lookup table for which column to use in model_distances
-    fin = open('rgdf_nmev_NOE_Data_VAV_USETHIS.dat','r')
-    lines = fin.readlines()
+#    fin = open('rgdf_nmev_NOE_Data_VAV_USETHIS.dat','r')
+#    lines = fin.readlines()
+#    for line in lines:
+#        if line[0] != '#':
+#            fields = line.split()
+#            if len(fields) > 7:
+#                model_distance_column_index.append( int(fields[7])-1 )
+    fin=open('noe_distances.txt','r')
+    lines=fin.readlines()
     for line in lines:
         if line[0] != '#':
-            fields = line.split()
-            if len(fields) > 7:
-                model_distance_column_index.append( int(fields[7])-1 )
+            fields=line.split()
+             model_distance_column_index.append(int(fields[0]))
     print 'len(model_distance_column_index)', len(model_distance_column_index)
     print model_distance_column_index
 
