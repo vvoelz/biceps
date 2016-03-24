@@ -6,6 +6,7 @@ import mdtraj
 import yaml
 
 from KarplusRelation import *
+from RestraintFile import *
 
 
 class Structure(object):
@@ -75,7 +76,56 @@ class Structure(object):
 
 
     def load_expdata(self, filename, verbose=False):
-        """Load in the experimental NOE distance and J-coupling data from a YAML file format."""
+        """Load in the experimental NOE distance restraints from a .biceps file format.
+
+        NOTE: J-coupling and other restraints are not yet supported in the *.biceps file format. VAV 3/2016"""
+
+        # Read in the lines of the biceps data file
+        b = RestraintFile(filename=filename)
+        data = []
+        for line in b.lines:
+            data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
+         
+        if verbose:
+            print 'Loaded from', filename, ':'
+            for entry in data:
+                print entry
+
+        ### distances ###
+
+        # the equivalency indices for distances are in the first column of the *.biceps file
+        equivalency_indices = [entry[0] for entry in data]
+        if verbose:
+            print 'distance equivalency_indices', equivalency_indices
+
+        # compile ambiguity indices for distances
+        """ ### not yet supported ###
+        
+          for pair in data['NOE_Ambiguous']:
+            # NOTE a pair of multiple distance pairs
+            list1, list2 = pair[0], pair[1]
+            # find the indices of the distances pairs that are ambiguous
+            pair_indices1 = [ data['NOE_PairIndex'].index(p) for p in list1]
+            pair_indices2 = [ data['NOE_PairIndex'].index(p) for p in list2]
+            self.ambiguous_groups.append( [pair_indices1, pair_indices2] )
+          if verbose:
+            print 'distance ambiguous_groups', self.ambiguous_groups
+        except:
+            print 'Problem reading distance ambiguous_groups.  Setting to default: no ambiguous groups.'
+        """
+
+        # add the distance restraints
+        for entry in data:
+            restraint_index, i, j, exp_distance = entry[0], entry[1], entry[4], entry[7]
+            self.add_distance_restraint(i, j, exp_distance, model_distance=None, equivalency_index=restraint_index)
+
+        # build groups of equivalency group indices, ambiguous group etc.
+        self.build_groups()
+
+
+
+    def load_expdata_yaml(self, filename, verbose=False):
+        """Load in the experimental NOE distances from and J-coupling data from a YAML file format."""
 
         # Read in the YAML data as a dictionary
         stream = file(filename, 'r')
