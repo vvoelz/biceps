@@ -47,9 +47,7 @@ if not os.path.exists(args.outdir):
 #########################################
 # Let's create our ensemble of structures
 
-# exp data
-#expdata_filename = 'cilengitide_NOE_Data_VAV_USETHIS.yaml'
-#expdata_filename = 'cilengitide_NOE_Data_VAV_USETHIS_plainavg.yaml'
+# experimental restraints 
 expdata_filename='trploop2b.biceps' #GYH:how to read this .biceps file?
 
 # model energies
@@ -67,27 +65,11 @@ if (1):
     print 'model_distances.shape', model_distances.shape
     print 'model_distances', model_distances
 
-    # There are 41 distances, but these are averaged over equivalent pairs!
-    model_distance_column_index = []  # a lookup table for which column to use in model_distances
-#    fin = open('rgdf_nmev_NOE_Data_VAV_USETHIS.dat','r')
-#    lines = fin.readlines()
-#    for line in lines:
-#        if line[0] != '#':
-#            fields = line.split()
-#            if len(fields) > 7:
-#                model_distance_column_index.append( int(fields[7])-1 )
-    fin=open('noe_distances.txt','r')
-    lines=fin.readlines()
-    for line in lines:
-        if line[0] != '#':
-            fields=line.split()
-             model_distance_column_index.append(int(fields[0]))
-    print 'len(model_distance_column_index)', len(model_distance_column_index)
-    print model_distance_column_index
-
 ############
 
+# We will instantiate a number of Structure() objects to construct the ensemble
 ensemble = []
+
 for i in range(nclusters):
 
     print
@@ -97,14 +79,18 @@ for i in range(nclusters):
     # QM + exp               --> lam = 1.0
     ## s = Structure('gens-pdb-kcenters-dih-1.8/Gen%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False)
     s = Structure('updated/Gens/Gen%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False)
-    # upon instantiation, the distances get computed from the structure, but these are clusters so
-    # we need to replace these values with our own r^-6-averaged, precomputed ones
 
+    # NOTE: Upon instantiation, each Structure() object computes the distances from the given PDB.
+    #       However, our clusters represent averaged conformation states, and so we   
+    #       need to replace these values with our own r^-6-averaged, precomputed ones
+
+    # replace PDB distances with r^-6-averaged distances
     print 'len(s.distance_restraints)', len(s.distance_restraints)
     for j in range(len(s.distance_restraints)):
-        #print 'i', i, 'j', j, 'model_distance_column_index[j]', model_distance_column_index[j]
-        print s.distance_restraints[j].i, s.distance_restraints[j].j, model_distance_column_index[j]
-        s.distance_restraints[j].model_distance = model_distances[i,model_distance_column_index[j]]
+        print s.distance_restraints[j].i, s.distance_restraints[j].j, model_distances[j]
+        s.distance_restraints[j].model_distance = model_distances[j]
+
+    # add the structure to the ensemble
     ensemble.append( s )
 
 # Print out the agreement for model 53 (highest-pop)
