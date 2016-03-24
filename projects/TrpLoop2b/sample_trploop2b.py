@@ -52,7 +52,7 @@ expdata_filename='trploop2b.biceps' #GYH:how to read this .biceps file?
 
 # model energies
 if (1):
-    nclusters = 250
+    nclusters = 249
 #    energies_filename = 'updated/reduced_free_energies.dat'
 #    energies = loadtxt(energies_filename)
 #    print 'energies.shape', energies.shape
@@ -61,7 +61,7 @@ if (1):
 
 if (1):
     # model distances 
-    model_distances = loadtxt('NOE/rminus6_state%d'%nclusters) #GYH:We have rminus6 data already
+    model_distances = loadtxt('NOE/rminus6_state%d.txt'%nclusters) #GYH:We have rminus6 data already
     print 'model_distances.shape', model_distances.shape
     print 'model_distances', model_distances
 
