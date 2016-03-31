@@ -53,15 +53,15 @@ expdata_filename='trploop2b.biceps' #GYH:how to read this .biceps file?
 # model energies
 if (1):
     nclusters = 249
-#    energies_filename = 'updated/reduced_free_energies.dat'
-#    energies = loadtxt(energies_filename)
-#    print 'energies.shape', energies.shape
-#    energies -= energies.min()  # set ground state to zero, just in case
+    energies_filename = 'energy.txt'
+    energies = loadtxt(energies_filename)
+    print 'energies.shape', energies.shape
+    energies -= energies.min()  # set ground state to zero, just in case
 
 
 if (1):
     # model distances 
-    model_distances = loadtxt('NOE/rminus6_state%d.txt'%nclusters) #GYH:We have rminus6 data already
+    model_distances = loadtxt('NOE/rminus6_whole_state%d.txt'%nclusters) #GYH:We have rminus6 data already
     print 'model_distances.shape', model_distances.shape
     print 'model_distances', model_distances
 
@@ -70,7 +70,7 @@ if (1):
 # We will instantiate a number of Structure() objects to construct the ensemble
 ensemble = []
 
-for i in range(nclusters):
+for i in range(nclusters+1):
 
     print
     print '#### STRUCTURE %d ####'%i
@@ -78,7 +78,7 @@ for i in range(nclusters):
     # no information from QM --> lam = 0.0
     # QM + exp               --> lam = 1.0
     ## s = Structure('gens-pdb-kcenters-dih-1.8/Gen%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False)
-    s = Structure('updated/Gens/Gen%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False)
+    s = Structure('Gens/Gens%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False)
 
     # NOTE: Upon instantiation, each Structure() object computes the distances from the given PDB.
     #       However, our clusters represent averaged conformation states, and so we   
@@ -122,7 +122,7 @@ if (0):
 
 else:
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True, sample_ambiguous_distances=False)
-  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.02), sigma_noe_min=0.05, sigma_noe_max=5.0,
+  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=0.05, sigma_noe_max=25.0,
                                  dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
                                  dloggamma=np.log(1.01), gamma_min=0.5, gamma_max=2.0,
                                  use_reference_prior=not(args.noref), sample_ambiguous_distances=False)
