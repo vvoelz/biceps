@@ -43,27 +43,26 @@ if not os.path.exists(args.outdir):
     os.mkdir(args.outdir)
 
 
-
 #########################################
 # Let's create our ensemble of structures
 
 # experimental restraints 
-expdata_filename='trploop2b.biceps' #GYH:how to read this .biceps file?
+expdata_filename='trploop2b.biceps' 
 
 # model energies
 if (1):
     nclusters = 249
     energies_filename = 'energy.txt'
     energies = loadtxt(energies_filename)
-    print 'energies.shape', energies.shape
+ #   print 'energies.shape', energies.shape
     energies -= energies.min()  # set ground state to zero, just in case
 
 
-if (1):
+#if (1):
     # model distances 
-    model_distances = loadtxt('NOE/rminus6_whole_state%d.txt'%nclusters) #GYH:We have rminus6 data already
-    print 'model_distances.shape', model_distances.shape
-    print 'model_distances', model_distances
+#    model_distances = loadtxt('NOE/rminus6_whole_state0.txt')  #GYH:We have rminus6 data already
+#    print 'model_distances.shape', model_distances.shape
+#    print 'model_distances', model_distances
 
 ############
 
@@ -78,7 +77,8 @@ for i in range(nclusters+1):
     # no information from QM --> lam = 0.0
     # QM + exp               --> lam = 1.0
     ## s = Structure('gens-pdb-kcenters-dih-1.8/Gen%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False)
-    s = Structure('Gens/Gens%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False)
+    model_distances = loadtxt('NOE/rminus6_whole_state%d.txt'%i)*10.0 # convert to A
+    s = Structure('Gens/Gens%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0)
 
     # NOTE: Upon instantiation, each Structure() object computes the distances from the given PDB.
     #       However, our clusters represent averaged conformation states, and so we   
@@ -94,11 +94,11 @@ for i in range(nclusters+1):
     ensemble.append( s )
 
 # Print out the agreement for model 53 (highest-pop)
-for drest in ensemble[53].distance_restraints:
-    print 'state 53 d[ %d - %d ] ='%(drest.i, drest.j), drest.model_distance, 'd_exp =', drest.exp_distance
+#for drest in ensemble[53].distance_restraints:
+#    print 'state 53 d[ %d - %d ] ='%(drest.i, drest.j), drest.model_distance, 'd_exp =', drest.exp_distance
 
-model_distances = [drest.model_distance for drest in ensemble[53].distance_restraints]
-exp_distances = [drest.exp_distance for drest in ensemble[53].distance_restraints]
+#model_distances = [drest.model_distance for drest in ensemble[53].distance_restraints]
+#exp_distances = [drest.exp_distance for drest in ensemble[53].distance_restraints]
 
 if (0):
   plt.figure()
@@ -122,14 +122,12 @@ if (0):
 
 else:
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True, sample_ambiguous_distances=False)
-  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=0.05, sigma_noe_max=25.0,
+  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=1.00, sigma_noe_max=20.0,
                                  dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
-                                 dloggamma=np.log(1.01), gamma_min=0.5, gamma_max=2.0,
+                                 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0,
                                  use_reference_prior=not(args.noref), sample_ambiguous_distances=False)
-
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True)
   sampler.sample(args.nsteps)  # number of steps
-
   print 'Processing trajectory...',
   sampler.traj.process()  # compute averages, etc.
   print '...Done.'

@@ -40,7 +40,7 @@ all_atom_names = [atom.name for atom in topology.atoms]
 for i in range(Ind.shape[0]):
     a1, a2 = int(Ind[i,0]), int(Ind[i,1])
     restraint_index = restraint_data[i,0]
-    distance        = restraint_data[i,1]
+    distance        = restraint_data[i,1]*10.0
     r.add_line(restraint_index, a1, a2, topology, distance)
 
 print r
