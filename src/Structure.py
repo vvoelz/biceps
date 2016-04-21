@@ -15,7 +15,7 @@ class Structure(object):
     Each Instances of this obect"""
 
     def __init__(self, PDB_filename, free_energy, expdata_filename=None, use_log_normal_distances=False,
-                       dloggamma=np.log(1.01), gamma_min=0.5, gamma_max=2.0):
+                       dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0):
         """Initialize the class.
         INPUTS
 	conf		A molecular structure as an msmbuilder Conformation() object.
@@ -72,7 +72,7 @@ class Structure(object):
         # If an experimental data file is given, load in the information
         self.expdata_filename = expdata_filename
         if expdata_filename != None:
-            self.load_expdata(expdata_filename)
+        	self.load_expdata(expdata_filename)
 
 
     def load_expdata(self, filename, verbose=False):
@@ -84,7 +84,7 @@ class Structure(object):
         b = RestraintFile(filename=filename)
         data = []
         for line in b.lines:
-            data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
+		data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
          
         if verbose:
             print 'Loaded from', filename, ':'

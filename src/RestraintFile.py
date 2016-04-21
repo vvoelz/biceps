@@ -118,7 +118,7 @@ class RestraintFile(object):
 
         self.lines.append(biceps_restraint_line(restraint_index, i, j, topology, distance))
 
-    def parse_line(line):
+    def parse_line(self, line):
         """Parse a BICePs data line and return the values
 
         RETURNS

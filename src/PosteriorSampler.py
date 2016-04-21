@@ -4,15 +4,13 @@ from scipy  import loadtxt, savetxt
 from matplotlib import pylab as plt
 
 import yaml
-
-
 class PosteriorSampler(object):
     """A class to perform posterior sampling of conformational populations"""
 
 
-    def __init__(self, ensemble, dlogsigma_noe=np.log(1.02), sigma_noe_min=0.05, sigma_noe_max=5.0,
+    def __init__(self, ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=0.05, sigma_noe_max=120.0,
                                  dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
-                                 dloggamma=np.log(1.01), gamma_min=0.5, gamma_max=2.0,
+                                 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0,
                                  use_reference_prior=True, sample_ambiguous_distances=True):
         "Initialize the PosteriorSampler class."
 
@@ -163,7 +161,7 @@ class PosteriorSampler(object):
 
         # distance terms
         #result += (Nj+1.0)*np.log(self.sigma_noe)
-        result += (s.Ndof_distances)*np.log(new_sigma_noe)  # for use with log-spaced sigma values
+	result += (s.Ndof_distances)*np.log(new_sigma_noe)  # for use with log-spaced sigma values
         result += s.sse_distances[new_gamma_index] / (2.0*new_sigma_noe**2.0)
         result += (s.Ndof_distances)/2.0*self.ln2pi  # for normalization
 
@@ -244,8 +242,7 @@ class PosteriorSampler(object):
             # print status
             if step%self.print_every == 0:
                 print 'step', step, 'E', self.E, 'new_E', new_E, 'accept', accept, 'new_sigma_noe', new_sigma_noe, 'new_sigma_J', new_sigma_J, 'new_gamma', new_gamma, 'new_state', new_state, 'new_ensemble_index', new_ensemble_index
-
-            # Store trajectory counts 
+	    # Store trajectory counts 
             self.traj.sampled_sigma_noe[self.sigma_noe_index] += 1
             self.traj.sampled_sigma_J[self.sigma_J_index] += 1
             self.traj.sampled_gamma[self.gamma_index] += 1
@@ -271,7 +268,6 @@ class PosteriorSampler(object):
 
             if step%self.print_every == 0:
                 print 'accratio =', self.accepted/self.total
-
 
 
 
@@ -410,4 +406,3 @@ class PosteriorSamplingTrajectory(object):
         # Read in the YAML data as a dictionary
         fout = file(outfilename, 'w')
         yaml.dump(self.results, fout, default_flow_style=False) 
-
