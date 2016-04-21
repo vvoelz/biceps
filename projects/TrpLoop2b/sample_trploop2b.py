@@ -90,6 +90,9 @@ for i in range(nclusters+1):
         print s.distance_restraints[j].i, s.distance_restraints[j].j, model_distances[j]
         s.distance_restraints[j].model_distance = model_distances[j]
 
+    # update the distance sse's!
+    s.compute_sse_distances()
+
     # add the structure to the ensemble
     ensemble.append( s )
 
@@ -122,7 +125,7 @@ if (0):
 
 else:
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True, sample_ambiguous_distances=False)
-  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=1.00, sigma_noe_max=20.0,
+  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=0.5, sigma_noe_max=10.0,
                                  dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
                                  dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0,
                                  use_reference_prior=not(args.noref), sample_ambiguous_distances=False)
