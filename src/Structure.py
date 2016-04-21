@@ -307,8 +307,9 @@ class Structure(object):
             for i in range(self.ndistances):
 
                 gamma = self.allowed_gamma[g]
-                #print i, '(%d,%d)'%(self.distance_restraints[i].i, self.distance_restraints[i].j),
-                #print 'exp',  self.distance_restraints[i].exp_distance, 'model', self.distance_restraints[i].model_distance,
+                if g == 0:
+                    print '---->', i, '(%d,%d)'%(self.distance_restraints[i].i, self.distance_restraints[i].j),
+                    print '      exp',  self.distance_restraints[i].exp_distance, 'model', self.distance_restraints[i].model_distance
                 if self.use_log_normal_distances:
                     err = np.log(self.distance_restraints[i].model_distance/(gamma*self.distance_restraints[i].exp_distance))
                     #print 'log-normal err', err
