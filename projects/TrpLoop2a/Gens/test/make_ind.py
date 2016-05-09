@@ -20,7 +20,6 @@ for i in range((len(fields))):
 #print field
 #sys.exit()
 #print field[0][5]
-#sys.exit()
 ind=[]
 for i in range(len(field)):
 	resid=raw_input("Residue number (1-based index): ")
@@ -32,10 +31,16 @@ for i in range(len(field)):
 	else:
 		print ind		
 		break
+
+atompairs=raw_input("How many atom pairs of your input?  ")
 if len(ind) % 2 != 0:
 	print "Something is wrong about your input, please double check!"
+
+elif (len(ind)/2) != int(atompairs):
+	print "Something is wrong about your input, please double check"
+
 else:	
-	print len(ind)
+	print str(len(ind)/2) + " atom pairs for your input file and they are (0-based index): "
 	IND=zip(ind[::2],ind[1::2])
 	print IND 
 	np.save('Ind.npy',IND)

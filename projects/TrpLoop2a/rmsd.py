@@ -6,7 +6,7 @@ T = 300.0
 
 #indices=range(121)  # only select the first 6 residues
 #t = md.load('traj0.xtc',top='conf.gro')
-t=md.load('Gens/Gens246.pdb')
+t=md.load('Gens/Gens171.pdb')
 #t = md.load_frame('traj0.xtc',199999, top ='conf.gro')
 #t.save_pdb('199981.pdb')
 #sys.exit(1)

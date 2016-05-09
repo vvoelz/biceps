@@ -90,7 +90,7 @@ if (1):
     # label key states
     plt.hold(True)
     for i in range(len(pops1)):
-        if (i==0) or (pops1[i] > 0.0001):
+        if (i==0) or (pops1[i] > 0.05):
             plt.text( pops0[i], pops1[i], str(i), color='g' )
     #for i in [87, 21, 79]:
     #    plt.text( pops0[i], pops1[i], str(i), color='r' )

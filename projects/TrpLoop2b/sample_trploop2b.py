@@ -78,7 +78,7 @@ for i in range(nclusters+1):
     # QM + exp               --> lam = 1.0
     ## s = Structure('gens-pdb-kcenters-dih-1.8/Gen%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False)
     model_distances = loadtxt('NOE/rminus6_whole_state%d.txt'%i)*10.0 # convert to A
-    s = Structure('Gens/Gens%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0)
+    s = Structure('Gens/Gens%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0)
 
     # NOTE: Upon instantiation, each Structure() object computes the distances from the given PDB.
     #       However, our clusters represent averaged conformation states, and so we   

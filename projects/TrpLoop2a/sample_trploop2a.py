@@ -78,7 +78,7 @@ for i in range(nclusters+1):
     # QM + exp               --> lam = 1.0
     ## s = Structure('gens-pdb-kcenters-dih-1.8/Gen%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False)
     model_distances = loadtxt('NOE/rminus6_whole_state%d.txt'%i)*10.0 # convert to A
-    s = Structure('Gens/Gens%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0)
+    s = Structure('Gens/Gens%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0)
 
     # NOTE: Upon instantiation, each Structure() object computes the distances from the given PDB.
     #       However, our clusters represent averaged conformation states, and so we   
@@ -89,6 +89,9 @@ for i in range(nclusters+1):
     for j in range(len(s.distance_restraints)):
         print s.distance_restraints[j].i, s.distance_restraints[j].j, model_distances[j]
         s.distance_restraints[j].model_distance = model_distances[j]
+
+    # update the distance sse's!
+    s.compute_sse_distances()
 
     # add the structure to the ensemble
     ensemble.append( s )
@@ -122,9 +125,9 @@ if (0):
 
 else:
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True, sample_ambiguous_distances=False)
-  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=0.5, sigma_noe_max=120.0,
+  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=0.5, sigma_noe_max=10.0,
                                  dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
-                                 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0,
+                                 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0,
                                  use_reference_prior=not(args.noref), sample_ambiguous_distances=False)
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True)
   sampler.sample(args.nsteps)  # number of steps
