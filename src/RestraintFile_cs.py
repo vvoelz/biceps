@@ -116,7 +116,7 @@ class RestraintFile(object):
         """
 
         fields = line.strip().split()
-        if len(fields) != 4:
+        if len(fields) != 5:
             raise Exception, "Incorrect number of fields in parsed BICePs line!"
 
         restraint_index = int(fields[0])
