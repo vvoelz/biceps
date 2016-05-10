@@ -1,99 +1,162 @@
 import sys, os, glob
 
+#sys.path.append('../../src')
+sys.path.append('./')
+
 from Structure import *
 from PosteriorSampler import *
+
+import cPickle  # to read/write serialized sampler classes
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("lam", help="a lambda value between 0.0 and 1.0  denoting the Hamiltonian weight (E_data + lambda*E_QM)", type=float)
+parser.add_argument("outdir", help="the name of the output directory")
+parser.add_argument("nsteps", help="Number of sampling steps", type=int)
+parser.add_argument("--noref", help="Do not use reference potentials (default is to use them)",
+                    action="store_true")
+parser.add_argument("--lognormal", help="Use log-normal distance restraints (default is normal)",
+                    action="store_true")
+parser.add_argument("--verbose", help="use verbose output",
+                    action="store_true")
+args = parser.parse_args()
+
+
+print '=== Settings ==='
+print 'lam', args.lam
+print 'outdir', args.outdir
+print 'nsteps', args.nsteps
+print '--noref', args.noref
+print '--lognormal', args.lognormal
+print '--verbose', args.verbose
+
+
+
+"""OUTPUT 
+
+    Files written:
+        <outdir>/traj_lambda_<lambda>.yaml  - YAML Trajectory file 
+        <outdit>/sampler_<lambda>.pkl       - a cPickle'd sampler object
+"""
+
+# Make a new directory if we have to
+if not os.path.exists(args.outdir):
+    os.mkdir(args.outdir)
+
+
 
 #########################################
 # Let's create our ensemble of structures
 
+expdata_filename = 'trploop2a.Jcoupling'
+#expdata_filename = 'cineromycinB_expdata.yaml'  <-- doesn't contain the right Karplus specs 
+energies_filename = 'albocycline_QMenergies.dat'
+energies = loadtxt(energies_filename)*627.509  # convert from hartrees to kcal/mol
+energies = energies/0.5959   # convert to reduced free energies F = f/kT
+energies -= energies.min()
+
 ensemble = []
-ensemble.append( Structure('albo/albo_39.pdb', 0.0) )
-ensemble.append( Structure('albo/albo_80.pdb', 0.0) )
-ensemble.append( Structure('albo/albo_92.pdb', 0.0) )
+for i in range(100):
 
-for s in ensemble:
-    s.add_distance_restraint( 22, 45, 2.5)  # H6-H25  "H(4)-H(7) " in Terekhovs et al 2007
-    s.add_distance_restraint( 28, 45, 2.5)  # H11-H25 "H(4)-H(10)" in Terekhovs et al 2007
-    s.add_distance_restraint( 22, 28, 2.5)  # H6-H11  "H(7)-H(10)" in Terekhovs et al 2007
+    print
+    print '#### STRUCTURE %d ####'%i
 
-    s.build_groups()
+    # no information from QM --> lam = 0.0
+    # QM + exp               --> lam = 1.0
+    s=Structure('pdbs_guangfeng/%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0 )
 
-# Compare the model and exp distances
-for s in ensemble:
-    print s
-    for d in s.distance_restraints:
-        print 'd.model_distance =', d.model_distance,
-        print 'd.noe_distance = ', d.noe_distance
-    print 's.distance_equivalency_groups', s.distance_equivalency_groups
-    print 's.distance_ambiguity_groups', s.distance_ambiguity_groups
-    print '-------'
+    # update the distance sse's!
+    s.compute_sse_distances()
+
+    # add the structure to the ensemble
+    ensemble.append( s )
+
+    
+if (0):
+  # collect distance distributions for each distance and plot them for selected states
+  selected_states = [38] # the "native" state 38
+  selected_states.append( 87 )  # state that fits restraints well but is high QM energy
+  nselected = len(selected_states)
+  s = ensemble[0]
+  ndistances = len(s.distance_restraints)
+  all_distances = []
+  distance_distributions = [[] for i in range(ndistances)]
+  for s in ensemble:
+    for i in range(ndistances):
+        distance_distributions[i].append( s.distance_restraints[i].model_distance )
+        all_distances.append( s.distance_restraints[i].model_distance )
+
+  plt.figure()
+  for k in range(nselected): 
+      plt.subplot(np.ceil(nselected**0.5), np.ceil(nselected**0.5), k+1)
+      plt.plot( [0,ndistances+1],[2.5,2.5], 'r-')
+      plt.hold(True)
+      for i in range(ndistances):
+          weight = ensemble[selected_states[k]].distance_restraints[i].weight
+          print i, ensemble[selected_states[k]].distance_restraints[i].model_distance, weight
+          plt.plot(i, ensemble[selected_states[k]].distance_restraints[i].model_distance,'ko', markersize=10.0*weight)
+          plt.hold(True)
+  plt.show()
+
+# for debugging
+#sys.exit(1)
+
+
+if (0):
+    # Make a plot of the distribution of the many distances 
+    plt.figure()
+
+    print 'ndistances', ndistances # 33
+    for i in range(ndistances):
+        plt.subplot(11,3,i+1)
+        # plot the distribution of distances across all structures
+        values, bins = np.histogram(distance_distributions[i], bins=np.arange(0,10.,0.1), normed=True )
+        plt.step(bins[0:-1], values)
+        # plot the maximum likelihood exponential distribution fitting the data
+        beta = np.array(distance_distributions[i]).sum()/(len(distance_distributions[i])+1.0)
+        print 'distance', i, 'beta', beta
+        tau = (1.0/beta)*np.exp(-bins[0:-1]/beta)
+        plt.plot(bins[0:-1], 10*tau, 'k-')
+        plt.plot([beta, beta], [0, values.max()], 'r-')
+        plt.xlim(0,6)
+        plt.xlabel("d (A)")
+        plt.ylim(0,3)
+        #plt.ylabel("P(d)")
+        plt.yticks([])
+        if (i < 30):
+            plt.xticks([])
+    plt.show()
+
+#sys.exit(1)
 
 ##########################################
 # Next, let's do some posterior sampling
 
-sampler = PosteriorSampler(ensemble)
 
-# set sampling parameters
-sampler.sigma_noe = 0.1
-sampler.dsigma_noe = 0.005
-#sampler.sigma_Jcoupl  = 1.0
-#sampler.dsigma_Jcoupl = 0.2   # controls the magnitude of steps in sigma_Jcoupl
+if (1):
+  #sampler = PosteriorSampler(ensemble, use_reference_prior=True, sample_ambiguous_distances=False)
+  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.02), sigma_noe_min=0.05, sigma_noe_max=5.0,
+                                 dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
+                                 dloggamma=np.log(1.01), gamma_min=0.5, gamma_max=2.0,
+                                 use_reference_prior=not(args.noref), sample_ambiguous_distances=False)
 
+  #sampler = PosteriorSampler(ensemble, use_reference_prior=True)
+  sampler.sample(args.nsteps)  # number of steps
+  print 'Processing trajectory...',
+  sampler.traj.process()  # compute averages, etc.
+  print '...Done.'
 
-sampler.sample(100000)   # number of steps
+  print 'Writing results...',
+  sampler.traj.write_results(os.path.join(args.outdir,'traj_lambda%2.2f.yaml'%args.lam))
+  print '...Done.'
 
-sampler.traj.plot_results()
+  # pickle the sampler object
+  print 'Pickling the sampler object ...',
+  outfilename = 'sampler_lambda%2.2f.pkl'%args.lam
+  print outfilename,
+  fout = open(os.path.join(args.outdir, outfilename), 'wb')
+  # Pickle dictionary using protocol 0.
+  cPickle.dump(sampler, fout)
+  print '...Done.'
 
-"""
-ATOM      1  C1  UNK     1       1.484   2.515   0.317  1.00  0.00           C
-ATOM      2  O1  UNK     1       1.764   3.456  -0.687  1.00  0.00           O
-ATOM      3  H1  UNK     1       2.690   3.660  -0.679  1.00  0.00           H
-ATOM      4  C2  UNK     1       0.024   2.150   0.230  1.00  0.00           C
-ATOM      5  C3  UNK     1      -0.834   2.470  -0.721  1.00  0.00           C
-ATOM      6  C4  UNK     1      -2.174   1.833  -0.796  1.00  0.00           C
-ATOM      7  O2  UNK     1      -2.287   0.813   0.047  1.00  0.00           O
-ATOM      8  C5  UNK     1      -3.415  -0.066   0.010  1.00  0.00           C
-ATOM      9  C6  UNK     1      -2.831  -1.448   0.343  1.00  0.00           C
-ATOM     10  C7  UNK     1      -1.943  -1.968  -0.812  1.00  0.00           C
-ATOM     11  C8  UNK     1      -0.712  -2.776  -0.360  1.00  0.00           C
-ATOM     12  C9  UNK     1       0.446  -1.876   0.028  1.00  0.00           C
-ATOM     13  C10 UNK     1       1.724  -2.210   0.127  1.00  0.00           C
-ATOM     14  C11 UNK     1       2.822  -1.193   0.434  1.00  0.00           C
-ATOM     15  O3  UNK     1       3.656  -1.138  -0.695  1.00  0.00           O
-ATOM     16  C12 UNK     1       4.980  -0.774  -0.446  1.00  0.00           C
-ATOM     17  H2  UNK     1       5.471  -1.495   0.203  1.00  0.00           H
-ATOM     18  H3  UNK     1       5.050   0.209   0.010  1.00  0.00           H
-ATOM     19  H4  UNK     1       5.491  -0.756  -1.399  1.00  0.00           H
-ATOM     20  C13 UNK     1       2.308   0.171   0.836  1.00  0.00           C
-ATOM     21  C14 UNK     1       2.203   1.201   0.018  1.00  0.00           C
-ATOM     22  H5  UNK     1       2.522   1.097  -1.005  1.00  0.00           H
-ATOM     23  H6  UNK     1       1.949   0.236   1.851  1.00  0.00           H
-ATOM     24  H7  UNK     1       3.401  -1.589   1.271  1.00  0.00           H
-ATOM     25  C15 UNK     1       2.251  -3.609  -0.082  1.00  0.00           C
-ATOM     26  H8  UNK     1       2.915  -3.642  -0.940  1.00  0.00           H
-ATOM     27  H9  UNK     1       2.826  -3.933   0.783  1.00  0.00           H
-ATOM     28  H10 UNK     1       1.459  -4.329  -0.235  1.00  0.00           H
-ATOM     29  H11 UNK     1       0.175  -0.850   0.192  1.00  0.00           H
-ATOM     30  H12 UNK     1      -0.408  -3.430  -1.170  1.00  0.00           H
-ATOM     31  H13 UNK     1      -0.983  -3.429   0.468  1.00  0.00           H
-ATOM     32  H14 UNK     1      -2.556  -2.587  -1.462  1.00  0.00           H
-ATOM     33  H15 UNK     1      -1.598  -1.142  -1.423  1.00  0.00           H
-ATOM     34  C16 UNK     1      -3.912  -2.479   0.687  1.00  0.00           C
-ATOM     35  H16 UNK     1      -3.467  -3.460   0.821  1.00  0.00           H
-ATOM     36  H17 UNK     1      -4.439  -2.234   1.602  1.00  0.00           H
-ATOM     37  H18 UNK     1      -4.644  -2.562  -0.113  1.00  0.00           H
-ATOM     38  H19 UNK     1      -2.212  -1.305   1.226  1.00  0.00           H
-ATOM     39  C17 UNK     1      -4.462   0.458   0.981  1.00  0.00           C
-ATOM     40  H20 UNK     1      -4.089   0.439   2.000  1.00  0.00           H
-ATOM     41  H21 UNK     1      -5.370  -0.133   0.935  1.00  0.00           H
-ATOM     42  H22 UNK     1      -4.716   1.479   0.725  1.00  0.00           H
-ATOM     43  H23 UNK     1      -3.818  -0.059  -0.994  1.00  0.00           H
-ATOM     44  O4  UNK     1      -3.028   2.164  -1.557  1.00  0.00           O
-ATOM     45  H24 UNK     1      -0.597   3.152  -1.514  1.00  0.00           H
-ATOM     46  H25 UNK     1      -0.291   1.472   1.000  1.00  0.00           H
-ATOM     47  C18 UNK     1       1.820   3.107   1.689  1.00  0.00           C
-ATOM     48  H26 UNK     1       1.278   4.035   1.824  1.00  0.00           H
-ATOM     49  H27 UNK     1       2.885   3.312   1.759  1.00  0.00           H
-ATOM     50  H28 UNK     1       1.559   2.434   2.497  1.00  0.00           H
-"""
 
