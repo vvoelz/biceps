@@ -1,0 +1,65 @@
+# Lattice hairpin README
+
+Yunhui -- here is a present for you! 
+
+In this project directory are conformations and distances for the 12-mer HP 2D lattice hairpin with sequence
+HPHPHPHPPHPH.
+
+You can see a picture of this hairpin in our surprisal paper: Voelz, V. A., Elman, B., Razavi, A. M., & Zhou, G. (2014). Surprisal metrics for quantifying perturbed conformational dynamics in Markov State Models. Journal of Chemical Theory and Computation, 10(12), 5716–5728. http://doi.org/10.1021/ct500827g
+
+The script "enumerate_12mer.py" has already been run to produce the following:
+
+	* microstates.pdb - a PDB file containing all 15037 microstate conformations (based on template.pdb)
+	* contact_state_indices.dat - an inded file containing a description of all _contact states_
+
+          A "contact state" is a macrostate defined as a set of microstates all having the same set of hydrophobic
+          contacts.  The contents of the file are:
+
+		#index	contacts	ncontacts	nconfs
+		0	[]	0	11460
+		1	[(6, 11)]	1	556
+		2	[(6, 9)]	1	1304
+		3	[(4, 11), (6, 9)]	2	37
+		4	[(6, 9), (6, 11)]	2	103
+                ...
+
+	  where the list of contacts are residue pairs (with numbering starting at zero).
+
+        * On the 2D lattice, contacts occur when two hydrophobic residues (residues 0,2,4,6,9,11) are within one lattice
+          unit away from each other.  Note that because of the geometry of the lattice, only contacts (i,j) with odd values
+          of |i-j| are viable contacts. 
+
+          These eight distances are listed in the "distance_indices.dat" file:
+          (0,9), (0,11), (2,9), (2,11), (4,9), (4,11), (6,9), (6,11)  
+
+        * In mean_distances/mean_distances_state*.dat are the average distances for these eight pairs, for each contact state
+
+        * "exp_distances.dat" contains the experimental distances one would measure given a contact strength of
+          \epsilon = -2.0 kT. This is achieved by computing the population-weighted average distances <d_j> over all
+          contact states i, given by
+
+              <d_j> = Z^{-1} \sum_i (d_j)_i \Omega_i * exp(-n_i \epsilon /kT )
+
+          where T = 300K, n_i is the number of contacts in each contact state i, \Omega_i is the number of 
+          microstates in contact state i, and Z = \sum_i \Omega_i * exp(-n_i \epsilon /kT ).
+
+## Your task (for now)
+
+The script "make_reduced_free_energies.py" will write a file containing  the reduced free energies (i.e. free energies
+in units of kT) of each contact state file, for any epsilon value of your choosing. Your task is to run BICePs using a
+range of such files, exploring epsilon values ranging from 0 to 5 kT (say), and see if you can find the correct value
+of epsilon from the the BICePs score (i.e. Bayes Factors). This would show that we can use BICePs for force field
+parameterization as well as validation.
+
+An additional task would be to explore how experimental noise affects the results. You could add artificial noise to the
+experimental values, and see how robust the calculation is.
+
+A further topic to explore is the issue of reference potentials. Because we have the exact enumeration of all possible
+states, we can compute the true reference potential (well, at least the marginal distribution for each distances; in reality
+these distances are correlated, and the "true" reference potential would be a very high-dimensional function).  A key question
+is whether our simple-minded exponential reference potentials are good enough to get the job done
+
+
+--Vince   7/04/2016
+
+
