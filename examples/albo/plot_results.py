@@ -84,13 +84,13 @@ if (1):
     plt.xlim(1e-6, 1.)
     plt.ylim(1e-6, 1.)
     plt.xlabel('$p_i$ (exp)', fontsize=label_fontsize)
-    plt.ylabel('$p_i$ (REMD+exp)', fontsize=label_fontsize)
+    plt.ylabel('$p_i$ (QM+exp)', fontsize=label_fontsize)
     plt.xscale('log')
     plt.yscale('log')
     # label key states
     plt.hold(True)
     for i in range(len(pops1)):
-        if (i==0) or (pops1[i] > 0.05):
+        if pops1[i] == max(pops1):
             plt.text( pops0[i], pops1[i], str(i), color='g' )
     #for i in [87, 21, 79]:
     #    plt.text( pops0[i], pops1[i], str(i), color='r' )
@@ -111,18 +111,18 @@ if (1):
             print t1['allowed_sigma_noe'][i], t1['sampled_sigma_noe'][i]
 
     plt.xlim(0,6)
-    plt.legend(['exp', 'REMD+exp'], fontsize=legend_fontsize)
+    plt.legend(['exp', 'QM+exp'], fontsize=legend_fontsize)
     plt.xlabel("$\sigma_d$", fontsize=label_fontsize)
     plt.ylabel("$P(\sigma_d)$", fontsize=label_fontsize)
     plt.yticks([])
 
-if (0):
+if (1):
     # plot histograms of sampled sigma_J
     plt.subplot(2,2,3)
     plt.step(t0['allowed_sigma_J'], t0['sampled_sigma_J'], 'b-')
     plt.hold(True)
     plt.step(t1['allowed_sigma_J'], t1['sampled_sigma_J'], 'r-')
-    plt.legend(['exp', 'REMD+exp'], fontsize=legend_fontsize)
+    plt.legend(['exp', 'QM+exp'], fontsize=legend_fontsize)
     plt.xlabel("$\sigma_J$", fontsize=label_fontsize)
     plt.ylabel("$P(\sigma_J)$", fontsize=label_fontsize)
     plt.yticks([])
@@ -140,7 +140,7 @@ if (1):
         for i in range(len(t1['allowed_gamma'])):
             print t1['allowed_gamma'][i], t1['sampled_gamma'][i]
 
-    plt.legend(['exp', 'REMD+exp'], fontsize=legend_fontsize)
+    plt.legend(['exp', 'QM+exp'], fontsize=legend_fontsize)
     plt.xlim(0.0, 5.0)
     plt.xlabel("$\gamma'$", fontsize=label_fontsize)
     plt.ylabel("$P(\gamma')$", fontsize=label_fontsize)

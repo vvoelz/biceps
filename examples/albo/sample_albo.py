@@ -48,8 +48,10 @@ if not os.path.exists(args.outdir):
 #########################################
 # Let's create our ensemble of structures
 
-expdata_filename = 'trploop2a.Jcoupling'
+#expdata_filename = 'trploop2a.Jcoupling'
 #expdata_filename = 'cineromycinB_expdata.yaml'  <-- doesn't contain the right Karplus specs 
+expdata_filename_noe = 'albo.biceps'
+expdata_filename_J = 'albo.Jcoupling'
 energies_filename = 'albocycline_QMenergies.dat'
 energies = loadtxt(energies_filename)*627.509  # convert from hartrees to kcal/mol
 energies = energies/0.5959   # convert to reduced free energies F = f/kT
@@ -63,13 +65,22 @@ for i in range(100):
 
     # no information from QM --> lam = 0.0
     # QM + exp               --> lam = 1.0
-    s=Structure('pdbs_guangfeng/%d.pdb'%i, args.lam*energies[i], expdata_filename, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0 )
+#    model_distances = loadtxt('NOE/average_state%d.txt'%i)*10.0 # convert to A
+    s=Structure('pdbs_guangfeng/%d.pdb'%i, args.lam*energies[i], expdata_filename_noe, expdata_filename_J, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0 )
+
+
+    # replace PDB distances with r^-6-averaged distances
+#    print 'len(s.distance_restraints)', len(s.distance_restraints)
+#    for j in range(len(s.distance_restraints)):
+#        print s.distance_restraints[j].i, s.distance_restraints[j].j, model_distances[j]
+#        s.distance_restraints[j].model_distance = model_distances[j]
 
     # update the distance sse's!
     s.compute_sse_distances()
 
     # add the structure to the ensemble
     ensemble.append( s )
+
 
     
 if (0):
@@ -137,7 +148,7 @@ if (1):
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True, sample_ambiguous_distances=False)
   sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.02), sigma_noe_min=0.05, sigma_noe_max=5.0,
                                  dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
-                                 dloggamma=np.log(1.01), gamma_min=0.5, gamma_max=2.0,
+                                 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0,
                                  use_reference_prior=not(args.noref), sample_ambiguous_distances=False)
 
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True)

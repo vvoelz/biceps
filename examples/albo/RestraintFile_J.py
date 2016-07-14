@@ -25,8 +25,8 @@ import numpy as np
 # 11		residue 4
 # 12		atom name 4
 #
-# 13             J_coupling (in Hz)
-#
+# 13            J_coupling (in Hz)
+# 14		Karplus relation
 # 
 # EQUIVALENT PROTONS
 # Multiple restraints can share the same restraint index -- this means they are equivalent protons
@@ -41,7 +41,7 @@ import numpy as np
 
 
 
-def biceps_restraint_line_J(restraint_index, i, j, k, l, topology, J_coupling):
+def biceps_restraint_line_J(restraint_index, i, j, k, l, topology, J_coupling, karplus):
     """Returns a formatted string for a line in BICePs restraint file.
 
     0             restraint_index
@@ -58,6 +58,7 @@ def biceps_restraint_line_J(restraint_index, i, j, k, l, topology, J_coupling):
     11            residue 4
     12            atom name 4
     13            J_coupling (in Hz)
+    14		  Karplus_relation
     """
 
     resname1  = [atom.residue for atom in topology.atoms if atom.index == i][0]
@@ -73,17 +74,17 @@ def biceps_restraint_line_J(restraint_index, i, j, k, l, topology, J_coupling):
     atomname4 = [atom.name for atom in topology.atoms if atom.index == l][0]	
     #resname1, atomname1 = topology.atoms[i].residue, topology.atoms[i].name
     #resname2, atomname2 = topology.atoms[j].residue, topology.atoms[j].name
-
-    return '%-8d     %-8d %-8s %-8s     %-8d %-8s %-8s     %-8d %-8s %-8s     %-8d %-8s %-8s     %8.4f'%(restraint_index, i, resname1, atomname1, j, resname2, atomname2, k, resname3, atomname3, l, resname4, atomname4, J_coupling) 
+    karplus = karplus[int(restraint_index)]    
+    return '%-8d     %-8d %-8s %-8s     %-8d %-8s %-8s     %-8d %-8s %-8s     %-8d %-8s %-8s     %8.4f      %-8s'%(restraint_index, i, resname1, atomname1, j, resname2, atomname2, k, resname3, atomname3, l, resname4, atomname4, J_coupling, karplus) 
 
 
 def biceps_restraint_line_J_header():
     """Returns a header string the the biceps restraint file."""
 
-    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3', 'atom_index4', 'res4', 'atom_name4', 'J_coupling(Hz)'], ' ')
+    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3', 'atom_index4', 'res4', 'atom_name4', 'J_coupling(Hz)', 'Karplus_relation'], ' ')
 
 
-class RestraintFile(object):
+class RestraintFile_J(object):
     """A class containing input/output methods for writing BICePs Restaint Files."""
 
     def __init__(self, filename=None):
@@ -132,20 +133,22 @@ class RestraintFile(object):
         print 'Wrote', filename
 
 
-    def add_line(self, restraint_index, i, j, k, l, topology, J_coupling):
+    def add_line_J(self, restraint_index, i, j, k, l, topology, J_coupling, karplus):
         """Add a line to the BICePs file."""
 
-        self.lines.append(biceps_restraint_line_J(restraint_index, i, j, k, l, topology, J_coupling))
+        self.lines.append(biceps_restraint_line_J(restraint_index, i, j, k, l, topology, J_coupling, karplus))
 
-    def parse_line(self, line):
+    def parse_line_J(self, line):
         """Parse a BICePs data line and return the values
 
         RETURNS
         restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, J_coupling(Hz) 
         """
 
+
+
         fields = line.strip().split()
-        if len(fields) != 14:
+        if len(fields) != 15:
             raise Exception, "Incorrect number of fields in parsed BICePs line!"
 
         restraint_index = int(fields[0])
@@ -162,4 +165,5 @@ class RestraintFile(object):
         res4            = fields[11]
 	atom_name4      = fields[12]
 	J_coupling      = float(fields[13])
-        return restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, J_coupling
+	Karplus_relation= fields[14]
+	return restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, J_coupling, Karplus_relation

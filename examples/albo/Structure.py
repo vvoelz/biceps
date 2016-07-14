@@ -7,14 +7,14 @@ import yaml
 
 from KarplusRelation import *
 from RestraintFile_J import *
-
+from RestraintFile import *
 
 class Structure(object):
     """A class to store a molecular structure, its complete set of
     experimental NOE and J-coupling data, and   
     Each Instances of this obect"""
 
-    def __init__(self, PDB_filename, free_energy, expdata_filename=None, use_log_normal_distances=False,
+    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, use_log_normal_distances=False,
                        dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0):
         """Initialize the class.
         INPUTS
@@ -28,8 +28,9 @@ class Structure(object):
         """
 
         self.PDB_filename = PDB_filename
-        self.expdata_filename = expdata_filename
-        self.conf = mdtraj.load_pdb(PDB_filename)
+        self.expdata_filename_noe = expdata_filename_noe
+        self.expdata_filename_J = expdata_filename_J
+	self.conf = mdtraj.load_pdb(PDB_filename)
         # Convert the coordinates from nm to Angstrom units 
         self.conf.xyz = self.conf.xyz*10.0 
 
@@ -70,21 +71,68 @@ class Structure(object):
         self.sum_neglog_reference_priors = 0.0
 
         # If an experimental data file is given, load in the information
-        self.expdata_filename = expdata_filename
-        if expdata_filename != None:
-        	self.load_expdata(expdata_filename)
+        self.expdata_filename_noe = expdata_filename_noe
+        if expdata_filename_noe != None:
+        	self.load_expdata_noe(expdata_filename_noe)
+	self.expdata_filename_J = expdata_filename_J
+	if expdata_filename_J != None:
+		self.load_expdata_J(expdata_filename_J)
+	
+    def load_expdata_J(self, filename, verbose=False):
+        """Load in the experimental Jcoupling constant restraints from a .Jcoupling file format."""
 
 
-    def load_expdata(self, filename, verbose=False):
+        # Read in the lines of the biceps data file
+        b = RestraintFile_J(filename=filename) 
+	data = []
+        for line in b.lines:
+		data.append( b.parse_line_J(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, J_coupling(Hz)]
+         
+        if verbose:
+            print 'Loaded from', filename, ':'
+            for entry in data:
+                print entry
+
+        ### Jcoupling ###
+
+        # the equivalency indices for Jcoupling are in the first column of the *.Jcoupling file
+        equivalency_indices = [entry[0] for entry in data]
+        if verbose:
+            print 'distance equivalency_indices', equivalency_indices
+
+        # compile ambiguity indices for distances
+        """ ### not yet supported ###
+        
+          for pair in data['NOE_Ambiguous']:
+            # NOTE a pair of multiple distance pairs
+            list1, list2 = pair[0], pair[1]
+            # find the indices of the distances pairs that are ambiguous
+            pair_indices1 = [ data['NOE_PairIndex'].index(p) for p in list1]
+            pair_indices2 = [ data['NOE_PairIndex'].index(p) for p in list2]
+            self.ambiguous_groups.append( [pair_indices1, pair_indices2] )
+          if verbose:
+            print 'distance ambiguous_groups', self.ambiguous_groups
+        except:
+            print 'Problem reading distance ambiguous_groups.  Setting to default: no ambiguous groups.'
+        """
+
+        # add the Jcoupling restraints
+        for entry in data:
+            restraint_index, i, j, k, l, exp_Jcoupling, karplus  = entry[0], entry[1], entry[4], entry[7], entry[10], entry[13], entry[14]
+            self.add_dihedral_restraint(i, j, k, l, exp_Jcoupling, model_Jcoupling=None, equivalency_index=None, karplus_key=karplus)
+
+        # build groups of equivalency group indices, ambiguous group etc.
+        self.build_groups()
+
+    def load_expdata_noe(self, filename, verbose=False):
         """Load in the experimental NOE distance restraints from a .biceps file format.
-
         NOTE: J-coupling and other restraints are not yet supported in the *.biceps file format. VAV 3/2016"""
 
         # Read in the lines of the biceps data file
-        b = RestraintFile(filename=filename) 
-	data = []
+        b = RestraintFile_noe(filename=filename)
+        data = []
         for line in b.lines:
-		data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, J_coupling(Hz)]
+		data.append( b.parse_line_noe(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
          
         if verbose:
             print 'Loaded from', filename, ':'
@@ -116,12 +164,11 @@ class Structure(object):
 
         # add the distance restraints
         for entry in data:
-            restraint_index, i, j, k, l, exp_Jcoupling = entry[0], entry[1], entry[4], entry[7], entry[10], entry[13]
-            self.add_dihedral_restraint(i, j, k, l, exp_Jcoupling, model_Jcoupling=None, equivalency_index=None, karplus_key="Karplus_HH")
+            restraint_index, i, j, exp_distance = entry[0], entry[1], entry[4], entry[7]
+            self.add_distance_restraint(i, j, exp_distance, model_distance=None, equivalency_index=restraint_index)
 
         # build groups of equivalency group indices, ambiguous group etc.
         self.build_groups()
-
 
 
     def load_expdata_yaml(self, filename, verbose=False):
@@ -223,7 +270,7 @@ class Structure(object):
 
 
     def add_dihedral_restraint(self, i, j, k, l, exp_Jcoupling, model_Jcoupling=None,
-                               equivalency_index=None, karplus_key="Karplus_HH"):
+                               equivalency_index=None, karplus_key='Karplus_HH'):
         """Add a J-coupling NMR_Dihedral() object to the list.""" 
 
         # if the modeled Jcoupling value is not specified, compute it from the
@@ -231,7 +278,8 @@ class Structure(object):
         if model_Jcoupling == None:
             ri, rj, rk, rl = [self.conf.xyz[0,x,:] for x in [i, j, k, l]]
             model_angle = self.dihedral_angle(ri,rj,rk,rl)
-         
+	    
+	    
             ###########################
             # NOTE: In the future, this function can be more sophisticated, parsing atom types
             # or karplus relation types on a case-by-case basis

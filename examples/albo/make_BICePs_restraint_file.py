@@ -2,12 +2,12 @@ import os, sys, string
 import numpy as np
 import mdtraj as md
 
-sys.path.append('../../src')
-#sys.path.append('./')
-from RestraintFile_J import *
+#sys.path.append('../../src')
+sys.path.append('./')
+from RestraintFile import *
 
 # read in atom pair indices
-Ind = np.loadtxt('atom_indice.txt')
+Ind = np.loadtxt('atom_indice_noe.txt')
 
 # read in restraint indices and distances
 """
@@ -16,7 +16,7 @@ Ind = np.loadtxt('atom_indice.txt')
 1	0.39990427
 2	0.2795903
 """
-restraint_data = np.loadtxt('J_coupling.txt')
+restraint_data = np.loadtxt('noe_distance.txt')
 
 # Check to see if these files have the same number of lines
 if Ind.shape[0] != restraint_data.shape[0]:
@@ -24,13 +24,13 @@ if Ind.shape[0] != restraint_data.shape[0]:
     sys.exit(1)
 
 
-pdbfile = 'albo_37.pdb' 
+pdbfile = 'pdbs_guangfeng/0.pdb' 
 
 # load in the pdbfile template 
 topology = md.load_pdb(pdbfile).topology
 
 
-r = RestraintFile()
+r = RestraintFile_noe()
 
 
 all_atom_indices = [atom.index for atom in topology.atoms]
@@ -39,14 +39,14 @@ all_atom_names = [atom.name for atom in topology.atoms]
 
 
 for i in range(Ind.shape[0]):
-    a1, a2, a3, a4 = int(Ind[i,0]), int(Ind[i,1]), int(Ind[i,2]), int(Ind[i,3])
+    a1, a2 = int(Ind[i,0]), int(Ind[i,1])
     restraint_index = restraint_data[i,0]
-    J_coupling      = restraint_data[i,1]
-    r.add_line(restraint_index, a1, a2, a3, a4, topology, J_coupling)
+    distance        = restraint_data[i,1]*10.0
+    r.add_line_noe(restraint_index, a1, a2, topology, distance)
 
 print r
 
-r.write('trploop2a.Jcoupling')
+r.write('albo.biceps')
 
 
 "[atom.index for atom in topology.atoms if (atom.residue.is_water and (atom.name == 'O'))]"
