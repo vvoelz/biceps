@@ -6,16 +6,16 @@ import mdtraj
 import yaml
 
 from KarplusRelation import *
-from RestraintFile import *
-
+from RestraintFile_cs import *
+from RestraintFile_noe import *
+from RestraintFile_J import *
 
 class Structure(object):
     """A class to store a molecular structure, its complete set of
-    experimental NOE and J-coupling data, and   
+    experimental NOE, J-coupling and chemical shift data, and   
     Each Instances of this obect"""
 
-    def __init__(self, PDB_filename, free_energy, expdata_filename=None, use_log_normal_distances=False,
-                       dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0):
+    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, expdata_filename_cs=None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0):
         """Initialize the class.
         INPUTS
 	conf		A molecular structure as an msmbuilder Conformation() object.
@@ -28,8 +28,10 @@ class Structure(object):
         """
 
         self.PDB_filename = PDB_filename
-        self.expdata_filename = expdata_filename
-        self.conf = mdtraj.load_pdb(PDB_filename)
+    	self.expdata_filename_noe = expdata_filename_noe
+    #    self.expdata_filename_J = expdata_filename_J
+        self.expdata_filename_cs = expdata_filename_cs
+	self.conf = mdtraj.load_pdb(PDB_filename)
         # Convert the coordinates from nm to Angstrom units 
         self.conf.xyz = self.conf.xyz*10.0 
 
@@ -57,6 +59,13 @@ class Structure(object):
         self.dihedral_ambiguity_groups = {}
         self.ndihedrals = 0
 
+	# Store chemical shift restraint info   #GYH
+        self.chemicalshift_restraints = []
+        self.chemicalshift_equivalency_groups = {}
+        self.chemicalshift_ambiguity_groups = {}
+        self.nchemicalshift = 0
+
+
         # Create a KarplusRelation object
         self.karplus = KarplusRelation()
 
@@ -65,26 +74,33 @@ class Structure(object):
         self.Ndof_distances = None
         self.sse_dihedrals = None
         self.Ndof_dihedrals = None
+        self.sse_chemicalshift = None #GYH
+        self.Ndof_chemicalshift = None  #GYH
         self.betas = None   # if reference is used, an array of N_j betas for each distance
         self.neglog_reference_priors = None
         self.sum_neglog_reference_priors = 0.0
 
         # If an experimental data file is given, load in the information
-        self.expdata_filename = expdata_filename
-        if expdata_filename != None:
-        	self.load_expdata(expdata_filename)
+	self.expdata_filename_noe = expdata_filename_noe
+        if expdata_filename_noe != None:
+                self.load_expdata_noe(expdata_filename_noe)
+        self.expdata_filename_J = expdata_filename_J
+#        if expdata_filename_J != None:
+#                self.load_expdata_J(expdata_filename_J)
+	self.expdata_filename_cs = expdata_filename_cs
+	if expdata_filename_cs != None:
+		self.load_expdata_cs(expdata_filename_cs)        
 
 
-    def load_expdata(self, filename, verbose=False):
-        """Load in the experimental NOE distance restraints from a .biceps file format.
-
-        NOTE: J-coupling and other restraints are not yet supported in the *.biceps file format. VAV 3/2016"""
+    def load_expdata_noe(self, filename, verbose=False):
+        """Load in the experimental NOE distance restraints from a .noe file format.
+	"""
 
         # Read in the lines of the biceps data file
-        b = RestraintFile(filename=filename)
+        b = RestraintFile_noe(filename=filename)
         data = []
         for line in b.lines:
-		data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
+		data.append( b.parse_line_noe(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
          
         if verbose:
             print 'Loaded from', filename, ':'
@@ -121,6 +137,104 @@ class Structure(object):
 
         # build groups of equivalency group indices, ambiguous group etc.
         self.build_groups()
+
+
+    def load_expdata_J(self, filename, verbose=False):
+        """Load in the experimental Jcoupling constant restraints from a .Jcoupling file format."""
+
+
+        # Read in the lines of the biceps data file
+        b = RestraintFile_J(filename=filename)
+        data = []
+        for line in b.lines:
+                data.append( b.parse_line_J(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, J_coupling(Hz)]
+
+        if verbose:
+            print 'Loaded from', filename, ':'
+            for entry in data:
+                print entry
+
+        ### Jcoupling ###
+
+        # the equivalency indices for Jcoupling are in the first column of the *.Jcoupling file
+        equivalency_indices = [entry[0] for entry in data]
+        if verbose:
+            print 'distance equivalency_indices', equivalency_indices
+
+        # compile ambiguity indices for distances
+        """ ### not yet supported ###
+        
+          for pair in data['NOE_Ambiguous']:
+            # NOTE a pair of multiple distance pairs
+            list1, list2 = pair[0], pair[1]
+            # find the indices of the distances pairs that are ambiguous
+            pair_indices1 = [ data['NOE_PairIndex'].index(p) for p in list1]
+            pair_indices2 = [ data['NOE_PairIndex'].index(p) for p in list2]
+            self.ambiguous_groups.append( [pair_indices1, pair_indices2] )
+          if verbose:
+            print 'distance ambiguous_groups', self.ambiguous_groups
+        except:
+            print 'Problem reading distance ambiguous_groups.  Setting to default: no ambiguous groups.'
+        """
+
+        # add the Jcoupling restraints
+        for entry in data:
+            restraint_index, i, j, k, l, exp_Jcoupling, karplus  = entry[0], entry[1], entry[4], entry[7], entry[10], entry[13], entry[14]
+            self.add_dihedral_restraint(i, j, k, l, exp_Jcoupling, model_Jcoupling=None, equivalency_index=None, karplus_key=karplus)
+
+        # build groups of equivalency group indices, ambiguous group etc.
+        self.build_groups()
+
+
+
+    def load_expdata_cs(self, filename, verbose=False):
+        """Load in the experimental chemical shift restraints from a .chemicalshift file format.
+	"""
+
+        # Read in the lines of the chemicalshift data file
+        b = RestraintFile_cs(filename=filename)
+        if verbose:
+		print b.lines
+	data = []
+        for line in b.lines:
+                data.append( b.parse_line_cs(line) )  # [restraint_index, atom_index1, res1, atom_name1, chemicalshift]
+
+        if verbose:
+            print 'Loaded from', filename, ':'
+            for entry in data:
+                print entry
+
+        ### distances ###
+
+        # the equivalency indices for distances are in the first column of the *.biceps file
+        equivalency_indices = [entry[0] for entry in data]
+        if verbose:
+            print 'chemicalshift equivalency_indices', equivalency_indices
+
+        # compile ambiguity indices for distances
+        """ ### not yet supported ###
+        
+          for pair in data['NOE_Ambiguous']:
+            # NOTE a pair of multiple distance pairs
+            list1, list2 = pair[0], pair[1]
+            # find the indices of the distances pairs that are ambiguous
+            pair_indices1 = [ data['NOE_PairIndex'].index(p) for p in list1]
+            pair_indices2 = [ data['NOE_PairIndex'].index(p) for p in list2]
+            self.ambiguous_groups.append( [pair_indices1, pair_indices2] )
+          if verbose:
+            print 'distance ambiguous_groups', self.ambiguous_groups
+        except:
+            print 'Problem reading distance ambiguous_groups.  Setting to default: no ambiguous groups.'
+        """
+
+        # add the chemical shift restraints
+        for entry in data:
+            restraint_index, i, exp_chemicalshift = entry[0], entry[1], entry[4]
+            self.add_chemicalshift_restraint(i, exp_chemicalshift, model_chemicalshift=None, equivalency_index=restraint_index)
+
+        # build groups of equivalency group indices, ambiguous group etc.
+        self.build_groups()
+
 
 
 
@@ -243,6 +357,21 @@ class Structure(object):
 
 
 
+    def add_chemicalshift_restraint(self, i, exp_chemicalshift, model_chemicalshift=None, equivalency_index=None):
+        """Add a chemicalshift NMR_Chemicalshift() object to the list."""
+         # if the modeled distance is not specified, compute the distance from the conformation
+#       Ind = self.conf.topology.select("index == j")
+#       t=self.conf.atom_slice(Ind)
+        if model_chemicalshift == None:
+ #              r=md.nmr.chemicalshifts_shiftx2(r,pH=2.5, temperature = 280.0)    
+
+ #              model_chemicalshift = r.mean(axis=1)
+                model_chemicalshift = 1  # will be replaced by pre-computede cs
+        self.chemicalshift_restraints.append( NMR_Chemicalshift(i, model_chemicalshift, exp_chemicalshift, equivalency_index=equivalency_index))
+
+        self.nchemicalshift += 1
+
+
     def build_groups(self, verbose=False):
         """Build equivalency and ambiguity groups for distances and dihedrals,
         and store pre-computed SSE and d.o.f for distances and dihedrals"""
@@ -270,6 +399,16 @@ class Structure(object):
         if verbose:
             print 'self.dihedral_equivalency_groups', self.dihedral_equivalency_groups
 
+        # compile chemicalshift_equivalency_groups from the list of NMR_Chemicalshift() objects   #GYH
+        for i in range(len(self.chemicalshift_restraints)):
+            d = self.chemicalshift_restraints[i]
+            if d.equivalency_index != None:
+                if not self.chemicalshift_equivalency_groups.has_key(d.equivalency_index):
+                   self.chemicalshift_equivalency_groups[d.equivalency_index] = []
+                self.chemicalshift_equivalency_groups[d.equivalency_index].append(i)
+        if verbose:
+            print 'self.chemicalshift_equivalency_groups', self.chemicalshift_equivalency_groups
+
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
 
@@ -279,6 +418,8 @@ class Structure(object):
         # precompute SSE and Ndof for dihedrals
         self.compute_sse_dihedrals()
 
+        # precompute SSE and Ndof for chemical shift #GYH
+        self.compute_sse_chemicalshift()
      
 
 
@@ -288,12 +429,17 @@ class Structure(object):
         for group in self.distance_equivalency_groups.values():
             n = float(len(group))
             for i in group:
-                self.distance_restraints[i].weight = 1.0/n 
+                self.distance_restraints[i].weight = 2.0/n 
 
         for group in self.dihedral_equivalency_groups.values():
             n = float(len(group))
             for i in group:
-                self.dihedral_restraints[i].weight = 1.0/n
+                self.dihedral_restraints[i].weight = 2.0/n
+
+        for group in self.chemicalshift_equivalency_groups.values():    #GYH
+            n = float(len(group))
+            for i in group:
+                self.chemicalshift_restraints[i].weight = 1.0/n
 
 
     def compute_sse_distances(self, debug=False):
@@ -357,6 +503,27 @@ class Structure(object):
             print 'total sse', sse
         self.sse_dihedrals = sse 
         self.Ndof_dihedrals = N
+
+    def compute_sse_chemicalshift(self, debug=False):    #GYH
+        """Returns the (weighted) sum of equared errors for chemical shift values"""
+#       for g in range(len(self.allowed_gamma)):
+
+        sse = 0.0
+        N = 0.0
+	for i in range(self.nchemicalshift):
+
+#		print '---->', i, '%d'%self.chemicalshift_restraints[i].i,
+#        	print '      exp', self.chemicalshift_restraints[i].exp_chemicalshift, 'model', self.chemicalshift_restraints[i].model_chemicalshift
+
+                err=self.chemicalshift_restraints[i].model_chemicalshift - self.chemicalshift_restraints[i].exp_chemicalshift
+                sse += (self.chemicalshift_restraints[i].weight * err**2.0)
+                N += self.chemicalshift_restraints[i].weight
+        self.sse_chemicalshift = sse
+        self.Ndof_chemicalshift = N
+        if debug:
+            print 'self.sse_chemicalshift', self.sse_chemicalshift
+
+
 
 
     def compute_neglog_reference_priors(self):
@@ -459,5 +626,27 @@ class NMR_Dihedral(object):
         # the index of the ambiguity group (i.e. some groups distances have
         # distant values, but ambiguous assignments.  We can do posterior sampling over these)
         self.ambiguity_index = ambiguity_index
+
+class NMR_Chemicalshift(object):        #GYH
+    """A class to store NMR chemical shift information."""
+
+    def __init__(self, i, model_chemicalshift, exp_chemicalshift, equivalency_index=None, ambiguity_index=None):
+        # Atom indices from the Conformation() defining this chemical shift
+	self.i = i
+
+        # the model chemical shift in this structure (in ppm)
+	self.model_chemicalshift = model_chemicalshift
+
+        # the experimental chemical shift (not likely in this case but just in case we need it in the future)
+	self.exp_chemicalshift = exp_chemicalshift
+
+        # the index of the equivalency group (not likely in this case but just in case we need it in the future)
+	self.equivalency_index = equivalency_index
+
+        # N equivalent chemical shift should only get 1/N f the weight when computing chi^2 (not likely in this case but just in case we need it in the future)
+	self.weight = 1.0 # default is N=1
+
+        # the index of the ambiguity group (not likely in this case but just in case we need it in the future)
+	self.ambiguity_index = ambiguity_index
 
 

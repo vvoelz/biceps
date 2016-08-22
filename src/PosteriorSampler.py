@@ -10,7 +10,8 @@ class PosteriorSampler(object):
 
     def __init__(self, ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=0.05, sigma_noe_max=120.0,
                                  dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
-                                 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0,
+                                 dlogsigma_cs=np.log(1.02),sigma_cs_min=0.05, sigma_cs_max=20.0,
+				 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0,
                                  use_reference_prior=True, sample_ambiguous_distances=True):
         "Initialize the PosteriorSampler class."
 
@@ -47,6 +48,18 @@ class PosteriorSampler(object):
         self.sigma_J_index = len(self.allowed_sigma_J)/2   # pick an intermediate value to start with
         self.sigma_J = self.allowed_sigma_J[self.sigma_J_index]
 
+
+	# pick initial values for sigma_cs (std of experimental uncertainty in chemical shift)   #GYH
+        self.dlogsigma_cs = dlogsigma_cs  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
+        self.sigma_cs_min = sigma_cs_min
+        self.sigma_cs_max = sigma_cs_max
+        self.allowed_sigma_cs = np.exp(np.arange(np.log(self.sigma_cs_min), np.log(self.sigma_cs_max), self.dlogsigma_cs))
+        print 'self.allowed_sigma_cs', self.allowed_sigma_cs
+        print 'len(self.allowed_sigma_cs) =', len(self.allowed_sigma_cs)
+        self.sigma_cs_index = len(self.allowed_sigma_cs)/2   # pick an intermediate value to start with
+        self.sigma_cs = self.allowed_sigma_cs[self.sigma_cs_index]
+
+
         # pick initial values for gamma^(-1/6) (NOE scaling parameter)
         self.dloggamma = dloggamma  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
         self.gamma_min = gamma_min
@@ -65,7 +78,7 @@ class PosteriorSampler(object):
         self.total = 0
 
         # keep track of what we sampled in a trajectory
-        self.traj = PosteriorSamplingTrajectory(self.ensembles[0], self.allowed_sigma_noe, self.allowed_sigma_J, self.allowed_gamma)
+        self.traj = PosteriorSamplingTrajectory(self.ensembles[0], self.allowed_sigma_noe, self.allowed_sigma_J, self.allowed_sigma_cs, self.allowed_gamma)
         self.write_traj = 1000  # step frequencies to write trajectory info
 
         # frequency of printing to the screen
@@ -150,7 +163,7 @@ class PosteriorSampler(object):
 
 
 
-    def neglogP(self, new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_gamma_index, verbose=False):
+    def neglogP(self, new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_sigma_cs, new_gamma_index, verbose=False):
         """Return -ln P of the current configuration."""
 
         # The current structure being sampled
@@ -170,7 +183,12 @@ class PosteriorSampler(object):
         result += s.sse_dihedrals / (2.0*new_sigma_J**2.0)
         result += (s.Ndof_dihedrals)/2.0*self.ln2pi  # for normalization
 
+	# chemicalshift terms                           # GYH
+        result += (s.Ndof_chemicalshift)*np.log(new_sigma_cs)
+        result += s.sse_chemicalshift / (2.0*new_sigma_cs**2.0)
+        result += (s.Ndof_chemicalshift)/2.0*self.ln2pi
  
+
         # reference priors
         if self.use_reference_prior:
             result -= s.sum_neglog_reference_priors
@@ -179,8 +197,8 @@ class PosteriorSampler(object):
             print 'state, f_sim', new_state, s.free_energy, 
             print 's.sse_distances[', new_gamma_index, ']', s.sse_distances[new_gamma_index], 's.Ndof_distances', s.Ndof_distances
             print 's.sse_dihedrals', s.sse_dihedrals, 's.Ndof_dihedrals', s.Ndof_dihedrals, 's.sum_neglog_reference_priors', s.sum_neglog_reference_priors
-
-
+	    print 's.sse_chemicalshift', s.sse_chemicalshift, 's.Ndof_chemicalshift', s.Ndof_chemicalshift # GYH
+		
         return result
 
 
@@ -193,31 +211,40 @@ class PosteriorSampler(object):
             new_sigma_noe_index = self.sigma_noe_index
             new_sigma_J = self.sigma_J
             new_sigma_J_index = self.sigma_J_index
-            new_gamma = self.gamma
+            new_sigma_cs = self.sigma_cs                #GYH
+            new_sigma_cs_index = self.sigma_cs_index    #GYH
+	    new_gamma = self.gamma
             new_gamma_index = self.gamma_index
 
             new_state = self.state
             new_ensemble_index = self.ensemble_index
 
-            if np.random.random() < 0.24:
+            if np.random.random() < 0.20:
                 # take a step in array of allowed sigma_distance
                 new_sigma_noe_index += (np.random.randint(3)-1)
                 new_sigma_noe_index = new_sigma_noe_index%(len(self.allowed_sigma_noe)) # don't go out of bounds
                 new_sigma_noe = self.allowed_sigma_noe[new_sigma_noe_index]
 
-            elif np.random.random() < 0.48:
+            elif np.random.random() < 0.40:
                 # take a step in array of allowed sigma_J
                 new_sigma_J_index += (np.random.randint(3)-1)
                 new_sigma_J_index = new_sigma_J_index%(len(self.allowed_sigma_J)) # don't go out of bounds
                 new_sigma_J = self.allowed_sigma_J[new_sigma_J_index]
+	    
+	    elif np.random.random() < 0.60 :           
+                # take a step in array of allowed sigma_cs
+                new_sigma_cs_index += (np.random.randint(3)-1)
+                new_sigma_cs_index = new_sigma_cs_index%(len(self.allowed_sigma_cs)) # don't go out of bounds
+                new_sigma_cs = self.allowed_sigma_cs[new_sigma_cs_index]
 
-            elif np.random.random() < 0.72:
+
+            elif np.random.random() < 0.80:
                 # take a step in array of allowed gamma
                 new_gamma_index += (np.random.randint(3)-1)
                 new_gamma_index = new_gamma_index%(len(self.allowed_gamma)) # don't go out of bounds
                 new_gamma  = self.allowed_gamma[new_gamma_index]
 
-            elif np.random.random() < 0.96:
+            elif np.random.random() < 0.99:
                 # take a random step in state space 
                 new_state = np.random.randint(self.nstates)
 
@@ -229,7 +256,7 @@ class PosteriorSampler(object):
             verbose = False
             if step%self.print_every == 0:
                 verbose = True
-            new_E = self.neglogP(new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_gamma_index, verbose=verbose)
+            new_E = self.neglogP(new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_sigma_cs, new_gamma_index, verbose=verbose)
 
             # accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -241,10 +268,11 @@ class PosteriorSampler(object):
 
             # print status
             if step%self.print_every == 0:
-                print 'step', step, 'E', self.E, 'new_E', new_E, 'accept', accept, 'new_sigma_noe', new_sigma_noe, 'new_sigma_J', new_sigma_J, 'new_gamma', new_gamma, 'new_state', new_state, 'new_ensemble_index', new_ensemble_index
+                print 'step', step, 'E', self.E, 'new_E', new_E, 'accept', accept, 'new_sigma_noe', new_sigma_noe, 'new_sigma_J', new_sigma_J, 'new_sigma_cs', new_sigma_cs, 'new_gamma', new_gamma, 'new_state', new_state, 'new_ensemble_index', new_ensemble_index
 	    # Store trajectory counts 
             self.traj.sampled_sigma_noe[self.sigma_noe_index] += 1
             self.traj.sampled_sigma_J[self.sigma_J_index] += 1
+	    self.traj.sampled_sigma_cs[self.sigma_cs_index] += 1  #GYH
             self.traj.sampled_gamma[self.gamma_index] += 1
             self.traj.state_counts[self.state] += 1
 
@@ -255,7 +283,9 @@ class PosteriorSampler(object):
                 self.sigma_noe_index = new_sigma_noe_index
                 self.sigma_J = new_sigma_J
                 self.sigma_J_index = new_sigma_J_index
-                self.gamma = new_gamma
+                self.sigma_cs = new_sigma_cs                    #GYH
+                self.sigma_cs_index = new_sigma_cs_index        #GYH    
+		self.gamma = new_gamma
                 self.gamma_index = new_gamma_index
                 self.state = new_state
                 self.ensemble_index = new_ensemble_index
@@ -264,7 +294,7 @@ class PosteriorSampler(object):
 
             # store trajectory samples
             if step%self.traj_every == 0:
-                self.traj.trajectory.append( [int(step), float(self.E), int(accept), int(self.state), int(self.sigma_noe_index), int(self.sigma_J_index), int(self.gamma_index)] )
+                self.traj.trajectory.append( [int(step), float(self.E), int(accept), int(self.state), int(self.sigma_noe_index), int(self.sigma_J_index), int(self.sigma_cs_index), int(self.gamma_index)] )
 
             if step%self.print_every == 0:
                 print 'accratio =', self.accepted/self.total
@@ -274,19 +304,23 @@ class PosteriorSampler(object):
 class PosteriorSamplingTrajectory(object):
     "A class to store and perform operations on the trajectories of sampling runs."
 
-    def __init__(self, ensemble, allowed_sigma_noe, allowed_sigma_J, allowed_gamma):
+    def __init__(self, ensemble, allowed_sigma_noe, allowed_sigma_J, allowed_sigma_cs, allowed_gamma):
         "Initialize the PosteriorSamplingTrajectory."
 
         self.nstates = len(ensemble)
         self.ensemble = ensemble
         self.ndistances = len(self.ensemble[0].distance_restraints)
         self.ndihedrals = len(self.ensemble[0].dihedral_restraints)
+	self.nchemicalshift = len(self.ensemble[0].chemicalshift_restraints) #GYH
 
         self.allowed_sigma_noe = allowed_sigma_noe
         self.sampled_sigma_noe = np.zeros(len(allowed_sigma_noe))  
 
         self.allowed_sigma_J = allowed_sigma_J
         self.sampled_sigma_J = np.zeros(len(allowed_sigma_J))  
+
+        self.allowed_sigma_cs = allowed_sigma_cs                        #GYH
+        self.sampled_sigma_cs = np.zeros(len(allowed_sigma_cs))         #GYH
 
         self.allowed_gamma = allowed_gamma
         self.sampled_gamma = np.zeros(len(allowed_gamma))
@@ -296,8 +330,8 @@ class PosteriorSamplingTrajectory(object):
         self.f_sim = np.array([e.free_energy for e in ensemble])
         self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
 
-        # stores samples [step, self.E, accept, state, sigma_noe, sigma_J, gamma]
-        self.trajectory_headers = ['step', 'E', 'accept', 'state', 'sigma_noe_index', 'sigma_J_index', 'gamma_index']
+        # stores samples [step, self.E, accept, state, sigma_noe, sigma_J, sigma_cs, gamma]
+        self.trajectory_headers = ['step', 'E', 'accept', 'state', 'sigma_noe_index', 'sigma_J_index', 'sigma_cs_index', 'gamma_index']
         self.trajectory = []
 
         # a dictionary to store results for YAML file
@@ -317,14 +351,17 @@ class PosteriorSamplingTrajectory(object):
         # Store the nuisance parameter distributions
         self.results['allowed_sigma_noe'] = self.allowed_sigma_noe.tolist()
         self.results['allowed_sigma_J'] = self.allowed_sigma_J.tolist()
+        self.results['allowed_sigma_cs'] = self.allowed_sigma_cs.tolist()   #GYH
         self.results['allowed_gamma'] = self.allowed_gamma.tolist()
         self.results['sampled_sigma_noe'] = self.sampled_sigma_noe.tolist()
         self.results['sampled_sigma_J'] = self.sampled_sigma_J.tolist()
+        self.results['sampled_sigma_cs'] = self.sampled_sigma_cs.tolist()   #GYH
         self.results['sampled_gamma'] = self.sampled_gamma.tolist()
 
         # Calculate the modes of the nuisance parameter marginal distributions
         self.results['sigma_noe_mode'] = float(self.allowed_sigma_noe[ np.argmax(self.sampled_sigma_noe) ])
         self.results['sigma_J_mode']   = float(self.allowed_sigma_J[ np.argmax(self.sampled_sigma_J) ])
+        self.results['sigma_cs_mode']   = float(self.allowed_sigma_cs[ np.argmax(self.sampled_sigma_cs) ])      #GYH
         self.results['gamma_mode']     = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
 
         # copy over the purely computational free energies f_i 
@@ -392,6 +429,26 @@ class PosteriorSamplingTrajectory(object):
         abs_Jdiffs = np.abs( exp_Jcoupling - mean_Jcoupling )
         self.results['disagreement_Jcoupling_mean'] = float(abs_Jdiffs.mean())
         self.results['disagreement_Jcoupling_std'] = float(abs_Jdiffs.std())
+
+        # Estimate the ensemble-averaged chemical shift values    #GYH
+        mean_chemicalshift = np.zeros(self.nchemicalshift)
+        Z = np.zeros(self.nchemicalshift)
+        for i in range(self.nstates):
+            for j in range(self.nchemicalshift):
+                pop = self.results['state_pops'][i]
+                weight = self.ensemble[i].chemicalshift_restraints[j].weight
+                r = self.ensemble[i].chemicalshift_restraints[j].model_chemicalshift
+                mean_chemicalshift[j] += pop*weight*r
+                Z[j] += pop*weight
+        mean_chemicalshift = (mean_chemicalshift/Z)**(-1.0/6.0)
+        self.results['mean_chemicalshift'] = mean_chemicalshift.tolist()
+
+        # Compute the experiment chemical shift                 #GYH
+        exp_chemicalshift = np.array([self.ensemble[0].chemicalshift_restraints[j].exp_chemicalshift for j in range(self.nchemicalshift)])
+        self.results['exp_chemicalshift'] = exp_chemicalshift.tolist()
+        abs_Jdiffs = np.abs( exp_chemicalshift - mean_chemicalshift )
+        self.results['disagreement_chemicalshift_mean'] = float(abs_Jdiffs.mean())
+        self.results['disagreement_chemicalshift_std'] = float(abs_Jdiffs.std())
 
              
 
