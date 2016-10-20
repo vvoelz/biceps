@@ -2,6 +2,7 @@ import os, sys
 import numpy as np
 #filename='albo_37.pdb'
 filename=raw_input("Please tell me your pdb filename:  ")
+print 'Working...'
 f=open(filename,'r')
 lines=f.readlines()
 f.close()
@@ -14,5 +15,5 @@ fid=open(outfile,'w')
 for i in pdb:
 	fid.writelines(i+'\n')
 fid.close()
-	
+print 'Done!'	
 
