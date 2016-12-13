@@ -17,7 +17,7 @@ class Structure(object):
     experimental NOE, J-coupling and chemical shift data, and   
     Each Instances of this obect"""
 
-    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, expdata_filename_cs=None, expdata_filename_PF=None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0):
+    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, expdata_filename_cs_H=None, expdata_filename_cs_Ha=None, expdata_filename_cs_N=None, expdata_filename_cs_Ca=None, expdata_filename_PF=None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0):
         """Initialize the class.
         INPUTS
 	conf		A molecular structure as an msmbuilder Conformation() object.
@@ -32,7 +32,10 @@ class Structure(object):
         self.PDB_filename = PDB_filename
 #    	self.expdata_filename_noe = expdata_filename_noe
     #    self.expdata_filename_J = expdata_filename_J
-        self.expdata_filename_cs = expdata_filename_cs
+        self.expdata_filename_cs_H = expdata_filename_cs_H
+        self.expdata_filename_cs_Ha = expdata_filename_cs_Ha
+        self.expdata_filename_cs_N = expdata_filename_cs_N
+        self.expdata_filename_cs_Ca = expdata_filename_cs_Ca
 	self.expdata_filename_PF = expdata_filename_PF #GYH
 	self.conf = mdtraj.load_pdb(PDB_filename)
         # Convert the coordinates from nm to Angstrom units 
@@ -63,15 +66,21 @@ class Structure(object):
         self.ndihedrals = 0
 
 	# Store chemical shift restraint info   #GYH
-        self.chemicalshift_restraints = []
-        self.chemicalshift_equivalency_groups = {}
-        self.chemicalshift_ambiguity_groups = {}
-        self.nchemicalshift = 0
+        self.chemicalshift_H_restraints = []
+	self.chemicalshift_Ha_restraints = []
+	self.chemicalshift_N_restraints = []
+	self.chemicalshift_Ca_restraints = []
+#        self.chemicalshift_equivalency_groups = {}
+#        self.chemicalshift_ambiguity_groups = {}
+        self.nchemicalshift_H = 0
+	self.nchemicalshift_Ha = 0
+	self.nchemicalshift_N = 0
+	self.nchemicalshift_Ca = 0
 
 	# Store protection factor restraint info	#GYH
 	self.protectionfactor_restraints = []
-	self.protectionfactor_equivalency_groups = {}
-	self.protectionfactor_ambiguity_groups = {}
+#	self.protectionfactor_equivalency_groups = {}
+#	self.protectionfactor_ambiguity_groups = {}
 	self.nprotectionfactor = 0
 
         # Create a KarplusRelation object
@@ -82,13 +91,25 @@ class Structure(object):
         self.Ndof_distances = 0.0
         self.sse_dihedrals = None
         self.Ndof_dihedrals = 0.0
-        self.sse_chemicalshift = None #GYH
-        self.Ndof_chemicalshift = None  #GYH
+        self.sse_chemicalshift_H = None #GYH
+        self.Ndof_chemicalshift_H = None  #GYH
+        self.sse_chemicalshift_Ha = None #GYH
+        self.Ndof_chemicalshift_Ha = None  #GYH
+        self.sse_chemicalshift_N = None #GYH
+        self.Ndof_chemicalshift_N = None  #GYH
+        self.sse_chemicalshift_Ca = None #GYH
+        self.Ndof_chemicalshift_Ca = None  #GYH
 	self.sse_protectionfactor = None #GYH
 	self.Ndof_protectionfactor = None #GYH
         self.betas = None   # if reference is used, an array of N_j betas for each distance
         self.neglog_reference_priors = None
-        self.sum_neglog_reference_priors = 0.0
+        self.sum_neglog_reference_priors_noe = 0.0	#GYH
+        self.sum_neglog_reference_priors_H = 0.0	#GYH
+        self.sum_neglog_reference_priors_Ha = 0.0	#GYH
+        self.sum_neglog_reference_priors_N = 0.0	#GYH
+        self.sum_neglog_reference_priors_Ca = 0.0	#GYH
+        self.sum_neglog_reference_priors_PF = 0.0	#GYH
+
 
         # If an experimental data file is given, load in the information
 	self.expdata_filename_noe = expdata_filename_noe
@@ -97,9 +118,19 @@ class Structure(object):
         self.expdata_filename_J = expdata_filename_J
 #        if expdata_filename_J != None:
 #                self.load_expdata_J(expdata_filename_J)
-	self.expdata_filename_cs = expdata_filename_cs
-	if expdata_filename_cs != None:
-		self.load_expdata_cs(expdata_filename_cs)	#GYH        
+	self.expdata_filename_cs_H = expdata_filename_cs_H
+	if expdata_filename_cs_H != None:
+		self.load_expdata_cs_H(expdata_filename_cs_H)	#GYH        
+        self.expdata_filename_cs_Ha = expdata_filename_cs_Ha
+ #       if expdata_filename_cs_Ha != None:
+ #               self.load_expdata_cs_Ha(expdata_filename_cs_Ha)       #GYH  
+        self.expdata_filename_cs_N = expdata_filename_cs_N
+        if expdata_filename_cs_N != None:
+                self.load_expdata_cs_N(expdata_filename_cs_N)       #GYH  	
+        self.expdata_filename_cs_Ca = expdata_filename_cs_Ca
+        if expdata_filename_cs_Ca != None:
+                self.load_expdata_cs_Ca(expdata_filename_cs_Ca)       #GYH  
+
 	self.expdata_filename_PF = expdata_filename_PF
 	if expdata_filename_PF != None:
 		self.load_expdata_PF(expdata_filename_PF)
@@ -184,7 +215,7 @@ class Structure(object):
 
 
 
-    def load_expdata_cs(self, filename, verbose=False):
+    def load_expdata_cs_H(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .chemicalshift file format.
 	"""
 
@@ -209,12 +240,112 @@ class Structure(object):
 
         # add the chemical shift restraints
         for entry in data:
-            restraint_index, i, exp_chemicalshift = entry[0], entry[1], entry[4]
-            self.add_chemicalshift_restraint(i, exp_chemicalshift, model_chemicalshift=None)
+            restraint_index, i, exp_chemicalshift_H = entry[0], entry[1], entry[4]
+            self.add_chemicalshift_H_restraint(i, exp_chemicalshift_H, model_chemicalshift_H=None)
 
         # build groups of equivalency group indices, ambiguous group etc.
 
-        self.build_groups_cs()
+        self.build_groups_cs_H()
+
+
+    def load_expdata_cs_Ha(self, filename, verbose=False):
+        """Load in the experimental chemical shift restraints from a .chemicalshift file format.
+        """
+
+        # Read in the lines of the chemicalshift data file
+        b = RestraintFile_cs(filename=filename)
+        if verbose:
+                print b.lines
+        data = []
+        for line in b.lines:
+                data.append( b.parse_line_cs(line) )  # [restraint_index, atom_index1, res1, atom_name1, chemicalshift]
+
+        if verbose:
+            print 'Loaded from', filename, ':'
+            for entry in data:
+                print entry
+
+        ### distances ###
+
+        # the equivalency indices for distances are in the first column of the *.biceps f
+#       equivalency_indices = [entry[0] for entry in data]
+
+
+        # add the chemical shift restraints
+        for entry in data:
+            restraint_index, i, exp_chemicalshift_Ha = entry[0], entry[1], entry[4]
+            self.add_chemicalshift_Ha_restraint(i, exp_chemicalshift_Ha, model_chemicalshift_Ha=None)
+
+        # build groups of equivalency group indices, ambiguous group etc.
+
+        self.build_groups_cs_Ha()
+
+    def load_expdata_cs_N(self, filename, verbose=False):
+        """Load in the experimental chemical shift restraints from a .chemicalshift file format.
+        """
+
+        # Read in the lines of the chemicalshift data file
+        b = RestraintFile_cs(filename=filename)
+        if verbose:
+                print b.lines
+        data = []
+        for line in b.lines:
+                data.append( b.parse_line_cs(line) )  # [restraint_index, atom_index1, res1, atom_name1, chemicalshift]
+
+        if verbose:
+            print 'Loaded from', filename, ':'
+            for entry in data:
+                print entry
+
+        ### distances ###
+
+        # the equivalency indices for distances are in the first column of the *.biceps f
+#       equivalency_indices = [entry[0] for entry in data]
+
+
+        # add the chemical shift restraints
+        for entry in data:
+            restraint_index, i, exp_chemicalshift_N = entry[0], entry[1], entry[4]
+            self.add_chemicalshift_N_restraint(i, exp_chemicalshift_N, model_chemicalshift_N=None)
+
+        # build groups of equivalency group indices, ambiguous group etc.
+
+        self.build_groups_cs_N()
+
+
+    def load_expdata_cs_Ca(self, filename, verbose=False):
+        """Load in the experimental chemical shift restraints from a .chemicalshift file format.
+        """
+
+        # Read in the lines of the chemicalshift data file
+        b = RestraintFile_cs(filename=filename)
+        if verbose:
+                print b.lines
+        data = []
+        for line in b.lines:
+                data.append( b.parse_line_cs(line) )  # [restraint_index, atom_index1, res1, atom_name1, chemicalshift]
+
+        if verbose:
+            print 'Loaded from', filename, ':'
+            for entry in data:
+                print entry
+
+        ### distances ###
+
+        # the equivalency indices for distances are in the first column of the *.biceps f
+#       equivalency_indices = [entry[0] for entry in data]
+
+
+        # add the chemical shift restraints
+        for entry in data:
+            restraint_index, i, exp_chemicalshift_Ca = entry[0], entry[1], entry[4]
+            self.add_chemicalshift_Ca_restraint(i, exp_chemicalshift_Ca, model_chemicalshift_Ca=None)
+
+        # build groups of equivalency group indices, ambiguous group etc.
+
+        self.build_groups_cs_Ca()
+
+
 
 
 
@@ -295,19 +426,64 @@ class Structure(object):
 
 
 
-    def add_chemicalshift_restraint(self, i, exp_chemicalshift, model_chemicalshift=None):
+    def add_chemicalshift_H_restraint(self, i, exp_chemicalshift_H, model_chemicalshift_H=None):
         """Add a chemicalshift NMR_Chemicalshift() object to the list."""
          # if the modeled distance is not specified, compute the distance from the conformation
 #       Ind = self.conf.topology.select("index == j")
 #       t=self.conf.atom_slice(Ind)
-        if model_chemicalshift == None:
+        if model_chemicalshift_H == None:
  #              r=md.nmr.chemicalshifts_shiftx2(r,pH=2.5, temperature = 280.0)    
 
  #              model_chemicalshift = r.mean(axis=1)
-                model_chemicalshift = 1  # will be replaced by pre-computed cs
-        self.chemicalshift_restraints.append( NMR_Chemicalshift(i, model_chemicalshift, exp_chemicalshift))
+                model_chemicalshift_H = 1  # will be replaced by pre-computed cs
+	
+        self.chemicalshift_H_restraints.append( NMR_Chemicalshift_H(i, model_chemicalshift_H, exp_chemicalshift_H))
 
-        self.nchemicalshift += 1
+        self.nchemicalshift_H += 1
+
+    def add_chemicalshift_Ha_restraint(self, i, exp_chemicalshift_Ha, model_chemicalshift_Ha=None):
+        """Add a chemicalshift NMR_Chemicalshift() object to the list."""
+         # if the modeled distance is not specified, compute the distance from the conformation
+#       Ind = self.conf.topology.select("index == j")
+#       t=self.conf.atom_slice(Ind)
+        if model_chemicalshift_Ha == None:
+ #              r=md.nmr.chemicalshifts_shiftx2(r,pH=2.5, temperature = 280.0)    
+
+ #              model_chemicalshift = r.mean(axis=1)
+                model_chemicalshift_Ha = 1  # will be replaced by pre-computed cs
+        self.chemicalshift_Ha_restraints.append( NMR_Chemicalshift_Ha(i, model_chemicalshift_Ha, exp_chemicalshift_Ha))
+
+        self.nchemicalshift_Ha += 1
+    
+    def add_chemicalshift_Ca_restraint(self, i, exp_chemicalshift_Ca, model_chemicalshift_Ca=None):
+        """Add a chemicalshift NMR_Chemicalshift() object to the list."""
+         # if the modeled distance is not specified, compute the distance from the conformation
+#       Ind = self.conf.topology.select("index == j")
+#       t=self.conf.atom_slice(Ind)
+        if model_chemicalshift_Ca == None:
+ #              r=md.nmr.chemicalshifts_shiftx2(r,pH=2.5, temperature = 280.0)    
+
+ #              model_chemicalshift = r.mean(axis=1)
+                model_chemicalshift_Ca = 1  # will be replaced by pre-computed cs
+        self.chemicalshift_Ca_restraints.append( NMR_Chemicalshift_Ca(i, model_chemicalshift_Ca, exp_chemicalshift_Ca))
+
+        self.nchemicalshift_Ca += 1
+
+    def add_chemicalshift_N_restraint(self, i, exp_chemicalshift_N, model_chemicalshift_N=None):
+        """Add a chemicalshift NMR_Chemicalshift() object to the list."""
+         # if the modeled distance is not specified, compute the distance from the conformation
+#       Ind = self.conf.topology.select("index == j")
+#       t=self.conf.atom_slice(Ind)
+        if model_chemicalshift_N == None:
+ #              r=md.nmr.chemicalshifts_shiftx2(r,pH=2.5, temperature = 280.0)    
+
+ #              model_chemicalshift = r.mean(axis=1)
+                model_chemicalshift_N = 1  # will be replaced by pre-computed cs
+        self.chemicalshift_N_restraints.append( NMR_Chemicalshift_N(i, model_chemicalshift_N, exp_chemicalshift_N))
+
+        self.nchemicalshift_N += 1
+
+
 
     def add_protectionfactor_restraint(self, i, exp_protectionfactor, model_protectionfactor=None):
 	"""Add a protectionfactor NMR_Protectionfactor() object to the list."""
@@ -365,7 +541,7 @@ class Structure(object):
         self.compute_sse_dihedrals()
 
 
-    def build_groups_cs(self, verbose=False):
+    def build_groups_cs_H(self, verbose=False):
 #        """Build equivalency and ambiguity groups for distances and dihedrals,
 #        and store pre-computed SSE and d.o.f for distances and dihedrals"""
 
@@ -381,8 +557,62 @@ class Structure(object):
 #            print 'self.chemicalshift_equivalency_groups', self.chemicalshift_equivalency_groups
 
         # precompute SSE and Ndof for chemical shift #GYH
-        self.compute_sse_chemicalshift()
+        self.compute_sse_chemicalshift_H()
 
+    def build_groups_cs_Ha(self, verbose=False):
+#        """Build equivalency and ambiguity groups for distances and dihedrals,
+#        and store pre-computed SSE and d.o.f for distances and dihedrals"""
+
+
+        # compile chemicalshift_equivalency_groups from the list of NMR_Chemicalshift() objects   #GYH
+#        for i in range(len(self.chemicalshift_restraints)):
+#            d = self.chemicalshift_restraints[i]
+#            if d.equivalency_index != None:
+#                if not self.chemicalshift_equivalency_groups.has_key(d.equivalency_index):
+#                   self.chemicalshift_equivalency_groups[d.equivalency_index] = []
+#                self.chemicalshift_equivalency_groups[d.equivalency_index].append(i)
+#        if (1):
+#            print 'self.chemicalshift_equivalency_groups', self.chemicalshift_equivalency_groups
+
+        # precompute SSE and Ndof for chemical shift #GYH
+        self.compute_sse_chemicalshift_Ha()
+
+
+    def build_groups_cs_N(self, verbose=False):
+#        """Build equivalency and ambiguity groups for distances and dihedrals,
+#        and store pre-computed SSE and d.o.f for distances and dihedrals"""
+
+
+        # compile chemicalshift_equivalency_groups from the list of NMR_Chemicalshift() objects   #GYH
+#        for i in range(len(self.chemicalshift_restraints)):
+#            d = self.chemicalshift_restraints[i]
+#            if d.equivalency_index != None:
+#                if not self.chemicalshift_equivalency_groups.has_key(d.equivalency_index):
+#                   self.chemicalshift_equivalency_groups[d.equivalency_index] = []
+#                self.chemicalshift_equivalency_groups[d.equivalency_index].append(i)
+#        if (1):
+#            print 'self.chemicalshift_equivalency_groups', self.chemicalshift_equivalency_groups
+
+        # precompute SSE and Ndof for chemical shift #GYH
+        self.compute_sse_chemicalshift_N()
+
+    def build_groups_cs_Ca(self, verbose=False):
+#        """Build equivalency and ambiguity groups for distances and dihedrals,
+#        and store pre-computed SSE and d.o.f for distances and dihedrals"""
+
+
+        # compile chemicalshift_equivalency_groups from the list of NMR_Chemicalshift() objects   #GYH
+#        for i in range(len(self.chemicalshift_restraints)):
+#            d = self.chemicalshift_restraints[i]
+#            if d.equivalency_index != None:
+#                if not self.chemicalshift_equivalency_groups.has_key(d.equivalency_index):
+#                   self.chemicalshift_equivalency_groups[d.equivalency_index] = []
+#                self.chemicalshift_equivalency_groups[d.equivalency_index].append(i)
+#        if (1):
+#            print 'self.chemicalshift_equivalency_groups', self.chemicalshift_equivalency_groups
+
+        # precompute SSE and Ndof for chemical shift #GYH
+        self.compute_sse_chemicalshift_Ca()
 
     def build_groups_pf(self, verbose=False):
 #        """Build equivalency and ambiguity groups for distances and dihedrals,
@@ -479,24 +709,88 @@ class Structure(object):
         self.sse_dihedrals = sse 
         self.Ndof_dihedrals = N
 
-    def compute_sse_chemicalshift(self, debug=False):    #GYH
+    def compute_sse_chemicalshift_H(self, debug=False):    #GYH
         """Returns the (weighted) sum of squared errors for chemical shift values"""
 #       for g in range(len(self.allowed_gamma)):
 
-        sse = 0.0
-        N = 0.0
-	for i in range(self.nchemicalshift):
+        sse_H = 0.0
+        N_H = 0.0
+	for i in range(self.nchemicalshift_H):
 
 #		print '---->', i, '%d'%self.chemicalshift_restraints[i].i,
 #        	print '      exp', self.chemicalshift_restraints[i].exp_chemicalshift, 'model', self.chemicalshift_restraints[i].model_chemicalshift
 
-                err=self.chemicalshift_restraints[i].model_chemicalshift - self.chemicalshift_restraints[i].exp_chemicalshift
-                sse += (self.chemicalshift_restraints[i].weight*err**2.0)
-                N += self.chemicalshift_restraints[i].weight
-        self.sse_chemicalshift = sse
-        self.Ndof_chemicalshift = N
+                err_H=self.chemicalshift_H_restraints[i].model_chemicalshift_H - self.chemicalshift_H_restraints[i].exp_chemicalshift_H
+                sse_H += (self.chemicalshift_H_restraints[i].weight*err_H**2.0)
+                N_H += self.chemicalshift_H_restraints[i].weight
+        self.sse_chemicalshift_H = sse_H
+        self.Ndof_chemicalshift_H = N_H
         if debug:
-            print 'self.sse_chemicalshift', self.sse_chemicalshift
+            print 'self.sse_chemicalshift_H', self.sse_chemicalshift_H
+
+    def compute_sse_chemicalshift_Ha(self, debug=False):    #GYH
+        """Returns the (weighted) sum of squared errors for chemical shift values"""
+#       for g in range(len(self.allowed_gamma)):
+
+        sse_Ha = 0.0
+        N_Ha = 0.0
+        for i in range(self.nchemicalshift_Ha):
+
+#               print '---->', i, '%d'%self.chemicalshift_restraints[i].i,
+#               print '      exp', self.chemicalshift_restraints[i].exp_chemicalshift, 'model', self.chemicalshift_restraints[i].model_chemicalshift
+
+                err_Ha=self.chemicalshift_Ha_restraints[i].model_chemicalshift_Ha - self.chemicalshift_Ha_restraints[i].exp_chemicalshift_Ha
+                sse_Ha += (self.chemicalshift_Ha_restraints[i].weight*err_Ha**2.0)
+#                print self.chemicalshift_Ha_restraints[i].weight
+                N_Ha += self.chemicalshift_Ha_restraints[i].weight
+        self.sse_chemicalshift_Ha = sse_Ha
+        self.Ndof_chemicalshift_Ha = N_Ha
+        if debug:
+            print 'self.sse_chemicalshift_Ha', self.sse_chemicalshift_Ha
+
+
+    def compute_sse_chemicalshift_N(self, debug=False):    #GYH
+        """Returns the (weighted) sum of squared errors for chemical shift values"""
+#       for g in range(len(self.allowed_gamma)):
+
+        sse_N = 0.0
+        N_N = 0.0
+        for i in range(self.nchemicalshift_N):
+
+#               print '---->', i, '%d'%self.chemicalshift_restraints[i].i,
+#               print '      exp', self.chemicalshift_restraints[i].exp_chemicalshift, 'model', self.chemicalshift_restraints[i].model_chemicalshift
+
+                err_N=self.chemicalshift_N_restraints[i].model_chemicalshift_N - self.chemicalshift_N_restraints[i].exp_chemicalshift_N
+                sse_N += (self.chemicalshift_N_restraints[i].weight*err_N**2.0)
+#                print self.chemicalshift_N_restraints[i].weight
+                N_N += self.chemicalshift_N_restraints[i].weight
+        self.sse_chemicalshift_N = sse_N
+        self.Ndof_chemicalshift_N = N_N
+        if debug:
+            print 'self.sse_chemicalshift_N', self.sse_chemicalshift_N
+
+
+    def compute_sse_chemicalshift_Ca(self, debug=False):    #GYH
+        """Returns the (weighted) sum of squared errors for chemical shift values"""
+#       for g in range(len(self.allowed_gamma)):
+
+        sse_Ca = 0.0
+        N_Ca = 0.0
+        for i in range(self.nchemicalshift_Ca):
+
+#               print '---->', i, '%d'%self.chemicalshift_restraints[i].i,
+#               print '      exp', self.chemicalshift_restraints[i].exp_chemicalshift, 'model', self.chemicalshift_restraints[i].model_chemicalshift
+
+                err_Ca=self.chemicalshift_Ca_restraints[i].model_chemicalshift_Ca - self.chemicalshift_Ca_restraints[i].exp_chemicalshift_Ca
+                sse_Ca += (self.chemicalshift_Ca_restraints[i].weight*err_Ca**2.0)
+#                print self.chemicalshift_Ca_restraints[i].weight
+                N_Ca += self.chemicalshift_Ca_restraints[i].weight
+        self.sse_chemicalshift_Ca = sse_Ca
+        self.Ndof_chemicalshift_Ca = N_Ca
+        if debug:
+            print 'self.sse_chemicalshift_Ca', self.sse_chemicalshift_Ca
+
+
 
     def compute_sse_protectionfactor(self,debug=False):		#GYH
 	"""Returns the (weighted) sum of squared errors for protection factor values"""
@@ -505,24 +799,86 @@ class Structure(object):
 	for i in range(self.nprotectionfactor):
 		err=self.protectionfactor_restraints[i].model_protectionfactor - self.protectionfactor_restraints[i].exp_protectionfactor
 		sse += (self.protectionfactor_restraints[i].weight * err**2.0)
-		N += self.protectionfactor_restraints[i].weight
+		N += self.protectionfactor_restraints[i].weight 
 	self.sse_protectionfactor = sse
 	self.Ndof_protectionfactor = N
 	if debug:
 	    print 'self.sse_protectionfactor', self.sse_protectionfactor
 
 
-    def compute_neglog_reference_priors(self):
+    def compute_neglog_reference_priors_noe(self):		#GYH
         """Uses the stored beta information (calculated across all structures) to calculate
         - log P_ref(distance[j) for each distance j."""
 
         # print 'self.betas', self.betas
 
-        self.neglog_reference_priors = np.zeros(self.ndistances)
-        self.sum_neglog_reference_priors = 0.
+        self.neglog_reference_priors_noe = np.zeros(self.ndistances)
+        self.sum_neglog_reference_priors_noe = 0.
         for j in range(self.ndistances):
-            self.neglog_reference_priors[j] = np.log(self.betas[j]) + self.distance_restraints[j].model_distance/self.betas[j]
-            self.sum_neglog_reference_priors  += self.distance_restraints[j].weight * self.neglog_reference_priors[j]
+            self.neglog_reference_priors_noe[j] = np.log(self.betas_noe[j]) + self.distance_restraints[j].model_distance/self.betas_noe[j]
+            self.sum_neglog_reference_priors_noe  += self.distance_restraints[j].weight * self.neglog_reference_priors_noe[j]
+
+    def compute_neglog_reference_priors_H(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_reference_priors_H = np.zeros(self.nchemicalshift_H)
+        self.sum_neglog_reference_priors_H = 0.
+        for j in range(self.nchemicalshift_H):
+            self.neglog_reference_priors_H[j] = np.log(self.betas_H[j]) + self.chemicalshift_H_restraints[j].model_chemicalshift_H/self.betas_H[j]
+            self.sum_neglog_reference_priors_H  += self.chemicalshift_H_restraints[j].weight * self.neglog_reference_priors_H[j]
+
+    def compute_neglog_reference_priors_Ha(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_reference_priors_Ha = np.zeros(self.nchemicalshift_Ha)
+        self.sum_neglog_reference_priors_Ha = 0.
+        for j in range(self.nchemicalshift_Ha):
+            self.neglog_reference_priors_Ha[j] = np.log(self.betas_Ha[j]) + self.chemicalshift_Ha_restraints[j].model_chemicalshift_Ha/self.betas_Ha[j]
+            self.sum_neglog_reference_priors_Ha  += self.chemicalshift_Ha_restraints[j].weight * self.neglog_reference_priors_Ha[j]
+
+    def compute_neglog_reference_priors_N(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_reference_priors_N = np.zeros(self.nchemicalshift_N)
+        self.sum_neglog_reference_priors_N = 0.
+        for j in range(self.nchemicalshift_N):
+            self.neglog_reference_priors_N[j] = np.log(self.betas_N[j]) + self.chemicalshift_N_restraints[j].model_chemicalshift_N/self.betas_N[j]
+            self.sum_neglog_reference_priors_N  += self.chemicalshift_N_restraints[j].weight * self.neglog_reference_priors_N[j]
+
+    def compute_neglog_reference_priors_Ca(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_reference_priors_Ca = np.zeros(self.nchemicalshift_Ca)
+        self.sum_neglog_reference_priors_Ca = 0.
+        for j in range(self.nchemicalshift_Ca):
+            self.neglog_reference_priors_Ca[j] = np.log(self.betas_Ca[j]) + self.chemicalshift_Ca_restraints[j].model_chemicalshift_Ca/self.betas_Ca[j]
+            self.sum_neglog_reference_priors_Ca  += self.chemicalshift_Ca_restraints[j].weight * self.neglog_reference_priors_Ca[j]
+
+    def compute_neglog_reference_priors_PF(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_reference_priors_PF= np.zeros(self.nprotectionfactor)
+        self.sum_neglog_reference_priors_PF = 0.
+        for j in range(self.nprotectionfactor):
+            self.neglog_reference_priors_PF[j] = np.log(self.betas_PF[j]) + self.protectionfactor_restraints[j].model_protectionfactor/self.betas_PF[j]
+            self.sum_neglog_reference_priors_PF  += self.protectionfactor_restraints[j].weight * self.neglog_reference_priors_PF[j]
+
+
 
 
     def switch_distances(self, indices1, indices2):
@@ -613,22 +969,80 @@ class NMR_Dihedral(object):
         # distant values, but ambiguous assignments.  We can do posterior sampling over these)
         self.ambiguity_index = ambiguity_index
 
-class NMR_Chemicalshift(object):        #GYH
+class NMR_Chemicalshift_H(object):        #GYH
     """A class to store NMR chemical shift information."""
 
-    def __init__(self, i, model_chemicalshift, exp_chemicalshift):
+    def __init__(self, i, model_chemicalshift_H, exp_chemicalshift_H):
+
         # Atom indices from the Conformation() defining this chemical shift
-	self.i = i
+        self.i = i
 
         # the model chemical shift in this structure (in ppm)
-	self.model_chemicalshift = model_chemicalshift
+        self.model_chemicalshift_H = model_chemicalshift_H
 
         # the experimental chemical shift 
-	self.exp_chemicalshift = exp_chemicalshift
-
+        self.exp_chemicalshift_H = exp_chemicalshift_H
 
         # N equivalent chemical shift should only get 1/N f the weight when computing chi^2 (not likely in this case but just in case we need it in the future)
-	self.weight = 1.0 # default is N=1
+        self.weight = 1.0/3.0 # default is N=1
+
+
+
+
+class NMR_Chemicalshift_Ha(object):        #GYH
+    """A class to store NMR chemical shift information."""
+
+    def __init__(self, i, model_chemicalshift_Ha, exp_chemicalshift_Ha):
+
+        # Atom indices from the Conformation() defining this chemical shift
+        self.i = i
+
+        # the model chemical shift in this structure (in ppm)
+        self.model_chemicalshift_Ha = model_chemicalshift_Ha
+
+        # the experimental chemical shift 
+        self.exp_chemicalshift_Ha = exp_chemicalshift_Ha
+
+        # N equivalent chemical shift should only get 1/N f the weight when computing chi^2 (not likely in this case but just in case we need it in the future)
+        self.weight = 1.0/3.0 # default is N=1
+
+
+class NMR_Chemicalshift_N(object):        #GYH
+    """A class to store NMR chemical shift information."""
+
+    def __init__(self, i, model_chemicalshift_N, exp_chemicalshift_N):
+
+        # Atom indices from the Conformation() defining this chemical shift
+        self.i = i
+
+        # the model chemical shift in this structure (in ppm)
+        self.model_chemicalshift_N = model_chemicalshift_N
+
+        # the experimental chemical shift 
+        self.exp_chemicalshift_N = exp_chemicalshift_N
+
+        # N equivalent chemical shift should only get 1/N f the weight when computing chi^2 (not likely in this case but just in case we need it in the future)
+        self.weight = 1.0/3.0 # default is N=1
+
+
+class NMR_Chemicalshift_Ca(object):        #GYH
+    """A class to store NMR chemical shift information."""
+
+    def __init__(self, i, model_chemicalshift_Ca, exp_chemicalshift_Ca):
+
+        # Atom indices from the Conformation() defining this chemical shift
+        self.i = i
+
+        # the model chemical shift in this structure (in ppm)
+        self.model_chemicalshift_Ca = model_chemicalshift_Ca
+
+        # the experimental chemical shift 
+        self.exp_chemicalshift_Ca = exp_chemicalshift_Ca
+
+        # N equivalent chemical shift should only get 1/N f the weight when computing chi^2 (not likely in this case but just in case we need it in the future)
+        self.weight = 1.0/3.0 # default is N=1
+
+
 
 
 class NMR_Protectionfactor(object):        #GYH
