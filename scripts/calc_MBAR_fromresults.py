@@ -25,7 +25,7 @@ print 'resultdir', args.resultdir
 
 # Load in yaml trajectories
 exp_files = glob.glob( os.path.join(args.resultdir,'traj_lambda*.yaml') )
-
+exp_files.sort()
 
 traj = []
 for filename in exp_files:
