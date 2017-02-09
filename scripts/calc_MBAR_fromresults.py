@@ -34,6 +34,7 @@ for filename in exp_files:
 
 # Load in cpickled sampler objects
 sampler_files = glob.glob( os.path.join(args.resultdir,'sampler_lambda*.pkl') )
+sampler_files.sort()
 sampler = []
 for pkl_filename in sampler_files:
     print 'Loading %s ...'%pkl_filename
