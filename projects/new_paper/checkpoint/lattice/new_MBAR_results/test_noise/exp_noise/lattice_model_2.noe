@@ -1,0 +1,9 @@
+#restraint_index atom_index1 res1 atom_name1 atom_index2 res2 atom_name2 distance(A)
+0            0        HYD1     CA           9        HYD10    CA             2.7152
+1            0        HYD1     CA           11       HYD12    CA             3.0152
+2            2        HYD3     CA           9        HYD10    CA             1.9164
+3            2        HYD3     CA           11       HYD12    CA             2.1285
+4            4        HYD5     CA           9        HYD10    CA             2.4387
+5            4        HYD5     CA           11       HYD12    CA             1.4893
+6            6        HYD7     CA           9        HYD10    CA             1.4745
+7            6        HYD7     CA           11       HYD12    CA             1.7919
