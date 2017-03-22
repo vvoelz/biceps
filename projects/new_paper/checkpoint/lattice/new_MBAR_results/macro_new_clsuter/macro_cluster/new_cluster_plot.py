@@ -1,12 +1,12 @@
 import sys, os
 import numpy as np
 from matplotlib import pyplot as plt
+#%matplotlib inline
 l=np.arange(0.0,6.0,0.5)
-
 #l=np.arange(0.0,10.5,0.5)
 #path=["1M_1", "1M_2", "1M_3"]
 color=['blue','green','red','cyan','black']
-state=['200','500','1000','5000','10000']
+state=['200','500','1000','5000']
 path=['1','2','3','4','5','6','7','8','9']
 error=dict()
 point=dict()
@@ -19,7 +19,7 @@ if (1):
 			g[i]=[]
 			for j in range(len(path)):
 				a=np.loadtxt('%s/%s/BF_ref_normal.dat'%(path[j],state[k]))
-				g[i].append(a[i][0])
+				g[i].append(a[i+1][0])
 			point[k].append(np.mean(g[i]))	
 			error[k].append(np.std(g[i]))
 
@@ -49,38 +49,11 @@ if (1):
 #	plt.plot(l,point,"-o")
 	for k in range(len(state)):
 		plt.errorbar(l,point[k],yerr=error[k],fmt="-o",color=color[k],label='%s_states'%state[k])
-#	plt.errorbar(l,point_G,yerr=error_G,fmt="-o",color='magenta',label='15037_states')
+	plt.errorbar(l,point_G,yerr=error_G,fmt="-o",color='magenta',label='15037_states')
 	plt.legend(loc='upper right')
 	plt.xlabel(r'$\epsilon$ values')
 	plt.ylabel('BICePs scores')
 	plt.title(r'BICePs scores change along with different $\epsilon$ values')
-#	plt.savefig('new_cluster_whole.png')
-	plt.savefig('new_cluster.png')
+	plt.savefig('new_cluster_whole.png')
+#	plt.savefig('new_cluster.png')
 	plt.show()
-	sys.exit()
-
-
-
-
-BS=[]
-for i in l:
-	b=np.loadtxt('results/micro/%.1f/BF_ref_normal.dat'%i)
-	BS.append(b[1][0])
-#print len(BS)
-#print BS
-plt.figure(figsize=(12,8))
-plt.xticks(l)
-plt.plot(l,BS,"-o")
-plt.xlabel(r'$\epsilon$ values')
-plt.ylabel('BICePs scores')
-plt.title(r'BICePs scores change along with different $\epsilon$ values')
-plt.savefig('BS_gaussian_diffglobal_micro.pdf')
-plt.show()
-
-
-
-
-
-
-	
-	
