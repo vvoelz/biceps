@@ -6,7 +6,8 @@ l=np.arange(0.0,6.0,0.5)
 #l=np.arange(0.0,10.5,0.5)
 #path=["1M_1", "1M_2", "1M_3"]
 color=['blue','green','red','cyan','black']
-state=['200','500','1000','5000']
+#state=['200','500','1000','5000']
+state=['500','1000','5000','10000']
 path=['1','2','3','4','5','6','7','8','9']
 error=dict()
 point=dict()
@@ -54,6 +55,6 @@ if (1):
 	plt.xlabel(r'$\epsilon$ values')
 	plt.ylabel('BICePs scores')
 	plt.title(r'BICePs scores change along with different $\epsilon$ values')
-	plt.savefig('new_cluster_whole.png')
+#	plt.savefig('new_cluster_whole_no200.png')
 #	plt.savefig('new_cluster.png')
 	plt.show()
