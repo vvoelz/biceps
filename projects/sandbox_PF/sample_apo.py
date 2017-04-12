@@ -46,7 +46,7 @@ if not os.path.exists(args.outdir):
 # Let's create our ensemble of structures
 
 # experimental restraints 
-expdata_filename_PF = '../apoMb.pf' 
+expdata_filename_PF = 'apoMb.pf' 
 #expdata_filename_J = ''
 #expdata_filename_cs_H = 'apoMb.chemicalshift'
 #expdata_filename_cs_Ha =
@@ -56,7 +56,7 @@ expdata_filename_PF = '../apoMb.pf'
 
 if (1):
     nclusters = 15
-    energies_filename = '../new_traj/tram/final_370K/energy_model_0.txt' #'energy.txt'
+    energies_filename = 'new_traj/tram/final_370K/energy_model_0.txt' #'energy.txt'
     energies = loadtxt(energies_filename)
  #   print 'energies.shape', energies.shape
     energies -= energies.min()  # set ground state to zero, just in case
@@ -86,7 +86,7 @@ for i in range(nclusters+1):
 #    model_protectionfactor = loadtxt('new_traj/PF/no_F/T6/pf_state%d.txt'%i) 
 #    model_protectionfactor = loadtxt('new_traj/PF/T3/pf_state%d.txt'%i) 
 
-    model_protectionfactor = loadtxt('../new_traj/PF/new_pf/for_yunhui/txt/T4/pf_state%d.txt'%i) 
+    model_protectionfactor = loadtxt('new_traj/PF/new_pf/for_yunhui/txt/T4/pf_state%d.txt'%i) 
 #    model_chemicalshift_H = loadtxt('new_traj/H/T6/cs_%d.txt'%i)
 #    model_chemicalshift_N = loadtxt('new_traj/N/T6/cs_%d.txt'%i)
 #    model_chemicalshift_Ca = loadtxt('new_traj/Ca/T6/cs_%d.txt'%i)
@@ -104,11 +104,17 @@ for i in range(nclusters+1):
 
 
     s = Structure('../new_traj/pdb/T4/state%d.pdb'%i, args.lam*energies[i],  expdata_filename_PF=expdata_filename_PF, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0, dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.095, dbeta_h=0.05, beta_h_min=0.00, beta_h_max=2.00, dbeta_0=0.2, beta_0_min=-3.0, beta_0_max=1.0, dxcs=0.5, xcs_min=5.0, xcs_max=8.5, dxhs=0.1, xhs_min=2.0, xhs_max=2.8, dbs=1.0, bs_min=3.0, bs_max=21.0)        #GYH
+    Ncs=np.zeros((len(s.allowed_xcs),len(s.allowed_bs)))
+    Nhs=np.zeros((len(s.allowed_xhs),len(s.allowed_bs)))
     for o in range(len(s.allowed_xcs)):
 	for p in range(len(s.allowed_xhs)):
 		for q in range(len(s.allowed_bs)):
 			infile_Nc='Nc_x%0.1f_b%d_%03d.npy'(s.allowed_xcs[o], s.allowed_bs[q],%i)
 			infile_Nh='Nh_x%0.1f_b%d_%03d.npy'(s.allowed_xhs[p], s.allowed_bs[q],%i)
+			Ncs[self.allowed_xcs[o],self.allowed_bs[q]] = list(np.load(infile_Nc))
+			Nhs[self.allowed_xhs[p],self.allowed_bs[q]] = list(np.load(infile_Nh))
+
+
 #    s = Structure('Gens/Gens%d.pdb'%i, args.lam*energies[i], expdata_filename_noe=expdata_filename_noe, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0)
 
     # NOTE: Upon instantiation, each Structure() object computes the distances from the given PDB.

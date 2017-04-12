@@ -557,22 +557,23 @@ class Structure(object):
 
 
 
-    def add_protectionfactor_restraint(self, i, exp_protectionfactor, model_protectionfactor=None):	# m?
+    def add_protectionfactor_restraint(self, i, exp_protectionfactor, model_protectionfactor=None):
 	"""Add a protectionfactor NMR_Protectionfactor() object to the list."""
 	if model_protectionfactor == None:
-		model_protectionalfactor = np.zeros((self.allowed_beta_c, self.allowed_beta_h, self.allowed_beta_0, self.allowed_xcs, self.allowed_xhs, self.allowed_bs))	#GYH 03/2017
-#		for o in range(len(self.allowed_xcs)):
-#                	for p in range(len(self.allowed_xhs)):
-#                        for q in range(len(self.allowed_bs)):
+		model_protectionalfactor = np.zeros((len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))	#GYH 03/2017
+		for o in range(len(self.allowed_xcs)):
+                	for p in range(len(self.allowed_xhs)):
+	                        for q in range(len(self.allowed_bs)):
 #                                infile='Nc_x%0.1f_b%d_%03d.npy'(self.allowed_xcs[o], self.allowed_bs[q]) # will be modified based on input file fromat
-                                	Nc[self.allowed_xcs[o],self.allowed_bs[q]] = list(np.load(infile_Nc))      # will be modified based on input file fromat
-					Nh[self.allowed_xhs[p],self.allowed_bs[q]] = list(np.load(infile_Nh))
+#                                	Nc[self.allowed_xcs[o],self.allowed_bs[q]] = list(np.load(infile_Nc))      # will be modified based on input file fromat
+#					Nh[self.allowed_xhs[p],self.allowed_bs[q]] = list(np.load(infile_Nh))
+					Nc = Ncs[self.allowed_xcs[o],self.allowed_bs[q]]
+					Nh = Nhs[self.allowed_xhs[p],self.allowed_bs[q]]
                                 	for m in range(len(self.allowed_beta_c)):
                                         	for j in range(len(self.allowed_beta_h)):
                                                 	for k in range(len(self.allowed_beta_0)):
-								model_protectionfactor=compute_PF(self.allowed_beta_c[m], self.allowed_beta_h[j], self.allowed_beta_0[k], Nc, Nh)
-                                                        	model_protectionfactor[m,j,k,o,p,q,:] = model_protectionfactor	# GYH: will be modified with final file format 03/2017
-								model_protectionfactor = ???	# How to deal with this indices problem?  GYH 03/2017
+			#					model_protectionfactor=compute_PF(self.allowed_beta_c[m], self.allowed_beta_h[j], self.allowed_beta_0[k], Nc, Nh)
+                                                        	model_protectionfactor[m,j,k,o,p,q,:] = compute_PF(self.allowed_beta_c[m], self.allowed_beta_h[j], self.allowed_beta_0[k], Nc, Nh) # GYH: will be modified with final file format 03/2017
 
  
 	self.protectionfactor_restraints.append(NMR_Protectionfactor(i, model_protectionfactor, exp_protectionfactor))	#???
@@ -890,13 +891,13 @@ class Structure(object):
 	for o in range(len(self.allowed_xcs)):
                         for p in range(len(self.allowed_xhs)):
                                 for q in range(len(self.allowed_bs)):
-                                        for i in range(len(self.allowed_beta_c)):
+                                        for m in range(len(self.allowed_beta_c)):
                                                 for j in range(len(self.allowed_beta_h)):
                                                         for k in range(len(self.allowed_beta_0)):
 								sse = 0.
 								N = 0.
-								for m in range(self.nprotectionfactor):
-									err=self.protectionfactor_restraints[m].model_protectionfactor[i,j,k,o,p,q,:] - self.protectionfactor_restraints[m].exp_protectionfactor
+								for i in range(self.nprotectionfactor):
+									err=self.protectionfactor_restraints[i].model_protectionfactor[m,j,k,o,p,q,:] - self.protectionfactor_restraints[i].exp_protectionfactor
 									sse += (self.protectionfactor_restraints[m].weight * err**2.0)
 									N += self.protectionfactor_restraints[m].weight
 								sse[i,j,k,o,p,q] = sse
