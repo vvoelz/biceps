@@ -112,7 +112,7 @@ class PosteriorSampler(object):
         self.sigma_PF_index = len(self.allowed_sigma_PF)/2   # pick an intermediate value to start with
         self.sigma_PF = self.allowed_sigma_PF[self.sigma_PF_index]
 
-
+	self.dist_prior = np.load('somefile from hongbin')	#Need to be fixed 04/2017 GYH
 
         # pick initial values for gamma^(-1/6) (NOE scaling parameter)
         self.dloggamma = dloggamma  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
@@ -757,7 +757,7 @@ class PosteriorSampler(object):
 	        result += (s.Ndof_protectionfactor)*np.log(new_sigma_PF)
 	        result += s.sse_protectionfactor[new_beta_c_index, new_beta_h_index, new_beta_0_index, new_xcs_index, new_xhs_index, new_bs_index] / (2.0*new_sigma_PF**2.0)		# GYH 03/2017
 	        result += (s.Ndof_protectionfactor)/2.0*self.ln2pi
-		result += s.dist_piror[new_xcs_index, new_xhs_index, new_bs_index]	# GYH: need to be defined in Structure? 03/2017
+		result -= s.dist_prior[new_xcs_index, new_xhs_index, new_bs_index]	# GYH: meglogP so -= 04/2017
 
         # reference priors
         if self.use_reference_prior_noe:

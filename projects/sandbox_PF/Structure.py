@@ -567,13 +567,13 @@ class Structure(object):
 #                                infile='Nc_x%0.1f_b%d_%03d.npy'(self.allowed_xcs[o], self.allowed_bs[q]) # will be modified based on input file fromat
 #                                	Nc[self.allowed_xcs[o],self.allowed_bs[q]] = list(np.load(infile_Nc))      # will be modified based on input file fromat
 #					Nh[self.allowed_xhs[p],self.allowed_bs[q]] = list(np.load(infile_Nh))
-					Nc = Ncs[self.allowed_xcs[o],self.allowed_bs[q]]
-					Nh = Nhs[self.allowed_xhs[p],self.allowed_bs[q]]
+			#		Nc = Ncs[o,q]
+			#		Nh = Nhs[p,q]
                                 	for m in range(len(self.allowed_beta_c)):
                                         	for j in range(len(self.allowed_beta_h)):
                                                 	for k in range(len(self.allowed_beta_0)):
 			#					model_protectionfactor=compute_PF(self.allowed_beta_c[m], self.allowed_beta_h[j], self.allowed_beta_0[k], Nc, Nh)
-                                                        	model_protectionfactor[m,j,k,o,p,q,:] = compute_PF(self.allowed_beta_c[m], self.allowed_beta_h[j], self.allowed_beta_0[k], Nc, Nh) # GYH: will be modified with final file format 03/2017
+                                                        	model_protectionfactor[m,j,k,o,p,q] = compute_PF(self.allowed_beta_c[m], self.allowed_beta_h[j], self.allowed_beta_0[k], Ncs[o,q], Nhs[p,q]) # GYH: will be modified with final file format 03/2017
 
  
 	self.protectionfactor_restraints.append(NMR_Protectionfactor(i, model_protectionfactor, exp_protectionfactor))	#???
@@ -888,20 +888,22 @@ class Structure(object):
 
     def compute_sse_protectionfactor(self,debug=False):         #GYH
     """ new defined sse based on computed PF"""
+
+        self.sse_protectionfactor = np.zeros((len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))
 	for o in range(len(self.allowed_xcs)):
-                        for p in range(len(self.allowed_xhs)):
-                                for q in range(len(self.allowed_bs)):
-                                        for m in range(len(self.allowed_beta_c)):
-                                                for j in range(len(self.allowed_beta_h)):
-                                                        for k in range(len(self.allowed_beta_0)):
-								sse = 0.
-								N = 0.
-								for i in range(self.nprotectionfactor):
-									err=self.protectionfactor_restraints[i].model_protectionfactor[m,j,k,o,p,q,:] - self.protectionfactor_restraints[i].exp_protectionfactor
-									sse += (self.protectionfactor_restraints[m].weight * err**2.0)
-									N += self.protectionfactor_restraints[m].weight
-								sse[i,j,k,o,p,q] = sse
-								self.Ndof_protectionfactor = N #should equal to number of residues
+        	for p in range(len(self.allowed_xhs)):
+                	for q in range(len(self.allowed_bs)):
+                        	for m in range(len(self.allowed_beta_c)):
+                                	for j in range(len(self.allowed_beta_h)):
+                                        	for k in range(len(self.allowed_beta_0)):
+							sse = 0.
+							N = 0.
+							for i in range(self.nprotectionfactor):
+								err=self.protectionfactor_restraints[i].model_protectionfactor[m,j,k,o,p,q] - self.protectionfactor_restraints[i].exp_protectionfactor
+								sse += (self.protectionfactor_restraints[i].weight * err**2.0)
+								N += self.protectionfactor_restraints[i].weight
+							self.sse_protectionfactor[m,j,k,o,p,q] = sse
+							self.Ndof_protectionfactor = N #should equal to number of residues
 
 
 #    def compute_sse_protectionfactor(self,debug=False):		#GYH
