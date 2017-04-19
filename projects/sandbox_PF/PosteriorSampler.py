@@ -112,7 +112,7 @@ class PosteriorSampler(object):
         self.sigma_PF_index = len(self.allowed_sigma_PF)/2   # pick an intermediate value to start with
         self.sigma_PF = self.allowed_sigma_PF[self.sigma_PF_index]
 
-	self.dist_prior = np.load('somefile from hongbin')	#Need to be fixed 04/2017 GYH
+#	self.dist_prior = np.load('somefile from hongbin')	#Need to be fixed 04/2017 GYH
 
         # pick initial values for gamma^(-1/6) (NOE scaling parameter)
         self.dloggamma = dloggamma  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
@@ -646,8 +646,14 @@ class PosteriorSampler(object):
             protectionfactor_distributions = [[] for j in range(nprotectionfactor)]
             for s in ensemble:
                 for j in range(len(s.protectionfactor_restraints)):
-                    protectionfactor_distributions[j].append( s.protectionfactor_restraints[j].model_protectionfactor )
-                    all_protectionfactor.append( s.protectionfactor_restraints[j].model_protectionfactor )
+			for o in range(len(self.allowed_xcs)):
+				for p in range(len(self.allowed_xhs)):
+                			for q in range(len(self.allowed_bs)):
+                        			for m in range(len(self.allowed_beta_c)):
+                                			for n in range(len(self.allowed_beta_h)):
+                                        			for k in range(len(self.allowed_beta_0)):
+                    							protectionfactor_distributions[j].append( s.protectionfactor_restraints[j].model_protectionfactor[o,p,q,m,n,k] )
+                   							all_protectionfactor.append( s.protectionfactor_restraints[j].model_protectionfactor[o,p,q,m,n,k] )
 
             # Find the MLE average (i.e. beta_j) for each distance
             betas_PF = np.zeros(nprotectionfactor)
@@ -674,10 +680,17 @@ class PosteriorSampler(object):
             protectionfactor_distributions = [[] for j in range(nprotectionfactor)]
             for s in ensemble:
                 for j in range(len(s.protectionfactor_restraints)):
-                    protectionfactor_distributions[j].append( s.protectionfactor_restraints[j].model_protectionfactor )
-                    all_protectionfactor.append( s.protectionfactor_restraints[j].model_protectionfactor )
+                        for o in range(len(self.allowed_xcs)):
+                                for p in range(len(self.allowed_xhs)):
+                                        for q in range(len(self.allowed_bs)):
+                                                for m in range(len(self.allowed_beta_c)):
+                                                        for n in range(len(self.allowed_beta_h)):
+                                                                for k in range(len(self.allowed_beta_0)):
+                                                                        protectionfactor_distributions[j].append( s.protectionfactor_restraints[j].model_protectionfactor[m,n,k,o,p,q] )
+                                                                        all_protectionfactor.append( s.protectionfactor_restraints[j].model_protectionfactor[m,n,k,o,p,q] )
+
 #	    print 'all_protectionfactor', all_protectionfactor
-	    print 'len(all_protectionfactor)', len(all_protectionfactor)
+#	    print 'len(all_protectionfactor)', len(all_protectionfactor)
 
             # Find the MLE average (i.e. beta_j) for each distance
             ref_mean_PF = np.zeros(nprotectionfactor)
@@ -688,7 +701,7 @@ class PosteriorSampler(object):
                 ref_mean_PF[j] =  np.array(protectionfactor_distributions[j]).mean()
 #                squared_diffs_PF.append( [ (d - ref_mean_PF[j])**2.0 for d in protectionfactor_distributions[j] ])
 	    	squared_diffs_PF=( [ (d - ref_mean_PF[j])**2.0 for d in protectionfactor_distributions[j] ])
-#		ref_sigma_PF[j] = np.sqrt( np.array(squared_diffs_PF).sum() / (len(protectionfactor_distributions[j])+1.0))
+		ref_sigma_PF[j] = np.sqrt( np.array(squared_diffs_PF).sum() / (len(protectionfactor_distributions[j])+1.0))
 #            global_ref_sigma_PF = ( np.array([ref_sigma_PF[j]**-2.0 for j in range(nprotectionfactor)]).mean() )**-0.5 
 
 #            global_ref_sigma_PF = np.array(all_protectionfactor).std()
@@ -757,7 +770,7 @@ class PosteriorSampler(object):
 	        result += (s.Ndof_protectionfactor)*np.log(new_sigma_PF)
 	        result += s.sse_protectionfactor[new_beta_c_index, new_beta_h_index, new_beta_0_index, new_xcs_index, new_xhs_index, new_bs_index] / (2.0*new_sigma_PF**2.0)		# GYH 03/2017
 	        result += (s.Ndof_protectionfactor)/2.0*self.ln2pi
-		result -= s.dist_prior[new_xcs_index, new_xhs_index, new_bs_index]	# GYH: meglogP so -= 04/2017
+#		result -= s.dist_prior[new_xcs_index, new_xhs_index, new_bs_index]	# GYH: neglogP so -= 04/2017
 
         # reference priors
         if self.use_reference_prior_noe:
@@ -795,7 +808,7 @@ class PosteriorSampler(object):
             print 's.sse_chemicalshift_Ha', s.sse_chemicalshift_Ha, 's.Ndof_chemicalshift_Ha', s.Ndof_chemicalshift_Ha # GYH
             print 's.sse_chemicalshift_N', s.sse_chemicalshift_N, 's.Ndof_chemicalshift_N', s.Ndof_chemicalshift_N # GYH
             print 's.sse_chemicalshift_Ca', s.sse_chemicalshift_Ca, 's.Ndof_chemicalshift_Ca', s.Ndof_chemicalshift_Ca # GYH
-	    print 's.sse_protectionfactor', s.sse_protectionfactor, 's.Ndof_protectionfactor', s.Ndof_protectionfactor #GYH
+	    print 's.sse_protectionfactor[', new_beta_c_index, new_beta_h_index, new_beta_0_index, new_xcs_index, new_xhs_index, new_bs_index, ']', s.sse_protectionfactor[new_beta_c_index, new_beta_h_index, new_beta_0_index, new_xcs_index, new_xhs_index, new_bs_index], 's.Ndof_protectionfactor', s.Ndof_protectionfactor #GYH
 	    print 's.sum_neglog_reference_priors_noe', s.sum_neglog_reference_priors_noe, 's.sum_neglog_reference_priors_H', s.sum_neglog_reference_priors_H, 's.sum_neglog_reference_priors_Ha',s.sum_neglog_reference_priors_Ha, 's.sum_neglog_reference_priors_N', s.sum_neglog_reference_priors_N, 's.sum_neglog_reference_priors_Ca', s.sum_neglog_reference_priors_Ca, 's.sum_neglog_reference_priors_PF', s.sum_neglog_reference_priors_PF	#GYH	
 	    print 's.sum_gaussian_neglog_reference_priors_noe', s.sum_gaussian_neglog_reference_priors_noe, 's.sum_gaussian_neglog_reference_priors_H', s.sum_gaussian_neglog_reference_priors_H, 's.sum_gaussian_neglog_reference_priors_N', s.sum_gaussian_neglog_reference_priors_N, 's.sum_gaussian_neglog_reference_priors_Ca', s.sum_gaussian_neglog_reference_priors_Ca, 's.sum_gaussian_neglog_reference_priors_PF', s.sum_gaussian_neglog_reference_priors_PF       #GYH 
         return result
@@ -1267,15 +1280,21 @@ class PosteriorSamplingTrajectory(object):
 
 
         # Estimate the ensemble-averaged protection factor values    #GYH
-        mean_protectionfactor = np.zeros(self.nprotectionfactor)
+        mean_protectionfactor = np.zeros(self.nprotectionfactor, len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs))
         Z = np.zeros(self.nprotectionfactor)
         for i in range(self.nstates):
             for j in range(self.nprotectionfactor):
-                pop = self.results['state_pops'][i]
-                weight = self.ensemble[i].protectionfactor_restraints[j].weight
-                r = self.ensemble[i].protectionfactor_restraints[j].model_protectionfactor
-                mean_protectionfactor[j] += pop*weight*r
-                Z[j] += pop*weight
+		for o in range(len(self.allowed_xcs)):
+        		for p in range(len(self.allowed_xhs)):
+                		for q in range(len(self.allowed_bs)):
+                        		for m in range(len(self.allowed_beta_c)):
+                                		for l in range(len(self.allowed_beta_h)):
+                                        		for k in range(len(self.allowed_beta_0)):
+               							pop = self.results['state_pops'][i]
+               							weight = self.ensemble[i].protectionfactor_restraints[j].weight
+               							r = self.ensemble[i].protectionfactor_restraints[j].model_protectionfactor[m,l,k,o,p,q]
+               							mean_protectionfactor[j,m,l,k,o,p,q] += pop*weight*r
+						                Z[j] += pop*weight
         mean_protectionfactor = (mean_protectionfactor/Z)	#GYH
         self.results['mean_protectionfactor'] = mean_protectionfactor.tolist()
 
@@ -1283,7 +1302,7 @@ class PosteriorSamplingTrajectory(object):
 
 	exp_protectionfactor = np.array([self.ensemble[0].protectionfactor_restraints[j].exp_protectionfactor for j in range(self.nprotectionfactor)])
         self.results['exp_protectionfactor'] = exp_protectionfactor.tolist()
-        abs_PFdiffs = np.abs( exp_protectionfactor - mean_protectionfactor )
+        abs_PFdiffs = np.abs( exp_protectionfactor - mean_protectionfactor )	#GYH need to be fixed 04/2017
         self.results['disagreement_protectionfactor_mean'] = float(abs_PFdiffs.mean())
         self.results['disagreement_protectionfactor_std'] = float(abs_PFdiffs.std())
 
