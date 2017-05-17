@@ -14,15 +14,21 @@ class PosteriorSampler(object):
 				 dlogsigma_cs_Ha=np.log(1.02),sigma_cs_Ha_min=0.05, sigma_cs_Ha_max=20.0,
 				 dlogsigma_cs_N=np.log(1.02),sigma_cs_N_min=0.05, sigma_cs_N_max=20.0,
 				 dlogsigma_cs_Ca=np.log(1.02),sigma_cs_Ca_min=0.05, sigma_cs_Ca_max=20.0,
-				 dlogsigma_PF=np.log(1.02),sigma_PF_min=0.05, sigma_PF_max=20.0,	#GYH
+				 dlogsigma_PF=np.log(1.02),sigma_PF_min=0.05, sigma_PF_max=20.0,
 				 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0,
-				 dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.095,		#GYH 03/2017
-				 dbeta_h=0.05, beta_h_min=0.00, beta_h_max=2.00,		#GYH 03/2017
-				 dbeta_0=0.2, beta_0_min=-3.0, beta_0_max=1.0,		#GYH 03/2017
-				 dxcs=0.5, xcs_min=5.0, xcs_max=8.5,		#GYH 03/2017
-				 dxhs=0.1, xhs_min=2.0, xhs_max=2.8,		#GYH 03/2017
-				 dbs=1.0, bs_min=3.0, bs_max=21.0		#GYH 03/2017
-				 use_reference_prior_noe=True, use_reference_prior_H=True, use_reference_prior_Ha=True, use_reference_prior_N=True, use_reference_prior_Ca=True, use_reference_prior_PF=True,  sample_ambiguous_distances=True, use_gaussian_reference_prior_noe=True, use_gaussian_reference_prior_H=True, use_gaussian_reference_prior_Ha=True, use_gaussian_reference_prior_N=True, use_gaussian_reference_prior_Ca=True, use_gaussian_reference_prior_PF=True):	#GYH
+#				 dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.095,
+#				 dbeta_h=0.05, beta_h_min=0.00, beta_h_max=2.00,
+#				 dbeta_0=0.2, beta_0_min=-3.0, beta_0_max=1.0,
+#				 dxcs=0.5, xcs_min=5.0, xcs_max=8.5,
+#				 dxhs=0.1, xhs_min=2.0, xhs_max=2.8,
+#				 dbs=1.0, bs_min=3.0, bs_max=21.0,
+				 dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.03,
+				 dbeta_h=0.05, beta_h_min=0.00, beta_h_max=0.10,
+				 dbeta_0=0.2, beta_0_min=0.0, beta_0_max=0.4,
+				 dxcs=0.5, xcs_min=5.0, xcs_max=6.0,
+				 dxhs=0.1, xhs_min=2.0, xhs_max=2.1,
+				 dbs=1.0, bs_min=3.0, bs_max=5.0,
+				 use_reference_prior_noe=True, use_reference_prior_H=True, use_reference_prior_Ha=True, use_reference_prior_N=True, use_reference_prior_Ca=True, use_reference_prior_PF=True,  sample_ambiguous_distances=True, use_gaussian_reference_prior_noe=True, use_gaussian_reference_prior_H=True, use_gaussian_reference_prior_Ha=True, use_gaussian_reference_prior_N=True, use_gaussian_reference_prior_Ca=True, use_gaussian_reference_prior_PF=True):
         "Initialize the PosteriorSampler class."
 
         # the ensemble is a list of Structure() objects
@@ -158,8 +164,8 @@ class PosteriorSampler(object):
         self.allowed_xcs = np.arange(self.xcs_min, self.xcs_max, self.dxcs)
         print 'self.allowed_xcs', self.allowed_xcs
         print 'len(self.allowed_xcs) =', len(self.allowed_xcs)
-        self.beta_xcs_index = len(self.allowed_beta_xcs)/2    # pick an intermediate value to start with
-        self.beta_xcs = self.allowed_beta_xcs[self.beta_xcs_index]
+        self.xcs_index = len(self.allowed_xcs)/2    # pick an intermediate value to start with
+        self.xcs = self.allowed_xcs[self.xcs_index]
 
         self.dxhs = dxhs
         self.xhs_min = xhs_min
@@ -167,8 +173,8 @@ class PosteriorSampler(object):
         self.allowed_xhs = np.arange(self.xhs_min, self.xhs_max, self.dxhs)
         print 'self.allowed_xhs', self.allowed_xhs
         print 'len(self.allowed_xhs) =', len(self.allowed_xhs)
-        self.beta_xhs_index = len(self.allowed_beta_xhs)/2    # pick an intermediate value to start with
-        self.beta_xhs = self.allowed_beta_xhs[self.beta_xhs_index]
+        self.xhs_index = len(self.allowed_xhs)/2    # pick an intermediate value to start with
+        self.xhs = self.allowed_xhs[self.xhs_index]
 
         self.dbs = dbs
         self.bs_min = bs_min
@@ -176,8 +182,8 @@ class PosteriorSampler(object):
         self.allowed_bs = np.arange(self.bs_min, self.bs_max, self.dbs)
         print 'self.allowed_bs', self.allowed_bs
         print 'len(self.allowed_bs) =', len(self.allowed_bs)
-        self.beta_bs_index = len(self.allowed_beta_bs)/2    # pick an intermediate value to start with
-        self.beta_bs = self.allowed_beta_bs[self.beta_bs_index]
+        self.bs_index = len(self.allowed_bs)/2    # pick an intermediate value to start with
+        self.bs = self.allowed_bs[self.bs_index]
 
 
         # the initial state of the structural ensemble we're sampling from 
@@ -643,7 +649,9 @@ class PosteriorSampler(object):
             # collect distance distributions across all structures
             nprotectionfactor = len(ensemble[0].protectionfactor_restraints)
             all_protectionfactor = []
-            protectionfactor_distributions = [[] for j in range(nprotectionfactor)]
+#            protectionfactor_distributions = [[] for j in range(nprotectionfactor)]
+	    protectionfactor_distributions = np.zeros((nprotectionfactor, len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))
+	    print protectionfactor_distributions.shape
             for s in ensemble:
                 for j in range(len(s.protectionfactor_restraints)):
 			for o in range(len(self.allowed_xcs)):
@@ -652,15 +660,20 @@ class PosteriorSampler(object):
                         			for m in range(len(self.allowed_beta_c)):
                                 			for n in range(len(self.allowed_beta_h)):
                                         			for k in range(len(self.allowed_beta_0)):
-                    							protectionfactor_distributions[j].append( s.protectionfactor_restraints[j].model_protectionfactor[o,p,q,m,n,k] )
+                    							protectionfactor_distributions[j,o,p,q,m,n,k]=( s.protectionfactor_restraints[j].model_protectionfactor[o,p,q,m,n,k] )
                    							all_protectionfactor.append( s.protectionfactor_restraints[j].model_protectionfactor[o,p,q,m,n,k] )
-
+#		print protectionfactor_distributions.shape
+		#        print j, "protectionfactor_distributions[j].sum()", protectionfactor_distributions[j].sum()
+#	        print "len(protectionfactor_distributions[j]", len(protectionfactor_distributions[j])
+#		sys.exit()
             # Find the MLE average (i.e. beta_j) for each distance
             betas_PF = np.zeros(nprotectionfactor)
-            for j in range(nprotectionfactor):
+            for j in range(nprotectionfactor):		# number of residues
+#		print 'j', j
                 # plot the maximum likelihood exponential distribution fitting the data
-                betas_PF[j] =  np.array(protectionfactor_distributions[j]).sum()/(len(protectionfactor_distributions[j])+1.0)
- 
+#                betas_PF[j] =  protectionfactor_distributions[j].sum()/(len(protectionfactor_distributions[j])+1.0)	# Originally, len(protectionfactor_distributions[j]) = number of states
+                betas_PF[j] =  np.array(protectionfactor_distributions[j].sum()/(len(ensemble)+1.0))
+# 		print j, 'betas_PF[j]', betas_PF[j]
             # store the beta information in each structure and compute/store the -log P_prior
             for s in ensemble:
                 s.betas_PF = betas_PF
@@ -949,9 +962,9 @@ class PosteriorSampler(object):
 	    self.traj.sampled_beta_c[self.beta_c_index] +=1	#GYH 03/2017
             self.traj.sampled_beta_h[self.beta_h_index] +=1	#GYH 03/2017
             self.traj.sampled_beta_0[self.beta_0_index] +=1	   #GYH 03/2017 
-            self.traj.sampled_xcs[self.beta_xcs] +=1	#GYH 03/2017
-            self.traj.sampled_xhs[self.beta_xhs] +=1    #GYH 03/2017
-            self.traj.sampled_bs[self.beta_bs] +=1    #GYH 03/2017
+            self.traj.sampled_xcs[self.xcs_index] +=1	#GYH 03/2017
+            self.traj.sampled_xhs[self.xhs_index] +=1    #GYH 03/2017
+            self.traj.sampled_bs[self.bs_index] +=1    #GYH 03/2017
 
             self.traj.state_counts[self.state] += 1
 
@@ -1280,31 +1293,31 @@ class PosteriorSamplingTrajectory(object):
 
 
         # Estimate the ensemble-averaged protection factor values    #GYH
-        mean_protectionfactor = np.zeros(self.nprotectionfactor, len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs))
-        Z = np.zeros(self.nprotectionfactor)
-        for i in range(self.nstates):
-            for j in range(self.nprotectionfactor):
-		for o in range(len(self.allowed_xcs)):
-        		for p in range(len(self.allowed_xhs)):
-                		for q in range(len(self.allowed_bs)):
-                        		for m in range(len(self.allowed_beta_c)):
-                                		for l in range(len(self.allowed_beta_h)):
-                                        		for k in range(len(self.allowed_beta_0)):
-               							pop = self.results['state_pops'][i]
-               							weight = self.ensemble[i].protectionfactor_restraints[j].weight
-               							r = self.ensemble[i].protectionfactor_restraints[j].model_protectionfactor[m,l,k,o,p,q]
-               							mean_protectionfactor[j,m,l,k,o,p,q] += pop*weight*r
-						                Z[j] += pop*weight
-        mean_protectionfactor = (mean_protectionfactor/Z)	#GYH
-        self.results['mean_protectionfactor'] = mean_protectionfactor.tolist()
+#        mean_protectionfactor = np.zeros((self.nprotectionfactor, len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))
+#        Z = np.zeros(self.nprotectionfactor)
+#        for i in range(self.nstates):
+#            for j in range(self.nprotectionfactor):
+#		for o in range(len(self.allowed_xcs)):
+#        		for p in range(len(self.allowed_xhs)):
+#                		for q in range(len(self.allowed_bs)):
+#                        		for m in range(len(self.allowed_beta_c)):
+#                                		for l in range(len(self.allowed_beta_h)):
+#                                        		for k in range(len(self.allowed_beta_0)):
+#               							pop = self.results['state_pops'][i]
+#               							weight = self.ensemble[i].protectionfactor_restraints[j].weight
+#               							r = self.ensemble[i].protectionfactor_restraints[j].model_protectionfactor[m,l,k,o,p,q]
+#               							mean_protectionfactor[j,m,l,k,o,p,q] += pop*weight*r
+#						                Z[j] += pop*weight
+#        mean_protectionfactor = (mean_protectionfactor/Z)	#GYH
+#        self.results['mean_protectionfactor'] = mean_protectionfactor.tolist()
 
         # Compute the experiment protection factor                 #GYH
 
-	exp_protectionfactor = np.array([self.ensemble[0].protectionfactor_restraints[j].exp_protectionfactor for j in range(self.nprotectionfactor)])
-        self.results['exp_protectionfactor'] = exp_protectionfactor.tolist()
-        abs_PFdiffs = np.abs( exp_protectionfactor - mean_protectionfactor )	#GYH need to be fixed 04/2017
-        self.results['disagreement_protectionfactor_mean'] = float(abs_PFdiffs.mean())
-        self.results['disagreement_protectionfactor_std'] = float(abs_PFdiffs.std())
+#	exp_protectionfactor = np.array([self.ensemble[0].protectionfactor_restraints[j].exp_protectionfactor for j in range(self.nprotectionfactor)])
+#        self.results['exp_protectionfactor'] = exp_protectionfactor.tolist()
+#        abs_PFdiffs = np.abs( exp_protectionfactor - mean_protectionfactor )	#GYH need to be fixed 04/2017
+#        self.results['disagreement_protectionfactor_mean'] = float(abs_PFdiffs.mean())
+#        self.results['disagreement_protectionfactor_std'] = float(abs_PFdiffs.std())
 
 
 

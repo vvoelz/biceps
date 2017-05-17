@@ -1,5 +1,4 @@
 import sys, os, glob
-
 sys.path.append('./')
 
 from Structure import *
@@ -72,11 +71,11 @@ label_fontsize = 12
 legend_fontsize = 8
 
 # Make a figure
-plt.figure( figsize=(6.5,6) )
-
+#plt.figure( figsize=(6.5,6) )
+plt.figure(figsize=(13,12))
 # Make a subplot in the upper left
 if (1):
-    plt.subplot(3,2,1)
+    plt.subplot(4,2,1)
     # We assume: column 0 is lambda=0.0 and column K-1 is lambda=1.0
     plt.errorbar( pops0, pops1, xerr=dpops0, yerr=dpops1, fmt='k.')
     plt.hold(True)
@@ -127,7 +126,7 @@ if (0):
     plt.ylabel("$P(\sigma_J)$", fontsize=label_fontsize)
     plt.yticks([])
 
-if (1):
+if (0):
     # plot histograms of sampled sigma_cs
     plt.subplot(3,2,2)
     plt.step(t0['allowed_sigma_cs_H'], t0['sampled_sigma_cs_H'], 'b-')
@@ -139,7 +138,7 @@ if (1):
     plt.ylabel("$P(\sigma_{cs_H})$", fontsize=label_fontsize)
     plt.yticks([])
 
-if (1):
+if (0):
     # plot histograms of sampled sigma_cs
     plt.subplot(3,2,3)
     plt.step(t0['allowed_sigma_cs_Ca'], t0['sampled_sigma_cs_Ca'], 'b-')
@@ -151,7 +150,7 @@ if (1):
     plt.ylabel("$P(\sigma_{cs_{C_a}})$", fontsize=label_fontsize)
     plt.yticks([])
 
-if (1):
+if (0):
     # plot histograms of sampled sigma_cs
     plt.subplot(3,2,4)
     plt.step(t0['allowed_sigma_cs_N'], t0['sampled_sigma_cs_N'], 'b-')
@@ -199,7 +198,7 @@ if (0):
 
 if (1):
     # plot histograms of sampled sigma_pf 
-    plt.subplot(3,2,5)
+    plt.subplot(4,2,2)
     plt.step(t0['allowed_sigma_PF'], t0['sampled_sigma_PF'], 'b-')
 
     plt.hold(True)
@@ -211,14 +210,14 @@ if (1):
             print t1['allowed_sigma_PF'][i], t1['sampled_sigma_PF'][i]
 
     plt.legend(['exp', 'MSM+exp'], fontsize=legend_fontsize)
-    plt.xlim(0.0, 3.0)
+#    plt.xlim(0.0, 3.0)
     plt.xlabel("$\sigma_{PF}$", fontsize=label_fontsize)
     plt.ylabel("$P(\sigma_{PF})$", fontsize=label_fontsize)
     #plt.xlabel("$\gamma^{-1/6}$", fontsize=label_fontsize)
     #plt.ylabel("$P(\gamma^{-1/6})$", fontsize=label_fontsize)
     plt.yticks([])
 
-if (1):
+if (0):
     # plot histograms of sampled alpha 
     plt.subplot(3,2,6)
     plt.step(t0['allowed_alpha'], t0['sampled_alpha'], 'b-')
@@ -239,7 +238,116 @@ if (1):
     #plt.ylabel("$P(\gamma^{-1/6})$", fontsize=label_fontsize)
     plt.yticks([])
 
+if (1):
+    # plot histograms of sampled_beta_c 
+    plt.subplot(4,2,3)
+    plt.step(t0['allowed_beta_c'], t0['sampled_beta_c'], 'b-')
 
+    plt.hold(True)
+    plt.step(t1['allowed_beta_c'], t1['sampled_beta_c'], 'r-')
+
+    if (1):
+        print '### sampled_beta_c'
+        for i in range(len(t1['allowed_beta_c'])):
+            print t1['allowed_beta_c'][i], t1['sampled_beta_c'][i]
+
+    plt.legend(['exp', 'MSM+exp'], fontsize=legend_fontsize)
+    plt.xlim(0.01, 0.04)
+    plt.xlabel(r'$\beta_C$', fontsize=label_fontsize)
+    plt.ylabel(r"$P(\beta_C)$", fontsize=label_fontsize)
+    #plt.xlabel("$\gamma^{-1/6}$", fontsize=label_fontsize)
+    #plt.ylabel("$P(\gamma^{-1/6})$", fontsize=label_fontsize)
+    plt.yticks([])
+
+if (1):
+    # plot histograms of sampled_beta_c 
+    plt.subplot(4,2,4)
+    plt.step(t0['allowed_beta_h'], t0['sampled_beta_h'], 'b-')
+
+    plt.hold(True)
+    plt.step(t1['allowed_beta_h'], t1['sampled_beta_h'], 'r-')
+
+    if (1):
+        print '### sampled_beta_h'
+        for i in range(len(t1['allowed_beta_h'])):
+            print t1['allowed_beta_h'][i], t1['sampled_beta_h'][i]
+
+    plt.legend(['exp', 'MSM+exp'], fontsize=legend_fontsize)
+    plt.xlim(-0.10, 0.20)
+    plt.xlabel(r"$\beta_H$", fontsize=label_fontsize)
+    plt.ylabel(r"$P(\beta_H)$", fontsize=label_fontsize)
+    #plt.xlabel("$\gamma^{-1/6}$", fontsize=label_fontsize)
+    #plt.ylabel("$P(\gamma^{-1/6})$", fontsize=label_fontsize)
+    plt.yticks([])
+
+if (1):
+    # plot histograms of sampled_beta_c 
+    plt.subplot(4,2,5)
+    plt.step(t0['allowed_beta_0'], t0['sampled_beta_0'], 'b-')
+    plt.hold(True)
+    plt.step(t1['allowed_beta_0'], t1['sampled_beta_0'], 'r-')
+    if (1):
+        print '### sampled_beta_0'
+        for i in range(len(t1['allowed_beta_0'])):
+            print t1['allowed_beta_0'][i], t1['sampled_beta_0'][i]
+    plt.legend(['exp', 'MSM+exp'], fontsize=legend_fontsize)
+    plt.xlim(-0.2, 0.6)
+    plt.xlabel(r"$\beta_0$", fontsize=label_fontsize)
+    plt.ylabel(r"$P(\beta_0)$", fontsize=label_fontsize)
+    #plt.xlabel("$\gamma^{-1/6}$", fontsize=label_fontsize)
+    #plt.ylabel("$P(\gamma^{-1/6})$", fontsize=label_fontsize)
+    plt.yticks([])
+if (1):
+    # plot histograms of sampled_beta_c 
+    plt.subplot(4,2,6)
+    plt.step(t0['allowed_xcs'], t0['sampled_xcs'], 'b-')
+    plt.hold(True)
+    plt.step(t1['allowed_xcs'], t1['sampled_xcs'], 'r-')
+    if (1):
+        print '### sampled_xcs'
+        for i in range(len(t1['allowed_xcs'])):
+            print t1['allowed_xcs'][i], t1['sampled_xcs'][i]
+    plt.legend(['exp', 'MSM+exp'], fontsize=legend_fontsize)
+    plt.xlim(4.0, 7.0)
+    plt.xlabel("xc", fontsize=label_fontsize)
+    plt.ylabel("P(xc)", fontsize=label_fontsize)
+    #plt.xlabel("$\gamma^{-1/6}$", fontsize=label_fontsize)
+    #plt.ylabel("$P(\gamma^{-1/6})$", fontsize=label_fontsize)
+    plt.yticks([])
+if (1):
+    # plot histograms of sampled_beta_c 
+    plt.subplot(4,2,7)
+    plt.step(t0['allowed_xhs'], t0['sampled_xhs'], 'b-')
+    plt.hold(True)
+    plt.step(t1['allowed_xhs'], t1['sampled_xhs'], 'r-')
+    if (1):
+        print '### sampled_xhs'
+        for i in range(len(t1['allowed_xhs'])):
+            print t1['allowed_xhs'][i], t1['sampled_xhs'][i]
+    plt.legend(['exp', 'MSM+exp'], fontsize=legend_fontsize)
+    plt.xlim(1.9, 2.2)
+    plt.xlabel("xh", fontsize=label_fontsize)
+    plt.ylabel("P(xh)", fontsize=label_fontsize)
+    #plt.xlabel("$\gamma^{-1/6}$", fontsize=label_fontsize)
+    #plt.ylabel("$P(\gamma^{-1/6})$", fontsize=label_fontsize)
+    plt.yticks([])
+if (1):
+    # plot histograms of sampled_beta_c 
+    plt.subplot(4,2,8)
+    plt.step(t0['allowed_bs'], t0['sampled_bs'], 'b-')
+    plt.hold(True)
+    plt.step(t1['allowed_bs'], t1['sampled_bs'], 'r-')
+    if (1):
+        print '### sampled_bs'
+        for i in range(len(t1['allowed_bs'])):
+            print t1['allowed_bs'][i], t1['sampled_bs'][i]
+    plt.legend(['exp', 'MSM+exp'], fontsize=legend_fontsize)
+    plt.xlim(2.0, 6.0)
+    plt.xlabel("b", fontsize=label_fontsize)
+    plt.ylabel("P(b)", fontsize=label_fontsize)
+    #plt.xlabel("$\gamma^{-1/6}$", fontsize=label_fontsize)
+    #plt.ylabel("$P(\gamma^{-1/6})$", fontsize=label_fontsize)
+    plt.yticks([])
 plt.tight_layout()
 plt.savefig('biceps3.pdf')
 plt.show()

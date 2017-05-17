@@ -17,7 +17,8 @@ class Structure(object):
     experimental NOE, J-coupling and chemical shift data, and   
     Each Instances of this obect"""
 
-    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, expdata_filename_cs_H=None, expdata_filename_cs_Ha=None, expdata_filename_cs_N=None, expdata_filename_cs_Ca=None, expdata_filename_PF=None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0, dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.095, dbeta_h=0.05, beta_h_min=0.00, beta_h_max=2.00, dbeta_0=0.2, beta_0_min=-3.0, beta_0_max=1.0, dxcs=0.5, xcs_min=5.0, xcs_max=8.5, dxhs=0.1, xhs_min=2.0, xhs_max=2.8, dbs=1.0, bs_min=3.0, bs_max=21.0):	#GYH 03/2017
+#    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, expdata_filename_cs_H=None, expdata_filename_cs_Ha=None, expdata_filename_cs_N=None, expdata_filename_cs_Ca=None, expdata_filename_PF=None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0, dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.095, dbeta_h=0.05, beta_h_min=0.00, beta_h_max=2.00, dbeta_0=0.2, beta_0_min=-3.0, beta_0_max=1.0, dxcs=0.5, xcs_min=5.0, xcs_max=8.5, dxhs=0.1, xhs_min=2.0, xhs_max=2.8, dbs=1.0, bs_min=3.0, bs_max=21.0, Ncs=None, Nhs=None):	#GYH 03/2017
+    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, expdata_filename_cs_H=None, expdata_filename_cs_Ha=None, expdata_filename_cs_N=None, expdata_filename_cs_Ca=None, expdata_filename_PF=None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0, dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.03, dbeta_h=0.05, beta_h_min=0.00, beta_h_max=0.10, dbeta_0=0.2, beta_0_min=0.0, beta_0_max=0.4, dxcs=0.5, xcs_min=5.0, xcs_max=6.0, dxhs=0.1, xhs_min=2.0, xhs_max=2.1, dbs=1.0, bs_min=3.0, bs_max=5.0, Ncs=None, Nhs=None): #GYH 05/2017
         """Initialize the class.
         INPUTS
 	conf		A molecular structure as an msmbuilder Conformation() object.
@@ -84,6 +85,8 @@ class Structure(object):
 	self.nprotectionfactor = 0
 
         # Store info about PF calculation  parameter array  # GYH 03/2017
+	self.Ncs = Ncs
+	self.Nhs = Nhs
         self.dbeta_c = dbeta_c
         self.beta_c_min = beta_c_min
         self.beta_c_max = beta_c_max
@@ -448,7 +451,8 @@ class Structure(object):
 
         # add the protection factor restraints
         for entry in data:				#GYH
-            restraint_index, i, exp_protectionfactor = entry[0], entry[1], entry[3]
+#            restraint_index, i, exp_protectionfactor = entry[0], entry[1], entry[3]
+	    restraint_index, i, exp_protectionfactor = entry[0], entry[0], entry[3]	#05/2017 GYH
             self.add_protectionfactor_restraint(i, exp_protectionfactor, model_protectionfactor=None)	# need to be fixed with add_protectionfactor_restraint function GYH 03/2017
 
         # build groups of equivalency group indices, ambiguous group etc.
@@ -556,12 +560,14 @@ class Structure(object):
         self.nchemicalshift_N += 1
 
 
-
     def add_protectionfactor_restraint(self, i, exp_protectionfactor, model_protectionfactor=None):
 	"""Add a protectionfactor NMR_Protectionfactor() object to the list."""
+#	print 'resid', i
 	if model_protectionfactor == None:
-		model_protectionalfactor = np.zeros((len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))	#GYH 03/2017
+		model_protectionfactor = np.zeros((len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))	#GYH 03/2017
+#		print len(self.allowed_xhs)
 		for o in range(len(self.allowed_xcs)):
+#			print o
                 	for p in range(len(self.allowed_xhs)):
 	                        for q in range(len(self.allowed_bs)):
 #                                infile='Nc_x%0.1f_b%d_%03d.npy'(self.allowed_xcs[o], self.allowed_bs[q]) # will be modified based on input file fromat
@@ -573,8 +579,10 @@ class Structure(object):
                                         	for j in range(len(self.allowed_beta_h)):
                                                 	for k in range(len(self.allowed_beta_0)):
 			#					model_protectionfactor=compute_PF(self.allowed_beta_c[m], self.allowed_beta_h[j], self.allowed_beta_0[k], Nc, Nh)
-                                                        	model_protectionfactor[m,j,k,o,p,q] = compute_PF(self.allowed_beta_c[m], self.allowed_beta_h[j], self.allowed_beta_0[k], Ncs[o,q], Nhs[p,q]) # GYH: will be modified with final file format 03/2017
-
+#								model_protectionfactor[m,j,k,o,p,q] = 1
+#								print 'allowed_beta_c[m]', self.allowed_beta_c[m], 'allowed_beta_h[j]', self.allowed_beta_h[j], 'allowed_beta_0[k]', self.allowed_beta_0[k], 'Ncs[o,q,i]', self.Ncs[o,q,i], 'Nhs[p,q,i]', self.Nhs[p,q,i]
+                                                        	model_protectionfactor[m,j,k,o,p,q] = self.compute_PF(self.allowed_beta_c[m], self.allowed_beta_h[j], self.allowed_beta_0[k],self.Ncs[o,q,i], self.Nhs[p,q,i]) # GYH: will be modified with final file format 03/2017
+#								print 'model_protectionfactor[',m,j,k,o,p,q,']', model_protectionfactor[m,j,k,o,p,q]
  
 	self.protectionfactor_restraints.append(NMR_Protectionfactor(i, model_protectionfactor, exp_protectionfactor))	#???
 	self.nprotectionfactor += 1
@@ -584,7 +592,7 @@ class Structure(object):
 	INPUT    (nres, 2) array with columns <N_c> and <N_h> for each residue, 
 	OUTPUT   array of <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
 	"""
-	model_protectionfactor = beta_c*Nc + beta_h*Nh + beta_0  #GYH: new equation for PF calculation 03/2017 
+	return beta_c * Nc + beta_h * Nh + beta_0  #GYH: new equation for PF calculation 03/2017 
 
 
     def build_groups_noe(self, verbose=False):
@@ -887,8 +895,7 @@ class Structure(object):
 
 
     def compute_sse_protectionfactor(self,debug=False):         #GYH
-    """ new defined sse based on computed PF"""
-
+#    """ new defined sse based on computed PF"""
         self.sse_protectionfactor = np.zeros((len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))
 	for o in range(len(self.allowed_xcs)):
         	for p in range(len(self.allowed_xhs)):
@@ -904,7 +911,7 @@ class Structure(object):
 								N += self.protectionfactor_restraints[i].weight
 							self.sse_protectionfactor[m,j,k,o,p,q] = sse
 							self.Ndof_protectionfactor = N #should equal to number of residues
-
+#    sys.exit()
 
 #    def compute_sse_protectionfactor(self,debug=False):		#GYH
 #	"""Returns the (weighted) sum of squared errors for protection factor values"""
@@ -1038,23 +1045,41 @@ class Structure(object):
         - log P_ref(distance[j) for each distance j."""
 
         # print 'self.betas', self.betas
-
-        self.neglog_reference_priors_PF= np.zeros(self.nprotectionfactor)
+#	print '(self.nprotectionfactor)', (self.nprotectionfactor)
+        self.neglog_reference_priors_PF= np.zeros((self.nprotectionfactor, len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))
         self.sum_neglog_reference_priors_PF = 0.
-        for j in range(self.nprotectionfactor):
-            self.neglog_reference_priors_PF[j] = np.log(self.betas_PF[j]) + self.protectionfactor_restraints[j].model_protectionfactor/self.betas_PF[j]
-            self.sum_neglog_reference_priors_PF  += self.protectionfactor_restraints[j].weight * self.neglog_reference_priors_PF[j]
+        for j in range(self.nprotectionfactor):	# number of residues
+		for o in range(len(self.allowed_xcs)):
+                	for p in range(len(self.allowed_xhs)):
+	                        for q in range(len(self.allowed_bs)):
+                                	for m in range(len(self.allowed_beta_c)):
+                                        	for n in range(len(self.allowed_beta_h)):
+                                                	for k in range(len(self.allowed_beta_0)):
+#								self.neglog_reference_priors_PF[j,m,n,k,o,p,q] = np.max(-1.0*self.protectionfactor_restraints[j].model_protectionfactor[m,n,k,o,p,q],0.0)
+#		self.neglog_reference_priors_PF[j,m,n,k,o,p,q] = np.max(-1.0*self.protectionfactor_restraints[j].model_protectionfactor,0.0)
+						                self.neglog_reference_priors_PF[j,m,n,k,o,p,q] = np.log(self.betas_PF[j]) + (self.protectionfactor_restraints[j].model_protectionfactor[m,n,k,o,p,q])/self.betas_PF[j]
+#								print j, 'np.log(self.betas_PF[j])', np.log(self.betas_PF[j]), '(self.protectionfactor_restraints[j].model_protectionfactor[m,n,k,o,p,q])', (self.protectionfactor_restraints[j].model_protectionfactor[m,n,k,o,p,q]), 'self.neglog_reference_priors_PF[j,m,n,k,o,p,q]', self.neglog_reference_priors_PF[j,m,n,k,o,p,q]
+						                self.sum_neglog_reference_priors_PF  += self.protectionfactor_restraints[j].weight * self.neglog_reference_priors_PF[j,m,n,k,o,p,q]
 
 
     def compute_gaussian_neglog_reference_priors_PF(self):     #GYH
         """An alternative option for reference potential based on Gaussian distribution"""
-        self.gaussian_neglog_reference_priors_PF = np.zeros(self.nprotectionfactor)
+        self.gaussian_neglog_reference_priors_PF = np.zeros((self.nprotectionfactor, len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0), len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))
         self.sum_gaussian_neglog_reference_priors_PF = 0.
-        for j in range(self.nprotectionfactor):
+#        for j in range(self.nprotectionfactor):
 #	    print j, 'self.ref_sigma_PF[j]', self.ref_sigma_PF[j], 'self.ref_mean_PF[j]', self.ref_mean_PF[j] 
-            self.gaussian_neglog_reference_priors_PF[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_PF[j]) + (self.protectionfactor_restraints[j].model_protectionfactor - self.ref_mean_PF[j])**2.0/(2*self.ref_sigma_PF[j]**2.0)
-            self.sum_gaussian_neglog_reference_priors_PF += self.protectionfactor_restraints[j].weight * self.gaussian_neglog_reference_priors_PF[j]
+#            self.gaussian_neglog_reference_priors_PF[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_PF[j]) + (self.protectionfactor_restraints[j].model_protectionfactor - self.ref_mean_PF[j])**2.0/(2*self.ref_sigma_PF[j]**2.0)
+#            self.sum_gaussian_neglog_reference_priors_PF += self.protectionfactor_restraints[j].weight * self.gaussian_neglog_reference_priors_PF[j]
 
+        for j in range(self.nprotectionfactor):
+                for o in range(len(self.allowed_xcs)):
+                        for p in range(len(self.allowed_xhs)):
+                                for q in range(len(self.allowed_bs)):
+                                        for m in range(len(self.allowed_beta_c)):
+                                                for n in range(len(self.allowed_beta_h)):
+                                                        for k in range(len(self.allowed_beta_0)):
+								self.gaussian_neglog_reference_priors_PF[j,o,p,q,m,n,k]=np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_PF[j]) + (self.protectionfactor_restraints[j].model_protectionfactor[m,n,k,o,p,q] - self.ref_mean_PF[j])**2.0/(2*self.ref_sigma_PF[j]**2.0)
+								self.sum_gaussian_neglog_reference_priors_PF += self.protectionfactor_restraints[j].weight * self.gaussian_neglog_reference_priors_PF[m,n,k,o,p,q]
 
     def switch_distances(self, indices1, indices2):
         """Given two lists of ambiguous distance pair indices, switch their distances and recompute the sum of squared errors (SSE)."""

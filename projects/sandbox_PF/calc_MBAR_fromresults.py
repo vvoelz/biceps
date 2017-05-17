@@ -56,7 +56,7 @@ K = nlambda   # number of thermodynamic ensembles
 N_k = np.array( [len(traj[i]['trajectory']) for i in range(nlambda)] )
 nsnaps = N_k.max()
 u_kln = np.zeros( (K, K, nsnaps) )
-nstates = 16
+nstates = 7
 states_kn = np.zeros( (K, nsnaps) )
 
 # Get snapshot energies rescored in the different ensembles

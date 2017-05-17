@@ -36,6 +36,13 @@ print '--verbose', args.verbose
         <outdir>/traj_lambda_<lambda>.yaml  - YAML Trajectory file 
         <outdit>/sampler_<lambda>.pkl       - a cPickle'd sampler object
 """
+#T1=[0]
+T1=[0,7,12,14,16,18,21]
+T2=[0,6,8,14,15,16,18,19,20,21,23,24]
+T3=[0,5,7,8,11,12,14,15,16,17,18,19,20,21,22,23,24]
+T4=[0,3,8,11,12,14,15,16,17,18,19,20,21,22,23,24]
+T5=[0,1,4,9,10,12,14,16,18,19,20,21,24]
+T6=[0,2,4,5,8,9,11,12,13,14,15,16,17,18,19,20,21,22,24]
 
 # Make a new directory if we have to
 if not os.path.exists(args.outdir):
@@ -55,8 +62,8 @@ expdata_filename_PF = 'apoMb.pf'
 # model energies
 
 if (1):
-    nclusters = 15
-    energies_filename = 'new_traj/tram/final_370K/energy_model_0.txt' #'energy.txt'
+    nclusters = len(T1)
+    energies_filename = 'new_traj/tram/final_300K/energy_model_0.txt' #'energy.txt'
     energies = loadtxt(energies_filename)
  #   print 'energies.shape', energies.shape
     energies -= energies.min()  # set ground state to zero, just in case
@@ -73,14 +80,14 @@ if (1):
 # We will instantiate a number of Structure() objects to construct the ensemble
 ensemble = []
 
-allowed_xcs=np.arange(5.0,8.5,0.5)
-allowed_xhs=np.arange(2.0,2.8,0.1)
-allowed_bs=np.arange(3.0,21.0,1.0)
+allowed_xcs=np.arange(5.0,6.0,0.5)	# change this after test 05/2017
+allowed_xhs=np.arange(2.0,2.1,0.1)	# change this after test 05/2017
+allowed_bs=np.arange(3.0,5.0,1.0)	# change this after test 05/2017
 
-for i in range(nclusters+1):
+for i in range(nclusters):
 
     print
-    print '#### STRUCTURE %d ####'%i
+    print '#### STRUCTURE %d ####'%T1[i]
 
     # no information from QM --> lam = 0.0
     # QM + exp               --> lam = 1.0
@@ -110,19 +117,23 @@ for i in range(nclusters+1):
     Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
     Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
     for o in range(len(allowed_xcs)):
-	for p in range(len(allowed_xhs)):
-		for q in range(len(allowed_bs)):
-			infile_Nc='input/Nc/Nc_x%0.1f_b%d_state%03d.npy'%(allowed_xcs[o], allowed_bs[q],i)
-			infile_Nh='input/Nh/Nh_x%0.1f_b%d_state%03d.npy'%(allowed_xhs[p], allowed_bs[q],i)
-			Ncs[o,q,:] = (np.load(infile_Nc))
+	for q in range(len(allowed_bs)):
+		infile_Nc='input/Nc/Nc_x%0.1f_b%d_state%03d.npy'%(allowed_xcs[o], allowed_bs[q],T1[i])
+		Ncs[o,q,:] = (np.load(infile_Nc))
+		for p in range(len(allowed_xhs)):
+#		for q in range(len(allowed_bs)):
+#			infile_Nc='input/Nc/Nc_x%0.1f_b%d_state%03d.npy'%(allowed_xcs[o], allowed_bs[q],T1[i])
+			infile_Nh='input/Nh/Nh_x%0.1f_b%d_state%03d.npy'%(allowed_xhs[p], allowed_bs[q],T1[i])
+#			Ncs[o,q,:] = (np.load(infile_Nc))
 			Nhs[p,q,:] = (np.load(infile_Nh))
+#    sys.exit()
 #    print Ncs[0,0,0]
 #    print Nhs.shape
 #    sys.exit()    
 
-    s = Structure('new_traj/pdb/T4/state%d.pdb'%i, args.lam*energies[i],  expdata_filename_PF=expdata_filename_PF, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0, dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.095, dbeta_h=0.05, beta_h_min=0.00, beta_h_max=2.00, dbeta_0=0.2, beta_0_min=-3.0, beta_0_max=1.0, dxcs=0.5, xcs_min=5.0, xcs_max=8.5, dxhs=0.1, xhs_min=2.0, xhs_max=2.8, dbs=1.0, bs_min=3.0, bs_max=21.0, Ncs=Ncs, Nhs=Nhs)        #GYH
+    s = Structure('new_traj/pdb/state%d.pdb'%T1[i], args.lam*energies[i],  expdata_filename_PF=expdata_filename_PF, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0, dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.03, dbeta_h=0.05, beta_h_min=0.00, beta_h_max=0.10, dbeta_0=0.2, beta_0_min=0.0, beta_0_max=0.4, dxcs=0.5, xcs_min=5.0, xcs_max=6.0, dxhs=0.1, xhs_min=2.0, xhs_max=2.1, dbs=1.0, bs_min=3.0, bs_max=5.0, Ncs=Ncs, Nhs=Nhs)        #GYH
 
-    sys.exit()
+#    sys.exit()
 
 #    s = Structure('Gens/Gens%d.pdb'%i, args.lam*energies[i], expdata_filename_noe=expdata_filename_noe, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0)
 
@@ -156,9 +167,9 @@ for i in range(nclusters+1):
 
 
     # replace protection_factor with precomputed ones				#GYH
-    print 'len(s.protectionfactor_restraints)', len(s.protectionfactor_restraints)
+#    print 'len(s.protectionfactor_restraints)', len(s.protectionfactor_restraints)
 #    for j in range(len(s.protectionfactor_restraints)):
-#        print s.protectionfactor_restraints[j].i, model_protectionfactor[j]
+#        print s.protectionfactor_restraints[j].i, s.protectionfactor_restraints[j].model_protectionfactor[1,1,1,1,1,1]
 #        s.protectionfactor_restraints[j].model_protectionfactor = model_protectionfactor[j]
 
 
@@ -172,10 +183,10 @@ for i in range(nclusters+1):
 
     # update the protectionfactor sse's!		#GYH
     s.compute_sse_protectionfactor()
-#    print 'state:', i, 's.sse_protectionfactor', s.sse_protectionfactor
+#    print 'state:', i, 's.sse_protectionfactor', s.sse_protectionfactor[0,0,0,1,0,0]
     # add the structure to the ensemble
     ensemble.append( s )
-#sys.exit(1)
+#sys.exit()
 
 
 
@@ -216,7 +227,15 @@ else:
 				 dlogsigma_cs_Ca=np.log(1.01), sigma_cs_Ca_min=0.01, sigma_cs_Ca_max=10.0,
 				 dlogsigma_PF=np.log(1.01), sigma_PF_min=0.01, sigma_PF_max=10.0,		#GYH
 				 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0,
+				 dbeta_c=0.005, beta_c_min=0.02, beta_c_max=0.03,
+                                 dbeta_h=0.05, beta_h_min=0.00, beta_h_max=0.10,
+                                 dbeta_0=0.2, beta_0_min=0.0, beta_0_max=0.4,
+                                 dxcs=0.5, xcs_min=5.0, xcs_max=6.0,
+                                 dxhs=0.1, xhs_min=2.0, xhs_max=2.1,
+                                 dbs=1.0, bs_min=3.0, bs_max=5.0,
                                  use_reference_prior_noe=False, use_reference_prior_H=False, use_reference_prior_Ha=False, use_reference_prior_N=False, use_reference_prior_Ca=False, use_reference_prior_PF=True, sample_ambiguous_distances=False,  use_gaussian_reference_prior_noe=False, use_gaussian_reference_prior_H=False, use_gaussian_reference_prior_Ha=False, use_gaussian_reference_prior_N=False, use_gaussian_reference_prior_Ca=False, use_gaussian_reference_prior_PF=False)
+#sys.exit()
+#if(0):
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True)
   sampler.sample(args.nsteps)  # number of steps
   print 'Processing trajectory...',
