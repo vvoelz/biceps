@@ -38,7 +38,7 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 
     # __init__:{{{
 #    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, expdata_filename_cs_H=None, expdata_filename_cs_Ha=None, expdata_filename_cs_N=None, expdata_filename_cs_Ca=None, expdata_filename_PF=None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0, dalpha=0.1, alpha_min=-10.0, alpha_max=10.0):
-    def __init__(self, PDB_filename, free_energy, data = None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0, dalpha=0.1, alpha_min=-10.0, alpha_max=10.0):       
+    def __init__(self, PDB_filename, free_energy, data = None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0, dalpha=0.1, alpha_min=-10.0, alpha_max=10.0):
 	"""Initialize the class.
         INPUTS
 	conf		A molecular structure as an msmbuilder Conformation() object.
@@ -163,7 +163,8 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
                                 r_cs_N.load_data_cs_N(i)
                         elif i.endswith('.cs_CA'):
                                 r_cs_CA.load_data_cs_CA(i)
-
+                        else:
+                            raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
 	else:
 		raise ValueError("Something is wrong in your input file (necessary input file missing)")
 
