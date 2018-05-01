@@ -25,8 +25,6 @@ parser.add_argument("lam", help="a lambda value between 0.0 and 1.0  denoting th
 
 parser.add_argument("outdir", help="the name of the output directory") # For now it's fine, but in the future I want this has a default set so users don't have to specify anything unless they want to --Yunhui 04/2018
 
-parser.add_argument('--dataFiles','-f',type=str,nargs=None,required=True,
-        metavar=None,help='Glob pattern for data')  # RMR
 parser.add_argument("nsteps", help="Number of sampling steps", type=int) # We can keep it here --Yunhui 04/2018
 parser.add_argument("--noref", help="Do not use reference potentials (default is to use them)",
                     action="store_true") # we need to check if this flag works well with our proposed modification. It should be fine to have it here as an "overall control" --Yunhui 04/2018
@@ -49,8 +47,6 @@ print '--noref', args.noref
 print '--lognormal', args.lognormal
 print '--verbose', args.verbose
 
-data = sorted(glob.glob(args.dataFiles))
-print 'Number of data files: ',len(data)
 
 
 """OUTPUT
@@ -77,6 +73,7 @@ if (1):
         print 'energies.shape', energies.shape
     energies -= energies.min()  # set ground state to zero, just in case
 
+
 # We will instantiate a number of Structure() objects to construct the ensemble
 ensemble = []
 #for i in range(energys.shape[0]):
@@ -84,17 +81,13 @@ for i in range(2):
     print
     print '#### STRUCTURE %d ####'%i
 
+
 #    expdata = loadtxt('test_cs_H/ligand1_%d.cs_H'%i)
-    #data = ['test_cs_H/ligand1_%d.cs_H'%i]
+    data = ['test_cs_H/ligand1_%d.cs_N'%i]
 
-    s = Structure('8690.pdb', args.lam*energies[i],data = data)
 
-# Old Structure:{{{
-#    s = Structure('8690.pdb', args.lam*energies[i],data = data,
-#            use_log_normal_distances=False,
-#            dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0)
-#
-# }}}
+    s = Structure('8690.pdb', args.lam*energies[i],data = data, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0, dalpha=0.1, alpha_min=0.0, alpha_max=0.1)
+
 
     # NOTE: Upon instantiation, each Structure() object computes the distances from the given PDB.
     #       However, our clusters represent averaged conformation states, and so we
@@ -115,11 +108,11 @@ for i in range(2):
 #    s.compute_sse_chemicalshift_H()
 
     # update the protectionfactor sse's!                #GYH
-   # s.compute_sse_protectionfactor()
+#    s.compute_sse_protectionfactor()
 
     # add the structure to the ensemble
     ensemble.append( s )
-#sys.exit()
+sys.exit()
 
 
 
@@ -128,55 +121,33 @@ for i in range(2):
 
 
 if (1):
-    sampler = PosteriorSampler(ensemble, data=data,
-            sample_ambiguous_distances=False,
-            distribution='exponential',
-            use_reference_prior_H=True)
-
-    # Old Sampler:{{{
-#    sampler = PosteriorSampler(ensemble, data=data,
-#          dlogsigma_noe=np.log(1.01), sigma_noe_min=0.2, sigma_noe_max=5.0,
-#          dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
-#          dlogsigma_cs_H=np.log(1.02), sigma_cs_H_min=0.01, sigma_cs_H_max=5.0,
-#          dlogsigma_cs_Ha=np.log(1.02), sigma_cs_Ha_min=0.01, sigma_cs_Ha_max=5.0,
-#	  dlogsigma_cs_N=np.log(1.01), sigma_cs_N_min=0.01, sigma_cs_N_max=10.0,
-#          dlogsigma_cs_Ca=np.log(1.01), sigma_cs_Ca_min=0.01, sigma_cs_Ca_max=10.0,
-#          dlogsigma_PF=np.log(1.01), sigma_PF_min=0.01, sigma_PF_max=10.0,               #GYH
-#          dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0,
-#          dalpha=0.1, alpha_min=0.0, alpha_max=0.1,
-#          ambiguous_groups=False, # RMR
-#          sample_ambiguous_distances=False,
-#          distribution='exponential',#distribution='gaussian'
-#          use_reference_prior_H=True,
-#          use_reference_prior_noe=False, use_reference_prior_H=True,
-#          use_reference_prior_Ha=False, use_reference_prior_N=False,
-#          use_reference_prior_Ca=False, use_reference_prior_PF=False,
-#          use_gaussian_reference_prior_noe=False,
-#          use_gaussian_reference_prior_H=False,
-#          use_gaussian_reference_prior_Ha=False,
-#          use_gaussian_reference_prior_N=False,
-#          use_gaussian_reference_prior_Ca=False,
-#          use_gaussian_reference_prior_PF=False)
+  sampler = PosteriorSampler(ensemble, dlogsigma_noe=np.log(1.01), sigma_noe_min=0.2, sigma_noe_max=5.0,
+                                 dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
+                                 dlogsigma_cs_H=np.log(1.02), sigma_cs_H_min=0.01, sigma_cs_H_max=5.0,
+                                 dlogsigma_cs_Ha=np.log(1.02), sigma_cs_Ha_min=0.01, sigma_cs_Ha_max=5.0,
+	                         dlogsigma_cs_N=np.log(1.01), sigma_cs_N_min=0.01, sigma_cs_N_max=10.0,
+                                 dlogsigma_cs_Ca=np.log(1.01), sigma_cs_Ca_min=0.01, sigma_cs_Ca_max=10.0,
+                                 dlogsigma_PF=np.log(1.01), sigma_PF_min=0.01, sigma_PF_max=10.0,               #GYH
+                                 dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=5.0,
+                                 dalpha=0.1, alpha_min=0.0, alpha_max=0.1,
+				 use_reference_prior_noe=False, use_reference_prior_H=False, use_reference_prior_Ha=False, use_reference_prior_N=False, use_reference_prior_Ca=False, use_reference_prior_PF=False, sample_ambiguous_distances=False, use_gaussian_reference_prior_noe=True, use_gaussian_reference_prior_H=False, use_gaussian_reference_prior_Ha=False, use_gaussian_reference_prior_N=False, use_gaussian_reference_prior_Ca=False, use_gaussian_reference_prior_PF=False)
   #sampler = PosteriorSampler(ensemble, use_reference_prior=True)
-# }}}
+  sampler.sample(args.nsteps)  # number of steps
+  print 'Processing trajectory...',
+  sampler.traj.process()  # compute averages, etc.
+  print '...Done.'
 
+  print 'Writing results...',
+  sampler.traj.write_results(os.path.join(args.outdir,'traj_lambda%2.2f.yaml'%args.lam))
+  print '...Done.'
 
-    sampler.sample(args.nsteps)  # number of steps
-    print 'Processing trajectory...',
-    sampler.traj.process()  # compute averages, etc.
-    print '...Done.'
-
-    print 'Writing results...',
-    sampler.traj.write_results(os.path.join(args.outdir,'traj_lambda%2.2f.yaml'%args.lam))
-    print '...Done.'
-
-    # pickle the sampler object
-    print 'Pickling the sampler object ...',
-    outfilename = 'sampler_lambda%2.2f.pkl'%args.lam
-    print outfilename,
-    fout = open(os.path.join(args.outdir, outfilename), 'wb')
-    # Pickle dictionary using protocol 0.
-    cPickle.dump(sampler, fout)
-    print '...Done.'
+  # pickle the sampler object
+  print 'Pickling the sampler object ...',
+  outfilename = 'sampler_lambda%2.2f.pkl'%args.lam
+  print outfilename,
+  fout = open(os.path.join(args.outdir, outfilename), 'wb')
+  # Pickle dictionary using protocol 0.
+  cPickle.dump(sampler, fout)
+  print '...Done.'
 
 

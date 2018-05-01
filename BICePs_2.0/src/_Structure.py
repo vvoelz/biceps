@@ -27,9 +27,9 @@ from restraint_noe import *
 # Class Structure:{{{
 class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, restraint_cs_CA, restraint_noe):
     #Notes:# {{{
-    '''
-     ambiguous groups are not yet supported
-    '''
+#    '''
+
+#    '''
     # }}}
 
     """A class to store a molecular structure, its complete set of
@@ -157,6 +157,9 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
         self.gaussian_neglog_reference_priors_N = None
         self.gaussian_neglog_reference_priors_Ca = None
         self.gaussian_neglog_reference_priors_PF = None
+
+
+
 
         self.sum_neglog_reference_priors_noe = 0.0	#GYH
         self.sum_neglog_reference_priors_H = 0.0	#GYH
