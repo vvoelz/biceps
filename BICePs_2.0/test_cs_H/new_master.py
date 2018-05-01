@@ -25,7 +25,7 @@ parser.add_argument("lam", help="a lambda value between 0.0 and 1.0  denoting th
 
 parser.add_argument("outdir", help="the name of the output directory") # For now it's fine, but in the future I want this has a default set so users don't have to specify anything unless they want to --Yunhui 04/2018
 
-parser.add_argument('--dataFiles','-f',type=str,nargs=None,required=True,
+parser.add_argument('--dataFiles','-f',nargs=None,required=True,
         metavar=None,help='Glob pattern for data')  # RMR
 parser.add_argument("nsteps", help="Number of sampling steps", type=int) # We can keep it here --Yunhui 04/2018
 parser.add_argument("--noref", help="Do not use reference potentials (default is to use them)",
@@ -49,8 +49,23 @@ print '--noref', args.noref
 print '--lognormal', args.lognormal
 print '--verbose', args.verbose
 
-data = sorted(glob.glob(args.dataFiles))
-print 'Number of data files: ',len(data)
+
+# RMR (this is a little specific...):{{{
+if ',' in args.dataFiles:
+    dir_list = (args.dataFiles).split(',')
+    #print dir_list
+    data = []
+    for i in range(0,len(dir_list)):
+        for j in sorted(glob.glob(dir_list[i])):
+            data.append(j)
+    print data
+    print 'Number of data files: ',len(data)
+
+else:
+    data = sorted(glob.glob(args.dataFiles))
+
+#}}}
+#sys.exit(1)
 
 
 """OUTPUT
@@ -129,9 +144,7 @@ for i in range(2):
 
 if (1):
     sampler = PosteriorSampler(ensemble, data=data,
-            sample_ambiguous_distances=False,
-            distribution='exponential',
-            use_reference_prior_H=True)
+            sample_ambiguous_distances=False)
 
     # Old Sampler:{{{
 #    sampler = PosteriorSampler(ensemble, data=data,

@@ -347,16 +347,15 @@ class PosteriorSampler(object):
 #
         # If there exists different exstensions in the data input:{{{
         # RMR:
-        '''
-        I don't like how the rm command prompts at the end if there is no file...
-        '''
 
-        dist_prompt = 'What type of distribution would you like?\n\
+        dist_prompt = 'What type of distribution would you like for your %s data?\n\
                         Type the number, then press enter.\n\
                         1. Exponential\n\
                         2. Gaussian\n\
+                        3. Uniform\n\
                         '
         wd = os.path.dirname(os.path.realpath(data[0]))
+        #print wd
         # specifying the location of config file
         cs_H_Log  = wd+'/.cs_H.log'
         cs_Ha_Log = wd+'/.cs_Ha.log'
@@ -367,79 +366,184 @@ class PosteriorSampler(object):
         if data != None:
 	    for i in data:
 	        if i.endswith('.noe'):
-                    r_noe.load_data_noe(i)
                     if os.path.isfile(noe_Log): # storing a log file to contain configuration of distribution settings
                         config = open(noe_Log, 'r')
-                        dist = config.readline()
-                        os.system('echo %s'%dist)
+                        distribution = config.readline()
+                        #os.system('echo %s'%dist)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_noe=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_noe=True
+                        else:
+                            use_reference_prior_noe=False
+                            use_gaussian_reference_prior_noe=False
                     else:
-                        print 'Data: noe '
-                        distribution = input(dist_prompt)
-                        open('%s'%noe_Log, 'w')
+                        distribution = input(dist_prompt%'noe')
+                        with open('%s'%noe_Log, 'w') as f:
+                            f.write('%d'%distribution)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_noe=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_noe=True
+                        else:
+                            use_reference_prior_noe=False
+                            use_gaussian_reference_prior_noe=False
+
 
 	    	elif i.endswith('.J'):
-                    r_J.load_data_J(i)
                     if os.path.isfile(J_Log): # storing a log file to contain configuration of distribution settings
                         config = open(J_Log, 'r')
                         dist = config.readline()
-                        os.system('echo %s'%dist)
+                        #os.system('echo %s'%dist)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_J=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_J=True
+                        else:
+                            use_reference_prior_J=False
+                            use_gaussian_reference_prior_J=False
                     else:
-                        print 'Data: J '
-                        distribution = input(dist_prompt)
-                        open('%s'%J_Log, 'w')
+                        distribution = input(dist_prompt%'J')
+                        with open('%s'%J_Log, 'w') as f:
+                            f.write('%d'%distribution)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_J=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_J=True
+                        else:
+                            use_reference_prior_J=False
+                            use_gaussian_reference_prior_J=False
+
 
                 elif i.endswith('.cs_H'):
-                    r_cs_H.load_data_cs_H(i)
-                    #print '\n\nHere is your data:\n',r_cs_H.compute_sse_chemicalshift_H()
                     if os.path.isfile(cs_H_Log): # storing a log file to contain configuration of distribution settings
                         config = open(cs_H_Log, 'r')
                         dist = config.readline()
-                        os.system('echo %s'%dist)
+                        #os.system('echo %s'%dist)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_H=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_H=True
+                        else:
+                            use_reference_prior_H=False
+                            use_gaussian_reference_prior_H=False
                     else:
-                        print 'Data: cs_H '
-                        distribution = input(dist_prompt)
-                        open('%s'%cs_H_Log, 'w')
+                        distribution = input(dist_prompt%'H')
+                        with open('%s'%cs_H_Log, 'w') as f:
+                            f.write('%d'%distribution)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_H=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_H=True
+                        else:
+                            use_reference_prior_H=False
+                            use_gaussian_reference_prior_H=False
+
 
                 elif i.endswith('.cs_Ha'):
-                    r_cs_Ha.load_data_cs_Ha(i)
                     if os.path.isfile(cs_Ha_Log): # storing a log file to contain configuration of distribution settings
                         config = open(cs_Ha_Log, 'r')
                         dist = config.readline()
-                        os.system('echo %s'%dist)
+                        #os.system('echo %s'%dist)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_Ha=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_Ha=True
+                        else:
+                            use_reference_prior_Ha=False
+                            use_gaussian_reference_prior_Ha=False
                     else:
-                        print 'Data: cs_Ha '
-                        distribution = input(dist_prompt)
-                        open('%s'%cs_Ha_Log, 'w')
+                        distribution = input(dist_prompt%'Ha')
+                        with open('%s'%cs_Ha_Log, 'w') as f:
+                            f.write('%d'%distribution)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_Ha=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_Ha=True
+                        else:
+                            use_reference_prior_Ha=False
+                            use_gaussian_reference_prior_Ha=False
 
                 elif i.endswith('.cs_N'):
-                    r_cs_N.load_data_cs_N(i)
                     if os.path.isfile(cs_N_Log): # storing a log file to contain configuration of distribution settings
                         config = open(cs_N_Log, 'r')
                         dist = config.readline()
-                        os.system('echo %s'%dist)
+                        #os.system('echo %s'%dist)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_N=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_N=True
+                        else:
+                            use_reference_prior_N=False
+                            use_gaussian_reference_prior_N=False
                     else:
-                        print 'Data: cs_N '
-                        distribution = input(dist_prompt)
-                        open('%s'%cs_N_Log, 'w')
+                        distribution = input(dist_prompt%'N')
+                        with open('%s'%cs_N_Log, 'w') as f:
+                            f.write('%d'%distribution)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_N=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_N=True
+                        else:
+                            use_reference_prior_N=False
+                            use_gaussian_reference_prior_N=False
 
                 elif i.endswith('.cs_CA'):
-                    r_cs_CA.load_data_cs_CA(i)
                     if os.path.isfile(cs_CA_Log): # storing a log file to contain configuration of distribution settings
                         config = open(cs_CA_Log, 'r')
                         dist = config.readline()
-                        os.system('echo %s'%dist)
+                        #os.system('echo %s'%dist)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_Ca=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_Ca=True
+                        else:
+                            use_reference_prior_Ca=False
+                            use_gaussian_reference_prior_Ca=False
                     else:
-                        print 'Data: cs_CA '
-                        distribution = input(dist_prompt)
-                        open('%s'%cs_CA_Log, 'w')
+                        distribution = input(dist_prompt%'Ca')
+                        with open('%s'%cs_Ca_Log, 'w') as f:
+                            f.write('%d'%distribution)
+                        if distribution == 1:
+                            print 'Using Exponential Distribution'
+                            use_reference_prior_Ca=True
+                        elif distribution == 2:
+                            print 'Using Gaussian Distribution'
+                            use_gaussian_reference_prior_Ca=True
+                        else:
+                            use_reference_prior_Ca=False
+                            use_gaussian_reference_prior_Ca=False
 
                 else:
                     raise ValueError("Incompatible File extension. Use:{'.noe','.J','.cs_H','.cs_Ha'}")
 	else:
 	    raise ValueError("Something is wrong in your input file (necessary input file missing)")
-        log_list = ['cs_H_Log','cs_Ha_Log','cs_N_Log','cs_CA_Log','J_Log','noe_Log']
+        log_list = [cs_H_Log,cs_Ha_Log,cs_N_Log,cs_CA_Log,J_Log,noe_Log]
         for i in range(0,len(log_list)):
-            os.system('rm %s'%log_list[i])
+            if os.path.isfile(log_list[i]):
+                os.system('rm %s'%log_list[i])
 
         # RMR
 # }}}
@@ -931,7 +1035,7 @@ class PosteriorSampler(object):
     #:}}}
 
     # -log(P):{{{
-    def neglogP(self, new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha, new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_PF, new_gamma_index, new_alpha_index, verbose=False):	#GYH
+    def neglogP(self, new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha, new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_PF, new_gamma_index, new_alpha_index, verbose=True):	#GYH
         """Return -ln P of the current configuration."""
 
         # The current structure being sampled
