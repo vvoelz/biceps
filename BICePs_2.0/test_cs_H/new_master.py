@@ -95,6 +95,7 @@ if (1):
 # We will instantiate a number of Structure() objects to construct the ensemble
 ensemble = []
 #for i in range(energys.shape[0]):
+print data
 for i in range(2):
     print
     print '#### STRUCTURE %d ####'%i
@@ -102,7 +103,7 @@ for i in range(2):
 #    expdata = loadtxt('test_cs_H/ligand1_%d.cs_H'%i)
     #data = ['test_cs_H/ligand1_%d.cs_H'%i]
 
-    s = Structure('8690.pdb', args.lam*energies[i],data = data)
+    s = Structure('8690.pdb', args.lam*energies[i],data = [data[i]])
 
 # Old Structure:{{{
 #    s = Structure('8690.pdb', args.lam*energies[i],data = data,
@@ -134,7 +135,7 @@ for i in range(2):
 
     # add the structure to the ensemble
     ensemble.append( s )
-#sys.exit()
+sys.exit()
 
 
 
