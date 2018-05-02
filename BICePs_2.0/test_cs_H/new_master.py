@@ -49,20 +49,40 @@ print '--noref', args.noref
 print '--lognormal', args.lognormal
 print '--verbose', args.verbose
 
-
 # RMR (this is a little specific...):{{{
-if ',' in args.dataFiles:
-    dir_list = (args.dataFiles).split(',')
-    #print dir_list
-    data = []
-    for i in range(0,len(dir_list)):
-        for j in sorted(glob.glob(dir_list[i])):
-            data.append(j)
-    print data
-    print 'Number of data files: ',len(data)
+import re
 
+if ',' in args.dataFiles:
+    print 'Sorting out the data...\n'
+    dir_list = (args.dataFiles).split(',')
+    data = [[],[],[],[],[],[]] # list for every extension
+    # Sorting the data by extension into lists. Various directories is not an issue...
+    for i in range(0,len(dir_list)):
+        convert = lambda txt: int(txt) if txt.isdigit() else txt
+        # This convert / sorted glob is a bit fishy... needs many tests
+        for j in sorted(glob.glob(dir_list[i]),key=lambda x: [convert(s) for s in re.split("([0-9]+)",x)]):
+            if j.endswith('.noe'):
+                data[0].append(j)
+            elif j.endswith('.J'):
+                data[1].append(j)
+            elif j.endswith('.cs_H'):
+                data[2].append(j)
+            elif j.endswith('.cs_Ha'):
+                data[3].append(j)
+            elif j.endswith('.cs_N'):
+                data[4].append(j)
+            elif j.endswith('.cs_CA'):
+                data[5].append(j)
+            else:
+                raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
+    data = np.array(filter(None, data)) # removing any empty lists
+    Data = np.stack(data, axis=-1)
+    data = Data.tolist()
+    print data,'\n\n'
 else:
+    print 'Sorting out the data...\n'
     data = sorted(glob.glob(args.dataFiles))
+    print data
 
 #}}}
 #sys.exit(1)
@@ -95,15 +115,13 @@ if (1):
 # We will instantiate a number of Structure() objects to construct the ensemble
 ensemble = []
 #for i in range(energys.shape[0]):
-print data
 for i in range(2):
     print
     print '#### STRUCTURE %d ####'%i
 
 #    expdata = loadtxt('test_cs_H/ligand1_%d.cs_H'%i)
     #data = ['test_cs_H/ligand1_%d.cs_H'%i]
-
-    s = Structure('8690.pdb', args.lam*energies[i],data = [data[i]])
+    s = Structure('8690.pdb', args.lam*energies[i],data = data[i])
 
 # Old Structure:{{{
 #    s = Structure('8690.pdb', args.lam*energies[i],data = data,
