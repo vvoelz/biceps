@@ -1,0 +1,8 @@
+#restraint_index atom_index1 res1 atom_name1 exp_chemical_shift(ppm) model_chemical_shift(ppm)
+0            130      PHE8     H              8.5900	  8.4107
+1            115      GLU7     H              8.6000	  8.2308
+2            91       TRP6     H              7.8300	  7.6541
+3            79       ASP5     H              8.2300	  8.7178
+4            60       LEU4     H              8.7300	  8.8969
+5            21       GLU2     H              8.8400	  8.9326
+6            1        PHE1     H              7.5000	  8.3394
