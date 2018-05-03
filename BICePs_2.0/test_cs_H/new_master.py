@@ -1,23 +1,18 @@
 ### In BICePs 2.0, this script will play as a center role of BICePs calucltion. The users should specify any input files, type of reference potential they want to use (if other than default). --Yunhui 04/2018###
 
+# Import Modules:{{{
 import sys, os, glob
-
 sys.path.append('../src') # source code path --Yunhui 04/2018
-
-
 # import all necessary class for BICePs (Sturcture, Restraint, Sampling) --Yunhui 04/2018
-
-
 from Structure import *
 from PosteriorSampler import *
-
 import cPickle  # to read/write serialized sampler classes
-
 import argparse
-
+import re
 # check all necessary input argument for BICePs --Yunhui 04/2018
+#}}}
 
-
+# Control:{{{
 parser = argparse.ArgumentParser()
 parser.add_argument("lam", help="a lambda value between 0.0 and 1.0  denoting the Hamiltonian weight (E_data + lambda*E_QM)", type=float)	# this argument won't be necessary in the end of this upgrade, instead it will be one part of sampling and should be specified in Structure --Yunhui 04/2018
 
@@ -25,9 +20,10 @@ parser.add_argument("lam", help="a lambda value between 0.0 and 1.0  denoting th
 
 parser.add_argument("outdir", help="the name of the output directory") # For now it's fine, but in the future I want this has a default set so users don't have to specify anything unless they want to --Yunhui 04/2018
 
+parser.add_argument("nsteps", help="Number of sampling steps", type=int) # We can keep it here --Yunhui 04/2018
 parser.add_argument('--dataFiles','-f',nargs=None,required=True,
         metavar=None,help='Glob pattern for data')  # RMR
-parser.add_argument("nsteps", help="Number of sampling steps", type=int) # We can keep it here --Yunhui 04/2018
+
 parser.add_argument("--noref", help="Do not use reference potentials (default is to use them)",
                     action="store_true") # we need to check if this flag works well with our proposed modification. It should be fine to have it here as an "overall control" --Yunhui 04/2018
 
@@ -48,9 +44,10 @@ print 'nsteps', args.nsteps
 print '--noref', args.noref
 print '--lognormal', args.lognormal
 print '--verbose', args.verbose
+#}}}
 
+# Main:{{{
 # RMR (this is a little specific...):{{{
-import re
 
 if ',' in args.dataFiles:
     print 'Sorting out the data...\n'
@@ -78,11 +75,11 @@ if ',' in args.dataFiles:
     data = np.array(filter(None, data)) # removing any empty lists
     Data = np.stack(data, axis=-1)
     data = Data.tolist()
-    print data,'\n\n'
+    #print data,'\n\n'
 else:
     print 'Sorting out the data...\n'
     data = sorted(glob.glob(args.dataFiles))
-    print data
+    #print data
 
 #}}}
 #sys.exit(1)
@@ -153,7 +150,7 @@ for i in range(2):
 
     # add the structure to the ensemble
     ensemble.append( s )
-sys.exit()
+#sys.exit()
 
 
 
@@ -210,5 +207,7 @@ if (1):
     # Pickle dictionary using protocol 0.
     cPickle.dump(sampler, fout)
     print '...Done.'
+
+#}}}
 
 

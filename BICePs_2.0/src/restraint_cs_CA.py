@@ -16,7 +16,7 @@ from RestraintFile_cs import *    # Class - creates Chemical shift restraint fil
 # }}}
 
 # Class Restraint:{{{
-class restraint_cs_CA(object):
+class restraint_cs_Ca(object):
     #Notes:# {{{
     '''
 
@@ -24,12 +24,12 @@ class restraint_cs_CA(object):
     # }}}
     def __init__(self):
 
-        # Store chemical shift restraint info   #GYCA
-        self.chemicalshift_CA_restraints = []
-        self.nchemicalshift_CA = 0
+        # Store chemical shift restraint info   #GYCa
+        self.chemicalshift_Ca_restraints = []
+        self.nchemicalshift_Ca = 0
 
 
-    def load_data_cs_CA(self, filename, verbose=False):
+    def load_data_cs_Ca(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .chemicalshift file format.
         """
 
@@ -53,65 +53,65 @@ class restraint_cs_CA(object):
 
         # add the chemical shift restraints
         for entry in data:
-            restraint_index, i, exp_chemicalshift_CA, model_chemicalshift_CA  = entry[0], entry[1], entry[4], entry[5]
-            self.add_chemicalshift_CA_restraint(i, exp_chemicalshift_CA, model_chemicalshift_CA)
+            restraint_index, i, exp_chemicalshift_Ca, model_chemicalshift_Ca  = entry[0], entry[1], entry[4], entry[5]
+            self.add_chemicalshift_Ca_restraint(i, exp_chemicalshift_Ca, model_chemicalshift_Ca)
 
         # build groups of equivalency group indices, ambiguous group etc.
 
-        self.compute_sse_chemicalshift_CA()
+        self.compute_sse_chemicalshift_Ca()
 
 
 
-    def add_chemicalshift_CA_restraint(self, i, exp_chemicalshift_CA, model_chemicalshift_CA=None):
+    def add_chemicalshift_Ca_restraint(self, i, exp_chemicalshift_Ca, model_chemicalshift_Ca=None):
         """Add a chemicalshift NMR_Chemicalshift() object to the list."""
          # if the modeled distance is not specified, compute the distance from the conformation
 #       Ind = self.conf.topology.select("index == j")
 #       t=self.conf.atom_slice(Ind)
-#        if model_chemicalshift_CA == None:
- #              r=md.nmr.chemicalshifts_shiftx2(r,pCA=2.5, temperature = 280.0)
+#        if model_chemicalshift_Ca == None:
+ #              r=md.nmr.chemicalshifts_shiftx2(r,pCa=2.5, temperature = 280.0)
 
  #              model_chemicalshift = r.mean(axis=1)
-#                model_chemicalshift_CA = 1  # will be replaced by pre-computed cs
+#                model_chemicalshift_Ca = 1  # will be replaced by pre-computed cs
 
-        self.chemicalshift_CA_restraints.append( NMR_Chemicalshift_CA(i, model_chemicalshift_CA, exp_chemicalshift_CA))
+        self.chemicalshift_Ca_restraints.append( NMR_Chemicalshift_Ca(i, model_chemicalshift_Ca, exp_chemicalshift_Ca))
 
-        self.nchemicalshift_CA += 1
+        self.nchemicalshift_Ca += 1
 
-    def compute_sse_chemicalshift_CA(self, debug=True):    #GYCA
+    def compute_sse_chemicalshift_Ca(self, debug=True):    #GYCa
         """Returns the (weighted) sum of squared errors for chemical shift values"""
 #       for g in range(len(self.allowed_gamma)):
 
-        sse_CA = 0.0
-        N_CA = 0.0
-        for i in range(self.nchemicalshift_CA):
+        sse_Ca = 0.0
+        N_Ca = 0.0
+        for i in range(self.nchemicalshift_Ca):
 		if debug:
-               		print '---->', i, '%d'%self.chemicalshift_CA_restraints[i].i,
-               		print '      exp', self.chemicalshift_CA_restraints[i].exp_chemicalshift_CA, 'model', self.chemicalshift_CA_restraints[i].model_chemicalshift_CA
+               		print '---->', i, '%d'%self.chemicalshift_Ca_restraints[i].i,
+               		print '      exp', self.chemicalshift_Ca_restraints[i].exp_chemicalshift_Ca, 'model', self.chemicalshift_Ca_restraints[i].model_chemicalshift_Ca
 
-                err_CA=self.chemicalshift_CA_restraints[i].model_chemicalshift_CA - self.chemicalshift_CA_restraints[i].exp_chemicalshift_CA
-                sse_CA += (self.chemicalshift_CA_restraints[i].weight*err_CA**2.0)
-                N_CA += self.chemicalshift_CA_restraints[i].weight
-        self.sse_chemicalshift_CA = sse_CA
-        self.Ndof_chemicalshift_CA = N_CA
+                err_Ca=self.chemicalshift_Ca_restraints[i].model_chemicalshift_Ca - self.chemicalshift_Ca_restraints[i].exp_chemicalshift_Ca
+                sse_Ca += (self.chemicalshift_Ca_restraints[i].weight*err_Ca**2.0)
+                N_Ca += self.chemicalshift_Ca_restraints[i].weight
+        self.sse_chemicalshift_Ca = sse_Ca
+        self.Ndof_chemicalshift_Ca = N_Ca
         if debug:
-            print 'self.sse_chemicalshift_CA', self.sse_chemicalshift_CA
+            print 'self.sse_chemicalshift_Ca', self.sse_chemicalshift_Ca
 
 
 
-class NMR_Chemicalshift_CA(object):        #GYCA
+class NMR_Chemicalshift_Ca(object):        #GYCa
     """A class to store NMR chemical shift information."""
 
     # __init__:{{{
-    def __init__(self, i, model_chemicalshift_CA, exp_chemicalshift_CA):
+    def __init__(self, i, model_chemicalshift_Ca, exp_chemicalshift_Ca):
 
         # Atom indices from the Conformation() defining this chemical shift
         self.i = i
 
         # the model chemical shift in this structure (in ppm)
-        self.model_chemicalshift_CA = model_chemicalshift_CA
+        self.model_chemicalshift_Ca = model_chemicalshift_Ca
 
         # the experimental chemical shift
-        self.exp_chemicalshift_CA = exp_chemicalshift_CA
+        self.exp_chemicalshift_Ca = exp_chemicalshift_Ca
 
         # N equivalent chemical shift should only get 1/N f the weight when computing chi^2 (not likely in this case but just in case we need it in the future)
         self.weight = 1.0 # default is N=1

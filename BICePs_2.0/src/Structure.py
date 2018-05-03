@@ -20,12 +20,12 @@ from restraint_cs_H import *	# test (until compute sse) done for work   Yunhui G
 from restraint_J import *
 from restraint_cs_Ha import *
 from restraint_cs_N import *
-from restraint_cs_CA import *
+from restraint_cs_Ca import *
 from restraint_noe import *
 # }}}
 
 # Class Structure:{{{
-class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, restraint_cs_CA, restraint_noe):
+class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, restraint_cs_Ca, restraint_noe):
     #Notes:# {{{
     '''
      ambiguous groups are not yet supported
@@ -176,29 +176,52 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 	r_cs_H = restraint_cs_H()
         r_cs_Ha = restraint_cs_Ha()
         r_cs_N = restraint_cs_N()
-        r_cs_CA = restraint_cs_CA()
+        r_cs_Ca = restraint_cs_Ca()
 	r_J = restraint_J()
 	r_noe = restraint_noe()
 	if data != None:
 		for i in data:
 			if i.endswith('.noe'):
 				r_noe.load_data_noe(i)
-			elif i.endswith('.J'):
+                                self.sse_distances = r_noe.sse_distances
+                                self.Ndof_distances = r_noe.Ndof_distances
+                                self.distance_restraints = r_noe.distance_restraints
+                        elif i.endswith('.J'):
 				r_J.load_data_J(i)
+                                self.sse_dihedrals = r_J.sse_dihedrals
+                                self.Ndof_dihedrals = r_J.Ndof_dihedrals
+                                self.dihedral_restraints = r_J.dihedral_restraints
                         elif i.endswith('.cs_H'):
                                 r_cs_H.load_data_cs_H(i)
+                                self.sse_chemicalshift_H = r_cs_H.sse_chemicalshift_H
+                                self.Ndof_chemicalshift_H = r_cs_H.Ndof_chemicalshift_H
+                                self.chemicalshift_H_restraints = r_cs_H.chemicalshift_H_restraints
+                                self.nchemicalshift_H = r_cs_H.nchemicalshift_H
                         elif i.endswith('.cs_Ha'):
                                 r_cs_Ha.load_data_cs_Ha(i)
+                                self.sse_chemicalshift_Ha = r_cs_Ha.sse_chemicalshift_Ha
+                                self.Ndof_chemicalshift_Ha = r_cs_Ha.Ndof_chemicalshift_Ha
+                                self.chemicalshift_Ha_restraints = r_cs_Ha.chemicalshift_Ha_restraints
+                                self.nchemicalshift_Ha = r_cs_Ha.nchemicalshift_Ha
                         elif i.endswith('.cs_N'):
                                 r_cs_N.load_data_cs_N(i)
-                        elif i.endswith('.cs_CA'):
-                                r_cs_CA.load_data_cs_CA(i)
+                                self.sse_chemicalshift_N = r_cs_N.sse_chemicalshift_N
+                                self.Ndof_chemicalshift_N = r_cs_N.Ndof_chemicalshift_N
+                                self.chemicalshift_N_restraints = r_cs_N.chemicalshift_N_restraints
+                        elif i.endswith('.cs_Ca'):
+                                r_cs_Ca.load_data_cs_Ca(i)
+                                self.sse_chemicalshift_Ca = r_cs_Ca.sse_chemicalshift_Ca
+                                self.Ndof_chemicalshift_Ca = r_cs_Ca.Ndof_chemicalshift_Ca
+                                self.chemicalshift_Ca_restraints = r_cs_Ca.chemicalshift_Ca_restraints
                         else:
                             raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
-	else:
+        else:
 		raise ValueError("Something is wrong in your input file (necessary input file missing)")
 
-    # Load Experimental Data (ALL Restraints):{{{
+        print "self.sse_chemicalshift_H", self.sse_chemicalshift_H
+        print "self.Ndof_chemicalshift_H", self.Ndof_chemicalshift_H
+#        print "self.chemicalshift_H_restraints", self.chemicalshift_H_restraints
+# Load Experimental Data (ALL Restraints):{{{
 
     def load_expdata_PF(self, filename, verbose=False):
         """Load in the experimental protection factor restraints from a .PF file format.
@@ -329,7 +352,7 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
         for j in range(self.nchemicalshift_H):
             self.neglog_reference_priors_H[j] = np.log(self.betas_H[j]) + self.chemicalshift_H_restraints[j].model_chemicalshift_H/self.betas_H[j]
             self.sum_neglog_reference_priors_H  += self.chemicalshift_H_restraints[j].weight * self.neglog_reference_priors_H[j]
-
+            print "self.sum_neglog_reference_priors_H", self.sum_neglog_reference_priors_H
     def compute_gaussian_neglog_reference_priors_H(self):     #GYH
         """An alternative option for reference potential based on Gaussian distribution"""
         self.gaussian_neglog_reference_priors_H = np.zeros(self.nchemicalshift_H)
