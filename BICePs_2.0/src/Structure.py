@@ -40,7 +40,7 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 #    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, expdata_filename_cs_H=None, expdata_filename_cs_Ha=None, expdata_filename_cs_N=None, expdata_filename_cs_Ca=None, expdata_filename_PF=None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0, dalpha=0.1, alpha_min=-10.0, alpha_max=10.0):
     def __init__(self, PDB_filename, free_energy, data = None,
             use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2,
-            gamma_max=10.0, dalpha=0.1, alpha_min=-10.0,alpha_max=10.0):
+            gamma_max=10.0, dalpha=0.1, alpha_min=10.0,alpha_max=10.2):
 	"""Initialize the class.
         INPUTS
 	conf		A molecular structure as an msmbuilder Conformation() object.
@@ -105,7 +105,7 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
         self.alpha_min = alpha_min
         self.alpha_max = alpha_max
         self.allowed_alpha = np.arange(self.alpha_min, self.alpha_max, self.dalpha)
-
+	print 'self.allowed_alpha', self.allowed_alpha
 
         # Create a KarplusRelation object
         self.karplus = KarplusRelation()
@@ -123,9 +123,9 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
         self.Ndof_chemicalshift_N = None  #GYH
         self.sse_chemicalshift_Ca = None #GYH
         self.Ndof_chemicalshift_Ca = None  #GYH
-	self.sse_protectionfactor = None
-#	self.sse_protectionfactor = np.array([0.0 for alpha in self.allowed_alpha])  #GYH
-	self.Ndof_protectionfactor = None #GYH
+#	self.sse_protectionfactor = 0.0
+	self.sse_protectionfactor = np.array([0.0 for alpha in self.allowed_alpha])  #GYH
+	self.Ndof_protectionfactor = 0.0 #GYH
         self.betas_noe = None   # if reference is used, an array of N_j betas for each distance
 	self.betas_H = None
 	self.betas_Ha = None

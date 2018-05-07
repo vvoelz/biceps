@@ -36,7 +36,7 @@ class PosteriorSampler(object):
 	    dlogsigma_cs_Ca=np.log(1.02),sigma_cs_Ca_min=0.05, sigma_cs_Ca_max=20.0,
 	    dlogsigma_PF=np.log(1.02),sigma_PF_min=0.05, sigma_PF_max=20.0,	#GYH
 	    dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0,
-            dalpha=0.1, alpha_min=-5.0, alpha_max=5.0,
+            dalpha=0.1, alpha_min=10.0, alpha_max=10.2,
             distribution='exponential',
             ambiguous_groups=False,
             sample_ambiguous_distances=True,
@@ -1087,7 +1087,8 @@ class PosteriorSampler(object):
 
 
         # protectionfactor terms                           # GYH
-	if s.sse_protectionfactor is not None:			# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
+#	s.sse_protectionfactor = None
+	if s.sse_protectionfactor != None:			# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
 	        result += (s.Ndof_protectionfactor)*np.log(new_sigma_PF)
 	        result += s.sse_protectionfactor[new_alpha_index] / (2.0*new_sigma_PF**2.0)
 	        result += (s.Ndof_protectionfactor)/2.0*self.ln2pi
@@ -1120,7 +1121,6 @@ class PosteriorSampler(object):
         if self.use_gaussian_reference_prior_PF:
             result -= s.sum_gaussian_neglog_reference_priors_PF          #GYH
 
-
         if verbose:
             print 'state, f_sim', new_state, s.free_energy,
             print 's.sse_distances[', new_gamma_index, ']', s.sse_distances[new_gamma_index], 's.Ndof_distances', s.Ndof_distances
@@ -1129,7 +1129,9 @@ class PosteriorSampler(object):
             print 's.sse_chemicalshift_Ha', s.sse_chemicalshift_Ha, 's.Ndof_chemicalshift_Ha', s.Ndof_chemicalshift_Ha # GYH
             print 's.sse_chemicalshift_N', s.sse_chemicalshift_N, 's.Ndof_chemicalshift_N', s.Ndof_chemicalshift_N # GYH
             print 's.sse_chemicalshift_Ca', s.sse_chemicalshift_Ca, 's.Ndof_chemicalshift_Ca', s.Ndof_chemicalshift_Ca # GYH
-	    print 's.sse_protectionfactor[', new_alpha_index, ']', s.sse_protectionfactor[new_alpha_index], 's.Ndof_protectionfactor', s.Ndof_protectionfactor #GYH
+	    print 's.sse_protectionfactor[', new_alpha_index, ']', s.sse_protectionfactor[new_alpha_index] 
+	   # print 's.sse_protectionfactor', s.sse_protectionfactor
+	   # print 's.Ndof_protectionfactor', s.Ndof_protectionfactor #GYH
 	    print 's.sum_neglog_reference_priors_noe', s.sum_neglog_reference_priors_noe, 's.sum_neglog_reference_priors_H', s.sum_neglog_reference_priors_H, 's.sum_neglog_reference_priors_Ha',s.sum_neglog_reference_priors_Ha, 's.sum_neglog_reference_priors_N', s.sum_neglog_reference_priors_N, 's.sum_neglog_reference_priors_Ca', s.sum_neglog_reference_priors_Ca, 's.sum_neglog_reference_priors_PF', s.sum_neglog_reference_priors_PF	#GYH
 	    print 's.sum_gaussian_neglog_reference_priors_noe', s.sum_gaussian_neglog_reference_priors_noe, 's.sum_gaussian_neglog_reference_priors_H', s.sum_gaussian_neglog_reference_priors_H, 's.sum_gaussian_neglog_reference_priors_Ha', s.sum_gaussian_neglog_reference_priors_Ha, 's.sum_gaussian_neglog_reference_priors_N', s.sum_gaussian_neglog_reference_priors_N, 's.sum_gaussian_neglog_reference_priors_Ca', s.sum_gaussian_neglog_reference_priors_Ca, 's.sum_gaussian_neglog_reference_priors_PF', s.sum_gaussian_neglog_reference_priors_PF       #GYH
         return result
@@ -1350,7 +1352,7 @@ class PosteriorSampler(object):
                 new_ensemble_index = np.random.randint(self.nensembles)
 
             # compute new "energy"
-            verbose = False
+            verbose = True
 #            if step%self.print_every == 0:
 #                verbose = True
             new_E = self.neglogP(new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha, new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_PF, new_gamma_index, new_alpha_index,  verbose=verbose)
