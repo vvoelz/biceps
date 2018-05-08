@@ -68,7 +68,7 @@ if ',' in args.dataFiles:
                 data[3].append(j)
             elif j.endswith('.cs_N'):
                 data[4].append(j)
-            elif j.endswith('.cs_CA'):
+            elif j.endswith('.cs_Ca'):
                 data[5].append(j)
             else:
                 raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
