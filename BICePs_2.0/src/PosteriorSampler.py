@@ -1088,7 +1088,7 @@ class PosteriorSampler(object):
 
         # protectionfactor terms                           # GYH
 #	s.sse_protectionfactor = None
-	if s.sse_protectionfactor != None:			# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
+	if s.sse_protectionfactor is not None:			# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
 	        result += (s.Ndof_protectionfactor)*np.log(new_sigma_PF)
 	        result += s.sse_protectionfactor[new_alpha_index] / (2.0*new_sigma_PF**2.0)
 	        result += (s.Ndof_protectionfactor)/2.0*self.ln2pi
