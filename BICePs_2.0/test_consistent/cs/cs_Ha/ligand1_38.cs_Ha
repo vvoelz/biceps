@@ -1,0 +1,10 @@
+#restraint_index atom_index1 res1 atom_name1 exp_chemical_shift(ppm) model_chemical_shift(ppm)
+0            174      PRO10    HA             4.2200	  4.3698
+1            160      PRO9     HA             4.4600	  4.3389
+2            132      PHE8     HA             4.9000	  5.1255
+3            117      GLU7     HA             4.8300	  4.6024
+4            93       TRP6     HA             4.7600	  5.0199
+5            81       ASP5     HA             4.2700	  4.3196
+6            62       LEU4     HA             3.4800	  4.1095
+7            23       GLU2     HA             5.0200	  4.4227
+8            3        PHE1     HA             4.8200	  4.4855
