@@ -132,12 +132,12 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 	self.betas_N = None
 	self.betas_Ca = None
 	self.betas_PF = None
-        self.neglog_reference_priors_noe = None
-        self.neglog_reference_priors_H = None
-        self.neglog_reference_priors_Ha = None
-        self.neglog_reference_priors_N = None
-        self.neglog_reference_priors_Ca = None
-        self.neglog_reference_priors_PF = None
+        self.neglog_reference_potentials_noe = None
+        self.neglog_reference_potentials_H = None
+        self.neglog_reference_potentials_Ha = None
+        self.neglog_reference_potentials_N = None
+        self.neglog_reference_potentials_Ca = None
+        self.neglog_reference_potentials_PF = None
 
 	self.ref_sigma_noe = None
 	self.ref_mean_noe = None
@@ -151,26 +151,26 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
         self.ref_mean_Ca = None
         self.ref_sigma_PF = None
         self.ref_mean_PF = None
-        self.gaussian_neglog_reference_priors_noe = None
-        self.gaussian_neglog_reference_priors_H = None
-        self.gaussian_neglog_reference_priors_Ha = None
-        self.gaussian_neglog_reference_priors_N = None
-        self.gaussian_neglog_reference_priors_Ca = None
-        self.gaussian_neglog_reference_priors_PF = None
+        self.gaussian_neglog_reference_potentials_noe = None
+        self.gaussian_neglog_reference_potentials_H = None
+        self.gaussian_neglog_reference_potentials_Ha = None
+        self.gaussian_neglog_reference_potentials_N = None
+        self.gaussian_neglog_reference_potentials_Ca = None
+        self.gaussian_neglog_reference_potentials_PF = None
 
-        self.sum_neglog_reference_priors_noe = 0.0	#GYH
-        self.sum_neglog_reference_priors_H = 0.0	#GYH
-        self.sum_neglog_reference_priors_Ha = 0.0	#GYH
-        self.sum_neglog_reference_priors_N = 0.0	#GYH
-        self.sum_neglog_reference_priors_Ca = 0.0	#GYH
-        self.sum_neglog_reference_priors_PF = 0.0	#GYH
+        self.sum_neglog_reference_potentials_noe = 0.0	#GYH
+        self.sum_neglog_reference_potentials_H = 0.0	#GYH
+        self.sum_neglog_reference_potentials_Ha = 0.0	#GYH
+        self.sum_neglog_reference_potentials_N = 0.0	#GYH
+        self.sum_neglog_reference_potentials_Ca = 0.0	#GYH
+        self.sum_neglog_reference_potentials_PF = 0.0	#GYH
 
-        self.sum_gaussian_neglog_reference_priors_noe = 0.0      #GYH
-        self.sum_gaussian_neglog_reference_priors_H = 0.0      #GYH
-        self.sum_gaussian_neglog_reference_priors_Ha = 0.0      #GYH
-        self.sum_gaussian_neglog_reference_priors_N = 0.0      #GYH
-        self.sum_gaussian_neglog_reference_priors_Ca = 0.0      #GYH
-        self.sum_gaussian_neglog_reference_priors_PF = 0.0      #GYH
+        self.sum_gaussian_neglog_reference_potentials_noe = 0.0      #GYH
+        self.sum_gaussian_neglog_reference_potentials_H = 0.0      #GYH
+        self.sum_gaussian_neglog_reference_potentials_Ha = 0.0      #GYH
+        self.sum_gaussian_neglog_reference_potentials_N = 0.0      #GYH
+        self.sum_gaussian_neglog_reference_potentials_Ca = 0.0      #GYH
+        self.sum_gaussian_neglog_reference_potentials_PF = 0.0      #GYH
 
         # If an experimental data file is given, load in the information
 	r_cs_H = restraint_cs_H()
@@ -320,131 +320,131 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 	    print 'self.sse_protectionfactor', self.sse_protectionfactor
     # }}}
 
-    # Compute -log( reference priors (ALL Restraints) ):{{{
-    def compute_neglog_reference_priors_noe(self):		#GYH
+    # Compute -log( reference potentials (ALL Restraints) ):{{{
+    def compute_neglog_reference_potentials_noe(self):		#GYH
         """Uses the stored beta information (calculated across all structures) to calculate
         - log P_ref(distance[j) for each distance j."""
 
         # print 'self.betas', self.betas
 
-        self.neglog_reference_priors_noe = np.zeros(self.ndistances)
-        self.sum_neglog_reference_priors_noe = 0.
+        self.neglog_reference_potentials_noe = np.zeros(self.ndistances)
+        self.sum_neglog_reference_potentials_noe = 0.
         for j in range(self.ndistances):
-            self.neglog_reference_priors_noe[j] = np.log(self.betas_noe[j]) + self.distance_restraints[j].model_distance/self.betas_noe[j]
-            self.sum_neglog_reference_priors_noe  += self.distance_restraints[j].weight * self.neglog_reference_priors_noe[j]
+            self.neglog_reference_potentials_noe[j] = np.log(self.betas_noe[j]) + self.distance_restraints[j].model_distance/self.betas_noe[j]
+            self.sum_neglog_reference_potentials_noe  += self.distance_restraints[j].weight * self.neglog_reference_potentials_noe[j]
 
-    def compute_gaussian_neglog_reference_priors_noe(self):	#GYH
+    def compute_gaussian_neglog_reference_potentials_noe(self):	#GYH
 	"""An alternative option for reference potential based on Gaussian distribution"""
-	self.gaussian_neglog_reference_priors_noe = np.zeros(self.ndistances)
-	self.sum_gaussian_neglog_reference_priors_noe = 0.
+	self.gaussian_neglog_reference_potentials_noe = np.zeros(self.ndistances)
+	self.sum_gaussian_neglog_reference_potentials_noe = 0.
 	for j in range(self.ndistances):
-	    self.gaussian_neglog_reference_priors_noe[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_noe[j]) + (self.distance_restraints[j].model_distance - self.ref_mean_noe[j])**2.0/(2*(self.ref_sigma_noe[j]**2.0))
-	    self.sum_gaussian_neglog_reference_priors_noe += self.distance_restraints[j].weight * self.gaussian_neglog_reference_priors_noe[j]
+	    self.gaussian_neglog_reference_potentials_noe[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_noe[j]) + (self.distance_restraints[j].model_distance - self.ref_mean_noe[j])**2.0/(2*(self.ref_sigma_noe[j]**2.0))
+	    self.sum_gaussian_neglog_reference_potentials_noe += self.distance_restraints[j].weight * self.gaussian_neglog_reference_potentials_noe[j]
 
-    def compute_neglog_reference_priors_H(self):              #GYH
+    def compute_neglog_reference_potentials_H(self):              #GYH
         """Uses the stored beta information (calculated across all structures) to calculate
         - log P_ref(distance[j) for each distance j."""
 
         # print 'self.betas', self.betas
 
-        self.neglog_reference_priors_H = np.zeros(self.nchemicalshift_H)
-        self.sum_neglog_reference_priors_H = 0.
+        self.neglog_reference_potentials_H = np.zeros(self.nchemicalshift_H)
+        self.sum_neglog_reference_potentials_H = 0.
         for j in range(self.nchemicalshift_H):
-            self.neglog_reference_priors_H[j] = np.log(self.betas_H[j]) + self.chemicalshift_H_restraints[j].model_chemicalshift_H/self.betas_H[j]
-            self.sum_neglog_reference_priors_H  += self.chemicalshift_H_restraints[j].weight * self.neglog_reference_priors_H[j]
-            print "self.sum_neglog_reference_priors_H", self.sum_neglog_reference_priors_H
-    def compute_gaussian_neglog_reference_priors_H(self):     #GYH
+            self.neglog_reference_potentials_H[j] = np.log(self.betas_H[j]) + self.chemicalshift_H_restraints[j].model_chemicalshift_H/self.betas_H[j]
+            self.sum_neglog_reference_potentials_H  += self.chemicalshift_H_restraints[j].weight * self.neglog_reference_potentials_H[j]
+            print "self.sum_neglog_reference_potentials_H", self.sum_neglog_reference_potentials_H
+    def compute_gaussian_neglog_reference_potentials_H(self):     #GYH
         """An alternative option for reference potential based on Gaussian distribution"""
-        self.gaussian_neglog_reference_priors_H = np.zeros(self.nchemicalshift_H)
-        self.sum_gaussian_neglog_reference_priors_H = 0.
+        self.gaussian_neglog_reference_potentials_H = np.zeros(self.nchemicalshift_H)
+        self.sum_gaussian_neglog_reference_potentials_H = 0.
         for j in range(self.nchemicalshift_H):
-            self.gaussian_neglog_reference_priors_H[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_H[j]) + (self.chemicalshift_H_restraints[j].model_chemicalshift_H - self.ref_mean_H[j])**2.0/(2*self.ref_sigma_H[j]**2.0)
-            self.sum_gaussian_neglog_reference_priors_H += self.chemicalshift_H_restraints[j].weight * self.gaussian_neglog_reference_priors_H[j]
+            self.gaussian_neglog_reference_potentials_H[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_H[j]) + (self.chemicalshift_H_restraints[j].model_chemicalshift_H - self.ref_mean_H[j])**2.0/(2*self.ref_sigma_H[j]**2.0)
+            self.sum_gaussian_neglog_reference_potentials_H += self.chemicalshift_H_restraints[j].weight * self.gaussian_neglog_reference_potentials_H[j]
 
 
-    def compute_neglog_reference_priors_Ha(self):              #GYH
+    def compute_neglog_reference_potentials_Ha(self):              #GYH
         """Uses the stored beta information (calculated across all structures) to calculate
         - log P_ref(distance[j) for each distance j."""
 
         # print 'self.betas', self.betas
 
-        self.neglog_reference_priors_Ha = np.zeros(self.nchemicalshift_Ha)
-        self.sum_neglog_reference_priors_Ha = 0.
+        self.neglog_reference_potentials_Ha = np.zeros(self.nchemicalshift_Ha)
+        self.sum_neglog_reference_potentials_Ha = 0.
         for j in range(self.nchemicalshift_Ha):
-            self.neglog_reference_priors_Ha[j] = np.log(self.betas_Ha[j]) + self.chemicalshift_Ha_restraints[j].model_chemicalshift_Ha/self.betas_Ha[j]
-            self.sum_neglog_reference_priors_Ha  += self.chemicalshift_Ha_restraints[j].weight * self.neglog_reference_priors_Ha[j]
+            self.neglog_reference_potentials_Ha[j] = np.log(self.betas_Ha[j]) + self.chemicalshift_Ha_restraints[j].model_chemicalshift_Ha/self.betas_Ha[j]
+            self.sum_neglog_reference_potentials_Ha  += self.chemicalshift_Ha_restraints[j].weight * self.neglog_reference_potentials_Ha[j]
 
-    def compute_gaussian_neglog_reference_priors_Ha(self):     #GYH
+    def compute_gaussian_neglog_reference_potentials_Ha(self):     #GYH
         """An alternative option for reference potential based on Gaussian distribution"""
-        self.gaussian_neglog_reference_priors_Ha = np.zeros(self.nchemicalshift_Ha)
-        self.sum_gaussian_neglog_reference_priors_Ha = 0.
+        self.gaussian_neglog_reference_potentials_Ha = np.zeros(self.nchemicalshift_Ha)
+        self.sum_gaussian_neglog_reference_potentials_Ha = 0.
         for j in range(self.nchemicalshift_Ha):
-            self.gaussian_neglog_reference_priors_Ha[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ha[j]) + (self.chemicalshift_Ha_restraints[j].model_chemicalshift_Ha - self.ref_mean_Ha[j])**2.0/(2*self.ref_sigma_Ha[j]**2.0)
-            self.sum_gaussian_neglog_reference_priors_Ha += self.chemicalshift_Ha_restraints[j].weight * self.gaussian_neglog_reference_priors_Ha[j]
+            self.gaussian_neglog_reference_potentials_Ha[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ha[j]) + (self.chemicalshift_Ha_restraints[j].model_chemicalshift_Ha - self.ref_mean_Ha[j])**2.0/(2*self.ref_sigma_Ha[j]**2.0)
+            self.sum_gaussian_neglog_reference_potentials_Ha += self.chemicalshift_Ha_restraints[j].weight * self.gaussian_neglog_reference_potentials_Ha[j]
 
-    def compute_neglog_reference_priors_N(self):              #GYH
+    def compute_neglog_reference_potentials_N(self):              #GYH
         """Uses the stored beta information (calculated across all structures) to calculate
         - log P_ref(distance[j) for each distance j."""
 
         # print 'self.betas', self.betas
 
-        self.neglog_reference_priors_N = np.zeros(self.nchemicalshift_N)
-        self.sum_neglog_reference_priors_N = 0.
+        self.neglog_reference_potentials_N = np.zeros(self.nchemicalshift_N)
+        self.sum_neglog_reference_potentials_N = 0.
         for j in range(self.nchemicalshift_N):
-            self.neglog_reference_priors_N[j] = np.log(self.betas_N[j]) + self.chemicalshift_N_restraints[j].model_chemicalshift_N/self.betas_N[j]
-            self.sum_neglog_reference_priors_N  += self.chemicalshift_N_restraints[j].weight * self.neglog_reference_priors_N[j]
+            self.neglog_reference_potentials_N[j] = np.log(self.betas_N[j]) + self.chemicalshift_N_restraints[j].model_chemicalshift_N/self.betas_N[j]
+            self.sum_neglog_reference_potentials_N  += self.chemicalshift_N_restraints[j].weight * self.neglog_reference_potentials_N[j]
 
-    def compute_gaussian_neglog_reference_priors_N(self):     #GYH
+    def compute_gaussian_neglog_reference_potentials_N(self):     #GYH
         """An alternative option for reference potential based on Gaussian distribution"""
-        self.gaussian_neglog_reference_priors_N = np.zeros(self.nchemicalshift_N)
-        self.sum_gaussian_neglog_reference_priors_N = 0.
+        self.gaussian_neglog_reference_potentials_N = np.zeros(self.nchemicalshift_N)
+        self.sum_gaussian_neglog_reference_potentials_N = 0.
         for j in range(self.nchemicalshift_N):
-            self.gaussian_neglog_reference_priors_N[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_N[j]) + (self.chemicalshift_N_restraints[j].model_chemicalshift_N - self.ref_mean_N[j])**2.0/(2*self.ref_sigma_N[j]**2.0)
-            self.sum_gaussian_neglog_reference_priors_N += self.chemicalshift_N_restraints[j].weight * self.gaussian_neglog_reference_priors_N[j]
+            self.gaussian_neglog_reference_potentials_N[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_N[j]) + (self.chemicalshift_N_restraints[j].model_chemicalshift_N - self.ref_mean_N[j])**2.0/(2*self.ref_sigma_N[j]**2.0)
+            self.sum_gaussian_neglog_reference_potentials_N += self.chemicalshift_N_restraints[j].weight * self.gaussian_neglog_reference_potentials_N[j]
 
 
-    def compute_neglog_reference_priors_Ca(self):              #GYH
+    def compute_neglog_reference_potentials_Ca(self):              #GYH
         """Uses the stored beta information (calculated across all structures) to calculate
         - log P_ref(distance[j) for each distance j."""
 
         # print 'self.betas', self.betas
 
-        self.neglog_reference_priors_Ca = np.zeros(self.nchemicalshift_Ca)
-        self.sum_neglog_reference_priors_Ca = 0.
+        self.neglog_reference_potentials_Ca = np.zeros(self.nchemicalshift_Ca)
+        self.sum_neglog_reference_potentials_Ca = 0.
         for j in range(self.nchemicalshift_Ca):
-            self.neglog_reference_priors_Ca[j] = np.log(self.betas_Ca[j]) + self.chemicalshift_Ca_restraints[j].model_chemicalshift_Ca/self.betas_Ca[j]
-            self.sum_neglog_reference_priors_Ca  += self.chemicalshift_Ca_restraints[j].weight * self.neglog_reference_priors_Ca[j]
+            self.neglog_reference_potentials_Ca[j] = np.log(self.betas_Ca[j]) + self.chemicalshift_Ca_restraints[j].model_chemicalshift_Ca/self.betas_Ca[j]
+            self.sum_neglog_reference_potentials_Ca  += self.chemicalshift_Ca_restraints[j].weight * self.neglog_reference_potentials_Ca[j]
 
-    def compute_gaussian_neglog_reference_priors_Ca(self):     #GYH
+    def compute_gaussian_neglog_reference_potentials_Ca(self):     #GYH
         """An alternative option for reference potential based on Gaussian distribution"""
-        self.gaussian_neglog_reference_priors_Ca = np.zeros(self.nchemicalshift_Ca)
-        self.sum_gaussian_neglog_reference_priors_Ca = 0.
+        self.gaussian_neglog_reference_potentials_Ca = np.zeros(self.nchemicalshift_Ca)
+        self.sum_gaussian_neglog_reference_potentials_Ca = 0.
         for j in range(self.nchemicalshift_Ca):
-            self.gaussian_neglog_reference_priors_Ca[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ca[j]) + (self.chemicalshift_Ca_restraints[j].model_chemicalshift_Ca - self.ref_mean_Ca[j])**2.0/(2*self.ref_sigma_Ca[j]**2.0)
-            self.sum_gaussian_neglog_reference_priors_Ca += self.chemicalshift_Ca_restraints[j].weight * self.gaussian_neglog_reference_priors_Ca[j]
+            self.gaussian_neglog_reference_potentials_Ca[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ca[j]) + (self.chemicalshift_Ca_restraints[j].model_chemicalshift_Ca - self.ref_mean_Ca[j])**2.0/(2*self.ref_sigma_Ca[j]**2.0)
+            self.sum_gaussian_neglog_reference_potentials_Ca += self.chemicalshift_Ca_restraints[j].weight * self.gaussian_neglog_reference_potentials_Ca[j]
 
 
-    def compute_neglog_reference_priors_PF(self):              #GYH
+    def compute_neglog_reference_potentials_PF(self):              #GYH
         """Uses the stored beta information (calculated across all structures) to calculate
         - log P_ref(distance[j) for each distance j."""
 
         # print 'self.betas', self.betas
 
-        self.neglog_reference_priors_PF= np.zeros(self.nprotectionfactor)
-        self.sum_neglog_reference_priors_PF = 0.
+        self.neglog_reference_potentials_PF= np.zeros(self.nprotectionfactor)
+        self.sum_neglog_reference_potentials_PF = 0.
         for j in range(self.nprotectionfactor):
-            self.neglog_reference_priors_PF[j] = np.log(self.betas_PF[j]) + self.protectionfactor_restraints[j].model_protectionfactor/self.betas_PF[j]
-            self.sum_neglog_reference_priors_PF  += self.protectionfactor_restraints[j].weight * self.neglog_reference_priors_PF[j]
+            self.neglog_reference_potentials_PF[j] = np.log(self.betas_PF[j]) + self.protectionfactor_restraints[j].model_protectionfactor/self.betas_PF[j]
+            self.sum_neglog_reference_potentials_PF  += self.protectionfactor_restraints[j].weight * self.neglog_reference_potentials_PF[j]
 
 
-    def compute_gaussian_neglog_reference_priors_PF(self):     #GYH
+    def compute_gaussian_neglog_reference_potentials_PF(self):     #GYH
         """An alternative option for reference potential based on Gaussian distribution"""
-        self.gaussian_neglog_reference_priors_PF = np.zeros(self.nprotectionfactor)
-        self.sum_gaussian_neglog_reference_priors_PF = 0.
+        self.gaussian_neglog_reference_potentials_PF = np.zeros(self.nprotectionfactor)
+        self.sum_gaussian_neglog_reference_potentials_PF = 0.
         for j in range(self.nprotectionfactor):
 #	    print j, 'self.ref_sigma_PF[j]', self.ref_sigma_PF[j], 'self.ref_mean_PF[j]', self.ref_mean_PF[j]
-            self.gaussian_neglog_reference_priors_PF[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_PF[j]) + (self.protectionfactor_restraints[j].model_protectionfactor - self.ref_mean_PF[j])**2.0/(2*self.ref_sigma_PF[j]**2.0)
-            self.sum_gaussian_neglog_reference_priors_PF += self.protectionfactor_restraints[j].weight * self.gaussian_neglog_reference_priors_PF[j]
+            self.gaussian_neglog_reference_potentials_PF[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_PF[j]) + (self.protectionfactor_restraints[j].model_protectionfactor - self.ref_mean_PF[j])**2.0/(2*self.ref_sigma_PF[j]**2.0)
+            self.sum_gaussian_neglog_reference_potentials_PF += self.protectionfactor_restraints[j].weight * self.gaussian_neglog_reference_potentials_PF[j]
     # }}}
 
     # Switch Distances and recompute SSE:{{{
