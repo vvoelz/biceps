@@ -1129,7 +1129,7 @@ class PosteriorSampler(object):
             print 's.sse_chemicalshift_Ha', s.sse_chemicalshift_Ha, 's.Ndof_chemicalshift_Ha', s.Ndof_chemicalshift_Ha # GYH
             print 's.sse_chemicalshift_N', s.sse_chemicalshift_N, 's.Ndof_chemicalshift_N', s.Ndof_chemicalshift_N # GYH
             print 's.sse_chemicalshift_Ca', s.sse_chemicalshift_Ca, 's.Ndof_chemicalshift_Ca', s.Ndof_chemicalshift_Ca # GYH
-	    print 's.sse_protectionfactor[', new_alpha_index, ']', s.sse_protectionfactor[new_alpha_index] 
+	    print 's.sse_protectionfactor[', new_alpha_index, ']', s.sse_protectionfactor[new_alpha_index]
 	   # print 's.sse_protectionfactor', s.sse_protectionfactor
 	   # print 's.Ndof_protectionfactor', s.Ndof_protectionfactor #GYH
 	    print 's.sum_neglog_reference_potentials_noe', s.sum_neglog_reference_potentials_noe, 's.sum_neglog_reference_potentials_H', s.sum_neglog_reference_potentials_H, 's.sum_neglog_reference_potentials_Ha',s.sum_neglog_reference_potentials_Ha, 's.sum_neglog_reference_potentials_N', s.sum_neglog_reference_potentials_N, 's.sum_neglog_reference_potentials_Ca', s.sum_neglog_reference_potentials_Ca, 's.sum_neglog_reference_potentials_PF', s.sum_neglog_reference_potentials_PF	#GYH
@@ -1355,7 +1355,10 @@ class PosteriorSampler(object):
             verbose = True
 #            if step%self.print_every == 0:
 #                verbose = True
-            new_E = self.neglogP(new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha, new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_PF, new_gamma_index, new_alpha_index,  verbose=verbose)
+            new_E = self.neglogP(new_ensemble_index, new_state, new_sigma_noe,
+                    new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha,
+                    new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_PF,
+                    new_gamma_index, new_alpha_index,  verbose=verbose)
 
             # accept or reject the MC move according to Metroplis criterion
             accept = False
