@@ -49,7 +49,7 @@ def biceps_restraint_line_cs_header():
     return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'exp_chemical_shift(ppm)', 'model_chemical_shift(ppm)'], ' ')
 
 
-class RestraintFile_cs(object):
+class prep_cs(object):
     """A class containing input/output methods for writing chemicalshift Restaint Files."""
 
     def __init__(self, filename=None):

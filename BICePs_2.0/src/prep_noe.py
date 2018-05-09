@@ -67,7 +67,7 @@ def biceps_restraint_line_noe_header():
     return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'atom_index2', 'res2', 'atom_name2', 'exp_distance(A)', 'model_distance(A)'], ' ')
 
 
-class RestraintFile_noe(object):
+class prep_noe(object):
     """A class containing input/output methods for writing NOE Restaint Files."""
 
     def __init__(self, filename=None):

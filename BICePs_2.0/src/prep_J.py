@@ -79,7 +79,7 @@ def biceps_restraint_line_J_header():
     return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3', 'atom_index4', 'res4', 'atom_name4', 'J_coupling(Hz)', 'Karplus_relation'], ' ')
 
 
-class RestraintFile_J(object):
+class prep_J(object):
     """A class containing input/output methods for writing Jcoupling Restaint Files."""
 
     def __init__(self, filename=None):

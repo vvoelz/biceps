@@ -45,7 +45,7 @@ def biceps_restraint_line_pf_header():
     return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'protection_factor'], ' ')
 
 
-class RestraintFile_pf(object):
+class prep_pf(object):
     """A class containing input/output methods for writing protectionfactor Restaint Files."""
 
     def __init__(self, filename=None):
