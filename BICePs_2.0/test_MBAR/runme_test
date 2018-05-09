@@ -12,5 +12,5 @@ python new_master.py 1.0   results_ref_normal 10000  -f 'test_cs_H/ligand*,test_
 
 #python sample_lattice.py 0.5  results_ref_normal 1000000
 #python sample_lattice_00.py 1.0  energy/micro/energy_0.0.txt results/0.0/results_ref_normal 10000000
-#python calc_MBAR_fromresults_00.py results_ref_normal BF_ref_normal.dat populations_ref_normal.dat
+#python calc_MBAR_fromresults.py 50 results_ref_normal BF_ref_normal.dat populations_ref_normal.dat
 #python plot_results.py results_ref_normal populations_ref_normal.dat
