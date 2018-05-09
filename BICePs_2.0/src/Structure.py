@@ -36,8 +36,6 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
     experimental NOE, J-coupling and chemical shift data, and
     Each Instances of this obect"""
 
-    # __init__:{{{
-#    def __init__(self, PDB_filename, free_energy, expdata_filename_noe=None, expdata_filename_J=None, expdata_filename_cs_H=None, expdata_filename_cs_Ha=None, expdata_filename_cs_N=None, expdata_filename_cs_Ca=None, expdata_filename_PF=None, use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0, dalpha=0.1, alpha_min=-10.0, alpha_max=10.0):
     def __init__(self, PDB_filename, free_energy, data = None,
             use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2,
             gamma_max=10.0, dalpha=0.1, alpha_min=10.0,alpha_max=10.2):
@@ -77,8 +75,6 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 	self.chemicalshift_Ha_restraints = []
 	self.chemicalshift_N_restraints = []
 	self.chemicalshift_Ca_restraints = []
-#        self.chemicalshift_equivalency_groups = {}
-#        self.chemicalshift_ambiguity_groups = {}
         self.nchemicalshift_H = 0
 	self.nchemicalshift_Ha = 0
 	self.nchemicalshift_N = 0
@@ -86,8 +82,6 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 
 	# Store protection factor restraint info	#GYH
 	self.protectionfactor_restraints = []
-#	self.protectionfactor_equivalency_groups = {}
-#	self.protectionfactor_ambiguity_groups = {}
 	self.nprotectionfactor = 0
 # }}}
 
@@ -220,7 +214,6 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 
         print "self.sse_chemicalshift_H", self.sse_chemicalshift_H
         print "self.Ndof_chemicalshift_H", self.Ndof_chemicalshift_H
-#        print "self.chemicalshift_H_restraints", self.chemicalshift_H_restraints
 # Load Experimental Data (ALL Restraints):{{{
 
     def load_expdata_PF(self, filename, verbose=False):
@@ -242,8 +235,6 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 
         ### distances ###
 
-        # the equivalency indices for protection factors are in the first column of the *.PF file
-    #    equivalency_indices = [entry[0] for entry in data]
         if verbose:
             print 'protectionfactor equivalency_indices', equivalency_indices
 
@@ -278,20 +269,6 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
 
 
     def build_groups_pf(self, verbose=False):
-#        """Build equivalency and ambiguity groups for distances and dihedrals,
-#        and store pre-computed SSE and d.o.f for distances and dihedrals"""
-
-
-	# compile protectionfactor_equivalency_groups from the list of NMR_Protectionfactor() objects	#GYH
-#	for i in range(len(self.protectionfactor_restraints)):
-#	    d = self.protectionfactor_restraints[i]
-#	    if d.equivalency_index != None:
-#		if not self.protectionfactor_equivalency_groups.has_key(d.equivalency_index):
-#		   self.protectionfactor_equivalency_groups[d.equivalency_index] = []
-#		self.protectionfactor_equivalency_groups[d.equivalency_index].append(i)
-#	if verbose:
-#	    print 'self.protectionfactor_equivalency_groups', self.protectionfactor_equivalency_groups
-
 
 	# precompute SSE and Ndof for protection factor #GYH
 	self.compute_sse_protectionfactor()
@@ -428,7 +405,6 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
         """Uses the stored beta information (calculated across all structures) to calculate
         - log P_ref(distance[j) for each distance j."""
 
-        # print 'self.betas', self.betas
 
         self.neglog_reference_potentials_PF= np.zeros(self.nprotectionfactor)
         self.sum_neglog_reference_potentials_PF = 0.
@@ -442,7 +418,6 @@ class Structure(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, re
         self.gaussian_neglog_reference_potentials_PF = np.zeros(self.nprotectionfactor)
         self.sum_gaussian_neglog_reference_potentials_PF = 0.
         for j in range(self.nprotectionfactor):
-#	    print j, 'self.ref_sigma_PF[j]', self.ref_sigma_PF[j], 'self.ref_mean_PF[j]', self.ref_mean_PF[j]
             self.gaussian_neglog_reference_potentials_PF[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_PF[j]) + (self.protectionfactor_restraints[j].model_protectionfactor - self.ref_mean_PF[j])**2.0/(2*self.ref_sigma_PF[j]**2.0)
             self.sum_gaussian_neglog_reference_potentials_PF += self.protectionfactor_restraints[j].weight * self.gaussian_neglog_reference_potentials_PF[j]
     # }}}
