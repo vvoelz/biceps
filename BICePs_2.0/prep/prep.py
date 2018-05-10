@@ -35,27 +35,43 @@ class prep(object):
 		self.write_cs_input()
 	self.ind=np.loadtxt(indices)
 	self.restraint_data = np.loadtxt(exp_data)
+	if self.ind.shape[0] != self.restraint_data.shape[0]:
+            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.')%(self.ind.shape[0],self.restraint_data.shape[0])
+
 	self.topology = md.load(top).topology
 	self.convert = lambda txt: int(txt) if txt.isdigit() else txt
 	self.data = sorted(glob.glob(data_dir),key=lambda x: [self.convert(s) for s in re.split("([0-9]+)",x)])
+        if int(len(self.data)) != int(states):
+                raise ValueError("number of states doesn't equal to file numbers")
         if out_dir == None:
             self.out = 'BICePs'+scheme
         self.out = out_dir
 #	if self.ind.shape[0] != self.restraint_data.shape[0]:
 #            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.')%(self.ind.shape[0],self.restraint_data.shape[0])
 
+    def write(self):
+        if scheme in ['cs_H','cs_Ha','cs_Ca','cs_N']:
+            self.write_cs_input()
+	elif scheme == 'noe':
+	    self.write_noe_input()
+        elif scheme == 'J':
+	    self.write_J_input()
+	elif scheme == 'pf':
+	    self.write_pf_input()
+	else:
+	    raise ValueError("scheme must be one of ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']")
 
 
     def write_cs_input(self):
 #        self.ind = np.loadtxt(indices)
 #        self.restraint_data = np.loadtxt(exp_data)
-        if self.ind.shape[0] != self.restraint_data.shape[0]:
-            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.')%(self.ind.shape[0],self.restraint_data.shape[0])
+#        if self.ind.shape[0] != self.restraint_data.shape[0]:
+#            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.')%(self.ind.shape[0],self.restraint_data.shape[0])
 #        self.topology = md.load(top).topology
         #convert = lambda txt: int(txt) if txt.isdigit() else txt
 #        self.data = sorted(glob.glob(data_dir),key=lambda x: [convert(s) for s in re.split("([0-9]+)",x)])
-	if int(len(self.data)) != int(states):
-		raise ValueError("number of states doesn't equal to file numbers")
+#	if int(len(self.data)) != int(states):
+#		raise ValueError("number of states doesn't equal to file numbers")
 #	if out_dir == None:
 #	    self.out = 'BICePs'+scheme
 #	self.out = out_dir
