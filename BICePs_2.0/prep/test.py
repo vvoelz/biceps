@@ -20,5 +20,6 @@ out_dir='test_cs_H'
 #convert = lambda txt: int(txt) if txt.isdigit() else txt
 #data = sorted(glob.glob(path),key=lambda x: [convert(s) for s in re.split("([0-9]+)",x)])
 #print data
-p=prep('cs_H',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=data_dir,out_dir=out_dir)
-p.write()
+#p=prep('cs_H',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=data_dir,out_dir=out_dir)
+p=prep('cs_H',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=data_dir)
+p.write(out_dir=out_dir)

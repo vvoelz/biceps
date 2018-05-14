@@ -1,3 +1,13 @@
+##############################################################################
+# Authors: Yunhui Ge
+# Contributors: Vincent Voelz, Rob Raddi
+##############################################################################
+
+
+##############################################################################
+# Imports
+##############################################################################
+
 import os, sys, glob, string
 import numpy as np
 import mdtraj as md
@@ -9,12 +19,16 @@ from prep_J import *
 from prep_noe import *
 from prep_pf import *
 
+##############################################################################
+# Code
+##############################################################################
+
 class prep(object):
     """A class to prepare input files for BICePs calculation"""
 
-    def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None, out_dir=None):
-
-        """Parameters
+    def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None, Karplus=None):
+        """ Prepare BICePs input files (converting from raw data)
+	Parameters
            ---------
         scheme: {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
 	states: number of states
@@ -22,14 +36,22 @@ class prep(object):
         exp_data: experimental measuremnets (*.txt file)
         top: topology file (*.gro, pdb, etc.)
         data_dir: data directory (should have *txt file inside)
-        out_dir: output directory
+	Karplus: Karplus relation for J_coupling constants
 	"""
-        if scheme not in ['noe','cs_H','cs_Ha','cs_N','cs_Ca','pf']:
+        if scheme not in ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']:
             raise ValueError("scheme must be one of ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']")
         else:
             if states==0.0 or indices == None or exp_data == None or top==None or data_dir==None:
                 raise ValueError("make sure you have actual input for states, indices, exp_data, topology file or data directory ")
-	
+	if scheme == 'J' and Karplus ==None:
+	    raise ValueError("Karplus relation information is missing but it's required for J_coupling constants")
+	elif scheme == 'J' and Karplus is not None:
+	    with open(Karplus) as f:
+		lines=f.readlines()
+	    line=''.join(lines)
+	    self.karplus = line.strip().split('\n')
+	elif scheme != 'J' and Karplus == None:
+	    continue
 
 	self.ind=np.loadtxt(indices)
 	self.restraint_data = np.loadtxt(exp_data)
@@ -42,11 +64,18 @@ class prep(object):
 	self.data = sorted(glob.glob(data_dir),key=lambda x: [self.convert(s) for s in re.split("([0-9]+)",x)])
         if int(len(self.data)) != int(states):
                 raise ValueError("number of states doesn't equal to file numbers")
-        if out_dir == None:
-            self.out = 'BICePs'+self.scheme
-        self.out = out_dir
 
-    def write(self):
+    def write(self,out_dir=None):
+        """
+        out_dir: output directory
+        """
+        if out_dir == None:
+            self.out = 'BICePs_'+self.scheme
+        else:
+            self.out = out_dir
+        if not os.path.exists(self.out):
+            os.mkdir(self.out)
+
         if self.scheme in ['cs_H','cs_Ha','cs_Ca','cs_N']:
             self.write_cs_input()
 	elif self.scheme == 'noe':
@@ -60,8 +89,6 @@ class prep(object):
 
 
     def write_cs_input(self):
-	if not os.path.exists(self.out):
-	    os.mkdir(self.out) 
         for j in xrange(len(self.data)):
 	    model_data = np.loadtxt(self.data[j])
 	    r = prep_cs()
@@ -76,7 +103,52 @@ class prep(object):
                 r.add_line_cs(restraint_index, a1, self.topology, exp_chemical_shift, model_chemical_shift)
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
-                 
+    def write_noe_input(self):
+        for j in xrange(len(self.data)):
+            model_data = np.loadtxt(self.data[j])
+            r = prep_noe()
+            all_atom_indices = [atom.index for atom in self.topology.atoms]
+            all_atom_residues = [atom.residue for atom in self.topology.atoms]
+            all_atom_names = [atom.name for atom in self.topology.atoms]
+            for i in xrange(self.ind.shape[0]):
+		a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
+                restraint_index = self.restraint_data[i,0]
+                exp_distance        = self.restraint_data[i,1]
+                model_distance      = self.model_data[i]
+                r.add_line_noe(restraint_index, a1, a2, self.topology, exp_distance, model_distance)
+	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
+
+    def write_J_input(self):
+        for j in xrange(len(self.data)):
+            model_data = np.loadtxt(self.data[j])
+            r = prep_J()
+            all_atom_indices = [atom.index for atom in self.topology.atoms]
+            all_atom_residues = [atom.residue for atom in self.topology.atoms]
+            all_atom_names = [atom.name for atom in self.topology.atoms]
+            for i in xrange(self.ind.shape[0]):
+		a1, a2, a3, a4 = int(self.ind[i,0]), int(self.ind[i,1]), int(self.ind[i,2]), int(self.ind[i,3])
+    		restraint_index = self.restraint_data[i,0]
+    		J_coupling      = self.restraint_data[i,1]
+    		r.add_line_J(restraint_index, a1, a2, a3, a4, self.topology, J_coupling, self.karplus)
+	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
+
+    def write_pf_input(self):
+        for j in xrange(len(self.data)):
+            model_data = np.loadtxt(self.data[j])
+            r = prep_pf()
+            all_atom_indices = [atom.index for atom in self.topology.atoms]
+            all_atom_residues = [atom.residue for atom in self.topology.atoms]
+            all_atom_names = [atom.name for atom in self.topology.atoms]
+            for i in xrange(self.ind.shape[0]):
+	        a1 = int(self.ind[i])
+    		restraint_index = self.restraint_data[i,0]
+    		protectionfactor        = self.restraint_data[i,1]
+    		r.add_line_pf(restraint_index, a1, self.topology, protectionfactor)
+            r.write('%s/%d.%s'%(self.out,j,self.scheme))
+		
+		    
+ 
+        
                     
 
                 
