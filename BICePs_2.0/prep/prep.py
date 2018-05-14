@@ -31,10 +31,9 @@ class prep(object):
                 raise ValueError("make sure you have actual input for states, indices, exp_data, topology file or data directory ")
 	
 
-            if scheme in ['cs_H','cs_Ha','cs_Ca','cs_N']:
-		self.write_cs_input()
 	self.ind=np.loadtxt(indices)
 	self.restraint_data = np.loadtxt(exp_data)
+	self.scheme = scheme
 	if self.ind.shape[0] != self.restraint_data.shape[0]:
             raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.')%(self.ind.shape[0],self.restraint_data.shape[0])
 
@@ -44,37 +43,23 @@ class prep(object):
         if int(len(self.data)) != int(states):
                 raise ValueError("number of states doesn't equal to file numbers")
         if out_dir == None:
-            self.out = 'BICePs'+scheme
+            self.out = 'BICePs'+self.scheme
         self.out = out_dir
-#	if self.ind.shape[0] != self.restraint_data.shape[0]:
-#            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.')%(self.ind.shape[0],self.restraint_data.shape[0])
 
     def write(self):
-        if scheme in ['cs_H','cs_Ha','cs_Ca','cs_N']:
+        if self.scheme in ['cs_H','cs_Ha','cs_Ca','cs_N']:
             self.write_cs_input()
-	elif scheme == 'noe':
+	elif self.scheme == 'noe':
 	    self.write_noe_input()
-        elif scheme == 'J':
+        elif self.scheme == 'J':
 	    self.write_J_input()
-	elif scheme == 'pf':
+	elif self.scheme == 'pf':
 	    self.write_pf_input()
 	else:
 	    raise ValueError("scheme must be one of ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']")
 
 
     def write_cs_input(self):
-#        self.ind = np.loadtxt(indices)
-#        self.restraint_data = np.loadtxt(exp_data)
-#        if self.ind.shape[0] != self.restraint_data.shape[0]:
-#            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.')%(self.ind.shape[0],self.restraint_data.shape[0])
-#        self.topology = md.load(top).topology
-        #convert = lambda txt: int(txt) if txt.isdigit() else txt
-#        self.data = sorted(glob.glob(data_dir),key=lambda x: [convert(s) for s in re.split("([0-9]+)",x)])
-#	if int(len(self.data)) != int(states):
-#		raise ValueError("number of states doesn't equal to file numbers")
-#	if out_dir == None:
-#	    self.out = 'BICePs'+scheme
-#	self.out = out_dir
 	if not os.path.exists(self.out):
 	    os.mkdir(self.out) 
         for j in xrange(len(self.data)):
@@ -89,7 +74,7 @@ class prep(object):
                 exp_chemical_shift        = self.restraint_data[i,1]
                 model_chemical_shift      = model_data[i]
                 r.add_line_cs(restraint_index, a1, self.topology, exp_chemical_shift, model_chemical_shift)
-	    r.write('%s/%d.cs_H'%(self.out,j))
+	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
                  
                     
