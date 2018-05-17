@@ -1,6 +1,6 @@
 import sys, os, glob
 import re
-from prep import *
+from Preparation import *
 #self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None, out_dir=None):
 #        scheme: {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
 #        states: number of states
@@ -21,5 +21,5 @@ out_dir='test_cs_H'
 #data = sorted(glob.glob(path),key=lambda x: [convert(s) for s in re.split("([0-9]+)",x)])
 #print data
 #p=prep('cs_H',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=data_dir,out_dir=out_dir)
-p=Prep('cs_H',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=data_dir)
+p=Preparation('cs_H',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=data_dir)
 p.write(out_dir=out_dir)
