@@ -22,7 +22,7 @@ from prep_pf import *    # Class - creates Chemical shift restraint file
 ##############################################################################
 
 
-class restraint_pf(object):
+class restraint_pf_spec(object):
 
     def __init__(self):
 
