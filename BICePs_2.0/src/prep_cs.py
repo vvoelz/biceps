@@ -1,3 +1,14 @@
+##############################################################################
+# Authors: Yunhui Ge
+# Contributors: Vincent Voelz, Rob Raddi
+# This file is used to prepare input files of chemical shifts in BICePs.
+##############################################################################
+
+
+##############################################################################
+# Imports
+##############################################################################
+
 import os, sys, glob, string
 import numpy as np
 # FORMAT (Chemical shift)
@@ -22,6 +33,10 @@ import numpy as np
 # UPPER and LOWER BOUNDS
 # BICePs restraints do not have upper/lower bounds, only a mean distance value.  Any values specified in  
 # XPLOR/CNS files are ignored.
+
+##############################################################################
+# Code
+##############################################################################
 
 def biceps_restraint_line_cs(restraint_index, i, topology, exp_chemical_shift, model_chemical_shift):
     """Returns a formatted string for a line in chemicalshift restraint file.
@@ -98,12 +113,12 @@ class prep_cs(object):
         print 'Wrote', filename
 
 
-    def add_line_cs(self, restraint_index, i,  topology, exp_chemical_shift, model_chemical_shift):
+    def add_line(self, restraint_index, i,  topology, exp_chemical_shift, model_chemical_shift):
         """Add a line to the chemicalshift file."""
 
         self.lines.append(biceps_restraint_line_cs(restraint_index, i,  topology, exp_chemical_shift, model_chemical_shift))
 
-    def parse_line_cs(self, line):
+    def parse_line(self, line):
         """Parse a chemicalshift data line and return the values
 
         RETURNS

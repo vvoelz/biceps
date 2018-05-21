@@ -1,3 +1,16 @@
+##############################################################################
+# Authors: Yunhui Ge
+# Contributors: Vincent Voelz, Rob Raddi
+# This file is used to prepare input files of J coupling constants in BICePs.
+##############################################################################
+
+
+##############################################################################
+# Imports
+##############################################################################
+
+
+
 import os, sys, glob, string
 import numpy as np
 
@@ -35,6 +48,10 @@ import numpy as np
 # UPPER and LOWER BOUNDS
 # BICePs restraints do not have upper/lower bounds, only a mean distance value.  Any values specified in  
 # XPLOR/CNS files are ignored.
+
+##############################################################################
+# Code
+##############################################################################
 
 def biceps_restraint_line_J(restraint_index, i, j, k, l, topology, J_coupling, karplus):
     """Returns a formatted string for a line in Jcoupling restraint file.
@@ -129,12 +146,12 @@ class prep_J(object):
 
 
 
-    def add_line_J(self, restraint_index, i, j, k, l, topology, J_coupling, karplus):
+    def add_line(self, restraint_index, i, j, k, l, topology, J_coupling, karplus):
         """Add a line to the Jcoupling file."""
 
         self.lines.append(biceps_restraint_line_J(restraint_index, i, j, k, l, topology, J_coupling, karplus))
 
-    def parse_line_J(self, line):
+    def parse_line(self, line):
         """Parse a Jcoupling data line and return the values
 
         RETURNS
