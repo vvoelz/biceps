@@ -39,7 +39,7 @@ class restraint_cs_H(object):
                 print b.lines
         data = []
         for line in b.lines:
-                data.append( b.parse_line_cs(line) )  # [restraint_index, atom_index1, res1, atom_name1, chemicalshift]
+                data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, chemicalshift]
 
         if verbose:
             print 'Loaded from', filename, ':'

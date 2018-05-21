@@ -40,7 +40,7 @@ class restraint_J(object):
         b = prep_J(filename=filename)
         data = []
         for line in b.lines:
-                data.append( b.parse_line_J(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, J_coupling(Hz)]
+                data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, J_coupling(Hz)]
 
         if verbose:
             print 'Loaded from', filename, ':'

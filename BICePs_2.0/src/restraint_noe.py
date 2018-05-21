@@ -43,7 +43,7 @@ class restraint_noe(object):
         b = prep_noe(filename=filename)
         data = []
         for line in b.lines:
-                data.append( b.parse_line_noe(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
+                data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
 
         if verbose:
             print 'Loaded from', filename, ':'

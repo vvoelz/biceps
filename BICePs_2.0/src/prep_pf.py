@@ -1,3 +1,14 @@
+##############################################################################
+# Authors: Yunhui Ge
+# Contributors: Vincent Voelz, Rob Raddi
+# This file is used to prepare input files of J coupling constants in BICePs.
+##############################################################################
+
+
+##############################################################################
+# Imports
+##############################################################################
+
 import os, sys, glob, string
 import numpy as np
 # FORMAT (Chemical shift)
@@ -20,6 +31,10 @@ import numpy as np
 # UPPER and LOWER BOUNDS
 # BICePs restraints do not have upper/lower bounds, only a mean distance value.  Any values specified in  
 # XPLOR/CNS files are ignored.
+
+##############################################################################
+# Code
+##############################################################################
 
 def biceps_restraint_line_pf(restraint_index, i, topology, protection_factor):
     """Returns a formatted string for a line in protectionfactor restraint file.
@@ -94,12 +109,12 @@ class prep_pf(object):
         print 'Wrote', filename
 
 
-    def add_line_pf(self, restraint_index, i,  topology, protection_factor):
+    def add_line(self, restraint_index, i,  topology, protection_factor):
         """Add a line to the protection_factor file."""
 
         self.lines.append(biceps_restraint_line_pf(restraint_index, i,  topology, protection_factor))
 
-    def parse_line_pf(self, line):
+    def parse_line(self, line):
         """Parse a protectionfactor data line and return the values
 
         RETURNS

@@ -1,3 +1,13 @@
+##############################################################################
+# Authors: Vincent Voelz
+# Contributors: Yunhui Ge,  Rob Raddi
+# This file is used to prepare input files of J coupling constants in BICePs.
+##############################################################################
+
+
+##############################################################################
+# Imports
+##############################################################################
 import os, sys, glob, string
 import numpy as np
 
@@ -33,7 +43,9 @@ import numpy as np
 # BICePs restraints do not have upper/lower bounds, only a mean distance value.  Any values specified in  
 # XPLOR/CNS files are ignored.
 
-
+##############################################################################
+# Code
+##############################################################################
 
 def biceps_restraint_line_noe(restraint_index, i, j, topology, exp_distance, model_distance):
     """Returns a formatted string for a line in NOE restraint file.
@@ -116,12 +128,12 @@ class prep_noe(object):
         print 'Wrote', filename
 
 
-    def add_line_noe(self, restraint_index, i, j, topology, exp_distance, model_distance):
+    def add_line(self, restraint_index, i, j, topology, exp_distance, model_distance):
         """Add a line to the NOE file."""
 
         self.lines.append(biceps_restraint_line_noe(restraint_index, i, j, topology, exp_distance, model_distance))
 
-    def parse_line_noe(self, line):
+    def parse_line(self, line):
         """Parse a NOE data line and return the values
 
         RETURNS

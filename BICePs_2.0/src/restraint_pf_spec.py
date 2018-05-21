@@ -1,21 +1,27 @@
-#!/usr/bin/env python
+##############################################################################
+# Authors: Yunhui Ge
+# Contributors: Vincent Voelz, Rob Raddi
+# This file is used to initialize variables for protection factors in BICePs and prepare fuctions for compute necessary quantities for posterior sampling. This file is only used in a special case (apoMb) and unlikely will be used in any other cases. 
+##############################################################################
 
-# Import Modules:{{{
+
+##############################################################################
+# Imports
+##############################################################################
+
 import os, sys, glob
 import numpy as np
 #from msmbuilder import Conformation
 import mdtraj
-# Can we get rid of yaml and substitute for another multicolumn layout?
-# Ideas:{{{
-
-# }}}
 
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
 from prep_pf import *    # Class - creates Chemical shift restraint file
 
-# }}}
+##############################################################################
+# Code
+##############################################################################
 
-# Class Restraint:{{{
+
 class restraint_pf(object):
 
     def __init__(self):
@@ -34,7 +40,7 @@ class restraint_pf(object):
                 print b.lines
         data = []
         for line in b.lines:
-                data.append( b.parse_line_cs(line) )  # [restraint_index, atom_index1, res1, atom_name1, chemicalshift]
+                data.append( b.parse_line_(line) )  # [restraint_index, atom_index1, res1, atom_name1, chemicalshift]
 
         if verbose:
             print 'Loaded from', filename, ':'
