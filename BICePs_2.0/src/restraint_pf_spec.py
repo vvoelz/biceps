@@ -1,26 +1,21 @@
-##############################################################################
-# Authors: Yunhui Ge
-# Contributors: Vincent Voelz, Rob Raddi
-# This file is used to initialize variables for protection factors in BICePs and prepare fuctions for compute necessary quantities for posterior sampling.
-##############################################################################
+#!/usr/bin/env python
 
-
-##############################################################################
-# Imports
-##############################################################################
-
+# Import Modules:{{{
 import os, sys, glob
 import numpy as np
 #from msmbuilder import Conformation
 import mdtraj
+# Can we get rid of yaml and substitute for another multicolumn layout?
+# Ideas:{{{
+
+# }}}
 
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
-from prep_pf import *    # Class - prepare functions for protection factors restraint file
+from prep_pf import *    # Class - creates Chemical shift restraint file
 
-##############################################################################
-# Code
-##############################################################################
+# }}}
 
+# Class Restraint:{{{
 class restraint_pf(object):
 
     def __init__(self):
@@ -33,23 +28,30 @@ class restraint_pf(object):
         """Load in the experimental chemical shift restraints from a .chemicalshift file format.
         """
 
-        # Read in the lines of the protection factors data file
+        # Read in the lines of the chemicalshift data file
         b = prep_pf(filename=filename)
         if verbose:
                 print b.lines
         data = []
         for line in b.lines:
-                data.append( b.parse_line_pf(line) ) 
+                data.append( b.parse_line_cs(line) )  # [restraint_index, atom_index1, res1, atom_name1, chemicalshift]
 
         if verbose:
             print 'Loaded from', filename, ':'
             for entry in data:
                 print entry
 
-        # add the protection factors restraints
+        ### distances ###
+
+        # the equivalency indices for distances are in the first column of the *.biceps f
+#       equivalency_indices = [entry[0] for entry in data]
+
+        # add the chemical shift restraints
         for entry in data:
-            restraint_index, i, exp_pf, model_pf  = entry[0], entry[1], entry[4], entry[5]
+            restraint_index, i, exp_pf, model_pf  = entry[0], entry[0], entry[3]
             self.add_pf_restraint(i, exp_pf, model_pf)
+
+        # build groups of equivalency group indices, ambiguous group etc.
 
         self.compute_sse_pf()
 
@@ -64,6 +66,7 @@ class restraint_pf(object):
 
     def compute_sse_pf(self, debug=True):    #GYH
         """Returns the (weighted) sum of squared errors for protection factor values"""
+#       for g in range(len(self.allowed_gamma)):
 
         sse_pf = 0.0
         N_pf = 0.0

@@ -1,27 +1,28 @@
-#!/usr/bin/env python
+##############################################################################
+# Authors: Yunhui Ge
+# Contributors: Vincent Voelz, Rob Raddi
+# This file is used to initialize variables for J coupling constants in BICePs and prepare fuctions for compute necessary quantities for posterior sampling.
+##############################################################################
 
-# Import Modules:{{{
+
+##############################################################################
+# Imports
+##############################################################################
+
 import os, sys, glob
 import numpy as np
 #from msmbuilder import Conformation
 import mdtraj
-# Can we get rid of yaml and substitute for another multicolumn layout?
-# Ideas:{{{
-
-# }}}
 
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
-from RestraintFile_J import *     # Class - creates J-coupling const. restraint file
+from prep_J import *     # Class - creates J-coupling const. restraint file
 
-# }}}
+##############################################################################
+# Code
+##############################################################################
 
-# Class Restraint:{{{
+
 class restraint_J(object):
-    #Notes:# {{{
-    '''
-
-    '''
-    # }}}
     def __init__(self):
 
         # Store dihedral restraint info
@@ -36,7 +37,7 @@ class restraint_J(object):
 
 
         # Read in the lines of the biceps data file
-        b = RestraintFile_J(filename=filename)
+        b = prep_J(filename=filename)
         data = []
         for line in b.lines:
                 data.append( b.parse_line_J(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, J_coupling(Hz)]

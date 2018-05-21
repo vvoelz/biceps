@@ -1,30 +1,28 @@
-#!/usr/bin/env python
+##############################################################################
+# Authors: Yunhui Ge
+# Contributors: Vincent Voelz, Rob Raddi
+# This file is used to initialize variables for protection factors in BICePs and prepare fuctions for compute necessary quantities for posterior sampling.
+##############################################################################
 
-# Import Modules:{{{
+
+##############################################################################
+# Imports
+##############################################################################
+
 import os, sys, glob
 import numpy as np
 #from msmbuilder import Conformation
 import mdtraj
-# Can we get rid of yaml and substitute for another multicolumn layout?
-# Ideas:{{{
-
-# }}}
 
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
-from RestraintFile_cs import *    # Class - creates Chemical shift restraint file
-from RestraintFile_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
-from RestraintFile_J import *     # Class - creates J-coupling const. restraint file
-from RestraintFile_pf import *	  # Class - creates Protection factor restraint file   #GYH
+from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
 
-# }}}
+##############################################################################
+# Code
+##############################################################################
 
 # Class Restraint:{{{
 class restraint_noe(object):
-    #Notes:# {{{
-    '''
-
-    '''
-    # }}}
     def __init__(self):
         # Store distance restraint info
         self.distance_restraints = []
@@ -42,7 +40,7 @@ class restraint_noe(object):
         """
 
         # Read in the lines of the biceps data file
-        b = RestraintFile_noe(filename=filename)
+        b = prep_noe(filename=filename)
         data = []
         for line in b.lines:
                 data.append( b.parse_line_noe(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
@@ -86,7 +84,6 @@ class restraint_noe(object):
 
 
 
-    # Restraints:{{{
     def add_distance_restraint(self, i, j, exp_distance, model_distance=None,
                                equivalency_index=None):
         """Add an NOE NMR_Distance() object to the set"""

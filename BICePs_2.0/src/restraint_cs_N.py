@@ -1,27 +1,28 @@
-#!/usr/bin/env python
+##############################################################################
+# Authors: Yunhui Ge
+# Contributors: Vincent Voelz, Rob Raddi
+# This file is used to initialize variables for chemical shifts (N) in BICePs and prepare fuctions for compute necessary quantities for posterior sampling.
+##############################################################################
 
-# Import Modules:{{{
+
+##############################################################################
+# Imports
+##############################################################################
+
 import os, sys, glob
 import numpy as np
 #from msmbuilder import Conformation
 import mdtraj
-# Can we get rid of yaml and substitute for another multicolumn layout?
-# Ideas:{{{
-
-# }}}
 
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
-from RestraintFile_cs import *    # Class - creates Chemical shift restraint file
+from prep_cs import *    # Class - creates Chemical shift restraint file
 
-# }}}
+##############################################################################
+# Code
+##############################################################################
 
-# Class Restraint:{{{
 class restraint_cs_N(object):
-    #Notes:# {{{
-    '''
 
-    '''
-    # }}}
     def __init__(self):
 
         # Store chemical shift restraint info   #GYN
@@ -34,7 +35,7 @@ class restraint_cs_N(object):
         """
 
         # Read in the lines of the chemicalshift data file
-        b = RestraintFile_cs(filename=filename)
+        b = prep_cs(filename=filename)
         if verbose:
                 print b.lines
         data = []
@@ -46,17 +47,12 @@ class restraint_cs_N(object):
             for entry in data:
                 print entry
 
-        ### distances ###
-
-        # the equivalency indices for distances are in the first column of the *.biceps f
-#       equivalency_indices = [entry[0] for entry in data]
 
         # add the chemical shift restraints
         for entry in data:
             restraint_index, i, exp_chemicalshift_N, model_chemicalshift_N  = entry[0], entry[1], entry[4], entry[5]
             self.add_chemicalshift_N_restraint(i, exp_chemicalshift_N, model_chemicalshift_N)
 
-        # build groups of equivalency group indices, ambiguous group etc.
 
         self.compute_sse_chemicalshift_N()
 
@@ -64,14 +60,6 @@ class restraint_cs_N(object):
 
     def add_chemicalshift_N_restraint(self, i, exp_chemicalshift_N, model_chemicalshift_N=None):
         """Add a chemicalshift NMR_Chemicalshift() object to the list."""
-         # if the modeled distance is not specified, compute the distance from the conformation
-#       Ind = self.conf.topology.select("index == j")
-#       t=self.conf.atom_slice(Ind)
-#        if model_chemicalshift_N == None:
- #              r=md.nmr.chemicalshifts_shiftx2(r,pN=2.5, temperature = 280.0)
-
- #              model_chemicalshift = r.mean(axis=1)
-#                model_chemicalshift_N = 1  # will be replaced by pre-computed cs
 
         self.chemicalshift_N_restraints.append( NMR_Chemicalshift_N(i, model_chemicalshift_N, exp_chemicalshift_N))
 
@@ -79,7 +67,6 @@ class restraint_cs_N(object):
 
     def compute_sse_chemicalshift_N(self, debug=True):    #GYN
         """Returns the (weighted) sum of squared errors for chemical shift values"""
-#       for g in range(len(self.allowed_gamma)):
 
         sse_N = 0.0
         N_N = 0.0
