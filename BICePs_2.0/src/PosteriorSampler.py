@@ -7,10 +7,10 @@ from scipy  import loadtxt, savetxt
 from matplotlib import pylab as plt
 import yaml
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
-from RestraintFile_cs import *    # Class - creates Chemical shift restraint file
-from RestraintFile_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
-from RestraintFile_J import *     # Class - creates J-coupling const. restraint file
-from RestraintFile_pf import *	  # Class - creates Protection factor restraint file   #GYH
+from prep_cs import *    # Class - creates Chemical shift restraint file
+from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
+from prep_J import *     # Class - creates J-coupling const. restraint file
+from prep_pf import *	  # Class - creates Protection factor restraint file   #GYH
 from restraint_cs_H import *	# test (until compute sse) done for work   Yunhui Ge -- 04/2018
 from restraint_J import *
 from restraint_cs_Ha import *
@@ -605,20 +605,20 @@ class PosteriorSampler(object):
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nchemicalshift_H = len(ensemble[0].chemicalshift_H_restraints)
-     #       print "nchemicalshift_H", nchemicalshift_H
-            all_chemicalshift_H = []
-            chemicalshift_H_distributions = [[] for j in range(nchemicalshift_H)]
+            ncs_H = len(ensemble[0].cs_H_restraints)
+     #       print "ncs_H", ncs_H
+            all_cs_H = []
+            cs_H_distributions = [[] for j in range(ncs_H)]
             for s in ensemble:
-                for j in range(len(s.chemicalshift_H_restraints)):
-                    chemicalshift_H_distributions[j].append( s.chemicalshift_H_restraints[j].model_chemicalshift_H )
-                    all_chemicalshift_H.append( s.chemicalshift_H_restraints[j].model_chemicalshift_H )
+                for j in range(len(s.cs_H_restraints)):
+                    cs_H_distributions[j].append( s.cs_H_restraints[j].model_cs_H )
+                    all_cs_H.append( s.cs_H_restraints[j].model_cs_H )
 
             # Find the MLE average (i.e. beta_j) for each distance
-            betas_H = np.zeros(nchemicalshift_H)
-            for j in range(nchemicalshift_H):
+            betas_H = np.zeros(ncs_H)
+            for j in range(ncs_H):
                 # plot the maximum likelihood exponential distribution fitting the data
-                betas_H[j] =  np.array(chemicalshift_H_distributions[j]).sum()/(len(chemicalshift_H_distributions[j])+1.0)
+                betas_H[j] =  np.array(cs_H_distributions[j]).sum()/(len(cs_H_distributions[j])+1.0)
 
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
@@ -636,24 +636,24 @@ class PosteriorSampler(object):
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nchemicalshift_H = len(ensemble[0].chemicalshift_H_restraints)
-            all_chemicalshift_H = []
-            chemicalshift_H_distributions = [[] for j in range(nchemicalshift_H)]
+            ncs_H = len(ensemble[0].cs_H_restraints)
+            all_cs_H = []
+            cs_H_distributions = [[] for j in range(ncs_H)]
             for s in ensemble:
-                for j in range(len(s.chemicalshift_H_restraints)):
-                    chemicalshift_H_distributions[j].append( s.chemicalshift_H_restraints[j].model_chemicalshift_H )
-                    all_chemicalshift_H.append( s.chemicalshift_H_restraints[j].model_chemicalshift_H )
+                for j in range(len(s.cs_H_restraints)):
+                    cs_H_distributions[j].append( s.cs_H_restraints[j].model_cs_H )
+                    all_cs_H.append( s.cs_H_restraints[j].model_cs_H )
 
             # Find the MLE average (i.e. beta_j) for each distance
-            ref_mean_H = np.zeros(nchemicalshift_H)
-	    ref_sigma_H = np.zeros(nchemicalshift_H)
-            for j in range(nchemicalshift_H):
+            ref_mean_H = np.zeros(ncs_H)
+	    ref_sigma_H = np.zeros(ncs_H)
+            for j in range(ncs_H):
                 # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_H[j] =  np.array(chemicalshift_H_distributions[j]).mean()
-                squared_diffs_H = [ (d - ref_mean_H[j])**2.0 for d in chemicalshift_H_distributions[j] ]
-                ref_sigma_H[j] = np.sqrt( np.array(squared_diffs_H).sum() / (len(chemicalshift_H_distributions[j])+1.0))
-            global_ref_sigma_H = ( np.array([ref_sigma_H[j]**-2.0 for j in range(nchemicalshift_H)]).mean() )**-0.5
-            for j in range(nchemicalshift_H):
+                ref_mean_H[j] =  np.array(cs_H_distributions[j]).mean()
+                squared_diffs_H = [ (d - ref_mean_H[j])**2.0 for d in cs_H_distributions[j] ]
+                ref_sigma_H[j] = np.sqrt( np.array(squared_diffs_H).sum() / (len(cs_H_distributions[j])+1.0))
+            global_ref_sigma_H = ( np.array([ref_sigma_H[j]**-2.0 for j in range(ncs_H)]).mean() )**-0.5
+            for j in range(ncs_H):
                 ref_sigma_H[j] = global_ref_sigma_H
 #		ref_sigma_H[j] = 12.0
             # store the beta information in each structure and compute/store the -log P_potential
@@ -677,19 +677,19 @@ class PosteriorSampler(object):
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nchemicalshift_Ha = len(ensemble[0].chemicalshift_Ha_restraints)
-            all_chemicalshift_Ha = []
-            chemicalshift_Ha_distributions = [[] for j in range(nchemicalshift_Ha)]
+            ncs_Ha = len(ensemble[0].cs_Ha_restraints)
+            all_cs_Ha = []
+            cs_Ha_distributions = [[] for j in range(ncs_Ha)]
             for s in ensemble:
-                for j in range(len(s.chemicalshift_Ha_restraints)):
-                    chemicalshift_Ha_distributions[j].append( s.chemicalshift_Ha_restraints[j].model_chemicalshift_Ha )
-                    all_chemicalshift_Ha.append( s.chemicalshift_Ha_restraints[j].model_chemicalshift_Ha )
+                for j in range(len(s.cs_Ha_restraints)):
+                    cs_Ha_distributions[j].append( s.cs_Ha_restraints[j].model_cs_Ha )
+                    all_cs_Ha.append( s.cs_Ha_restraints[j].model_cs_Ha )
 
             # Find the MLE average (i.e. beta_j) for each distance
-            betas_Ha = np.zeros(nchemicalshift_Ha)
-            for j in range(nchemicalshift_Ha):
+            betas_Ha = np.zeros(ncs_Ha)
+            for j in range(ncs_Ha):
                 # plot the maximum likelihood exponential distribution fitting the data
-                betas_Ha[j] =  np.array(chemicalshift_Ha_distributions[j]).sum()/(len(chemicalshift_Ha_distributions[j])+1.0)
+                betas_Ha[j] =  np.array(cs_Ha_distributions[j]).sum()/(len(cs_Ha_distributions[j])+1.0)
 
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
@@ -706,24 +706,24 @@ class PosteriorSampler(object):
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nchemicalshift_Ha = len(ensemble[0].chemicalshift_Ha_restraints)
-            all_chemicalshift_Ha = []
-            chemicalshift_Ha_distributions = [[] for j in range(nchemicalshift_Ha)]
+            ncs_Ha = len(ensemble[0].cs_Ha_restraints)
+            all_cs_Ha = []
+            cs_Ha_distributions = [[] for j in range(ncs_Ha)]
             for s in ensemble:
-                for j in range(len(s.chemicalshift_Ha_restraints)):
-                    chemicalshift_Ha_distributions[j].append( s.chemicalshift_Ha_restraints[j].model_chemicalshift_Ha )
-                    all_chemicalshift_Ha.append( s.chemicalshift_Ha_restraints[j].model_chemicalshift_Ha )
+                for j in range(len(s.cs_Ha_restraints)):
+                    cs_Ha_distributions[j].append( s.cs_Ha_restraints[j].model_cs_Ha )
+                    all_cs_Ha.append( s.cs_Ha_restraints[j].model_cs_Ha )
 
             # Find the MLE average (i.e. beta_j) for each distance
-            ref_mean_Ha = np.zeros(nchemicalshift_Ha)
-	    ref_sigma_Ha = np.zeros(nchemicalshift_Ha)
-            for j in range(nchemicalshift_Ha):
+            ref_mean_Ha = np.zeros(ncs_Ha)
+	    ref_sigma_Ha = np.zeros(ncs_Ha)
+            for j in range(ncs_Ha):
                 # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_Ha[j] =  np.array(chemicalshift_Ha_distributions[j]).mean()
-                squared_diffs_Ha = [ (d - ref_mean_Ha[j])**2.0 for d in chemicalshift_Ha_distributions[j] ]
-                ref_sigma_Ha[j] = np.sqrt( np.array(squared_diffs_Ha).sum() / (len(chemicalshift_Ha_distributions[j])+1.0))
-            global_ref_sigma_Ha = ( np.array([ref_sigma_Ha[j]**-2.0 for j in range(nchemicalshift_Ha)]).mean() )**-0.5
-            for j in range(nchemicalshift_Ha):
+                ref_mean_Ha[j] =  np.array(cs_Ha_distributions[j]).mean()
+                squared_diffs_Ha = [ (d - ref_mean_Ha[j])**2.0 for d in cs_Ha_distributions[j] ]
+                ref_sigma_Ha[j] = np.sqrt( np.array(squared_diffs_Ha).sum() / (len(cs_Ha_distributions[j])+1.0))
+            global_ref_sigma_Ha = ( np.array([ref_sigma_Ha[j]**-2.0 for j in range(ncs_Ha)]).mean() )**-0.5
+            for j in range(ncs_Ha):
                 ref_sigma_Ha[j] = global_ref_sigma_Ha
 #		ref_sigma_Ha[j] = 12.0
             # store the beta information in each structure and compute/store the -log P_potential
@@ -747,19 +747,19 @@ class PosteriorSampler(object):
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nchemicalshift_N = len(ensemble[0].chemicalshift_N_restraints)
-            all_chemicalshift_N = []
-            chemicalshift_N_distributions = [[] for j in range(nchemicalshift_N)]
+            ncs_N = len(ensemble[0].cs_N_restraints)
+            all_cs_N = []
+            cs_N_distributions = [[] for j in range(ncs_N)]
             for s in ensemble:
-                for j in range(len(s.chemicalshift_N_restraints)):
-                    chemicalshift_N_distributions[j].append( s.chemicalshift_N_restraints[j].model_chemicalshift_N )
-                    all_chemicalshift_N.append( s.chemicalshift_N_restraints[j].model_chemicalshift_N )
+                for j in range(len(s.cs_N_restraints)):
+                    cs_N_distributions[j].append( s.cs_N_restraints[j].model_cs_N )
+                    all_cs_N.append( s.cs_N_restraints[j].model_cs_N )
 
             # Find the MLE average (i.e. beta_j) for each distance
-            betas_N = np.zeros(nchemicalshift_N)
-            for j in range(nchemicalshift_N):
+            betas_N = np.zeros(ncs_N)
+            for j in range(ncs_N):
                 # plot the maximum likelihood exponential distribution fitting the data
-                betas_N[j] =  np.array(chemicalshift_N_distributions[j]).sum()/(len(chemicalshift_N_distributions[j])+1.0)
+                betas_N[j] =  np.array(cs_N_distributions[j]).sum()/(len(cs_N_distributions[j])+1.0)
 
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
@@ -777,24 +777,24 @@ class PosteriorSampler(object):
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nchemicalshift_N = len(ensemble[0].chemicalshift_N_restraints)
-            all_chemicalshift_N = []
-            chemicalshift_N_distributions = [[] for j in range(nchemicalshift_N)]
+            ncs_N = len(ensemble[0].cs_N_restraints)
+            all_cs_N = []
+            cs_N_distributions = [[] for j in range(ncs_N)]
             for s in ensemble:
-                for j in range(len(s.chemicalshift_N_restraints)):
-                    chemicalshift_N_distributions[j].append( s.chemicalshift_N_restraints[j].model_chemicalshift_N )
-                    all_chemicalshift_N.append( s.chemicalshift_N_restraints[j].model_chemicalshift_N )
+                for j in range(len(s.cs_N_restraints)):
+                    cs_N_distributions[j].append( s.cs_N_restraints[j].model_cs_N )
+                    all_cs_N.append( s.cs_N_restraints[j].model_cs_N )
 
             # Find the MLE average (i.e. beta_j) for each distance
-            ref_mean_N = np.zeros(nchemicalshift_N)
-	    ref_sigma_N = np.zeros(nchemicalshift_N)
-            for j in range(nchemicalshift_N):
+            ref_mean_N = np.zeros(ncs_N)
+	    ref_sigma_N = np.zeros(ncs_N)
+            for j in range(ncs_N):
                 # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_N[j] =  np.array(chemicalshift_N_distributions[j]).mean()
-                squared_diffs_N = [ (d - ref_mean_N[j])**2.0 for d in chemicalshift_N_distributions[j] ]
-#                ref_sigma_N[j] = np.sqrt( np.array(squared_diffs_N).sum() / (len(chemicalshift_N_distributions[j])+1.0))
-#            global_ref_sigma_N = ( np.array([ref_sigma_N[j]**-2.0 for j in range(nchemicalshift_N)]).mean() )**-0.5
-            for j in range(nchemicalshift_N):
+                ref_mean_N[j] =  np.array(cs_N_distributions[j]).mean()
+                squared_diffs_N = [ (d - ref_mean_N[j])**2.0 for d in cs_N_distributions[j] ]
+#                ref_sigma_N[j] = np.sqrt( np.array(squared_diffs_N).sum() / (len(cs_N_distributions[j])+1.0))
+#            global_ref_sigma_N = ( np.array([ref_sigma_N[j]**-2.0 for j in range(ncs_N)]).mean() )**-0.5
+            for j in range(ncs_N):
 #                ref_sigma_N[j] = global_ref_sigma_N
 		ref_sigma_N[j] = 12.0
             # store the beta information in each structure and compute/store the -log P_potential
@@ -819,19 +819,19 @@ class PosteriorSampler(object):
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nchemicalshift_Ca = len(ensemble[0].chemicalshift_Ca_restraints)
-            all_chemicalshift_Ca = []
-            chemicalshift_Ca_distributions = [[] for j in range(nchemicalshift_Ca)]
+            ncs_Ca = len(ensemble[0].cs_Ca_restraints)
+            all_cs_Ca = []
+            cs_Ca_distributions = [[] for j in range(ncs_Ca)]
             for s in ensemble:
-                for j in range(len(s.chemicalshift_Ca_restraints)):
-                    chemicalshift_Ca_distributions[j].append( s.chemicalshift_Ca_restraints[j].model_chemicalshift_Ca )
-                    all_chemicalshift_Ca.append( s.chemicalshift_Ca_restraints[j].model_chemicalshift_Ca )
+                for j in range(len(s.cs_Ca_restraints)):
+                    cs_Ca_distributions[j].append( s.cs_Ca_restraints[j].model_cs_Ca )
+                    all_cs_Ca.append( s.cs_Ca_restraints[j].model_cs_Ca )
 
             # Find the MLE average (i.e. beta_j) for each distance
-            betas_Ca = np.zeros(nchemicalshift_Ca)
-            for j in range(nchemicalshift_Ca):
+            betas_Ca = np.zeros(ncs_Ca)
+            for j in range(ncs_Ca):
                 # plot the maximum likelihood exponential distribution fitting the data
-                betas_Ca[j] =  np.array(chemicalshift_Ca_distributions[j]).sum()/(len(chemicalshift_Ca_distributions[j])+1.0)
+                betas_Ca[j] =  np.array(cs_Ca_distributions[j]).sum()/(len(cs_Ca_distributions[j])+1.0)
 
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
@@ -849,24 +849,24 @@ class PosteriorSampler(object):
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nchemicalshift_Ca = len(ensemble[0].chemicalshift_Ca_restraints)
-            all_chemicalshift_Ca = []
-            chemicalshift_Ca_distributions = [[] for j in range(nchemicalshift_Ca)]
+            ncs_Ca = len(ensemble[0].cs_Ca_restraints)
+            all_cs_Ca = []
+            cs_Ca_distributions = [[] for j in range(ncs_Ca)]
             for s in ensemble:
-                for j in range(len(s.chemicalshift_Ca_restraints)):
-                    chemicalshift_Ca_distributions[j].append( s.chemicalshift_Ca_restraints[j].model_chemicalshift_Ca )
-                    all_chemicalshift_Ca.append( s.chemicalshift_Ca_restraints[j].model_chemicalshift_Ca )
+                for j in range(len(s.cs_Ca_restraints)):
+                    cs_Ca_distributions[j].append( s.cs_Ca_restraints[j].model_cs_Ca )
+                    all_cs_Ca.append( s.cs_Ca_restraints[j].model_cs_Ca )
 
             # Find the MLE average (i.e. beta_j) for each distance
-            ref_mean_Ca = np.zeros(nchemicalshift_Ca)
-	    ref_sigma_Ca = np.zeros(nchemicalshift_Ca)
-            for j in range(nchemicalshift_Ca):
+            ref_mean_Ca = np.zeros(ncs_Ca)
+	    ref_sigma_Ca = np.zeros(ncs_Ca)
+            for j in range(ncs_Ca):
                 # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_Ca[j] =  np.array(chemicalshift_Ca_distributions[j]).mean()
-                squared_diffs_Ca = [ (d - ref_mean_Ca[j])**2.0 for d in chemicalshift_Ca_distributions[j] ]
-#                ref_sigma_Ca[j] = np.sqrt( np.array(squared_diffs_Ca).sum() / (len(chemicalshift_Ca_distributions[j])+1.0))
-#            global_ref_sigma_Ca = ( np.array([ref_sigma_Ca[j]**-2.0 for j in range(nchemicalshift_Ca)]).mean() )**-0.5
-            for j in range(nchemicalshift_Ca):
+                ref_mean_Ca[j] =  np.array(cs_Ca_distributions[j]).mean()
+                squared_diffs_Ca = [ (d - ref_mean_Ca[j])**2.0 for d in cs_Ca_distributions[j] ]
+#                ref_sigma_Ca[j] = np.sqrt( np.array(squared_diffs_Ca).sum() / (len(cs_Ca_distributions[j])+1.0))
+#            global_ref_sigma_Ca = ( np.array([ref_sigma_Ca[j]**-2.0 for j in range(ncs_Ca)]).mean() )**-0.5
+            for j in range(ncs_Ca):
 #                ref_sigma_Ca[j] = global_ref_sigma_Ca
 		ref_sigma_Ca[j] = 12.0
             # store the beta information in each structure and compute/store the -log P_potential
@@ -981,23 +981,23 @@ class PosteriorSampler(object):
 		result += s.sse_dihedrals / (2.0*new_sigma_J**2.0)
         	result += (s.Ndof_dihedrals)/2.0*self.ln2pi  # for normalization
 
-	# chemicalshift terms                           # GYH
-	if s.sse_chemicalshift_H != None:
-       		result += (s.Ndof_chemicalshift_H)*np.log(new_sigma_cs_H)
-         	result += s.sse_chemicalshift_H / (2.0*new_sigma_cs_H**2.0)
-        	result += (s.Ndof_chemicalshift_H)/2.0*self.ln2pi
-	if s.sse_chemicalshift_Ha != None:
-		result += (s.Ndof_chemicalshift_Ha)*np.log(new_sigma_cs_Ha)
-	        result += s.sse_chemicalshift_Ha / (2.0*new_sigma_cs_Ha**2.0)
-	        result += (s.Ndof_chemicalshift_Ha)/2.0*self.ln2pi
-	if s.sse_chemicalshift_N != None:
-	        result += (s.Ndof_chemicalshift_N)*np.log(new_sigma_cs_N)
-	        result += s.sse_chemicalshift_N / (2.0*new_sigma_cs_N**2.0)
-	        result += (s.Ndof_chemicalshift_N)/2.0*self.ln2pi
-	if s.sse_chemicalshift_Ca != None:
-	        result += (s.Ndof_chemicalshift_Ca)*np.log(new_sigma_cs_Ca)
-	        result += s.sse_chemicalshift_Ca / (2.0*new_sigma_cs_Ca**2.0)
-	        result += (s.Ndof_chemicalshift_Ca)/2.0*self.ln2pi
+	# cs terms                           # GYH
+	if s.sse_cs_H != None:
+       		result += (s.Ndof_cs_H)*np.log(new_sigma_cs_H)
+         	result += s.sse_cs_H / (2.0*new_sigma_cs_H**2.0)
+        	result += (s.Ndof_cs_H)/2.0*self.ln2pi
+	if s.sse_cs_Ha != None:
+		result += (s.Ndof_cs_Ha)*np.log(new_sigma_cs_Ha)
+	        result += s.sse_cs_Ha / (2.0*new_sigma_cs_Ha**2.0)
+	        result += (s.Ndof_cs_Ha)/2.0*self.ln2pi
+	if s.sse_cs_N != None:
+	        result += (s.Ndof_cs_N)*np.log(new_sigma_cs_N)
+	        result += s.sse_cs_N / (2.0*new_sigma_cs_N**2.0)
+	        result += (s.Ndof_cs_N)/2.0*self.ln2pi
+	if s.sse_cs_Ca != None:
+	        result += (s.Ndof_cs_Ca)*np.log(new_sigma_cs_Ca)
+	        result += s.sse_cs_Ca / (2.0*new_sigma_cs_Ca**2.0)
+	        result += (s.Ndof_cs_Ca)/2.0*self.ln2pi
 
 
         # protectionfactor terms                           # GYH
@@ -1038,10 +1038,10 @@ class PosteriorSampler(object):
             print 'state, f_sim', new_state, s.free_energy,
             print 's.sse_distances[', new_gamma_index, ']', s.sse_distances[new_gamma_index], 's.Ndof_distances', s.Ndof_distances
             print 's.sse_dihedrals', s.sse_dihedrals, 's.Ndof_dihedrals', s.Ndof_dihedrals
-	    print 's.sse_chemicalshift_H', s.sse_chemicalshift_H, 's.Ndof_chemicalshift_H', s.Ndof_chemicalshift_H # GYH
-            print 's.sse_chemicalshift_Ha', s.sse_chemicalshift_Ha, 's.Ndof_chemicalshift_Ha', s.Ndof_chemicalshift_Ha # GYH
-            print 's.sse_chemicalshift_N', s.sse_chemicalshift_N, 's.Ndof_chemicalshift_N', s.Ndof_chemicalshift_N # GYH
-            print 's.sse_chemicalshift_Ca', s.sse_chemicalshift_Ca, 's.Ndof_chemicalshift_Ca', s.Ndof_chemicalshift_Ca # GYH
+	    print 's.sse_cs_H', s.sse_cs_H, 's.Ndof_cs_H', s.Ndof_cs_H # GYH
+            print 's.sse_cs_Ha', s.sse_cs_Ha, 's.Ndof_cs_Ha', s.Ndof_cs_Ha # GYH
+            print 's.sse_cs_N', s.sse_cs_N, 's.Ndof_cs_N', s.Ndof_cs_N # GYH
+            print 's.sse_cs_Ca', s.sse_cs_Ca, 's.Ndof_cs_Ca', s.Ndof_cs_Ca # GYH
 	    print 's.sse_protectionfactor[', new_alpha_index, ']', s.sse_protectionfactor[new_alpha_index]
 	    print 's.sum_neglog_reference_potentials_noe', s.sum_neglog_reference_potentials_noe, 's.sum_neglog_reference_potentials_H', s.sum_neglog_reference_potentials_H, 's.sum_neglog_reference_potentials_Ha',s.sum_neglog_reference_potentials_Ha, 's.sum_neglog_reference_potentials_N', s.sum_neglog_reference_potentials_N, 's.sum_neglog_reference_potentials_Ca', s.sum_neglog_reference_potentials_Ca, 's.sum_neglog_reference_potentials_PF', s.sum_neglog_reference_potentials_PF	#GYH
 	    print 's.sum_gaussian_neglog_reference_potentials_noe', s.sum_gaussian_neglog_reference_potentials_noe, 's.sum_gaussian_neglog_reference_potentials_H', s.sum_gaussian_neglog_reference_potentials_H, 's.sum_gaussian_neglog_reference_potentials_Ha', s.sum_gaussian_neglog_reference_potentials_Ha, 's.sum_gaussian_neglog_reference_potentials_N', s.sum_gaussian_neglog_reference_potentials_N, 's.sum_gaussian_neglog_reference_potentials_Ca', s.sum_gaussian_neglog_reference_potentials_Ca, 's.sum_gaussian_neglog_reference_potentials_PF', s.sum_gaussian_neglog_reference_potentials_PF       #GYH
@@ -1218,10 +1218,10 @@ class PosteriorSamplingTrajectory(object):
         self.ensemble = ensemble
         self.ndistances = len(self.ensemble[0].distance_restraints)
         self.ndihedrals = len(self.ensemble[0].dihedral_restraints)
-	self.nchemicalshift_H = len(self.ensemble[0].chemicalshift_H_restraints) #GYH
-        self.nchemicalshift_Ha = len(self.ensemble[0].chemicalshift_Ha_restraints) #GYH
-        self.nchemicalshift_Ca = len(self.ensemble[0].chemicalshift_Ca_restraints) #GYH
-        self.nchemicalshift_N = len(self.ensemble[0].chemicalshift_N_restraints) #GYH
+	self.ncs_H = len(self.ensemble[0].cs_H_restraints) #GYH
+        self.ncs_Ha = len(self.ensemble[0].cs_Ha_restraints) #GYH
+        self.ncs_Ca = len(self.ensemble[0].cs_Ca_restraints) #GYH
+        self.ncs_N = len(self.ensemble[0].cs_N_restraints) #GYH
 	self.nprotectionfactor = len(self.ensemble[0].protectionfactor_restraints) #GYH
 
         self.allowed_sigma_noe = allowed_sigma_noe
@@ -1375,86 +1375,86 @@ class PosteriorSamplingTrajectory(object):
         self.results['disagreement_Jcoupling_std'] = float(abs_Jdiffs.std())
 
         # Estimate the ensemble-averaged chemical shift values    #GYH
-        mean_chemicalshift_H = np.zeros(self.nchemicalshift_H)
-        Z = np.zeros(self.nchemicalshift_H)
+        mean_cs_H = np.zeros(self.ncs_H)
+        Z = np.zeros(self.ncs_H)
         for i in range(self.nstates):
-            for j in range(self.nchemicalshift_H):
+            for j in range(self.ncs_H):
                 pop = self.results['state_pops'][i]
-                weight = self.ensemble[i].chemicalshift_H_restraints[j].weight
-                r = self.ensemble[i].chemicalshift_H_restraints[j].model_chemicalshift_H
-                mean_chemicalshift_H[j] += pop*weight*r
+                weight = self.ensemble[i].cs_H_restraints[j].weight
+                r = self.ensemble[i].cs_H_restraints[j].model_cs_H
+                mean_cs_H[j] += pop*weight*r
                 Z[j] += pop*weight
-        mean_chemicalshift_H = (mean_chemicalshift_H/Z)
-        self.results['mean_chemicalshift_H'] = mean_chemicalshift_H.tolist()
+        mean_cs_H = (mean_cs_H/Z)
+        self.results['mean_cs_H'] = mean_cs_H.tolist()
 
         # Compute the experiment chemical shift                 #GYH
-        exp_chemicalshift_H = np.array([self.ensemble[0].chemicalshift_H_restraints[j].exp_chemicalshift_H for j in range(self.nchemicalshift_H)])
-        self.results['exp_chemicalshift_H'] = exp_chemicalshift_H.tolist()
-        abs_cs_H_diffs = np.abs( exp_chemicalshift_H - mean_chemicalshift_H )
-        self.results['disagreement_chemicalshift_H_mean'] = float(abs_cs_H_diffs.mean())
-        self.results['disagreement_chemicalshift_H_std'] = float(abs_cs_H_diffs.std())
+        exp_cs_H = np.array([self.ensemble[0].cs_H_restraints[j].exp_cs_H for j in range(self.ncs_H)])
+        self.results['exp_cs_H'] = exp_cs_H.tolist()
+        abs_cs_H_diffs = np.abs( exp_cs_H - mean_cs_H )
+        self.results['disagreement_cs_H_mean'] = float(abs_cs_H_diffs.mean())
+        self.results['disagreement_cs_H_std'] = float(abs_cs_H_diffs.std())
 
         # Estimate the ensemble-averaged chemical shift values    #GYH
-        mean_chemicalshift_Ha = np.zeros(self.nchemicalshift_Ha)
-        Z = np.zeros(self.nchemicalshift_Ha)
+        mean_cs_Ha = np.zeros(self.ncs_Ha)
+        Z = np.zeros(self.ncs_Ha)
         for i in range(self.nstates):
-            for j in range(self.nchemicalshift_Ha):
+            for j in range(self.ncs_Ha):
                 pop = self.results['state_pops'][i]
-                weight = self.ensemble[i].chemicalshift_Ha_restraints[j].weight
-                r = self.ensemble[i].chemicalshift_Ha_restraints[j].model_chemicalshift_Ha
-                mean_chemicalshift_Ha[j] += pop*weight*r
+                weight = self.ensemble[i].cs_Ha_restraints[j].weight
+                r = self.ensemble[i].cs_Ha_restraints[j].model_cs_Ha
+                mean_cs_Ha[j] += pop*weight*r
                 Z[j] += pop*weight
-        mean_chemicalshift_Ha = (mean_chemicalshift_Ha/Z)
-        self.results['mean_chemicalshift_Ha'] = mean_chemicalshift_Ha.tolist()
+        mean_cs_Ha = (mean_cs_Ha/Z)
+        self.results['mean_cs_Ha'] = mean_cs_Ha.tolist()
 
         # Compute the experiment chemical shift                 #GYH
-        exp_chemicalshift_Ha = np.array([self.ensemble[0].chemicalshift_Ha_restraints[j].exp_chemicalshift_Ha for j in range(self.nchemicalshift_Ha)])
-        self.results['exp_chemicalshift_Ha'] = exp_chemicalshift_Ha.tolist()
-        abs_cs_Ha_diffs = np.abs( exp_chemicalshift_Ha - mean_chemicalshift_Ha )
-        self.results['disagreement_chemicalshift_Ha_mean'] = float(abs_cs_Ha_diffs.mean())
-        self.results['disagreement_chemicalshift_Ha_std'] = float(abs_cs_Ha_diffs.std())
-
-
-        # Estimate the ensemble-averaged chemical shift values    #GYH
-        mean_chemicalshift_N = np.zeros(self.nchemicalshift_N)
-        Z = np.zeros(self.nchemicalshift_N)
-        for i in range(self.nstates):
-            for j in range(self.nchemicalshift_N):
-                pop = self.results['state_pops'][i]
-                weight = self.ensemble[i].chemicalshift_N_restraints[j].weight
-                r = self.ensemble[i].chemicalshift_N_restraints[j].model_chemicalshift_N
-                mean_chemicalshift_N[j] += pop*weight*r
-                Z[j] += pop*weight
-        mean_chemicalshift_N = (mean_chemicalshift_N/Z)
-        self.results['mean_chemicalshift_N'] = mean_chemicalshift_N.tolist()
-
-        # Compute the experiment chemical shift                 #GYH
-        exp_chemicalshift_N = np.array([self.ensemble[0].chemicalshift_N_restraints[j].exp_chemicalshift_N for j in range(self.nchemicalshift_N)])
-        self.results['exp_chemicalshift_N'] = exp_chemicalshift_N.tolist()
-        abs_cs_N_diffs = np.abs( exp_chemicalshift_N - mean_chemicalshift_N )
-        self.results['disagreement_chemicalshift_N_mean'] = float(abs_cs_N_diffs.mean())
-        self.results['disagreement_chemicalshift_N_std'] = float(abs_cs_N_diffs.std())
+        exp_cs_Ha = np.array([self.ensemble[0].cs_Ha_restraints[j].exp_cs_Ha for j in range(self.ncs_Ha)])
+        self.results['exp_cs_Ha'] = exp_cs_Ha.tolist()
+        abs_cs_Ha_diffs = np.abs( exp_cs_Ha - mean_cs_Ha )
+        self.results['disagreement_cs_Ha_mean'] = float(abs_cs_Ha_diffs.mean())
+        self.results['disagreement_cs_Ha_std'] = float(abs_cs_Ha_diffs.std())
 
 
         # Estimate the ensemble-averaged chemical shift values    #GYH
-        mean_chemicalshift_Ca = np.zeros(self.nchemicalshift_Ca)
-        Z = np.zeros(self.nchemicalshift_Ca)
+        mean_cs_N = np.zeros(self.ncs_N)
+        Z = np.zeros(self.ncs_N)
         for i in range(self.nstates):
-            for j in range(self.nchemicalshift_Ca):
+            for j in range(self.ncs_N):
                 pop = self.results['state_pops'][i]
-                weight = self.ensemble[i].chemicalshift_Ca_restraints[j].weight
-                r = self.ensemble[i].chemicalshift_Ca_restraints[j].model_chemicalshift_Ca
-                mean_chemicalshift_Ca[j] += pop*weight*r
+                weight = self.ensemble[i].cs_N_restraints[j].weight
+                r = self.ensemble[i].cs_N_restraints[j].model_cs_N
+                mean_cs_N[j] += pop*weight*r
                 Z[j] += pop*weight
-        mean_chemicalshift_Ca = (mean_chemicalshift_Ca/Z)
-        self.results['mean_chemicalshift_Ca'] = mean_chemicalshift_Ca.tolist()
+        mean_cs_N = (mean_cs_N/Z)
+        self.results['mean_cs_N'] = mean_cs_N.tolist()
 
         # Compute the experiment chemical shift                 #GYH
-        exp_chemicalshift_Ca = np.array([self.ensemble[0].chemicalshift_Ca_restraints[j].exp_chemicalshift_Ca for j in range(self.nchemicalshift_Ca)])
-        self.results['exp_chemicalshift_Ca'] = exp_chemicalshift_Ca.tolist()
-        abs_cs_Ca_diffs = np.abs( exp_chemicalshift_Ca - mean_chemicalshift_Ca )
-        self.results['disagreement_chemicalshift_Ca_mean'] = float(abs_cs_Ca_diffs.mean())
-        self.results['disagreement_chemicalshift_Ca_std'] = float(abs_cs_Ca_diffs.std())
+        exp_cs_N = np.array([self.ensemble[0].cs_N_restraints[j].exp_cs_N for j in range(self.ncs_N)])
+        self.results['exp_cs_N'] = exp_cs_N.tolist()
+        abs_cs_N_diffs = np.abs( exp_cs_N - mean_cs_N )
+        self.results['disagreement_cs_N_mean'] = float(abs_cs_N_diffs.mean())
+        self.results['disagreement_cs_N_std'] = float(abs_cs_N_diffs.std())
+
+
+        # Estimate the ensemble-averaged chemical shift values    #GYH
+        mean_cs_Ca = np.zeros(self.ncs_Ca)
+        Z = np.zeros(self.ncs_Ca)
+        for i in range(self.nstates):
+            for j in range(self.ncs_Ca):
+                pop = self.results['state_pops'][i]
+                weight = self.ensemble[i].cs_Ca_restraints[j].weight
+                r = self.ensemble[i].cs_Ca_restraints[j].model_cs_Ca
+                mean_cs_Ca[j] += pop*weight*r
+                Z[j] += pop*weight
+        mean_cs_Ca = (mean_cs_Ca/Z)
+        self.results['mean_cs_Ca'] = mean_cs_Ca.tolist()
+
+        # Compute the experiment chemical shift                 #GYH
+        exp_cs_Ca = np.array([self.ensemble[0].cs_Ca_restraints[j].exp_cs_Ca for j in range(self.ncs_Ca)])
+        self.results['exp_cs_Ca'] = exp_cs_Ca.tolist()
+        abs_cs_Ca_diffs = np.abs( exp_cs_Ca - mean_cs_Ca )
+        self.results['disagreement_cs_Ca_mean'] = float(abs_cs_Ca_diffs.mean())
+        self.results['disagreement_cs_Ca_std'] = float(abs_cs_Ca_diffs.std())
 
 
 

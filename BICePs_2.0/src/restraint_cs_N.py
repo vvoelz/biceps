@@ -65,7 +65,7 @@ class restraint_cs_N(object):
 
         self.ncs_N += 1
 
-    def compute_sse_cs_N(self, debug=True):    #GYN
+    def compute_sse_cs_N(self, debug=False):    #GYN
         """Returns the (weighted) sum of squared errors for chemical shift values"""
 
         sse_N = 0.0

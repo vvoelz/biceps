@@ -65,7 +65,7 @@ class restraint_cs_Ha(object):
 
         self.ncs_Ha += 1
 
-    def compute_sse_cs_Ha(self, debug=True):    #GYHa
+    def compute_sse_cs_Ha(self, debug=False):    #GYHa
         """Returns the (weighted) sum of squared errors for chemical shift values"""
 
         sse_Ha = 0.0
