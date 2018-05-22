@@ -144,7 +144,7 @@ for i in range(energies.shape[0]):
     # add the structure to the ensemble
 
     ensemble.append( s )
-sys.exit()
+#sys.exit()
 
 
 

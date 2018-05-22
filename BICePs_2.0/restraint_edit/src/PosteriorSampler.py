@@ -110,6 +110,20 @@ class PosteriorSampler(object):
         # frequency of storing trajectory samples
         self.traj_every = 100
 
+        use_reference_potential_noe = False
+        use_reference_potential_H = False
+        use_reference_potential_Ha = False
+        use_reference_potential_N = False
+        use_reference_potential_Ca = False
+        use_reference_potential_PF = False
+        use_gaussian_reference_potential_noe = False
+        use_gaussian_reference_potential_H = False
+        use_gaussian_reference_potential_Ha = False
+        use_gaussian_reference_potential_N = False
+        use_gaussian_reference_potential_Ca = False
+        use_gaussian_reference_potential_PF = False
+
+
 
 	r_J = R.restraint_J()
         r_cs_Ca = R.restraint_cs_Ca()
@@ -120,12 +134,6 @@ class PosteriorSampler(object):
 
         # RMR:
         # If there exists different exstensions in the data input:{{{
-        dist_prompt = 'What type of distribution would you like for your %s data?\n\
-                        Type the number, then press enter.\n\
-                        1. Exponential\n\
-                        2. Gaussian\n\
-                        3. Uniform\n\
-                        '
         # Initializing a false location of config file. This will be changed if
         # data is imported.
         cs_H_Log  = ''
@@ -137,179 +145,60 @@ class PosteriorSampler(object):
         if data != None:
 	    for j in range(len(data)):
                 for i in data[j]:
-                    wd = os.path.dirname(os.path.realpath(i))
-                    # specifying the location of config file
+                    #wd = os.path.dirname(os.path.realpath(i))
 	            if i.endswith('.noe'):
-                        noe_Log   = wd+'/.noe.log'
-                        if os.path.isfile(noe_Log):
-        # storing a log file to contain configuration of distribution settings
-                            config = open(noe_Log, 'r')
-                            distribution = config.readline()
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_noe=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_noe=True
-                            else:
-                                use_reference_potential_noe=False
-                                use_gaussian_reference_potential_noe=False
+                        if distribution == 'exponential':
+                            use_reference_potential_noe=True
+                        elif distribution == 'gaussian':
+                            use_gaussian_reference_potential_noe=True
                         else:
-                            distribution = input(dist_prompt%'noe')
-                            with open('%s'%noe_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_noe=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_noe=True
-                            else:
-                                use_reference_potential_noe=False
-                                use_gaussian_reference_potential_noe=False
+                            use_reference_potential_noe=False
+                            use_gaussian_reference_potential_noe=False
 
 	    	    elif i.endswith('.J'):
-                        J_Log     = wd+'/.J.log'
-                        if os.path.isfile(J_Log):
-                            config = open(J_Log, 'r')
-                            dist = config.readline()
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_J=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_J=True
-                            else:
-                                use_reference_potential_J=False
-                                use_gaussian_reference_potential_J=False
+                        if distribution == 'exponential':
+                            use_reference_potential_J=True
+                        elif distribution == 'gaussian':
+                            use_gaussian_reference_potential_J=True
                         else:
-                            distribution = input(dist_prompt%'J')
-                            with open('%s'%J_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_J=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_J=True
-                            else:
-                                use_reference_potential_J=False
-                                use_gaussian_reference_potential_J=False
+                            use_reference_potential_J=False
+                            use_gaussian_reference_potential_J=False
 
                     elif i.endswith('.cs_H'):
-                        cs_H_Log  = wd+'/.cs_H.log'
-                        if os.path.isfile(cs_H_Log):
-                            config = open(cs_H_Log, 'r')
-                            dist = config.readline()
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_H=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_H=True
-                            else:
-                                use_reference_potential_H=False
-                                use_gaussian_reference_potential_H=False
+                        if distribution == 'exponential':
+                            use_reference_potential_H=True
+                        elif distribution == 'gaussian':
+                            use_gaussian_reference_potential_H=True
                         else:
-                            distribution = input(dist_prompt%'H')
-                            with open('%s'%cs_H_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_H=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_H=True
-                            else:
-                                use_reference_potential_H=False
-                                use_gaussian_reference_potential_H=False
+                            use_reference_potential_H=False
+                            use_gaussian_reference_potential_H=False
 
                     elif i.endswith('.cs_Ha'):
-                        cs_Ha_Log = wd+'/.cs_Ha.log'
-                        if os.path.isfile(cs_Ha_Log): # storing a log file to contain configuration of distribution settings
-                            config = open(cs_Ha_Log, 'r')
-                            dist = config.readline()
-                            #os.system('echo %s'%dist)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_Ha=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_Ha=True
-                            else:
-                                use_reference_potential_Ha=False
-                                use_gaussian_reference_potential_Ha=False
+                        if distribution == 'exponential':
+                            use_reference_potential_Ha=True
+                        elif distribution == 'gaussian':
+                            use_gaussian_reference_potential_Ha=True
                         else:
-                            distribution = input(dist_prompt%'Ha')
-                            with open('%s'%cs_Ha_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_Ha=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_Ha=True
-                            else:
-                                use_reference_potential_Ha=False
-                                use_gaussian_reference_potential_Ha=False
+                            use_reference_potential_Ha=False
+                            use_gaussian_reference_potential_Ha=False
 
                     elif i.endswith('.cs_N'):
-                        cs_N_Log  = wd+'/.cs_N.log'
-                        if os.path.isfile(cs_N_Log): # storing a log file to contain configuration of distribution settings
-                            config = open(cs_N_Log, 'r')
-                            dist = config.readline()
-                            #os.system('echo %s'%dist)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_N=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_N=True
-                            else:
-                                use_reference_potential_N=False
-                                use_gaussian_reference_potential_N=False
+                        if distribution == 'exponential':
+                            use_reference_potential_N=True
+                        elif distribution == 'gaussian':
+                            use_gaussian_reference_potential_N=True
                         else:
-                            distribution = input(dist_prompt%'N')
-                            with open('%s'%cs_N_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_N=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_N=True
-                            else:
-                                use_reference_potential_N=False
-                                use_gaussian_reference_potential_N=False
+                            use_reference_potential_N=False
+                            use_gaussian_reference_potential_N=False
 
                     elif i.endswith('.cs_Ca'):
-                        cs_Ca_Log = wd+'/.cs_Ca.log'
-                        if os.path.isfile(cs_Ca_Log): # storing a log file to contain configuration of distribution settings
-                            config = open(cs_Ca_Log, 'r')
-                            dist = config.readline()
-                            #os.system('echo %s'%dist)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_Ca=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_Ca=True
-                            else:
-                                use_reference_potential_Ca=False
-                                use_gaussian_reference_potential_Ca=False
+                        if distribution == 'exponential':
+                            use_reference_potential_Ca=True
+                        elif distribution == 'gaussian':
+                            use_gaussian_reference_potential_Ca=True
                         else:
-                            distribution = input(dist_prompt%'Ca')
-                            with open('%s'%cs_Ca_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_Ca=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_Ca=True
-                            else:
-                                use_reference_potential_Ca=False
-                                use_gaussian_reference_potential_Ca=False
+                            use_reference_potential_Ca=False
+                            use_gaussian_reference_potential_Ca=False
 
                     else:
                         raise ValueError("Incompatible File extension. Use:{'.noe','.J','.cs_H','.cs_Ha'}")
@@ -334,20 +223,23 @@ class PosteriorSampler(object):
         self.allowed_sigma_cs_Ca = r_cs_Ca.allowed_sigma_cs_Ca
         self.allowed_gamma = r_noe.allowed_gamma
 
-       # self.sigma_noe = r_noe.sigma_noe
-       # self.sigma_noe_index = r_noe.sigma_noe_index
-       # self.sigma_J = r_J.sigma_J
-       # self.sigma_J_index = r_J.sigma_J_index
-       # self.sigma_cs_H = r_cs_H.sigma_cs_H
-       # self.sigma_cs_H_index = r_cs_H.sigma_cs_H_index
-       # self.sigma_cs_Ha = r_cs_Ha.sigma_cs_Ha
-       # self.sigma_cs_Ha_index = r_cs_Ha.sigma_cs_Ha_index
-       # self.sigma_cs_N = r_cs_N.sigma_cs_N
-       # self.sigma_cs_N_index = r_cs_N.sigma_cs_N_index
-       # self.sigma_cs_Ca = r_cs_Ca.sigma_cs_Ca
-       # self.sigma_cs_Ca_index = r_cs_Ca.sigma_cs_Ca_index
-       # self.gamma = r_noe.gamma
-       # self.gamma_index = r_noe.gamma_index
+        self.sigma_noe = r_noe.sigma_noe
+        self.sigma_noe_index = r_noe.sigma_noe_index
+        self.sigma_J = r_J.sigma_J
+        self.sigma_J_index = r_J.sigma_J_index
+        self.sigma_cs_H = r_cs_H.sigma_cs_H
+        self.sigma_cs_H_index = r_cs_H.sigma_cs_H_index
+        self.sigma_cs_Ha = r_cs_Ha.sigma_cs_Ha
+        self.sigma_cs_Ha_index = r_cs_Ha.sigma_cs_Ha_index
+        self.sigma_cs_N = r_cs_N.sigma_cs_N
+        self.sigma_cs_N_index = r_cs_N.sigma_cs_N_index
+        self.sigma_cs_Ca = r_cs_Ca.sigma_cs_Ca
+        self.sigma_cs_Ca_index = r_cs_Ca.sigma_cs_Ca_index
+        self.gamma = r_noe.gamma
+        self.gamma_index = r_noe.gamma_index
+
+
+
 
         # keep track of what we sampled in a trajectory
         self.traj = PosteriorSamplingTrajectory(self.ensembles[0],
@@ -360,11 +252,6 @@ class PosteriorSampler(object):
                 self.allowed_sigma_PF,
                 self.allowed_gamma,
                 self.allowed_alpha)
-
-
-
-
-
 
         # compile reference potential of distances from the uniform distribution of distances
         self.use_reference_potential_noe = use_reference_potential_noe
@@ -1295,6 +1182,8 @@ class PosteriorSamplingTrajectory(object):
 
         self.nstates = len(ensemble)
         self.ensemble = ensemble
+
+        print 'self.ensemble[0] = ',self.ensemble[0]
         self.ndistances = len(self.ensemble[0].distance_restraints)
         self.ndihedrals = len(self.ensemble[0].dihedral_restraints)
 	self.nchemicalshift_H = len(self.ensemble[0].chemicalshift_H_restraints) #GYH

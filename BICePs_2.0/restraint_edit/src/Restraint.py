@@ -133,6 +133,13 @@ class Restraint(restraint_cs_H, restraint_J, restraint_cs_Ha,
         self.sum_gaussian_neglog_reference_potentials_Ca = 0.0      #GYH
         self.sum_gaussian_neglog_reference_potentials_PF = 0.0      #GYH
 
+        self.distance_restraints = []
+        self.dihedral_restraints = []
+        self.chemicalshift_H_restraints = []
+	self.chemicalshift_Ha_restraints = []
+	self.chemicalshift_N_restraints = []
+	self.chemicalshift_Ca_restraints = []
+	self.protectionfactor_restraints = []
 
         # If an experimental data file is given, load in the information
 	if data is not None:
@@ -143,6 +150,7 @@ class Restraint(restraint_cs_H, restraint_J, restraint_cs_Ha,
                         self.sse_distances = r_noe.sse_distances
                         self.Ndof_distances = r_noe.Ndof_distances
                         self.distance_restraints = r_noe.distance_restraints
+                        print '\n\n\nself.distance_restraints = ',self.distance_restraints
                         self.sigma_noe = r_noe.sigma_noe
                         self.sigma_noe_index = r_noe.sigma_noe_index
                         self.allowed_sigma_noe = r_noe.allowed_sigma_noe

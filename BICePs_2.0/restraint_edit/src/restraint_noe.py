@@ -51,8 +51,8 @@ class restraint_noe(object):
         self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
 #        print 'self.allowed_gamma', self.allowed_gamma
 #        print 'len(self.allowed_gamma) =', len(self.allowed_gamma)
-        #self.gamma_index = len(self.allowed_gamma)/2    # pick an intermediate value to start with
-        #self.gamma = self.allowed_gamma[self.gamma_index]
+        self.gamma_index = len(self.allowed_gamma)/2    # pick an intermediate value to start with
+        self.gamma = self.allowed_gamma[self.gamma_index]
 
 
 
