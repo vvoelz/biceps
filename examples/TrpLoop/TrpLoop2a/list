@@ -1,0 +1,4 @@
+mv BF_ref_normal.dat 1000_10M 
+mv biceps3.pdf 1000_10M
+mv populations_ref_normal.dat 1000_10M
+mv results_ref_normal 1000_10M
