@@ -145,7 +145,6 @@ class PosteriorSampler(object):
         if data != None:
 	    for j in range(len(data)):
                 for i in data[j]:
-                    #wd = os.path.dirname(os.path.realpath(i))
 	            if i.endswith('.noe'):
                         if distribution == 'exponential':
                             use_reference_potential_noe=True
@@ -204,10 +203,6 @@ class PosteriorSampler(object):
                         raise ValueError("Incompatible File extension. Use:{'.noe','.J','.cs_H','.cs_Ha'}")
 	else:
 	    raise ValueError("Something is wrong in your input file (necessary input file missing)")
-        log_list = [cs_H_Log,cs_Ha_Log,cs_N_Log,cs_Ca_Log,J_Log,noe_Log]
-        for i in range(0,len(log_list)):
-            if os.path.isfile(log_list[i]):
-                os.system('rm %s'%log_list[i])
 
         # RMR
 # }}}
@@ -802,21 +797,27 @@ class PosteriorSampler(object):
         # The current structure being sampled
         s = self.ensembles[new_ensemble_index][new_state]
 
+        print 's = ',s
         # model terms
         result = s.free_energy  + self.logZ
-
+        print 'Result =',result
         # distance terms
         #result += (Nj+1.0)*np.log(self.sigma_noe)
-       	if s.sse_distances is not None:		# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
+       	#if s.sse_distances is not None:		# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
+        if self.use_reference_potential_noe==True:
 		result += (s.Ndof_distances+3.0)*np.log(new_sigma_noe)  # for use with log-spaced sigma values
 		result += s.sse_distances[new_gamma_index] / (2.0*new_sigma_noe**2.0)
         	result += (s.Ndof_distances)/2.0*self.ln2pi  # for normalization
+
+                print 's.sse_distances[', new_gamma_index, ']', s.sse_distances[new_gamma_index], 's.Ndof_distances', s.Ndof_distances
 
         # dihedral terms
         if s.sse_dihedrals != None:
 		result += (s.Ndof_dihedrals)*np.log(new_sigma_J) # for use with log-spaced sigma values
 		result += s.sse_dihedrals / (2.0*new_sigma_J**2.0)
         	result += (s.Ndof_dihedrals)/2.0*self.ln2pi  # for normalization
+
+                print 's.sse_dihedrals', s.sse_dihedrals, 's.Ndof_dihedrals', s.Ndof_dihedrals
 
 	# chemicalshift terms                           # GYH
 	if s.sse_chemicalshift_H != None:
@@ -874,8 +875,8 @@ class PosteriorSampler(object):
 
         if verbose:
             print 'state, f_sim', new_state, s.free_energy,
-            print 's.sse_distances[', new_gamma_index, ']', s.sse_distances[new_gamma_index], 's.Ndof_distances', s.Ndof_distances
-            print 's.sse_dihedrals', s.sse_dihedrals, 's.Ndof_dihedrals', s.Ndof_dihedrals
+            #print 's.sse_distances[', new_gamma_index, ']', s.sse_distances[new_gamma_index], 's.Ndof_distances', s.Ndof_distances
+            #print 's.sse_dihedrals', s.sse_dihedrals, 's.Ndof_dihedrals', s.Ndof_dihedrals
 	    print 's.sse_chemicalshift_H', s.sse_chemicalshift_H, 's.Ndof_chemicalshift_H', s.Ndof_chemicalshift_H # GYH
             print 's.sse_chemicalshift_Ha', s.sse_chemicalshift_Ha, 's.Ndof_chemicalshift_Ha', s.Ndof_chemicalshift_Ha # GYH
             print 's.sse_chemicalshift_N', s.sse_chemicalshift_N, 's.Ndof_chemicalshift_N', s.Ndof_chemicalshift_N # GYH
