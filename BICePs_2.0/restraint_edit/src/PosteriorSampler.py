@@ -36,10 +36,18 @@ class PosteriorSampler(object):
 	    dlogsigma_PF=np.log(1.02),sigma_PF_min=0.05, sigma_PF_max=20.0,	#GYH
             dalpha=0.1, alpha_min=10.0, alpha_max=10.2,
             distribution='exponential',
-            ambiguous_groups=False,
-            sample_ambiguous_distances=False,
-            use_reference_potential_PF=False,
-            use_gaussian_reference_potential_PF=False):	#GYH
+            use_reference_potential_noe = False,
+            use_reference_potential_H = False,
+            use_reference_potential_Ha = False,
+            use_reference_potential_N = False,
+            use_reference_potential_Ca = False,
+            use_reference_potential_PF = False,
+            use_gaussian_reference_potential_noe = False,
+            use_gaussian_reference_potential_H = False,
+            use_gaussian_reference_potential_Ha = False,
+            use_gaussian_reference_potential_N = False,
+            use_gaussian_reference_potential_Ca = False,
+            use_gaussian_reference_potential_PF = False):	#GYH
         "Initialize the PosteriorSampler class."
 
         # Notes on ## Ensemble ##:{{{
@@ -68,12 +76,6 @@ class PosteriorSampler(object):
         self.ensemble_index = 0
 
         # need to keep track of ambiguous distances and multiple ensembles to sample over
-        self.ambiguous_groups = []  # list of pairs of group indices, e.g.:   [ [[1,2,3],[4,5,6]],   [[7],[8]], ...]
-        #self.ambiguous_groups = ensemble[0].ambiguous_groups
-        self.sample_ambiguous_distances = sample_ambiguous_distances
-        if sample_ambiguous_distances:
-            self.build_alternative_ensembles()
-
         self.distribution = distribution #RMR
 
         # pick initial values for sigma_PF (std of experimental uncertainty in chemical shift)   #GYH
@@ -110,19 +112,6 @@ class PosteriorSampler(object):
         # frequency of storing trajectory samples
         self.traj_every = 100
 
-        use_reference_potential_noe = False
-        use_reference_potential_H = False
-        use_reference_potential_Ha = False
-        use_reference_potential_N = False
-        use_reference_potential_Ca = False
-        use_reference_potential_PF = False
-        use_gaussian_reference_potential_noe = False
-        use_gaussian_reference_potential_H = False
-        use_gaussian_reference_potential_Ha = False
-        use_gaussian_reference_potential_N = False
-        use_gaussian_reference_potential_Ca = False
-        use_gaussian_reference_potential_PF = False
-
 
 
 	r_J = R.restraint_J()
@@ -132,81 +121,89 @@ class PosteriorSampler(object):
         r_cs_Ha = R.restraint_cs_Ha()
         r_noe = R.restraint_noe()
 
-        # RMR:
-        # If there exists different exstensions in the data input:{{{
-        # Initializing a false location of config file. This will be changed if
-        # data is imported.
-        cs_H_Log  = ''
-        cs_Ha_Log = ''
-        cs_N_Log  = ''
-        cs_Ca_Log = ''
-        J_Log     = ''
-        noe_Log   = ''
-        if data != None:
-	    for j in range(len(data)):
-                for i in data[j]:
-	            if i.endswith('.noe'):
-                        if distribution == 'exponential':
-                            use_reference_potential_noe=True
-                        elif distribution == 'gaussian':
-                            use_gaussian_reference_potential_noe=True
-                        else:
-                            use_reference_potential_noe=False
-                            use_gaussian_reference_potential_noe=False
-
-	    	    elif i.endswith('.J'):
-                        if distribution == 'exponential':
-                            use_reference_potential_J=True
-                        elif distribution == 'gaussian':
-                            use_gaussian_reference_potential_J=True
-                        else:
-                            use_reference_potential_J=False
-                            use_gaussian_reference_potential_J=False
-
-                    elif i.endswith('.cs_H'):
-                        if distribution == 'exponential':
-                            use_reference_potential_H=True
-                        elif distribution == 'gaussian':
-                            use_gaussian_reference_potential_H=True
-                        else:
-                            use_reference_potential_H=False
-                            use_gaussian_reference_potential_H=False
-
-                    elif i.endswith('.cs_Ha'):
-                        if distribution == 'exponential':
-                            use_reference_potential_Ha=True
-                        elif distribution == 'gaussian':
-                            use_gaussian_reference_potential_Ha=True
-                        else:
-                            use_reference_potential_Ha=False
-                            use_gaussian_reference_potential_Ha=False
-
-                    elif i.endswith('.cs_N'):
-                        if distribution == 'exponential':
-                            use_reference_potential_N=True
-                        elif distribution == 'gaussian':
-                            use_gaussian_reference_potential_N=True
-                        else:
-                            use_reference_potential_N=False
-                            use_gaussian_reference_potential_N=False
-
-                    elif i.endswith('.cs_Ca'):
-                        if distribution == 'exponential':
-                            use_reference_potential_Ca=True
-                        elif distribution == 'gaussian':
-                            use_gaussian_reference_potential_Ca=True
-                        else:
-                            use_reference_potential_Ca=False
-                            use_gaussian_reference_potential_Ca=False
-
-                    else:
-                        raise ValueError("Incompatible File extension. Use:{'.noe','.J','.cs_H','.cs_Ha'}")
-	else:
-	    raise ValueError("Something is wrong in your input file (necessary input file missing)")
-
-        # RMR
-# }}}
-
+## Getting rid of reference potential distribution conditional statements:{{{
+#        # RMR:
+#        # If there exists different exstensions in the data input:
+#        # Initializing a false location of config file. This will be changed if
+#        # data is imported.
+#        cs_H_Log  = ''
+#        cs_Ha_Log = ''
+#        cs_N_Log  = ''
+#        cs_Ca_Log = ''
+#        J_Log     = ''
+#        noe_Log   = ''
+#        if data != None:
+#	    for j in range(len(data)):
+#                for i in data[j]:
+#	            if i.endswith('.noe'):
+#                        if distribution == 'distribution.config':
+#                            = wd+'/.noe.log'
+#                        if os.path.isfile(noe_Log): # storing a log file to contain configuration of distribution settings
+#                            config = open(noe_Log, 'r')
+#                            distribution = config.readline()
+#
+#                        elif distribution == 'exponential':
+#                            use_reference_potential_noe=True
+#                        elif distribution == 'gaussian':
+#                            use_gaussian_reference_potential_noe=True
+#                        else:
+#                            use_reference_potential_noe=False
+#                            use_gaussian_reference_potential_noe=False
+#
+#	    	    elif i.endswith('.J'):
+#                        elif distribution == 'exponential':
+#                            use_reference_potential_J=True
+#                        elif distribution == 'gaussian':
+#                            use_gaussian_reference_potential_J=True
+#                        else:
+#                            use_reference_potential_J=False
+#                            use_gaussian_reference_potential_J=False
+#
+#                    elif i.endswith('.cs_H'):
+#                        elif distribution == 'exponential':
+#                            use_reference_potential_H=True
+#                        elif distribution == 'gaussian':
+#                            use_gaussian_reference_potential_H=True
+#                        else:
+#                            use_reference_potential_H=False
+#                            use_gaussian_reference_potential_H=False
+#
+#                    elif i.endswith('.cs_Ha'):
+#                        elif distribution == 'exponential':
+#                            use_reference_potential_Ha=True
+#                        elif distribution == 'gaussian':
+#                            use_gaussian_reference_potential_Ha=True
+#                        else:
+#                            use_reference_potential_Ha=False
+#                            use_gaussian_reference_potential_Ha=False
+#
+#                    elif i.endswith('.cs_N'):
+#                        elif distribution == 'exponential':
+#                            use_reference_potential_N=True
+#                        elif distribution == 'gaussian':
+#                            use_gaussian_reference_potential_N=True
+#                        else:
+#                            use_reference_potential_N=False
+#                            use_gaussian_reference_potential_N=False
+#
+#                    elif i.endswith('.cs_Ca'):
+#                        elif distribution == 'exponential':
+#                            use_reference_potential_Ca=True
+#                        elif distribution == 'gaussian':
+#                            use_gaussian_reference_potential_Ca=True
+#                        else:
+#                            use_reference_potential_Ca=False
+#                            use_gaussian_reference_potential_Ca=False
+#
+#                    else:
+#                        raise ValueError("Incompatible File extension. Use:{'.noe','.J','.cs_H','.cs_Ha'}")
+#	else:
+#	    raise ValueError("Something is wrong in your input file (necessary input file missing)")
+#
+#
+#        # RMR
+## }}}
+#
 
 
 

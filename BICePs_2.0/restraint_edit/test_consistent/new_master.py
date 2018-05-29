@@ -18,11 +18,11 @@ parser.add_argument("lam", help="a lambda value between 0.0 and 1.0  denoting th
 
 #parser.add_argument("energy", help="energy file to use") # This is not necessary --Yunhui 04/2018
 
-parser.add_argument("outdir", help="the name of the output directory") # For now it's fine, but in the future I want this has a default set so users don't have to specify anything unless they want to --Yunhui 04/2018
+#parser.add_argument("outdir", help="the name of the output directory") # For now it's fine, but in the future I want this has a default set so users don't have to specify anything unless they want to --Yunhui 04/2018
 
-parser.add_argument("nsteps", help="Number of sampling steps", type=int) # We can keep it here --Yunhui 04/2018
-parser.add_argument('--dataFiles','-f',nargs=None,required=True,
-        metavar=None,help='Glob pattern for data')  # RMR
+#parser.add_argument("nsteps", help="Number of sampling steps", type=int) # We can keep it here --Yunhui 04/2018
+#parser.add_argument('--dataFiles','-f',nargs=None,
+#        metavar=None,help='Glob pattern for data')  # RMR
 
 parser.add_argument("--noref", help="Do not use reference potentials (default is to use them)",
                     action="store_true") # we need to check if this flag works well with our proposed modification. It should be fine to have it here as an "overall control" --Yunhui 04/2018
@@ -39,14 +39,23 @@ args = parser.parse_args()
 print '=== Settings ==='
 print 'lam', args.lam
 #print 'enedgy', args.energy
-print 'outdir', args.outdir
-print 'nsteps', args.nsteps
+#print 'outdir', args.outdir
+#print 'nsteps', args.nsteps
 print '--noref', args.noref
 print '--lognormal', args.lognormal
 print '--verbose', args.verbose
 #}}}
 
 # Main:{{{
+
+# Temporarily placing the input file specification here...
+args.dataFiles = 'cs/cs_H/ligand*,cs/cs_Ha/ligand*'
+args.outdir = 'results_ref_normal'
+# Temporarily placing the number of steps here...
+args.nsteps = 1000 # 10000000
+#
+
+
 
 print 'Sorting out the data...\n'
 if ',' in args.dataFiles:
@@ -154,7 +163,6 @@ for i in range(energies.shape[0]):
 
 if (1):
     sampler = PosteriorSampler(ensemble, data=data)
-
 
     sampler.sample(args.nsteps)  # number of steps
     print 'Processing trajectory...',
