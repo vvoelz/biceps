@@ -1,7 +1,28 @@
-"""
-I combined scripts of MBAR calculation and figure parts together so we only need to load the data once and save much time and memory usage. Now there will be more arguments for input and "datafile" and "picfile" are not required. By default they will be "False" and if there is no input files for "datafile", the scripts will only finish MBAR calculation and get the population and BICePs score files. If there are input files for "datafile" then the figure part will be initialized. Based on the extension of input file the scripts can figure out what plots they need to make (pop, sigma_noe, gamma, sigma_cs_H, etc.). Based on the number of subplots it needs to make, the number of column and rows will be automatically determined. For now, the column is fixed to be 2. Also there is a default name for the output figure. It will be over-written if the users have their own preference. They need to add that as the argument though.  --Yunhui Ge 05/2018
-"""
+##############################################################################
+# Authors: Yunhui Ge
+# Contributors: Vincent Voelz, Rob Raddi
+# This file is used to compute BICePs score and predict population using MBAR
+# based on the posterior sampling results.
+# I combined scripts of MBAR calculation and figure parts together so we only 
+# need to load the data once and save much time and memory usage. Now there will 
+# be more arguments for input and "datafile" and "picfile" are not required. 
+# By default they will be "False" and if there is no input files for "datafile", 
+# the scripts will only finish MBAR calculation and get the population and BICePs 
+# score files. If there are input files for "datafile" then the figure part will 
+# be initialized. Based on the extension of input file the scripts can figure out 
+# what plots they need to make (pop, sigma_noe, gamma, sigma_cs_H, etc.). 
+# Based on the number of subplots it needs to make, the number of column and rows 
+# will be automatically determined. For now, the column is fixed to be 2. 
+# Also there is a default name for the output figure. It will be over-written if 
+# the users have their own preference. They need to add that as the argument though.  
+# --Yunhui Ge 05/2018
 
+##############################################################################
+
+
+##############################################################################
+# Imports
+##############################################################################
 
 import sys, os, glob
 
@@ -21,6 +42,10 @@ import cPickle, pprint
 from pymbar import MBAR
 import re
 import argparse
+
+##############################################################################
+# Code
+##############################################################################
 
 parser = argparse.ArgumentParser()
 parser.add_argument("states", help="number of microstates")
