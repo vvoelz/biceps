@@ -29,7 +29,7 @@ print '--lognormal', args.lognormal
 # Main:{{{
 
 # Temporarily placing the input file specification here...
-args.dataFiles = 'cs/cs_H/ligand*,cs/cs_Ha/ligand*'
+args.dataFiles = 'cs/cs_H/ligand*'
 args.outdir = 'results_ref_normal'
 # Temporarily placing the number of steps here...
 args.nsteps = 1000 # 10000000
@@ -39,7 +39,7 @@ print 'Sorting out the data...\n'
 if ',' in args.dataFiles:
     dir_list = (args.dataFiles).split(',')
 else:
-    dir_list = glob.glob(args.dataFiles)
+    dir_list = [args.dataFiles]
 data = [[],[],[],[],[],[]] # list for every extension
 # Sorting the data by extension into lists. Various directories is not an issue...
 for i in range(0,len(dir_list)):
@@ -95,11 +95,11 @@ for i in range(energies.shape[0]):
 #for i in range(2):
     print
     print '#### STRUCTURE %d ####'%i
-
+    print data[i]
     s = Restraint('8690.pdb', args.lam*energies[i],data = data[i])
 
     ensemble.append( s )
-
+sys.exit(1)
 
   ##########################################
   # Next, let's do some posterior sampling
