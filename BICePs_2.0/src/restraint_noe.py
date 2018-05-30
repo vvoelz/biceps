@@ -27,8 +27,14 @@ class restraint_noe(object):
         # Store distance restraint info
         self.distance_restraints = []
         self.distance_equivalency_groups = {}
-        self.ambiguous_groups = []  # list of pairs of group indices, e.g.:   [ [[1,2,3],[4,5,6]],   [[7],[8]], ...]
+#        self.ambiguous_groups = []  # list of pairs of group indices, e.g.:   [ [[1,2,3],[4,5,6]],   [[7],[8]], ...]
         self.ndistances = 0
+        self.dloggamma = np.log(1.01)
+        self.gamma_min = 0.2
+        self.gamma_max = 10.0	
+	self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
+        self.sse_distances = np.array([0.0 for gamma in self.allowed_gamma])
+        self.Ndof_distances = 0.0
 
 
 
@@ -57,21 +63,6 @@ class restraint_noe(object):
         if verbose:
             print 'distance equivalency_indices', equivalency_indices
 
-        # compile ambiguity indices for distances
-        """ ### not yet supported ###
-
-          for pair in data['NOE_Ambiguous']:
-            # NOTE a pair of multiple distance pairs
-            list1, list2 = pair[0], pair[1]
-            # find the indices of the distances pairs that are ambiguous
-            pair_indices1 = [ data['NOE_PairIndex'].index(p) for p in list1]
-            pair_indices2 = [ data['NOE_PairIndex'].index(p) for p in list2]
-            self.ambiguous_groups.append( [pair_indices1, pair_indices2] )
-          if verbose:
-            print 'distance ambiguous_groups', self.ambiguous_groups
-        except:
-            print 'Problem reading distance ambiguous_groups.  Setting to default: no ambiguous groups.'
-        """
 
         # add the distance restraints
         for entry in data:
@@ -114,7 +105,6 @@ class restraint_noe(object):
         if verbose:
             print 'self.distance_equivalency_groups', self.distance_equivalency_groups
 
-        # NOTE: ambiguous group indices have already been compiled in load_exp_data()
 
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
@@ -163,7 +153,7 @@ class NMR_Distance(object):
     """A class to store NMR distance information."""
 
     # __init__:{{{
-    def __init__(self, i, j, model_distance, exp_distance, equivalency_index=None, ambiguity_index=None):
+    def __init__(self, i, j, model_distance, exp_distance, equivalency_index=None):
 
         # Atom indices from the Conformation() defining this distance
         self.i = i
@@ -181,9 +171,6 @@ class NMR_Distance(object):
         # N equivalent distances should only get 1/N of the weight when computing chi^2
         self.weight = 1.0  # default is N=1
 
-        # the index of the ambiguity group (i.e. some groups distances have
-        # distinct values, but ambiguous assignments.  We can do posterior sampling over these)
-        self.ambiguity_index = ambiguity_index
 
 
 

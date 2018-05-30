@@ -27,12 +27,14 @@ class restraint_cs_H(object):
         # Store chemical shift restraint info   #GYH
         self.cs_H_restraints = []
         self.ncs_H = 0
-        self.betas_H = None
-        self.ref_sigma_H = None
-        self.ref_mean_H = None
-        self.neglog_reference_potentials_H = None
-        self.sum_neglog_reference_potentials_H = 0.0    #GYH
-        self.sum_gaussian_neglog_reference_potentials_H = 0.0      #GYH
+        self.sse_cs_H = None 
+        self.Ndof_cs_H = None
+#        self.betas_H = None
+#        self.ref_sigma_H = None
+#        self.ref_mean_H = None
+#        self.neglog_reference_potentials_H = None
+#        self.sum_neglog_reference_potentials_H = 0.0    #GYH
+#        self.sum_gaussian_neglog_reference_potentials_H = 0.0      #GYH
 
     def load_data_cs_H(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .cs file format.

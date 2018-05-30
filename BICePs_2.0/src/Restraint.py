@@ -38,12 +38,13 @@ class Restraint():
     experimental NOE, J-coupling, chemical shift and protection factor data, and
     Each Instances of this object"""
 
-    def __init__(self, PDB_filename, free_energy, data = None,
+    def __init__(self, PDB_filename, lam, free_energy, data = None,
             use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2,
             gamma_max=10.0):
 	"""Initialize the class.
         INPUTS
-	PDB_filename	A topology file (*.pdb)                 
+	PDB_filename	A topology file (*.pdb)
+	lam		lambda value (between 0 and 1)                 
         free_energy     The (reduced) free energy f = beta*F of this conformation
 	data		input data for BICePs (both model and exp)
 	use_log_normal_distances	Not sure what's this...
@@ -58,7 +59,18 @@ class Restraint():
         self.conf.xyz = self.conf.xyz*10.0
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        self.free_energy = free_energy
+        self.free_energy = lam*free_energy
+
+	# initialize all restraint child class
+        r_cs_H = restraint_cs_H()
+        r_cs_Ha = restraint_cs_Ha()
+        r_cs_N = restraint_cs_N()
+        r_cs_Ca = restraint_cs_Ca()
+        r_J = restraint_J()
+        r_noe = restraint_noe()
+        r_pf = restraint_pf()
+
+
 
 # Rob added this back in to eliminate the errors:{{{
         # Store distance restraint info:
@@ -74,14 +86,14 @@ class Restraint():
 #        self.ndihedrals = 0
 
 	# Store chemical shift restraint info   #GYH
-        self.cs_H_restraints = []
-	self.cs_Ha_restraints = []
-	self.cs_N_restraints = []
-	self.cs_Ca_restraints = []
-        self.ncs_H = 0
-	self.ncs_Ha = 0
-	self.ncs_N = 0
-	self.ncs_Ca = 0
+#        self.cs_H_restraints = []
+#	self.cs_Ha_restraints = []
+#	self.cs_N_restraints = []
+#	self.cs_Ca_restraints = []
+#        self.ncs_H = 0
+#	self.ncs_Ha = 0
+#	self.ncs_N = 0
+#	self.ncs_Ca = 0
 
 	# Store protection factor restraint info	#GYH
 #	self.protectionfactor_restraints = []
@@ -96,7 +108,7 @@ class Restraint():
         self.gamma_min = gamma_min
         self.gamma_max = gamma_max
         self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
-
+	r_noe.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
 
         # Create a KarplusRelation object
         self.karplus = KarplusRelation()
@@ -117,13 +129,13 @@ class Restraint():
 #	self.sse_protectionfactor = 0.0
 #	self.Ndof_protectionfactor = 0.0 #GYH
         self.betas_noe = None   # if reference is used, an array of N_j betas for each distance
-#	self.betas_H = None
+	self.betas_H = None
 	self.betas_Ha = None
 	self.betas_N = None
 	self.betas_Ca = None
 	self.betas_PF = None
         self.neglog_reference_potentials_noe = None
-#        self.neglog_reference_potentials_H = None
+        self.neglog_reference_potentials_H = None
         self.neglog_reference_potentials_Ha = None
         self.neglog_reference_potentials_N = None
         self.neglog_reference_potentials_Ca = None
@@ -131,8 +143,8 @@ class Restraint():
 
 	self.ref_sigma_noe = None
 	self.ref_mean_noe = None
-#        self.ref_sigma_H = None
-#        self.ref_mean_H = None
+        self.ref_sigma_H = None
+        self.ref_mean_H = None
         self.ref_sigma_Ha = None
         self.ref_mean_Ha = None
         self.ref_sigma_N = None
@@ -149,27 +161,27 @@ class Restraint():
         self.gaussian_neglog_reference_potentials_PF = None
 
         self.sum_neglog_reference_potentials_noe = 0.0	#GYH
-#        self.sum_neglog_reference_potentials_H = 0.0	#GYH
+        self.sum_neglog_reference_potentials_H = 0.0	#GYH
         self.sum_neglog_reference_potentials_Ha = 0.0	#GYH
         self.sum_neglog_reference_potentials_N = 0.0	#GYH
         self.sum_neglog_reference_potentials_Ca = 0.0	#GYH
         self.sum_neglog_reference_potentials_PF = 0.0	#GYH
 
         self.sum_gaussian_neglog_reference_potentials_noe = 0.0      #GYH
- #       self.sum_gaussian_neglog_reference_potentials_H = 0.0      #GYH
+        self.sum_gaussian_neglog_reference_potentials_H = 0.0      #GYH
         self.sum_gaussian_neglog_reference_potentials_Ha = 0.0      #GYH
         self.sum_gaussian_neglog_reference_potentials_N = 0.0      #GYH
         self.sum_gaussian_neglog_reference_potentials_Ca = 0.0      #GYH
         self.sum_gaussian_neglog_reference_potentials_PF = 0.0      #GYH
 
         # If an experimental data file is given, load in the information
-	r_cs_H = restraint_cs_H()
-        r_cs_Ha = restraint_cs_Ha()
-        r_cs_N = restraint_cs_N()
-        r_cs_Ca = restraint_cs_Ca()
-	r_J = restraint_J()
-	r_noe = restraint_noe()
-	r_pf = restraint_pf()
+#	r_cs_H = restraint_cs_H()
+#        r_cs_Ha = restraint_cs_Ha()
+#        r_cs_N = restraint_cs_N()
+#        r_cs_Ca = restraint_cs_Ca()
+#	r_J = restraint_J()
+#	r_noe = restraint_noe()
+#	r_pf = restraint_pf()
 	if data != None:
 		for i in [data]:
 			print i
@@ -178,11 +190,15 @@ class Restraint():
                                 self.sse_distances = r_noe.sse_distances
                                 self.Ndof_distances = r_noe.Ndof_distances
                                 self.distance_restraints = r_noe.distance_restraints
+				self.distance_equivalency_groups = r_noe.distance_equivalency_groups
+				self.ndistances = r_noe.ndistances
                         elif i.endswith('.J'):
 				r_J.load_data_J(i)
                                 self.sse_dihedrals = r_J.sse_dihedrals
                                 self.Ndof_dihedrals = r_J.Ndof_dihedrals
                                 self.dihedral_restraints = r_J.dihedral_restraints
+				self.dihedral_equivalency_groups = r_J.dihedral_equivalency_groups
+				self.ndihedrals = r_J.ndihedrals
                         elif i.endswith('.cs_H'):
                                 r_cs_H.load_data_cs_H(i)
                                 self.sse_cs_H = r_cs_H.sse_cs_H
@@ -217,8 +233,8 @@ class Restraint():
         else:
 		raise ValueError("Something is wrong in your input file (necessary input file missing)")
 
-        print "self.sse_cs_H", self.sse_cs_H
-        print "self.Ndof_cs_H", self.Ndof_cs_H
+#        print "self.sse_cs_H", self.sse_cs_H
+#        print "self.Ndof_cs_H", self.Ndof_cs_H
 # Load Experimental Data (ALL Restraints):{{{
 
 
@@ -353,19 +369,7 @@ class Restraint():
         for j in range(self.nprotectionfactor):
             self.gaussian_neglog_reference_potentials_PF[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_PF[j]) + (self.protectionfactor_restraints[j].model_protectionfactor - self.ref_mean_PF[j])**2.0/(2*self.ref_sigma_PF[j]**2.0)
             self.sum_gaussian_neglog_reference_potentials_PF += self.protectionfactor_restraints[j].weight * self.gaussian_neglog_reference_potentials_PF[j]
-    # }}}
 
-    # Switch Distances and recompute SSE:{{{
-    def switch_distances(self, indices1, indices2):
-        """Given two lists of ambiguous distance pair indices, switch their distances and recompute the sum of squared errors (SSE)."""
-        distance1 = self.distance_restraints[indices1[0]].exp_distance
-        distance2 = self.distance_restraints[indices2[0]].exp_distance
-        for i in indices1:
-            self.distance_restraints[i].exp_distance = distance2
-        for j in indices2:
-            self.distance_restraints[j].exp_distance = distance1
-        self.compute_sse_distances()
-    # }}}
 
     # Compute Dihedral Between 4 Positions:{{{
     def dihedral_angle(self, x0, x1, x2, x3):
