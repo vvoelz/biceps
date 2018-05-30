@@ -26,10 +26,11 @@ from prep_cs import *    # Class - creates Chemical shift restraint file
 class restraint_cs_Ha(object):
     def __init__(self):
 
-        # Store chemical shift restraint info   #GYHa
+        # Store chemical shift restraint info 
         self.cs_Ha_restraints = []
         self.ncs_Ha = 0
-
+        self.sse_cs_Ha = None 
+        self.Ndof_cs_Ha = None
 
     def load_data_cs_Ha(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .cs file format.
