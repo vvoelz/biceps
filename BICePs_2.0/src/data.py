@@ -3,12 +3,22 @@ import numpy as np
 import re
 
 def sort_data(dataFiles):
-
+    dir_list=[]
     if ',' in dataFiles:
         print 'Sorting out the data...\n'
-        dir_list = (dataFiles).split(',')
+        raw_dir = (dataFiles).split(',')
+	for dirt in raw_dir:
+		if dirt[-1] == '/':
+			dir_list.append(dirt+'*')
+		else:
+			dir_list.append(dirt+'/*')
     else:
-        dir_list = [dataFiles]
+	raw_dir = dataFiles
+	if raw_dir[-1] == '/':
+	        dir_list.append(dataFiles+'*')
+	else:
+		dir_list.append(dataFiles+'/*')
+    print 'dir_list', dir_list
 
     data = [[] for x in xrange(7)] # list for every extension; 7 possible experimental observables supported
     # Sorting the data by extension into lists. Various directories is not an issue...
