@@ -35,7 +35,6 @@ class PosteriorSampler(object):
     def __init__(self, ensemble, data = None,
 	    dlogsigma_PF=np.log(1.02),sigma_PF_min=0.05, sigma_PF_max=20.0,	#GYH
             dalpha=0.1, alpha_min=10.0, alpha_max=10.2,
-            distribution='exponential',
             use_reference_potential_noe = False,
             use_reference_potential_H = False,
             use_reference_potential_Ha = False,
@@ -76,7 +75,7 @@ class PosteriorSampler(object):
         self.ensemble_index = 0
 
         # need to keep track of ambiguous distances and multiple ensembles to sample over
-        self.distribution = distribution #RMR
+        #self.distribution = distribution #RMR
 
         # pick initial values for sigma_PF (std of experimental uncertainty in chemical shift)   #GYH
         self.dlogsigma_PF = dlogsigma_PF  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
