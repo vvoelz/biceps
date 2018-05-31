@@ -61,25 +61,26 @@ class Restraint():
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.free_energy = lam*free_energy
 
-	# initialize all restraint child class
-        r_cs_H = restraint_cs_H()
-        r_cs_Ha = restraint_cs_Ha()
-        r_cs_N = restraint_cs_N()
-        r_cs_Ca = restraint_cs_Ca()
-        r_J = restraint_J()
-        r_noe = restraint_noe()
-        r_pf = restraint_pf()
-
-
-        # Flag to use log-normal distance errors log(d/d0)
-        self.use_log_normal_distances = use_log_normal_distances
 
         # Store info about gamma^(-1/6) scaling  parameter array
         self.dloggamma = dloggamma
         self.gamma_min = gamma_min
         self.gamma_max = gamma_max
         self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
-	r_noe.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
+
+        # Flag to use log-normal distance errors log(d/d0)
+        self.use_log_normal_distances = use_log_normal_distances
+
+	# initialize all restraint child class
+	r_noe = restraint_noe(gamma_min=self.gamma_min,gamma_max=self.gamma_max,dloggamma=self.dloggamma,use_log_normal_distances=self.use_log_normal_distances)
+        r_cs_H = restraint_cs_H()
+        r_cs_Ha = restraint_cs_Ha()
+        r_cs_N = restraint_cs_N()
+        r_cs_Ca = restraint_cs_Ca()
+        r_J = restraint_J()
+        r_pf = restraint_pf()
+
+
 
         # Create a KarplusRelation object
         self.karplus = KarplusRelation()

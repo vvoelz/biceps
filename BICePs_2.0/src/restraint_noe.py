@@ -23,19 +23,19 @@ from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restr
 
 # Class Restraint:{{{
 class restraint_noe(object):
-    def __init__(self):
+    def __init__(self,gamma_min=0.1,gamma_max=1,dloggamma=0.1, use_log_normal_distances=False):
+
         # Store distance restraint info
         self.distance_restraints = []
         self.distance_equivalency_groups = {}
-#        self.ambiguous_groups = []  # list of pairs of group indices, e.g.:   [ [[1,2,3],[4,5,6]],   [[7],[8]], ...]
         self.ndistances = 0
         self.dloggamma = np.log(1.01)
-        self.gamma_min = 0.2
-        self.gamma_max = 10.0	
+        self.gamma_min = gamma_min
+        self.gamma_max = gamma_max	
 	self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
         self.sse_distances = np.array([0.0 for gamma in self.allowed_gamma])
         self.Ndof_distances = 0.0
-
+	self.use_log_normal_distances = use_log_normal_distances
 
 
     """A class for all restraints"""
@@ -124,7 +124,8 @@ class restraint_noe(object):
     def compute_sse_distances(self, debug=False):
         """Returns the (weighted) sum of squared errors for distances,
         and the *effective* number of distances (i.e. the sum of the weights)"""
-
+	if debug:
+	    print 'self.allowed_gamma', self.allowed_gamma
         for g in range(len(self.allowed_gamma)):
 
             sse = 0.
