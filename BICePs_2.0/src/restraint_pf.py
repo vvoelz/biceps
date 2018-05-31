@@ -28,6 +28,8 @@ class restraint_pf(object):
         # Store chemical shift restraint info   #GYH
         self.pf_restraints = []
         self.npf = 0
+        self.sse_pf = None
+        self.Ndof_pf = None
 
     def load_data_pf(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .chemicalshift file format.

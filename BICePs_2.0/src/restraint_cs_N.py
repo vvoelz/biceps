@@ -28,8 +28,8 @@ class restraint_cs_N(object):
         # Store chemical shift restraint info
         self.cs_N_restraints = []
         self.ncs_N = 0
-        self.sse_cs_Ha = None
-        self.Ndof_cs_Ha = None
+        self.sse_cs_N = None
+        self.Ndof_cs_N = None
 
     def load_data_cs_N(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .cs file format.

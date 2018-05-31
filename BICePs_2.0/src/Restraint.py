@@ -27,7 +27,7 @@ from restraint_cs_Ha import *
 from restraint_cs_N import *
 from restraint_cs_Ca import *
 from restraint_noe import *
-
+from data import *
 ##############################################################################
 # Code
 ##############################################################################
@@ -71,35 +71,6 @@ class Restraint():
         r_pf = restraint_pf()
 
 
-
-# Rob added this back in to eliminate the errors:{{{
-        # Store distance restraint info:
-#        self.distance_restraints = []
-#        self.distance_equivalency_groups = {}
-#        self.ambiguous_groups = []  # list of pairs of group indices, e.g.:   [ [[1,2,3],[4,5,6]],   [[7],[8]], ...]
-#        self.ndistances = 0
-
-        # Store dihedral restraint info
-#        self.dihedral_restraints = []
-#        self.dihedral_equivalency_groups = {}
-#        self.dihedral_ambiguity_groups = {}
-#        self.ndihedrals = 0
-
-	# Store chemical shift restraint info   #GYH
-#        self.cs_H_restraints = []
-#	self.cs_Ha_restraints = []
-#	self.cs_N_restraints = []
-#	self.cs_Ca_restraints = []
-#        self.ncs_H = 0
-#	self.ncs_Ha = 0
-#	self.ncs_N = 0
-#	self.ncs_Ca = 0
-
-	# Store protection factor restraint info	#GYH
-#	self.protectionfactor_restraints = []
-#	self.nprotectionfactor = 0
-# }}}
-
         # Flag to use log-normal distance errors log(d/d0)
         self.use_log_normal_distances = use_log_normal_distances
 
@@ -114,20 +85,6 @@ class Restraint():
         self.karplus = KarplusRelation()
 
         # variables to store pre-computed SSE and effective degrees of freedom (d.o.f.)
-#        self.sse_distances = np.array([0.0 for gamma in self.allowed_gamma])
-#        self.Ndof_distances = 0.0
-#        self.sse_dihedrals = None
-#        self.Ndof_dihedrals = 0.0
-        #self.sse_cs_H = None #GYH
-        #self.Ndof_cs_H = None  #GYH
-#        self.sse_cs_Ha = None #GYH
-#        self.Ndof_cs_Ha = None  #GYH
-#        self.sse_cs_N = None #GYH
-#        self.Ndof_cs_N = None  #GYH
-#        self.sse_cs_Ca = None #GYH
-#        self.Ndof_cs_Ca = None  #GYH
-#	self.sse_protectionfactor = 0.0
-#	self.Ndof_protectionfactor = 0.0 #GYH
         self.betas_noe = None   # if reference is used, an array of N_j betas for each distance
 	self.betas_H = None
 	self.betas_Ha = None
@@ -175,63 +132,62 @@ class Restraint():
         self.sum_gaussian_neglog_reference_potentials_PF = 0.0      #GYH
 
         # If an experimental data file is given, load in the information
-#	r_cs_H = restraint_cs_H()
-#        r_cs_Ha = restraint_cs_Ha()
-#        r_cs_N = restraint_cs_N()
-#        r_cs_Ca = restraint_cs_Ca()
-#	r_J = restraint_J()
-#	r_noe = restraint_noe()
-#	r_pf = restraint_pf()
 	if data != None:
-		for i in [data]:
+		for i in data:
 			print i
 			if i.endswith('.noe'):
 				r_noe.load_data_noe(i)
-                                self.sse_distances = r_noe.sse_distances
-                                self.Ndof_distances = r_noe.Ndof_distances
-                                self.distance_restraints = r_noe.distance_restraints
-				self.distance_equivalency_groups = r_noe.distance_equivalency_groups
-				self.ndistances = r_noe.ndistances
                         elif i.endswith('.J'):
 				r_J.load_data_J(i)
-                                self.sse_dihedrals = r_J.sse_dihedrals
-                                self.Ndof_dihedrals = r_J.Ndof_dihedrals
-                                self.dihedral_restraints = r_J.dihedral_restraints
-				self.dihedral_equivalency_groups = r_J.dihedral_equivalency_groups
-				self.ndihedrals = r_J.ndihedrals
                         elif i.endswith('.cs_H'):
                                 r_cs_H.load_data_cs_H(i)
-                                self.sse_cs_H = r_cs_H.sse_cs_H
-                                self.Ndof_cs_H = r_cs_H.Ndof_cs_H
-                                self.cs_H_restraints = r_cs_H.cs_H_restraints
-                                self.ncs_H = r_cs_H.ncs_H
                         elif i.endswith('.cs_Ha'):
                                 r_cs_Ha.load_data_cs_Ha(i)
-                                self.sse_cs_Ha = r_cs_Ha.sse_cs_Ha
-                                self.Ndof_cs_Ha = r_cs_Ha.Ndof_cs_Ha
-                                self.cs_Ha_restraints = r_cs_Ha.cs_Ha_restraints
-                                self.ncs_Ha = r_cs_Ha.ncs_Ha
                         elif i.endswith('.cs_N'):
                                 r_cs_N.load_data_cs_N(i)
-                                self.sse_cs_N = r_cs_N.sse_cs_N
-                                self.Ndof_cs_N = r_cs_N.Ndof_cs_N
-                                self.cs_N_restraints = r_cs_N.cs_N_restraints
                         elif i.endswith('.cs_Ca'):
                                 r_cs_Ca.load_data_cs_Ca(i)
-                                self.sse_cs_Ca = r_cs_Ca.sse_cs_Ca
-                                self.Ndof_cs_Ca = r_cs_Ca.Ndof_cs_Ca
-                                self.cs_Ca_restraints = r_cs_Ca.cs_Ca_restraints
                         elif i.endswith('.pf'):
                                 r_pf.load_data_pf(i)
-                                self.sse_pf = r_pf.sse_pf
-                                self.Ndof_pf = r_pf.Ndof_pf
-                                self.pf_restraints = r_pf.pf_restraints
 
 
                         else:
                             raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha, .cs_Ca, .cs_N,.pf}")
         else:
 		raise ValueError("Something is wrong in your input file (necessary input file missing)")
+
+        self.sse_distances = r_noe.sse_distances
+        self.Ndof_distances = r_noe.Ndof_distances
+        self.distance_restraints = r_noe.distance_restraints
+        self.distance_equivalency_groups = r_noe.distance_equivalency_groups
+        self.ndistances = r_noe.ndistances
+        self.sse_dihedrals = r_J.sse_dihedrals
+        self.Ndof_dihedrals = r_J.Ndof_dihedrals
+        self.dihedral_restraints = r_J.dihedral_restraints
+        self.dihedral_equivalency_groups = r_J.dihedral_equivalency_groups
+        self.ndihedrals = r_J.ndihedrals
+        self.sse_cs_H = r_cs_H.sse_cs_H
+        self.Ndof_cs_H = r_cs_H.Ndof_cs_H
+        self.cs_H_restraints = r_cs_H.cs_H_restraints
+        self.ncs_H = r_cs_H.ncs_H
+        self.sse_cs_Ha = r_cs_Ha.sse_cs_Ha
+        self.Ndof_cs_Ha = r_cs_Ha.Ndof_cs_Ha
+        self.cs_Ha_restraints = r_cs_Ha.cs_Ha_restraints
+        self.ncs_Ha = r_cs_Ha.ncs_Ha
+        self.sse_cs_N = r_cs_N.sse_cs_N
+        self.Ndof_cs_N = r_cs_N.Ndof_cs_N
+        self.cs_N_restraints = r_cs_N.cs_N_restraints
+        self.ncs_N = r_cs_N.ncs_N
+        self.sse_cs_Ca = r_cs_Ca.sse_cs_Ca
+        self.Ndof_cs_Ca = r_cs_Ca.Ndof_cs_Ca
+        self.cs_Ca_restraints = r_cs_Ca.cs_Ca_restraints
+        self.ncs_Ca = r_cs_Ca.ncs_Ca
+        self.sse_pf = r_pf.sse_pf
+        self.Ndof_pf = r_pf.Ndof_pf
+        self.pf_restraints = r_pf.pf_restraints
+        self.npf = r_pf.npf
+
+
 
 #        print "self.sse_cs_H", self.sse_cs_H
 #        print "self.Ndof_cs_H", self.Ndof_cs_H
