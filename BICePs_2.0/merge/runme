@@ -1,0 +1,6 @@
+#python calc_MBAR_fromresults.py 50 results_ref_normal BF_ref_normal.dat populations_ref_normal.dat
+python MBAR_visualization.py 50 -f 'test_cs_H/' results_ref_normal BF_ref_normal.dat populations_ref_normal.dat -s biceps3.pdf
+#python MBAR_visualization.py 50 results_ref_normal BF_ref_normal.dat populations_ref_normal.dat
+
+#python plot_results.py results_ref_normal populations_ref_normal.dat
+
