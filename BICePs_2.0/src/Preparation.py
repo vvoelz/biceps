@@ -50,8 +50,8 @@ class Preparation(object):
 		lines=f.readlines()
 	    line=''.join(lines)
 	    self.karplus = line.strip().split('\n')
-	elif scheme != 'J' and Karplus == None:
-	    continue
+#	elif scheme != 'J' and Karplus == None:
+#	    continue
 
 	self.ind=np.loadtxt(indices)
 	self.restraint_data = np.loadtxt(exp_data)
@@ -100,7 +100,7 @@ class Preparation(object):
                 restraint_index = self.restraint_data[i,0]
                 exp_chemical_shift        = self.restraint_data[i,1]
                 model_chemical_shift      = model_data[i]
-                r.add_line_cs(restraint_index, a1, self.topology, exp_chemical_shift, model_chemical_shift)
+                r.add_line(restraint_index, a1, self.topology, exp_chemical_shift, model_chemical_shift)
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_noe_input(self):
@@ -115,7 +115,7 @@ class Preparation(object):
                 restraint_index = self.restraint_data[i,0]
                 exp_distance        = self.restraint_data[i,1]
                 model_distance      = self.model_data[i]
-                r.add_line_noe(restraint_index, a1, a2, self.topology, exp_distance, model_distance)
+                r.add_line(restraint_index, a1, a2, self.topology, exp_distance, model_distance)
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_J_input(self):
@@ -129,7 +129,7 @@ class Preparation(object):
 		a1, a2, a3, a4 = int(self.ind[i,0]), int(self.ind[i,1]), int(self.ind[i,2]), int(self.ind[i,3])
     		restraint_index = self.restraint_data[i,0]
     		J_coupling      = self.restraint_data[i,1]
-    		r.add_line_J(restraint_index, a1, a2, a3, a4, self.topology, J_coupling, self.karplus)
+    		r.add_line(restraint_index, a1, a2, a3, a4, self.topology, J_coupling, self.karplus)
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_pf_input(self):
@@ -143,7 +143,7 @@ class Preparation(object):
 	        a1 = int(self.ind[i])
     		restraint_index = self.restraint_data[i,0]
     		protectionfactor        = self.restraint_data[i,1]
-    		r.add_line_pf(restraint_index, a1, self.topology, protectionfactor)
+    		r.add_line(restraint_index, a1, self.topology, protectionfactor)
             r.write('%s/%d.%s'%(self.out,j,self.scheme))
 		
 		    

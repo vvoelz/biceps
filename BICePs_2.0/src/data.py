@@ -20,7 +20,7 @@ def sort_data(dataFiles):
 	        dir_list.append(dataFiles+'*')
 	else:
 		dir_list.append(dataFiles+'/*')
-    print 'dir_list', dir_list
+#    print 'dir_list', dir_list
 
     data = [[] for x in xrange(7)] # list for every extension; 7 possible experimental observables supported
     # Sorting the data by extension into lists. Various directories is not an issue...

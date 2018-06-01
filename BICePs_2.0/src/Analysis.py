@@ -77,7 +77,7 @@ class Analysis(object):
                     raise ValueError("Incompatible File extension. Use:{*.noe, *.J, *.cs_H, *.cs_Ha, *.cs_N, *.cs_Ca, *.pf}")
 	self.scheme = d_l
 	
-    def load_data(self, debug = False):
+    def load_data(self, debug = True):
 	"""load input data from BICePs sampling (*yaml and *pkl files)"""
 	# Load in yaml trajectories
 	exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.yaml') )

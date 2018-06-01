@@ -135,7 +135,7 @@ class Restraint():
         # If an experimental data file is given, load in the information
 	if data != None:
 		for i in data:
-			print i
+#			print i
 			if i.endswith('.noe'):
 				r_noe.load_data_noe(i)
                         elif i.endswith('.J'):
