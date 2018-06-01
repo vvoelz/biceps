@@ -1,6 +1,13 @@
-#!/usr/bin/env python
+##############################################################################
+# Authors: Vincent Voelz, Yunhui Ge, Rob Raddi
+# This file is used to do posterior sampling of BICePs calculation. 
+##############################################################################
 
-# Import Modules:{{{
+
+##############################################################################
+# Imports
+##############################################################################
+
 import os, sys, glob, copy
 import numpy as np
 from scipy  import loadtxt, savetxt
@@ -10,91 +17,55 @@ from KarplusRelation import *     # Class - returns J-coupling values from dihed
 from prep_cs import *    # Class - creates Chemical shift restraint file
 from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
 from prep_J import *     # Class - creates J-coupling const. restraint file
-from prep_pf import *	  # Class - creates Protection factor restraint file   #GYH
-from restraint_cs_H import *	# test (until compute sse) done for work   Yunhui Ge -- 04/2018
-from restraint_J import *
-from restraint_cs_Ha import *
-from restraint_cs_N import *
-from restraint_cs_Ca import *
-from restraint_noe import *
+from prep_pf import *     # Class - creates Protection factor restraint file   #GYH
+
+import Restraint as R   # Import the Restraint Parent Class as R
 
 
-
-# }}}
 
 # Class PosteriorSampler: {{{
 class PosteriorSampler(object):
     """A class to perform posterior sampling of conformational populations"""
 
     # __init__:{{{
-    def __init__(self, ensemble, data = None,
-            dlogsigma_noe=np.log(1.01), sigma_noe_min=0.05, sigma_noe_max=120.0,
-            dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
-            dlogsigma_cs_H=np.log(1.02),sigma_cs_H_min=0.05, sigma_cs_H_max=20.0,
-	    dlogsigma_cs_Ha=np.log(1.02),sigma_cs_Ha_min=0.05, sigma_cs_Ha_max=20.0,
-	    dlogsigma_cs_N=np.log(1.02),sigma_cs_N_min=0.05, sigma_cs_N_max=20.0,
-	    dlogsigma_cs_Ca=np.log(1.02),sigma_cs_Ca_min=0.05, sigma_cs_Ca_max=20.0,
-	    dlogsigma_PF=np.log(1.02),sigma_PF_min=0.05, sigma_PF_max=20.0,	#GYH
-	    dloggamma=np.log(1.01), gamma_min=0.2, gamma_max=10.0,
-            dalpha=0.1, alpha_min=10.0, alpha_max=10.2,
-            distribution='exponential',
-            ambiguous_groups=False,
-            sample_ambiguous_distances=True,
-	    use_reference_potential_noe=False,
-            use_reference_potential_H=False,
-            use_reference_potential_Ha=False,
-            use_reference_potential_N=False,
-            use_reference_potential_Ca=False,
-            use_reference_potential_PF=False,
-            use_gaussian_reference_potential_noe=False,
-            use_gaussian_reference_potential_H=False,
-            use_gaussian_reference_potential_Ha=False,
-            use_gaussian_reference_potential_N=False,
-            use_gaussian_reference_potential_Ca=False,
-            use_gaussian_reference_potential_PF=False):	#GYH
-        "Initialize the PosteriorSampler class."
+    def __init__(self, ensemble,
+		 dlogsigma_noe=np.log(1.01), sigma_noe_min=0.05, sigma_noe_max=20.0,
+                 dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
+                 dlogsigma_cs_H=np.log(1.02),sigma_cs_H_min=0.05, sigma_cs_H_max=20.0,
+		 dlogsigma_cs_Ha=np.log(1.02),sigma_cs_Ha_min=0.05, sigma_cs_Ha_max=20.0,
+		 dlogsigma_cs_N=np.log(1.02),sigma_cs_N_min=0.05, sigma_cs_N_max=20.0,
+		 dlogsigma_cs_Ca=np.log(1.02),sigma_cs_Ca_min=0.05, sigma_cs_Ca_max=20.0,
+	         dlogsigma_pf=np.log(1.02),sigma_pf_min=0.05, sigma_pf_max=20.0,
+                 use_reference_potential_noe = True,
+		 use_reference_potential_J = True,
+                 use_reference_potential_H = True,
+                 use_reference_potential_Ha = True,
+                 use_reference_potential_N = True,
+                 use_reference_potential_Ca = True,
+                 use_reference_potential_pf = True,
+                 use_gaussian_reference_potential_noe = False,
+		 use_gaussian_reference_potential_J = False,
+                 use_gaussian_reference_potential_H = False,
+                 use_gaussian_reference_potential_Ha = False,
+                 use_gaussian_reference_potential_N = False,
+                 use_gaussian_reference_potential_Ca = False,
+                 use_gaussian_reference_potential_pf = False):
 
-        # Notes on ## Ensemble ##:
-        '''
-        The ensemble is a list that is appended by Structure objects:
-        recall: Structure(self, gens [pdbs], free energy,  expdata_filename_noe,
-                   use_log_normal_distances,
-            dloggamma=np.log(1.01), gamma_min=0.2,
-            gamma_max=5.0, dalpha=0.1, alpha_min=0.0, alpha_max=0.1)
-
-
-        s = Structure('Gens/micro/%d.pdb'%i, args.lam*energies[i],
-            expdata_filename_noe=expdata_filename_noe,
-            use_log_normal_distances=False,
-            dloggamma=np.log(1.01), gamma_min=0.2,
-            gamma_max=5.0, dalpha=0.1, alpha_min=0.0, alpha_max=0.1)
-
-
-        '''
 
         # the ensemble is a list of Structure() objects
         self.ensembles = [ ensemble ]   # why a list inside of a list?
         self.nstates = len(ensemble)    # number of structures (elements)
-        self.nensembles = len(self.ensembles)  # if [ ensemble ], then this should
-                                               # always be equal to 1
+        self.nensembles = len(self.ensembles)    # always be equal to 1
         self.ensemble_index = 0
 
-        # need to keep track of ambiguous distances and multiple ensembles to sample over
-        self.ambiguous_groups = []  # list of pairs of group indices, e.g.:   [ [[1,2,3],[4,5,6]],   [[7],[8]], ...]
-        self.sample_ambiguous_distances = sample_ambiguous_distances
-        if sample_ambiguous_distances:
-            self.build_alternative_ensembles()
-
-
-        self.distribution = distribution #RMR
 
         # pick initial values for sigma_noe (std of experimental uncertainty in NOE distances)
         self.dlogsigma_noe = dlogsigma_noe  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
         self.sigma_noe_min = sigma_noe_min
         self.sigma_noe_max = sigma_noe_max
         self.allowed_sigma_noe = np.exp(np.arange(np.log(self.sigma_noe_min), np.log(self.sigma_noe_max), self.dlogsigma_noe))
-#        print 'self.allowed_sigma_noe', self.allowed_sigma_noe
-#        print 'len(self.allowed_sigma_noe) =', len(self.allowed_sigma_noe)
+        print 'self.allowed_sigma_noe', self.allowed_sigma_noe
+        print 'len(self.allowed_sigma_noe) =', len(self.allowed_sigma_noe)
         self.sigma_noe_index = len(self.allowed_sigma_noe)/2    # pick an intermediate value to start with
         self.sigma_noe = self.allowed_sigma_noe[self.sigma_noe_index]
 
@@ -103,8 +74,8 @@ class PosteriorSampler(object):
         self.sigma_J_min = sigma_J_min
         self.sigma_J_max = sigma_J_max
         self.allowed_sigma_J = np.exp(np.arange(np.log(self.sigma_J_min), np.log(self.sigma_J_max), self.dlogsigma_J))
-#        print 'self.allowed_sigma_J', self.allowed_sigma_J
-#        print 'len(self.allowed_sigma_J) =', len(self.allowed_sigma_J)
+        print 'self.allowed_sigma_J', self.allowed_sigma_J
+        print 'len(self.allowed_sigma_J) =', len(self.allowed_sigma_J)
 
         self.sigma_J_index = len(self.allowed_sigma_J)/2   # pick an intermediate value to start with
         self.sigma_J = self.allowed_sigma_J[self.sigma_J_index]
@@ -115,8 +86,8 @@ class PosteriorSampler(object):
         self.sigma_cs_H_min = sigma_cs_H_min
         self.sigma_cs_H_max = sigma_cs_H_max
         self.allowed_sigma_cs_H = np.exp(np.arange(np.log(self.sigma_cs_H_min), np.log(self.sigma_cs_H_max), self.dlogsigma_cs_H))
-#        print 'self.allowed_sigma_cs_H', self.allowed_sigma_cs_H
-#        print 'len(self.allowed_sigma_cs_H) =', len(self.allowed_sigma_cs_H)
+        print 'self.allowed_sigma_cs_H', self.allowed_sigma_cs_H
+        print 'len(self.allowed_sigma_cs_H) =', len(self.allowed_sigma_cs_H)
         self.sigma_cs_H_index = len(self.allowed_sigma_cs_H)/2   # pick an intermediate value to start with
         self.sigma_cs_H = self.allowed_sigma_cs_H[self.sigma_cs_H_index]
 
@@ -125,8 +96,8 @@ class PosteriorSampler(object):
         self.sigma_cs_Ha_min = sigma_cs_Ha_min
         self.sigma_cs_Ha_max = sigma_cs_Ha_max
         self.allowed_sigma_cs_Ha = np.exp(np.arange(np.log(self.sigma_cs_Ha_min), np.log(self.sigma_cs_Ha_max), self.dlogsigma_cs_Ha))
-#        print 'self.allowed_sigma_cs_Ha', self.allowed_sigma_cs_Ha
-#        print 'len(self.allowed_sigma_cs_Ha) =', len(self.allowed_sigma_cs_Ha)
+        print 'self.allowed_sigma_cs_Ha', self.allowed_sigma_cs_Ha
+        print 'len(self.allowed_sigma_cs_Ha) =', len(self.allowed_sigma_cs_Ha)
         self.sigma_cs_Ha_index = len(self.allowed_sigma_cs_Ha)/2   # pick an intermediate value to start with
         self.sigma_cs_Ha = self.allowed_sigma_cs_Ha[self.sigma_cs_Ha_index]
 
@@ -136,8 +107,8 @@ class PosteriorSampler(object):
         self.sigma_cs_N_min = sigma_cs_N_min
         self.sigma_cs_N_max = sigma_cs_N_max
         self.allowed_sigma_cs_N = np.exp(np.arange(np.log(self.sigma_cs_N_min), np.log(self.sigma_cs_N_max), self.dlogsigma_cs_N))
-#        print 'self.allowed_sigma_cs_N', self.allowed_sigma_cs_N
-#        print 'len(self.allowed_sigma_cs_N) =', len(self.allowed_sigma_cs_N)
+        print 'self.allowed_sigma_cs_N', self.allowed_sigma_cs_N
+        print 'len(self.allowed_sigma_cs_N) =', len(self.allowed_sigma_cs_N)
         self.sigma_cs_N_index = len(self.allowed_sigma_cs_N)/2   # pick an intermediate value to start with
         self.sigma_cs_N = self.allowed_sigma_cs_N[self.sigma_cs_N_index]
 
@@ -146,44 +117,27 @@ class PosteriorSampler(object):
         self.sigma_cs_Ca_min = sigma_cs_Ca_min
         self.sigma_cs_Ca_max = sigma_cs_Ca_max
         self.allowed_sigma_cs_Ca = np.exp(np.arange(np.log(self.sigma_cs_Ca_min), np.log(self.sigma_cs_Ca_max), self.dlogsigma_cs_Ca))
-#        print 'self.allowed_sigma_cs_Ca', self.allowed_sigma_cs_Ca
-#        print 'len(self.allowed_sigma_cs_Ca) =', len(self.allowed_sigma_cs_Ca)
+        print 'self.allowed_sigma_cs_Ca', self.allowed_sigma_cs_Ca
+        print 'len(self.allowed_sigma_cs_Ca) =', len(self.allowed_sigma_cs_Ca)
         self.sigma_cs_Ca_index = len(self.allowed_sigma_cs_Ca)/2   # pick an intermediate value to start with
         self.sigma_cs_Ca = self.allowed_sigma_cs_Ca[self.sigma_cs_Ca_index]
+        # pick initial values for sigma_pf (std of experimental uncertainty in chemical shift)   #GYH
+        self.dlogsigma_pf = dlogsigma_pf  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
+        self.sigma_pf_min = sigma_pf_min
+        self.sigma_pf_max = sigma_pf_max
+        self.allowed_sigma_pf = np.exp(np.arange(np.log(self.sigma_pf_min), np.log(self.sigma_pf_max), self.dlogsigma_pf))
+#        print 'self.allowed_sigma_pf', self.allowed_sigma_pf
+#        print 'len(self.allowed_sigma_pf) =', len(self.allowed_sigma_pf)
+        self.sigma_pf_index = len(self.allowed_sigma_pf)/2   # pick an intermediate value to start with
+        self.sigma_pf = self.allowed_sigma_pf[self.sigma_pf_index]
 
-
-
-        # pick initial values for sigma_PF (std of experimental uncertainty in chemical shift)   #GYH
-        self.dlogsigma_PF = dlogsigma_PF  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.sigma_PF_min = sigma_PF_min
-        self.sigma_PF_max = sigma_PF_max
-        self.allowed_sigma_PF = np.exp(np.arange(np.log(self.sigma_PF_min), np.log(self.sigma_PF_max), self.dlogsigma_PF))
-#        print 'self.allowed_sigma_PF', self.allowed_sigma_PF
-#        print 'len(self.allowed_sigma_PF) =', len(self.allowed_sigma_PF)
-        self.sigma_PF_index = len(self.allowed_sigma_PF)/2   # pick an intermediate value to start with
-        self.sigma_PF = self.allowed_sigma_PF[self.sigma_PF_index]
-
-
-
-        # pick initial values for gamma^(-1/6) (NOE scaling parameter)
-        self.dloggamma = dloggamma  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.gamma_min = gamma_min
-        self.gamma_max = gamma_max
-        self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
+	# pick initial values for gamma^(-1/6) (NOE scaling parameter)
+        self.allowed_gamma = ensemble[0].allowed_gamma
 #        print 'self.allowed_gamma', self.allowed_gamma
 #        print 'len(self.allowed_gamma) =', len(self.allowed_gamma)
         self.gamma_index = len(self.allowed_gamma)/2    # pick an intermediate value to start with
         self.gamma = self.allowed_gamma[self.gamma_index]
 
-        # pick initial values for alpha (PF 'scaling' parameter)	#GYH
-        self.dalpha = dalpha  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.alpha_min = alpha_min
-        self.alpha_max = alpha_max
-        self.allowed_alpha = np.arange(self.alpha_min, self.alpha_max, self.dalpha)
-#        print 'self.allowed_alpha', self.allowed_alpha
-#        print 'len(self.allowed_alpha) =', len(self.allowed_alpha)
-        self.alpha_index = len(self.allowed_alpha)/2    # pick an intermediate value to start with
-        self.alpha = self.allowed_alpha[self.alpha_index]
 
         # the initial state of the structural ensemble we're sampling from
         self.state = 0    # index in the ensemble
@@ -191,17 +145,6 @@ class PosteriorSampler(object):
         self.accepted = 0
         self.total = 0
 
-        # keep track of what we sampled in a trajectory
-        self.traj = PosteriorSamplingTrajectory(self.ensembles[0],
-                self.allowed_sigma_noe,
-                self.allowed_sigma_J,
-                self.allowed_sigma_cs_H,
-                self.allowed_sigma_cs_Ha,
-                self.allowed_sigma_cs_N,
-                self.allowed_sigma_cs_Ca,
-                self.allowed_sigma_PF,
-                self.allowed_gamma,
-                self.allowed_alpha)
         self.write_traj = 1000  # step frequencies to write trajectory info
 
         # frequency of printing to the screen
@@ -211,274 +154,119 @@ class PosteriorSampler(object):
         self.traj_every = 100
 
 
-        # RMR:
-	r_cs_H = restraint_cs_H()
-        r_cs_Ha = restraint_cs_Ha()
-        r_cs_N = restraint_cs_N()
-        r_cs_Ca = restraint_cs_Ca()
-	r_J = restraint_J()
-	r_noe = restraint_noe()
+	# initialze restraint child class 
+	r_J = R.restraint_J()
+        r_cs_Ca = R.restraint_cs_Ca()
+	r_cs_H = R.restraint_cs_H()
+        r_cs_N = R.restraint_cs_N()
+        r_cs_Ha = R.restraint_cs_Ha()
+        r_noe = R.restraint_noe()
+
+#        self.allowed_sigma_noe = r_noe.allowed_sigma_noe
+#        self.allowed_sigma_J = r_J.allowed_sigma_J
+#        self.allowed_sigma_cs_H = r_cs_H.allowed_sigma_cs_H
+#        self.allowed_sigma_cs_Ha = r_cs_Ha.allowed_sigma_cs_Ha
+#        self.allowed_sigma_cs_N = r_cs_N.allowed_sigma_cs_N
+#        self.allowed_sigma_cs_Ca = r_cs_Ca.allowed_sigma_cs_Ca
+#        self.allowed_gamma = r_noe.allowed_gamma
+
+#        self.sigma_noe = r_noe.sigma_noe
+#        self.sigma_noe_index = r_noe.sigma_noe_index
+#        self.sigma_J = r_J.sigma_J
+#        self.sigma_J_index = r_J.sigma_J_index
+#        self.sigma_cs_H = r_cs_H.sigma_cs_H
+#        self.sigma_cs_H_index = r_cs_H.sigma_cs_H_index
+#        self.sigma_cs_Ha = r_cs_Ha.sigma_cs_Ha
+#        self.sigma_cs_Ha_index = r_cs_Ha.sigma_cs_Ha_index
+#        self.sigma_cs_N = r_cs_N.sigma_cs_N
+#        self.sigma_cs_N_index = r_cs_N.sigma_cs_N_index
+#        self.sigma_cs_Ca = r_cs_Ca.sigma_cs_Ca
+#        self.sigma_cs_Ca_index = r_cs_Ca.sigma_cs_Ca_index
+#        self.gamma = r_noe.gamma
+#        self.gamma_index = r_noe.gamma_index
 
 
-        dist_prompt = 'What type of distribution would you like for your %s data?\n\
-                        Type the number, then press enter.\n\
-                        1. Exponential\n\
-                        2. Gaussian\n\
-                        3. Uniform\n\
-                        '
-        # Initializing a false location of config file. This will be changed if
-        # data is imported.
-        cs_H_Log  = ''
-        cs_Ha_Log = ''
-        cs_N_Log  = ''
-        cs_Ca_Log = ''
-        J_Log     = ''
-        noe_Log   = ''
-        if data != None:
-	    for j in range(len(data)):
-                for i in data[j]:
-                    wd = os.path.dirname(os.path.realpath(i))
-                    # specifying the location of config file
-	            if i.endswith('.noe'):
-                        noe_Log   = wd+'/.noe.log'
-                        if os.path.isfile(noe_Log): # storing a log file to contain configuration of distribution settings
-                            config = open(noe_Log, 'r')
-                            distribution = config.readline()
-                            #os.system('echo %s'%dist)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_noe=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_noe=True
-                            else:
-                                use_reference_potential_noe=False
-                                use_gaussian_reference_potential_noe=False
-                        else:
-                            distribution = input(dist_prompt%'noe')
-                            with open('%s'%noe_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_noe=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_noe=True
-                            else:
-                                use_reference_potential_noe=False
-                                use_gaussian_reference_potential_noe=False
 
 
-	    	    elif i.endswith('.J'):
-                        J_Log     = wd+'/.J.log'
-                        if os.path.isfile(J_Log): # storing a log file to contain configuration of distribution settings
-                            config = open(J_Log, 'r')
-                            dist = config.readline()
-                            #os.system('echo %s'%dist)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_J=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_J=True
-                            else:
-                                use_reference_potential_J=False
-                                use_gaussian_reference_potential_J=False
-                        else:
-                            distribution = input(dist_prompt%'J')
-                            with open('%s'%J_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_J=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_J=True
-                            else:
-                                use_reference_potential_J=False
-                                use_gaussian_reference_potential_J=False
+        # keep track of what we sampled in a trajectory
+        self.traj = PosteriorSamplingTrajectory(self.ensembles[0],
+                self.allowed_sigma_noe,
+                self.allowed_sigma_J,
+                self.allowed_sigma_cs_H,
+                self.allowed_sigma_cs_Ha,
+                self.allowed_sigma_cs_N,
+                self.allowed_sigma_cs_Ca,
+                self.allowed_sigma_pf,
+                self.allowed_gamma)
 
-
-                    elif i.endswith('.cs_H'):
-                        cs_H_Log  = wd+'/.cs_H.log'
-                        if os.path.isfile(cs_H_Log): # storing a log file to contain configuration of distribution settings
-                            config = open(cs_H_Log, 'r')
-                            dist = config.readline()
-                            #os.system('echo %s'%dist)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_H=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_H=True
-                            else:
-                                use_reference_potential_H=False
-                                use_gaussian_reference_potential_H=False
-                        else:
-                            distribution = input(dist_prompt%'H')
-                            with open('%s'%cs_H_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_H=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_H=True
-                            else:
-                                use_reference_potential_H=False
-                                use_gaussian_reference_potential_H=False
-
-
-                    elif i.endswith('.cs_Ha'):
-                        cs_Ha_Log = wd+'/.cs_Ha.log'
-                        if os.path.isfile(cs_Ha_Log): # storing a log file to contain configuration of distribution settings
-                            config = open(cs_Ha_Log, 'r')
-                            dist = config.readline()
-                            #os.system('echo %s'%dist)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_Ha=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_Ha=True
-                            else:
-                                use_reference_potential_Ha=False
-                                use_gaussian_reference_potential_Ha=False
-                        else:
-                            distribution = input(dist_prompt%'Ha')
-                            with open('%s'%cs_Ha_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_Ha=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_Ha=True
-                            else:
-                                use_reference_potential_Ha=False
-                                use_gaussian_reference_potential_Ha=False
-
-                    elif i.endswith('.cs_N'):
-                        cs_N_Log  = wd+'/.cs_N.log'
-                        if os.path.isfile(cs_N_Log): # storing a log file to contain configuration of distribution settings
-                            config = open(cs_N_Log, 'r')
-                            dist = config.readline()
-                            #os.system('echo %s'%dist)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_N=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_N=True
-                            else:
-                                use_reference_potential_N=False
-                                use_gaussian_reference_potential_N=False
-                        else:
-                            distribution = input(dist_prompt%'N')
-                            with open('%s'%cs_N_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_N=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_N=True
-                            else:
-                                use_reference_potential_N=False
-                                use_gaussian_reference_potential_N=False
-
-                    elif i.endswith('.cs_Ca'):
-                        cs_Ca_Log = wd+'/.cs_Ca.log'
-                        if os.path.isfile(cs_Ca_Log): # storing a log file to contain configuration of distribution settings
-                            config = open(cs_Ca_Log, 'r')
-                            dist = config.readline()
-                            #os.system('echo %s'%dist)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_Ca=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_Ca=True
-                            else:
-                                use_reference_potential_Ca=False
-                                use_gaussian_reference_potential_Ca=False
-                        else:
-                            distribution = input(dist_prompt%'Ca')
-                            with open('%s'%cs_Ca_Log, 'w') as f:
-                                f.write('%d'%distribution)
-                            if distribution == 1:
-                                print 'Using Exponential Distribution'
-                                use_reference_potential_Ca=True
-                            elif distribution == 2:
-                                print 'Using Gaussian Distribution'
-                                use_gaussian_reference_potential_Ca=True
-                            else:
-                                use_reference_potential_Ca=False
-                                use_gaussian_reference_potential_Ca=False
-
-                    else:
-                        raise ValueError("Incompatible File extension. Use:{'.noe','.J','.cs_H','.cs_Ha'}")
-	else:
-	    raise ValueError("Something is wrong in your input file (necessary input file missing)")
-        log_list = [cs_H_Log,cs_Ha_Log,cs_N_Log,cs_Ca_Log,J_Log,noe_Log]
-        for i in range(0,len(log_list)):
-            if os.path.isfile(log_list[i]):
-                os.system('rm %s'%log_list[i])
-
-        # RMR
-# }}}
         # compile reference potential of distances from the uniform distribution of distances
         self.use_reference_potential_noe = use_reference_potential_noe
-        if self.use_reference_potential_noe:
-            self.build_reference_potential_noe()
-	self.use_reference_potential_H = use_reference_potential_H
-        if self.use_reference_potential_H:
-            self.build_reference_potential_H()
-	self.use_reference_potential_Ha = use_reference_potential_Ha
-        if self.use_reference_potential_Ha:
-            self.build_reference_potential_Ha()
-	self.use_reference_potential_N = use_reference_potential_N
-        if self.use_reference_potential_N:
-            self.build_reference_potential_N()
-	self.use_reference_potential_Ca = use_reference_potential_Ca
-        if self.use_reference_potential_Ca:
-            self.build_reference_potential_Ca()
-	self.use_reference_potential_PF = use_reference_potential_PF
-        if self.use_reference_potential_PF:
-            self.build_reference_potential_PF()
-
+	self.use_reference_potential_J = use_reference_potential_J
+        self.use_reference_potential_H = use_reference_potential_H
+        self.use_reference_potential_Ha = use_reference_potential_Ha
+        self.use_reference_potential_N = use_reference_potential_N
+        self.use_reference_potential_Ca = use_reference_potential_Ca
+        self.use_reference_potential_pf = use_reference_potential_pf
         self.use_gaussian_reference_potential_noe = use_gaussian_reference_potential_noe
-        if self.use_gaussian_reference_potential_noe:
-            self.build_gaussian_reference_potential_noe()
+	self.use_gaussian_reference_potential_J = use_gaussian_reference_potential_J
         self.use_gaussian_reference_potential_H = use_gaussian_reference_potential_H
-        if self.use_gaussian_reference_potential_H:
-            self.build_gaussian_reference_potential_H()
         self.use_gaussian_reference_potential_Ha = use_gaussian_reference_potential_Ha
-        if self.use_gaussian_reference_potential_Ha:
-            self.build_gaussian_reference_potential_Ha()
         self.use_gaussian_reference_potential_N = use_gaussian_reference_potential_N
-        if self.use_gaussian_reference_potential_N:
-            self.build_gaussian_reference_potential_N()
         self.use_gaussian_reference_potential_Ca = use_gaussian_reference_potential_Ca
-        if self.use_gaussian_reference_potential_Ca:
-            self.build_gaussian_reference_potential_Ca()
-        self.use_gaussian_reference_potential_PF = use_gaussian_reference_potential_PF
-        if self.use_gaussian_reference_potential_PF:
-            self.build_gaussian_reference_potential_PF()
+        self.use_gaussian_reference_potential_pf = use_gaussian_reference_potential_pf
+	
+	s = self.ensembles[0][0]
+	if sum(s.sse_distances) != 0:
+            if self.use_reference_potential_noe == True and self.use_gaussian_reference_potential_noe == True:
+                self.build_gaussian_reference_potential_noe()
+            if self.use_reference_potential_noe == True and self.use_gaussian_reference_potential_noe == False:
+                self.build_reference_potential_noe()
+	elif s.sse_dihedrals != 0:
+            if self.use_reference_potential_J == True and self.use_gaussian_reference_potential_J == True:
+                self.build_gaussian_reference_potential_J()
+            if self.use_reference_potential_J == True and self.use_gaussian_reference_potential_J == False:
+                self.build_reference_potential_J()
+        elif s.sse_cs_H != 0:
+            if self.use_reference_potential_H == True and self.use_gaussian_reference_potential_H == True:
+                self.build_gaussian_reference_potential_H()
+            if self.use_reference_potential_H == True and self.use_gaussian_reference_potential_H == False:
+                self.build_reference_potential_H()
+        elif s.sse_cs_Ha != 0:
+            if self.use_reference_potential_Ha == True and self.use_gaussian_reference_potential_Ha == True:
+                self.build_gaussian_reference_potential_Ha()
+            if self.use_reference_potential_Ha == True and self.use_gaussian_reference_potential_Ha == False:
+                self.build_reference_potential_Ha()
+        elif s.sse_cs_N != 0:
+            if self.use_reference_potential_N == True and self.use_gaussian_reference_potential_N == True:
+                self.build_gaussian_reference_potential_N()
+            if self.use_reference_potential_N == True and self.use_gaussian_reference_potential_N == False:
+                self.build_reference_potential_N()
+        elif s.sse_cs_H != 0:
+            if self.use_reference_potential_Ca == True and self.use_gaussian_reference_potential_Ca == True:
+                self.build_gaussian_reference_potential_Ca()
+            if self.use_reference_potential_Ca == True and self.use_gaussian_reference_potential_Ca == False:
+                self.build_reference_potential_Ca()
+        elif s.sse_pf != 0:
+            if self.use_reference_potential_pf == True and self.use_gaussian_reference_potential_pf == True:
+                self.build_gaussian_reference_potential_pf()
+            if self.use_reference_potential_pf == True and self.use_gaussian_reference_potential_pf == False:
+                self.build_reference_potential_pf()
+	
+
 
 	   # make a flag if using both exp and gaussian ref potentials for one restraint
-        if self.use_reference_potential_noe and self.use_gaussian_reference_potential_noe:
-                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-        if self.use_reference_potential_H and self.use_gaussian_reference_potential_H:
-                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-        if self.use_reference_potential_Ha and self.use_gaussian_reference_potential_Ha:
-                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-        if self.use_reference_potential_N and self.use_gaussian_reference_potential_N:
-                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-        if self.use_reference_potential_Ca and self.use_gaussian_reference_potential_Ca:
-                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-  	if self.use_reference_potential_PF and self.use_gaussian_reference_potential_PF:
-	        sys.exit("error: Cannot use different reference potentials for one exp restraint")
+#        if self.use_reference_potential_noe and self.use_gaussian_reference_potential_noe:
+#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
+#        if self.use_reference_potential_H and self.use_gaussian_reference_potential_H:
+#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
+#        if self.use_reference_potential_Ha and self.use_gaussian_reference_potential_Ha:
+#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
+#        if self.use_reference_potential_N and self.use_gaussian_reference_potential_N:
+#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
+#        if self.use_reference_potential_Ca and self.use_gaussian_reference_potential_Ca:
+#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
+#  	if self.use_reference_potential_pf and self.use_gaussian_reference_potential_pf:
+#	        sys.exit("error: Cannot use different reference potentials for one exp restraint")
 
 
 
@@ -491,35 +279,6 @@ class PosteriorSampler(object):
 
         # store this constant so we're not recalculating it all the time in neglogP
         self.ln2pi = np.log(2.0*np.pi)
-    # }}}
-
-    # Build Alternative Ensembles:{{{
-    def build_alternative_ensembles(self):
-
-        ### build binary codes for alternative distance combinations
-        nensembles = 2**len(self.ambiguous_groups)
-        alt_ensemble_states = []
-        for i in range(nensembles):
-            binstring = bin(i).replace('0b','')
-            while len(binstring) < len(self.ambiguous_groups):
-                binstring = '0' + binstring
-            alt_ensemble_states.append( [bool(int(binstring[j])) for j in range(len(binstring))] )
-        print 'alt_ensemble_states', alt_ensemble_states
-
-        ### for each code, build an ensemble
-        print 'Building multiple ensembles with switched distances....'
-        for alt_state in alt_ensemble_states[1:]:  # skip the all-False first entry; already have [ ensemble ]
-            print '\t', len(self.ambiguous_groups), 'distances with switch-state:', alt_state
-            self.ensembles.append( copy.copy(self.ensembles[0]) )
-            for j in range(len(self.ambiguous_groups)):
-                if alt_state[j]: # if True, switch the distances for this pair of ambiguous groups
-                    # we need to switch the distances for all structures in this ensemble
-                    for s in self.ensembles[-1]:
-                        s.switch_distances(self.ambiguous_groups[j][0], self.ambiguous_groups[j][1])
-        print 'self.ensembles', self.ensembles
-        self.nensembles = len(self.ensembles)
-
-    # }}}
 
     # Build Reference Prior NOE (Nuclear Overhauser effect):{{{
     def build_reference_potential_noe(self):	#GYH
@@ -877,8 +636,8 @@ class PosteriorSampler(object):
 
     #:}}}
 
-    # Build Ref Prior PF:{{{
-    def build_reference_potential_PF(self):                          #GYH
+    # Build Ref Prior pf:{{{
+    def build_reference_potential_pf(self):                          #GYH
         """Look at all the structures to find the average distances
 
         >>    beta_j = np.array(distance_distributions[j]).sum()/(len(distance_distributions[j])+1.0)
@@ -887,167 +646,302 @@ class PosteriorSampler(object):
 
         for k in range(self.nensembles):
 
-            print 'Computing reference potentials (PF) for ensemble', k, 'of', self.nensembles, '...'
+            print 'Computing reference potentials (pf) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nprotectionfactor = len(ensemble[0].protectionfactor_restraints)
-            all_protectionfactor = []
-            protectionfactor_distributions = [[] for j in range(nprotectionfactor)]
+            npf = len(ensemble[0].pf_restraints)
+            all_pf = []
+            pf_distributions = [[] for j in range(npf)]
             for s in ensemble:
-                for j in range(len(s.protectionfactor_restraints)):
-                    protectionfactor_distributions[j].append( s.protectionfactor_restraints[j].model_protectionfactor )
-                    all_protectionfactor.append( s.protectionfactor_restraints[j].model_protectionfactor )
+                for j in range(len(s.pf_restraints)):
+                    pf_distributions[j].append( s.pf_restraints[j].model_pf )
+                    all_pf.append( s.pf_restraints[j].model_pf )
 
             # Find the MLE average (i.e. beta_j) for each distance
-            betas_PF = np.zeros(nprotectionfactor)
-            for j in range(nprotectionfactor):
+            betas_pf = np.zeros(npf)
+            for j in range(npf):
                 # plot the maximum likelihood exponential distribution fitting the data
-                betas_PF[j] =  np.array(protectionfactor_distributions[j]).sum()/(len(protectionfactor_distributions[j])+1.0)
+                betas_pf[j] =  np.array(pf_distributions[j]).sum()/(len(pf_distributions[j])+1.0)
 
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
-                s.betas_PF = betas_PF
-                s.compute_neglog_reference_potentials_PF()
+                s.betas_pf = betas_pf
+                s.compute_neglog_reference_potentials_pf()
 
     #:}}}
 
-    # Build Gaussian Ref Prior PF:{{{
-    def build_gaussian_reference_potential_PF(self):        #GYH
+    # Build Gaussian Ref Prior pf:{{{
+    def build_gaussian_reference_potential_pf(self):        #GYH
 
         for k in range(self.nensembles):
 
-            print 'Computing Gaussian reference potentials (PF) for ensemble', k, 'of', self.nensembles, '...'
+            print 'Computing Gaussian reference potentials (pf) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
             # collect distance distributions across all structures
-            nprotectionfactor = len(ensemble[0].protectionfactor_restraints)
-            all_protectionfactor = []
-            protectionfactor_distributions = [[] for j in range(nprotectionfactor)]
+            npf = len(ensemble[0].pf_restraints)
+            all_pf = []
+            pf_distributions = [[] for j in range(npf)]
             for s in ensemble:
-                for j in range(len(s.protectionfactor_restraints)):
-                    protectionfactor_distributions[j].append( s.protectionfactor_restraints[j].model_protectionfactor )
-                    all_protectionfactor.append( s.protectionfactor_restraints[j].model_protectionfactor )
-#	    print 'all_protectionfactor', all_protectionfactor
-	    print 'len(all_protectionfactor)', len(all_protectionfactor)
+                for j in range(len(s.pf_restraints)):
+                    pf_distributions[j].append( s.pf_restraints[j].model_pf )
+                    all_pf.append( s.pf_restraints[j].model_pf )
+#	    print 'all_pf', all_pf
+	    print 'len(all_pf)', len(all_pf)
 
             # Find the MLE average (i.e. beta_j) for each distance
-            ref_mean_PF = np.zeros(nprotectionfactor)
-	    ref_sigma_PF = np.zeros(nprotectionfactor)
-#	    squared_diffs_PF = []
-            for j in range(nprotectionfactor):
+            ref_mean_pf = np.zeros(npf)
+	    ref_sigma_pf = np.zeros(npf)
+#	    squared_diffs_pf = []
+            for j in range(npf):
                 # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_PF[j] =  np.array(protectionfactor_distributions[j]).mean()
-#                squared_diffs_PF.append( [ (d - ref_mean_PF[j])**2.0 for d in protectionfactor_distributions[j] ])
-	    	squared_diffs_PF=( [ (d - ref_mean_PF[j])**2.0 for d in protectionfactor_distributions[j] ])
-#		ref_sigma_PF[j] = np.sqrt( np.array(squared_diffs_PF).sum() / (len(protectionfactor_distributions[j])+1.0))
-#            global_ref_sigma_PF = ( np.array([ref_sigma_PF[j]**-2.0 for j in range(nprotectionfactor)]).mean() )**-0.5
+                ref_mean_pf[j] =  np.array(pf_distributions[j]).mean()
+#                squared_diffs_pf.append( [ (d - ref_mean_pf[j])**2.0 for d in pf_distributions[j] ])
+	    	squared_diffs_pf=( [ (d - ref_mean_pf[j])**2.0 for d in pf_distributions[j] ])
+#		ref_sigma_pf[j] = np.sqrt( np.array(squared_diffs_pf).sum() / (len(pf_distributions[j])+1.0))
+#            global_ref_sigma_pf = ( np.array([ref_sigma_pf[j]**-2.0 for j in range(npf)]).mean() )**-0.5
 
-#            global_ref_sigma_PF = np.array(all_protectionfactor).std()
-#            print 'global_ref_sigma_PF', global_ref_sigma_PF
+#            global_ref_sigma_pf = np.array(all_pf).std()
+#            print 'global_ref_sigma_pf', global_ref_sigma_pf
+#            sys.exit(1)
 
-            for j in range(nprotectionfactor):
-#                ref_sigma_PF[j] = global_ref_sigma_PF #np.sqrt( np.array(squared_diffs_PF).sum() / (len(protectionfactor_distributions[j])+1.0))
-		ref_sigma_PF[j] = 20.0
-#		ref_sigma_PF[j] = 1.84394160179	#np.sqrt( np.array(squared_diffs_PF).sum() / (len(protectionfactor_distributions[j])+1.0))
+#np.sqrt( np.array(squared_diffs_pf).sum() / (len(squared_diffs_pf) + npf))
+            for j in range(npf):
+#                ref_sigma_pf[j] = global_ref_sigma_pf #np.sqrt( np.array(squared_diffs_pf).sum() / (len(pf_distributions[j])+1.0))
+		ref_sigma_pf[j] = 20.0
+#		ref_sigma_pf[j] = 1.84394160179	#np.sqrt( np.array(squared_diffs_pf).sum() / (len(pf_distributions[j])+1.0))
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
-                s.ref_mean_PF = ref_mean_PF
-                s.ref_sigma_PF =  ref_sigma_PF
-                s.compute_gaussian_neglog_reference_potentials_PF()
+                s.ref_mean_pf = ref_mean_pf
+                s.ref_sigma_pf =  ref_sigma_pf
+                s.compute_gaussian_neglog_reference_potentials_pf()
 
     #:}}}
 
     # -log(P):{{{
-    def neglogP(self, new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha, new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_PF, new_gamma_index, new_alpha_index, verbose=True):	#GYH
+    def neglogP(self, new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha, new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_pf, new_gamma_index, verbose=True):	#GYH
         """Return -ln P of the current configuration."""
 
         # The current structure being sampled
         s = self.ensembles[new_ensemble_index][new_state]
 
+        print 's = ',s
         # model terms
         result = s.free_energy  + self.logZ
-
+        print 'Result =',result
         # distance terms
         #result += (Nj+1.0)*np.log(self.sigma_noe)
-       	if s.sse_distances is not None:		# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
-		result += (s.Ndof_distances+3.0)*np.log(new_sigma_noe)  # for use with log-spaced sigma values
+       	#if s.sse_distances is not None:		# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
+	if sum(s.sse_distances) != 0:
+		result += (s.Ndof_distances)*np.log(new_sigma_noe)  # for use with log-spaced sigma values
 		result += s.sse_distances[new_gamma_index] / (2.0*new_sigma_noe**2.0)
         	result += (s.Ndof_distances)/2.0*self.ln2pi  # for normalization
+                if self.use_reference_potential_noe == True and self.use_gaussian_reference_potential_noe == True:
+                    result -= s.sum_gaussian_neglog_reference_potentials_noe
+                if self.use_reference_potential_noe == True and self.use_gaussian_reference_potential_noe == False:
+                    result -= s.sum_neglog_reference_potentials_noe
 
         # dihedral terms
-        if s.sse_dihedrals != None:
+        if s.sse_dihedrals != 0:
 		result += (s.Ndof_dihedrals)*np.log(new_sigma_J) # for use with log-spaced sigma values
 		result += s.sse_dihedrals / (2.0*new_sigma_J**2.0)
         	result += (s.Ndof_dihedrals)/2.0*self.ln2pi  # for normalization
+                if self.use_reference_potential_J == True and self.use_gaussian_reference_potential_J == True:
+                    result -= s.sum_gaussian_neglog_reference_potentials_J
+                if self.use_reference_potential_J == True and self.use_gaussian_reference_potential_J == False:
+                    result -= s.sum_neglog_reference_potentials_J
 
 	# cs terms                           # GYH
-	if s.sse_cs_H != None:
+	if s.sse_cs_H != 0:
        		result += (s.Ndof_cs_H)*np.log(new_sigma_cs_H)
          	result += s.sse_cs_H / (2.0*new_sigma_cs_H**2.0)
         	result += (s.Ndof_cs_H)/2.0*self.ln2pi
-	if s.sse_cs_Ha != None:
+                if self.use_reference_potential_H == True and self.use_gaussian_reference_potential_H == True:
+                    result -= s.sum_gaussian_neglog_reference_potentials_H
+                if self.use_reference_potential_H == True and self.use_gaussian_reference_potential_H == False:
+                    result -= s.sum_neglog_reference_potentials_H
+
+	if s.sse_cs_Ha != 0:
 		result += (s.Ndof_cs_Ha)*np.log(new_sigma_cs_Ha)
 	        result += s.sse_cs_Ha / (2.0*new_sigma_cs_Ha**2.0)
 	        result += (s.Ndof_cs_Ha)/2.0*self.ln2pi
-	if s.sse_cs_N != None:
+                if self.use_reference_potential_Ha == True and self.use_gaussian_reference_potential_Ha == True:
+                    result -= s.sum_gaussian_neglog_reference_potentials_Ha
+                if self.use_reference_potential_Ha == True and self.use_gaussian_reference_potential_Ha == False:
+                    result -= s.sum_neglog_reference_potentials_Ha
+
+
+	if s.sse_cs_N != 0:
 	        result += (s.Ndof_cs_N)*np.log(new_sigma_cs_N)
 	        result += s.sse_cs_N / (2.0*new_sigma_cs_N**2.0)
 	        result += (s.Ndof_cs_N)/2.0*self.ln2pi
-	if s.sse_cs_Ca != None:
+                if self.use_reference_potential_N == True and self.use_gaussian_reference_potential_N == True:
+                    result -= s.sum_gaussian_neglog_reference_potentials_N
+                if self.use_reference_potential_N == True and self.use_gaussian_reference_potential_N == False:
+                    result -= s.sum_neglog_reference_potentials_N
+
+
+	if s.sse_cs_Ca != 0:
 	        result += (s.Ndof_cs_Ca)*np.log(new_sigma_cs_Ca)
 	        result += s.sse_cs_Ca / (2.0*new_sigma_cs_Ca**2.0)
 	        result += (s.Ndof_cs_Ca)/2.0*self.ln2pi
+                if self.use_reference_potential_Ca == True and self.use_gaussian_reference_potential_Ca == True:
+                    result -= s.sum_gaussian_neglog_reference_potentials_Ca
+                if self.use_reference_potential_Ca == True and self.use_gaussian_reference_potential_Ca == False:
+                    result -= s.sum_neglog_reference_potentials_Ca
 
 
-        # protectionfactor terms                           # GYH
-	if s.sse_protectionfactor is not None:			# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
-	        result += (s.Ndof_protectionfactor)*np.log(new_sigma_PF)
-	        result += s.sse_protectionfactor[new_alpha_index] / (2.0*new_sigma_PF**2.0)
-	        result += (s.Ndof_protectionfactor)/2.0*self.ln2pi
-
-
-        # reference potentials
-        if self.use_reference_potential_noe:
-            result -= s.sum_neglog_reference_potentials_noe		#GYH
-        if self.use_reference_potential_H:
-            result -= s.sum_neglog_reference_potentials_H		#GYH
-        if self.use_reference_potential_Ha:
-            result -= s.sum_neglog_reference_potentials_Ha		#GYH
-        if self.use_reference_potential_N:
-            result -= s.sum_neglog_reference_potentials_N		#GYH
-        if self.use_reference_potential_Ca:
-            result -= s.sum_neglog_reference_potentials_Ca		#GYH
-        if self.use_reference_potential_PF:
-            result -= s.sum_neglog_reference_potentials_PF		#GYH
-
-        if self.use_gaussian_reference_potential_noe:
-            result -= s.sum_gaussian_neglog_reference_potentials_noe         #GYH
-        if self.use_gaussian_reference_potential_H:
-            result -= s.sum_gaussian_neglog_reference_potentials_H           #GYH
-        if self.use_gaussian_reference_potential_Ha:
-            result -= s.sum_gaussian_neglog_reference_potentials_Ha          #GYH
-        if self.use_gaussian_reference_potential_N:
-            result -= s.sum_gaussian_neglog_reference_potentials_N           #GYH
-        if self.use_gaussian_reference_potential_Ca:
-            result -= s.sum_gaussian_neglog_reference_potentials_Ca          #GYH
-        if self.use_gaussian_reference_potential_PF:
-            result -= s.sum_gaussian_neglog_reference_potentials_PF          #GYH
+        # pf terms                           # GYH
+	if s.sse_pf != 0:
+	        result += (s.Ndof_pf)*np.log(new_sigma_pf)
+	        result += s.sse_pf / (2.0*new_sigma_pf**2.0)
+	        result += (s.Ndof_pf)/2.0*self.ln2pi
+                if self.use_reference_potential_pf == True and self.use_gaussian_reference_potential_pf == True:
+                    result -= s.sum_gaussian_neglog_reference_potentials_pf
+                if self.use_reference_potential_pf == True and self.use_gaussian_reference_potential_pf == False:
+                    result -= s.sum_neglog_reference_potentials_pf
 
         if verbose:
             print 'state, f_sim', new_state, s.free_energy,
-            print 's.sse_distances[', new_gamma_index, ']', s.sse_distances[new_gamma_index], 's.Ndof_distances', s.Ndof_distances
-            print 's.sse_dihedrals', s.sse_dihedrals, 's.Ndof_dihedrals', s.Ndof_dihedrals
+            #print 's.sse_distances[', new_gamma_index, ']', s.sse_distances[new_gamma_index], 's.Ndof_distances', s.Ndof_distances
+            #print 's.sse_dihedrals', s.sse_dihedrals, 's.Ndof_dihedrals', s.Ndof_dihedrals
 	    print 's.sse_cs_H', s.sse_cs_H, 's.Ndof_cs_H', s.Ndof_cs_H # GYH
             print 's.sse_cs_Ha', s.sse_cs_Ha, 's.Ndof_cs_Ha', s.Ndof_cs_Ha # GYH
             print 's.sse_cs_N', s.sse_cs_N, 's.Ndof_cs_N', s.Ndof_cs_N # GYH
             print 's.sse_cs_Ca', s.sse_cs_Ca, 's.Ndof_cs_Ca', s.Ndof_cs_Ca # GYH
-	    print 's.sse_protectionfactor[', new_alpha_index, ']', s.sse_protectionfactor[new_alpha_index]
-	    print 's.sum_neglog_reference_potentials_noe', s.sum_neglog_reference_potentials_noe, 's.sum_neglog_reference_potentials_H', s.sum_neglog_reference_potentials_H, 's.sum_neglog_reference_potentials_Ha',s.sum_neglog_reference_potentials_Ha, 's.sum_neglog_reference_potentials_N', s.sum_neglog_reference_potentials_N, 's.sum_neglog_reference_potentials_Ca', s.sum_neglog_reference_potentials_Ca, 's.sum_neglog_reference_potentials_PF', s.sum_neglog_reference_potentials_PF	#GYH
-	    print 's.sum_gaussian_neglog_reference_potentials_noe', s.sum_gaussian_neglog_reference_potentials_noe, 's.sum_gaussian_neglog_reference_potentials_H', s.sum_gaussian_neglog_reference_potentials_H, 's.sum_gaussian_neglog_reference_potentials_Ha', s.sum_gaussian_neglog_reference_potentials_Ha, 's.sum_gaussian_neglog_reference_potentials_N', s.sum_gaussian_neglog_reference_potentials_N, 's.sum_gaussian_neglog_reference_potentials_Ca', s.sum_gaussian_neglog_reference_potentials_Ca, 's.sum_gaussian_neglog_reference_potentials_PF', s.sum_gaussian_neglog_reference_potentials_PF       #GYH
+	    print 's.sse_pf', s.sse_pf, 's.Ndof_pf', s.Ndof_pf
+	    print 's.sum_neglog_reference_potentials_noe', s.sum_neglog_reference_potentials_noe, 's.sum_neglog_reference_potentials_H', s.sum_neglog_reference_potentials_H, 's.sum_neglog_reference_potentials_Ha',s.sum_neglog_reference_potentials_Ha, 's.sum_neglog_reference_potentials_N', s.sum_neglog_reference_potentials_N, 's.sum_neglog_reference_potentials_Ca', s.sum_neglog_reference_potentials_Ca, 's.sum_neglog_reference_potentials_pf', s.sum_neglog_reference_potentials_pf	#GYH
+	    print 's.sum_gaussian_neglog_reference_potentials_noe', s.sum_gaussian_neglog_reference_potentials_noe, 's.sum_gaussian_neglog_reference_potentials_H', s.sum_gaussian_neglog_reference_potentials_H, 's.sum_gaussian_neglog_reference_potentials_Ha', s.sum_gaussian_neglog_reference_potentials_Ha, 's.sum_gaussian_neglog_reference_potentials_N', s.sum_gaussian_neglog_reference_potentials_N, 's.sum_gaussian_neglog_reference_potentials_Ca', s.sum_gaussian_neglog_reference_potentials_Ca, 's.sum_gaussian_neglog_reference_potentials_pf', s.sum_gaussian_neglog_reference_potentials_pf       #GYH
         return result
     # }}}
 
+## Compute -log( reference potentials (ALL Restraints) ):{{{
+#    def compute_neglog_reference_potentials_noe(self):		#GYH
+#        """Uses the stored beta information (calculated across all structures) to calculate
+#        - log P_ref(distance[j) for each distance j."""
+#
+#        # print 'self.betas', self.betas
+#
+#        self.neglog_reference_potentials_noe = np.zeros(self.ndistances)
+#        self.sum_neglog_reference_potentials_noe = 0.
+#        for j in range(self.ndistances):
+#            self.neglog_reference_potentials_noe[j] = np.log(self.betas_noe[j]) + self.distance_restraints[j].model_distance/self.betas_noe[j]
+#            self.sum_neglog_reference_potentials_noe  += self.distance_restraints[j].weight * self.neglog_reference_potentials_noe[j]
+#
+#    def compute_gaussian_neglog_reference_potentials_noe(self):	#GYH
+#	"""An alternative option for reference potential based on Gaussian distribution"""
+#	self.gaussian_neglog_reference_potentials_noe = np.zeros(self.ndistances)
+#	self.sum_gaussian_neglog_reference_potentials_noe = 0.
+#	for j in range(self.ndistances):
+#	    self.gaussian_neglog_reference_potentials_noe[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_noe[j]) + (self.distance_restraints[j].model_distance - self.ref_mean_noe[j])**2.0/(2*(self.ref_sigma_noe[j]**2.0))
+#	    self.sum_gaussian_neglog_reference_potentials_noe += self.distance_restraints[j].weight * self.gaussian_neglog_reference_potentials_noe[j]
+#
+#    def compute_neglog_reference_potentials_H(self):              #GYH
+#        """Uses the stored beta information (calculated across all structures) to calculate
+#        - log P_ref(distance[j) for each distance j."""
+#
+#        # print 'self.betas', self.betas
+#
+#        self.neglog_reference_potentials_H = np.zeros(self.ncs_H)
+#        self.sum_neglog_reference_potentials_H = 0.
+#        for j in range(self.ncs_H):
+#            self.neglog_reference_potentials_H[j] = np.log(self.betas_H[j]) + self.cs_H_restraints[j].model_cs_H/self.betas_H[j]
+#            self.sum_neglog_reference_potentials_H  += self.cs_H_restraints[j].weight * self.neglog_reference_potentials_H[j]
+#
+#    def compute_gaussian_neglog_reference_potentials_H(self):     #GYH
+#        """An alternative option for reference potential based on Gaussian distribution"""
+#        self.gaussian_neglog_reference_potentials_H = np.zeros(self.ncs_H)
+#        self.sum_gaussian_neglog_reference_potentials_H = 0.
+#        for j in range(self.ncs_H):
+#            self.gaussian_neglog_reference_potentials_H[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_H[j]) + (self.cs_H_restraints[j].model_cs_H - self.ref_mean_H[j])**2.0/(2*self.ref_sigma_H[j]**2.0)
+#            self.sum_gaussian_neglog_reference_potentials_H += self.cs_H_restraints[j].weight * self.gaussian_neglog_reference_potentials_H[j]
+#
+#
+#    def compute_neglog_reference_potentials_Ha(self):              #GYH
+#        """Uses the stored beta information (calculated across all structures) to calculate
+#        - log P_ref(distance[j) for each distance j."""
+#
+#        # print 'self.betas', self.betas
+#
+#        self.neglog_reference_potentials_Ha = np.zeros(self.ncs_Ha)
+#        self.sum_neglog_reference_potentials_Ha = 0.
+#        for j in range(self.ncs_Ha):
+#            self.neglog_reference_potentials_Ha[j] = np.log(self.betas_Ha[j]) + self.cs_Ha_restraints[j].model_cs_Ha/self.betas_Ha[j]
+#            self.sum_neglog_reference_potentials_Ha  += self.cs_Ha_restraints[j].weight * self.neglog_reference_potentials_Ha[j]
+#
+#    def compute_gaussian_neglog_reference_potentials_Ha(self):     #GYH
+#        """An alternative option for reference potential based on Gaussian distribution"""
+#        self.gaussian_neglog_reference_potentials_Ha = np.zeros(self.ncs_Ha)
+#        self.sum_gaussian_neglog_reference_potentials_Ha = 0.
+#        for j in range(self.ncs_Ha):
+#            self.gaussian_neglog_reference_potentials_Ha[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ha[j]) + (self.cs_Ha_restraints[j].model_cs_Ha - self.ref_mean_Ha[j])**2.0/(2*self.ref_sigma_Ha[j]**2.0)
+#            self.sum_gaussian_neglog_reference_potentials_Ha += self.cs_Ha_restraints[j].weight * self.gaussian_neglog_reference_potentials_Ha[j]
+#
+#    def compute_neglog_reference_potentials_N(self):              #GYH
+#        """Uses the stored beta information (calculated across all structures) to calculate
+#        - log P_ref(distance[j) for each distance j."""
+#
+#        # print 'self.betas', self.betas
+#
+#        self.neglog_reference_potentials_N = np.zeros(self.ncs_N)
+#        self.sum_neglog_reference_potentials_N = 0.
+#        for j in range(self.ncs_N):
+#            self.neglog_reference_potentials_N[j] = np.log(self.betas_N[j]) + self.cs_N_restraints[j].model_cs_N/self.betas_N[j]
+#            self.sum_neglog_reference_potentials_N  += self.cs_N_restraints[j].weight * self.neglog_reference_potentials_N[j]
+#
+#    def compute_gaussian_neglog_reference_potentials_N(self):     #GYH
+#        """An alternative option for reference potential based on Gaussian distribution"""
+#        self.gaussian_neglog_reference_potentials_N = np.zeros(self.ncs_N)
+#        self.sum_gaussian_neglog_reference_potentials_N = 0.
+#        for j in range(self.ncs_N):
+#            self.gaussian_neglog_reference_potentials_N[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_N[j]) + (self.cs_N_restraints[j].model_cs_N - self.ref_mean_N[j])**2.0/(2*self.ref_sigma_N[j]**2.0)
+#            self.sum_gaussian_neglog_reference_potentials_N += self.cs_N_restraints[j].weight * self.gaussian_neglog_reference_potentials_N[j]
+#
+#
+#    def compute_neglog_reference_potentials_Ca(self):              #GYH
+#        """Uses the stored beta information (calculated across all structures) to calculate
+#        - log P_ref(distance[j) for each distance j."""
+#
+#        # print 'self.betas', self.betas
+#
+#        self.neglog_reference_potentials_Ca = np.zeros(self.ncs_Ca)
+#        self.sum_neglog_reference_potentials_Ca = 0.
+#        for j in range(self.ncs_Ca):
+#            self.neglog_reference_potentials_Ca[j] = np.log(self.betas_Ca[j]) + self.cs_Ca_restraints[j].model_cs_Ca/self.betas_Ca[j]
+#            self.sum_neglog_reference_potentials_Ca  += self.cs_Ca_restraints[j].weight * self.neglog_reference_potentials_Ca[j]
+#
+#    def compute_gaussian_neglog_reference_potentials_Ca(self):     #GYH
+#        """An alternative option for reference potential based on Gaussian distribution"""
+#        self.gaussian_neglog_reference_potentials_Ca = np.zeros(self.ncs_Ca)
+#        self.sum_gaussian_neglog_reference_potentials_Ca = 0.
+#        for j in range(self.ncs_Ca):
+#            self.gaussian_neglog_reference_potentials_Ca[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ca[j]) + (self.cs_Ca_restraints[j].model_cs_Ca - self.ref_mean_Ca[j])**2.0/(2*self.ref_sigma_Ca[j]**2.0)
+#            self.sum_gaussian_neglog_reference_potentials_Ca += self.cs_Ca_restraints[j].weight * self.gaussian_neglog_reference_potentials_Ca[j]
+#
+#
+#    def compute_neglog_reference_potentials_pf(self):              #GYH
+#        """Uses the stored beta information (calculated across all structures) to calculate
+#        - log P_ref(distance[j) for each distance j."""
+#
+#        # print 'self.betas', self.betas
+#
+#        self.neglog_reference_potentials_pf= np.zeros(self.npf)
+#        self.sum_neglog_reference_potentials_pf = 0.
+#        for j in range(self.npf):
+#            self.neglog_reference_potentials_pf[j] = np.log(self.betas_pf[j]) + self.pf_restraints[j].model_pf/self.betas_pf[j]
+#            self.sum_neglog_reference_potentials_pf  += self.pf_restraints[j].weight * self.neglog_reference_potentials_pf[j]
+#
+#
+#    def compute_gaussian_neglog_reference_potentials_pf(self):     #GYH
+#        """An alternative option for reference potential based on Gaussian distribution"""
+#        self.gaussian_neglog_reference_potentials_pf = np.zeros(self.npf)
+#        self.sum_gaussian_neglog_reference_potentials_pf = 0.
+#        for j in range(self.npf):
+##	    print j, 'self.ref_sigma_pf[j]', self.ref_sigma_pf[j], 'self.ref_mean_pf[j]', self.ref_mean_pf[j]
+#            self.gaussian_neglog_reference_potentials_pf[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_pf[j]) + (self.pf_restraints[j].model_pf - self.ref_mean_pf[j])**2.0/(2*self.ref_sigma_pf[j]**2.0)
+#            self.sum_gaussian_neglog_reference_potentials_pf += self.pf_restraints[j].weight * self.gaussian_neglog_reference_potentials_pf[j]
+#    # }}}
 #
     # Sample:{{{
     def sample(self, nsteps):
@@ -1067,12 +961,10 @@ class PosteriorSampler(object):
             new_sigma_cs_N_index = self.sigma_cs_N_index    #GYH
             new_sigma_cs_Ca = self.sigma_cs_Ca                #GYH
             new_sigma_cs_Ca_index = self.sigma_cs_Ca_index    #GYH
-            new_sigma_PF = self.sigma_PF                #GYH
-            new_sigma_PF_index = self.sigma_PF_index    #GYH
+            new_sigma_pf = self.sigma_pf                #GYH
+            new_sigma_pf_index = self.sigma_pf_index    #GYH
 	    new_gamma = self.gamma
             new_gamma_index = self.gamma_index
-	    new_alpha = self.alpha	#GYH
-	    new_alpha_index = self.alpha_index	#GYH
 
             new_state = self.state
             new_ensemble_index = self.ensemble_index
@@ -1104,14 +996,11 @@ class PosteriorSampler(object):
                 new_sigma_cs_Ca_index = new_sigma_cs_Ca_index%(len(self.allowed_sigma_cs_Ca)) # don't go out of bounds
                 new_sigma_cs_Ca = self.allowed_sigma_cs_Ca[new_sigma_cs_Ca_index]
 
-
-
-
 	    elif np.random.random() < 0.60 :	#GYH
-		# take a step in array of allowed sigma_PF
-                new_sigma_PF_index += (np.random.randint(3)-1)
-                new_sigma_PF_index = new_sigma_PF_index%(len(self.allowed_sigma_PF)) # don't go out of bounds
-                new_sigma_PF = self.allowed_sigma_PF[new_sigma_PF_index]
+		# take a step in array of allowed sigma_pf
+                new_sigma_pf_index += (np.random.randint(3)-1)
+                new_sigma_pf_index = new_sigma_pf_index%(len(self.allowed_sigma_pf)) # don't go out of bounds
+                new_sigma_pf = self.allowed_sigma_pf[new_sigma_pf_index]
 
 
             elif np.random.random() < 0.78:
@@ -1120,12 +1009,6 @@ class PosteriorSampler(object):
                 new_gamma_index = new_gamma_index%(len(self.allowed_gamma)) # don't go out of bounds
                 new_gamma  = self.allowed_gamma[new_gamma_index]
 
-
-	    elif np.random.random() < 0.88:	#GYH
-                # take a step in array of allowed alpha
-                new_alpha_index += (np.random.randint(3)-1)
-                new_alpha_index = new_alpha_index%(len(self.allowed_alpha)) # don't go out of bounds
-                new_alpha  = self.allowed_alpha[new_alpha_index]
 
 
             elif np.random.random() < 0.99:
@@ -1142,8 +1025,8 @@ class PosteriorSampler(object):
 #                verbose = True
             new_E = self.neglogP(new_ensemble_index, new_state, new_sigma_noe,
                     new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha,
-                    new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_PF,
-                    new_gamma_index, new_alpha_index,  verbose=verbose)
+                    new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_pf,
+                    new_gamma_index,  verbose=verbose)
 
             # accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -1155,7 +1038,7 @@ class PosteriorSampler(object):
 
             # print status
 #            if step%self.print_every == 0:
-#                print 'step', step, 'E', self.E, 'new_E', new_E, 'accept', accept, 'new_sigma_noe', new_sigma_noe, 'new_sigma_J', new_sigma_J, 'new_sigma_cs_H', new_sigma_cs_H, 'new_sigma_cs_Ha', new_sigma_cs_Ha, 'new_sigma_cs_N', new_sigma_cs_N, 'new_sigma_cs_Ca', new_sigma_cs_Ca, 'new_sigma_PF', new_sigma_PF, 'new_gamma', new_gamma, 'new_alpha', new_alpha, 'new_state', new_state, 'new_ensemble_index', new_ensemble_index
+#                print 'step', step, 'E', self.E, 'new_E', new_E, 'accept', accept, 'new_sigma_noe', new_sigma_noe, 'new_sigma_J', new_sigma_J, 'new_sigma_cs_H', new_sigma_cs_H, 'new_sigma_cs_Ha', new_sigma_cs_Ha, 'new_sigma_cs_N', new_sigma_cs_N, 'new_sigma_cs_Ca', new_sigma_cs_Ca, 'new_sigma_pf', new_sigma_pf, 'new_gamma', new_gamma,'new_state', new_state, 'new_ensemble_index', new_ensemble_index
 	    # Store trajectory counts
             self.traj.sampled_sigma_noe[self.sigma_noe_index] += 1
             self.traj.sampled_sigma_J[self.sigma_J_index] += 1
@@ -1163,9 +1046,8 @@ class PosteriorSampler(object):
             self.traj.sampled_sigma_cs_Ha[self.sigma_cs_Ha_index] += 1  #GYH
             self.traj.sampled_sigma_cs_N[self.sigma_cs_N_index] += 1  #GYH
             self.traj.sampled_sigma_cs_Ca[self.sigma_cs_Ca_index] += 1  #GYH
-	    self.traj.sampled_sigma_PF[self.sigma_PF_index] += 1 #GYH
+	    self.traj.sampled_sigma_pf[self.sigma_pf_index] += 1 #GYH
             self.traj.sampled_gamma[self.gamma_index] += 1
-	    self.traj.sampled_alpha[self.alpha_index] += 1	#GYH
             self.traj.state_counts[self.state] += 1
 
             # update parameters
@@ -1183,12 +1065,10 @@ class PosteriorSampler(object):
                 self.sigma_cs_N_index = new_sigma_cs_N_index        #GYH
                 self.sigma_cs_Ca = new_sigma_cs_Ca                    #GYH
                 self.sigma_cs_Ca_index = new_sigma_cs_Ca_index        #GYH
-                self.sigma_PF = new_sigma_PF                    #GYH
-                self.sigma_PF_index = new_sigma_PF_index        #GYH
+                self.sigma_pf = new_sigma_pf                    #GYH
+                self.sigma_pf_index = new_sigma_pf_index        #GYH
 		self.gamma = new_gamma
                 self.gamma_index = new_gamma_index
-		self.alpha = new_alpha	#GYH
-		self.alpha_index = new_alpha_index	#GYH
                 self.state = new_state
                 self.ensemble_index = new_ensemble_index
                 self.accepted += 1.0
@@ -1196,7 +1076,7 @@ class PosteriorSampler(object):
 
             # store trajectory samples
             if step%self.traj_every == 0:
-                self.traj.trajectory.append( [int(step), float(self.E), int(accept), int(self.state), int(self.sigma_noe_index), int(self.sigma_J_index), int(self.sigma_cs_H_index), int(self.sigma_cs_Ha_index), int(self.sigma_cs_N_index), int(self.sigma_cs_Ca_index), int(self.sigma_PF_index), int(self.gamma_index), int(self.alpha_index)] )	#GYH
+                self.traj.trajectory.append( [int(step), float(self.E), int(accept), int(self.state), int(self.sigma_noe_index), int(self.sigma_J_index), int(self.sigma_cs_H_index), int(self.sigma_cs_Ha_index), int(self.sigma_cs_N_index), int(self.sigma_cs_Ca_index), int(self.sigma_pf_index), int(self.gamma_index)] )	#GYH
 
 #            if step%self.print_every == 0:
 #                print 'accratio =', self.accepted/self.total
@@ -1211,18 +1091,20 @@ class PosteriorSamplingTrajectory(object):
     # __init__:{{{
     def __init__(self, ensemble, allowed_sigma_noe, allowed_sigma_J,
             allowed_sigma_cs_H, allowed_sigma_cs_Ha, allowed_sigma_cs_N,
-            allowed_sigma_cs_Ca, allowed_sigma_PF, allowed_gamma, allowed_alpha):	#GYH
+            allowed_sigma_cs_Ca, allowed_sigma_pf, allowed_gamma):	#GYH
         "Initialize the PosteriorSamplingTrajectory."
 
         self.nstates = len(ensemble)
         self.ensemble = ensemble
+
+        print 'self.ensemble[0] = ',self.ensemble[0]
         self.ndistances = len(self.ensemble[0].distance_restraints)
         self.ndihedrals = len(self.ensemble[0].dihedral_restraints)
 	self.ncs_H = len(self.ensemble[0].cs_H_restraints) #GYH
         self.ncs_Ha = len(self.ensemble[0].cs_Ha_restraints) #GYH
         self.ncs_Ca = len(self.ensemble[0].cs_Ca_restraints) #GYH
         self.ncs_N = len(self.ensemble[0].cs_N_restraints) #GYH
-	self.nprotectionfactor = len(self.ensemble[0].protectionfactor_restraints) #GYH
+	self.npf = len(self.ensemble[0].pf_restraints) #GYH
 
         self.allowed_sigma_noe = allowed_sigma_noe
         self.sampled_sigma_noe = np.zeros(len(allowed_sigma_noe))
@@ -1242,14 +1124,12 @@ class PosteriorSamplingTrajectory(object):
         self.allowed_sigma_cs_Ca = allowed_sigma_cs_Ca                        #GYH
         self.sampled_sigma_cs_Ca = np.zeros(len(allowed_sigma_cs_Ca))         #GYH
 
-        self.allowed_sigma_PF = allowed_sigma_PF                        #GYH
-        self.sampled_sigma_PF = np.zeros(len(allowed_sigma_PF))         #GYH
+        self.allowed_sigma_pf = allowed_sigma_pf                        #GYH
+        self.sampled_sigma_pf = np.zeros(len(allowed_sigma_pf))         #GYH
 
         self.allowed_gamma = allowed_gamma
         self.sampled_gamma = np.zeros(len(allowed_gamma))
 
-	self.allowed_alpha = allowed_alpha	#GYH
-	self.sampled_alpha = np.zeros(len(allowed_alpha))	#GYH
 
         self.state_counts = np.ones(self.nstates)  # add a pseudocount to avoid log(0) errors
 
@@ -1257,7 +1137,7 @@ class PosteriorSamplingTrajectory(object):
         self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
 
         # stores samples [step, self.E, accept, state, sigma_noe, sigma_J, sigma_cs, gamma]
-        self.trajectory_headers = ['step', 'E', 'accept', 'state', 'sigma_noe_index', 'sigma_J_index', 'sigma_cs_H_index', 'sigma_cs_Ha_index', 'sigma_cs_N_index', 'sigma_cs_Ca_index', 'sigma_PF_index', 'gamma_index', 'alpha_index']	#GYH
+        self.trajectory_headers = ['step', 'E', 'accept', 'state', 'sigma_noe_index', 'sigma_J_index', 'sigma_cs_H_index', 'sigma_cs_Ha_index', 'sigma_cs_N_index', 'sigma_cs_Ca_index', 'sigma_pf_index', 'gamma_index']	#GYH
         self.trajectory = []
 
         # a dictionary to store results for YAML file
@@ -1284,18 +1164,16 @@ class PosteriorSamplingTrajectory(object):
         self.results['allowed_sigma_cs_Ha'] = self.allowed_sigma_cs_Ha.tolist()   #GYH
         self.results['allowed_sigma_cs_N'] = self.allowed_sigma_cs_N.tolist()   #GYH
         self.results['allowed_sigma_cs_Ca'] = self.allowed_sigma_cs_Ca.tolist()   #GYH
-	self.results['allowed_sigma_PF'] = self.allowed_sigma_PF.tolist() #GYH
+	self.results['allowed_sigma_pf'] = self.allowed_sigma_pf.tolist() #GYH
         self.results['allowed_gamma'] = self.allowed_gamma.tolist()
- 	self.results['allowed_alpha'] = self.allowed_alpha.tolist()	#GYH
         self.results['sampled_sigma_noe'] = self.sampled_sigma_noe.tolist()
         self.results['sampled_sigma_J'] = self.sampled_sigma_J.tolist()
         self.results['sampled_sigma_cs_H'] = self.sampled_sigma_cs_H.tolist()   #GYH
         self.results['sampled_sigma_cs_Ha'] = self.sampled_sigma_cs_Ha.tolist()   #GYH
         self.results['sampled_sigma_cs_N'] = self.sampled_sigma_cs_N.tolist()   #GYH
         self.results['sampled_sigma_cs_Ca'] = self.sampled_sigma_cs_Ca.tolist()   #GYH
-	self.results['sampled_sigma_PF'] = self.sampled_sigma_PF.tolist()   #GYH
+	self.results['sampled_sigma_pf'] = self.sampled_sigma_pf.tolist()   #GYH
         self.results['sampled_gamma'] = self.sampled_gamma.tolist()
-	self.results['sampled_alpha'] = self.sampled_alpha.tolist()	#GYH
 
         # Calculate the modes of the nuisance parameter marginal distributions
         self.results['sigma_noe_mode'] = float(self.allowed_sigma_noe[ np.argmax(self.sampled_sigma_noe) ])
@@ -1304,9 +1182,8 @@ class PosteriorSamplingTrajectory(object):
         self.results['sigma_cs_Ha_mode']   = float(self.allowed_sigma_cs_Ha[ np.argmax(self.sampled_sigma_cs_Ha) ])      #GYH
         self.results['sigma_cs_N_mode']   = float(self.allowed_sigma_cs_N[ np.argmax(self.sampled_sigma_cs_N) ])      #GYH
         self.results['sigma_cs_Ca_mode']   = float(self.allowed_sigma_cs_Ca[ np.argmax(self.sampled_sigma_cs_Ca) ])      #GYH
-	self.results['sigma_PF_mode']	= float(self.allowed_sigma_PF[ np.argmax(self.sampled_sigma_PF) ])	#GYH
+	self.results['sigma_pf_mode']	= float(self.allowed_sigma_pf[ np.argmax(self.sampled_sigma_pf) ])	#GYH
         self.results['gamma_mode']     = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
-	self.results['alpha_mode']	= float(self.allowed_alpha[ np.argmax(self.sampled_alpha) ])	#GYH
 
         # copy over the purely computational free energies f_i
         self.results['comp_f'] = self.f_sim.tolist()
@@ -1459,26 +1336,26 @@ class PosteriorSamplingTrajectory(object):
 
 
         # Estimate the ensemble-averaged protection factor values    #GYH
-        mean_protectionfactor = np.zeros(self.nprotectionfactor)
-        Z = np.zeros(self.nprotectionfactor)
+        mean_pf = np.zeros(self.npf)
+        Z = np.zeros(self.npf)
         for i in range(self.nstates):
-            for j in range(self.nprotectionfactor):
+            for j in range(self.npf):
                 pop = self.results['state_pops'][i]
-                weight = self.ensemble[i].protectionfactor_restraints[j].weight
-                r = self.ensemble[i].protectionfactor_restraints[j].model_protectionfactor
-                mean_protectionfactor[j] += pop*weight*r
+                weight = self.ensemble[i].pf_restraints[j].weight
+                r = self.ensemble[i].pf_restraints[j].model_pf
+                mean_pf[j] += pop*weight*r
                 Z[j] += pop*weight
-        mean_protectionfactor = (mean_protectionfactor/Z)	#GYH
-        self.results['mean_protectionfactor'] = mean_protectionfactor.tolist()
+        mean_pf = (mean_pf/Z)	#GYH
+        self.results['mean_pf'] = mean_pf.tolist()
 
         # Compute the experiment protection factor                 #GYH
 
-	exp_protectionfactor = np.array([self.ensemble[0].protectionfactor_restraints[j].exp_protectionfactor + self.results['alpha_mode'] for j in range(self.nprotectionfactor)])
-#        exp_protectionfactor = np.array([self.ensemble[0].protectionfactor_restraints[j].exp_protectionfactor for j in range(self.nprotectionfactor)])
-        self.results['exp_protectionfactor'] = exp_protectionfactor.tolist()
-        abs_PFdiffs = np.abs( exp_protectionfactor - mean_protectionfactor )
-        self.results['disagreement_protectionfactor_mean'] = float(abs_PFdiffs.mean())
-        self.results['disagreement_protectionfactor_std'] = float(abs_PFdiffs.std())
+	exp_pf = np.array([self.ensemble[0].pf_restraints[j].exp_pf for j in range(self.npf)])
+#        exp_pf = np.array([self.ensemble[0].pf_restraints[j].exp_pf for j in range(self.npf)])
+        self.results['exp_pf'] = exp_pf.tolist()
+        abs_pfdiffs = np.abs( exp_pf - mean_pf )
+        self.results['disagreement_pf_mean'] = float(abs_pfdiffs.mean())
+        self.results['disagreement_pf_std'] = float(abs_pfdiffs.std())
     #}}}
 
     # log Spaced Array:{{{

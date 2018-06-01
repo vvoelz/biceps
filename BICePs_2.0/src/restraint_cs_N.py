@@ -28,7 +28,7 @@ class restraint_cs_N(object):
         # Store chemical shift restraint info
         self.cs_N_restraints = []
         self.ncs_N = 0
-        self.sse_cs_N = None
+        self.sse_cs_N = 0
         self.Ndof_cs_N = None
 
     def load_data_cs_N(self, filename, verbose=False):

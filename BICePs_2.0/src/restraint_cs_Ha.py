@@ -29,7 +29,7 @@ class restraint_cs_Ha(object):
         # Store chemical shift restraint info 
         self.cs_Ha_restraints = []
         self.ncs_Ha = 0
-        self.sse_cs_Ha = None 
+        self.sse_cs_Ha = 0 
         self.Ndof_cs_Ha = None
 
     def load_data_cs_Ha(self, filename, verbose=False):

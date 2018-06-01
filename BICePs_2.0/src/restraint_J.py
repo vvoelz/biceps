@@ -30,7 +30,7 @@ class restraint_J(object):
         self.dihedral_equivalency_groups = {}
         self.dihedral_ambiguity_groups = {}
         self.ndihedrals = 0
-        self.sse_dihedrals = None
+        self.sse_dihedrals = 0
         self.Ndof_dihedrals = None
 
 

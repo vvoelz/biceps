@@ -91,13 +91,13 @@ class Restraint():
 	self.betas_Ha = None
 	self.betas_N = None
 	self.betas_Ca = None
-	self.betas_PF = None
+	self.betas_pf = None
         self.neglog_reference_potentials_noe = None
         self.neglog_reference_potentials_H = None
         self.neglog_reference_potentials_Ha = None
         self.neglog_reference_potentials_N = None
         self.neglog_reference_potentials_Ca = None
-        self.neglog_reference_potentials_PF = None
+        self.neglog_reference_potentials_pf = None
 
 	self.ref_sigma_noe = None
 	self.ref_mean_noe = None
@@ -109,28 +109,28 @@ class Restraint():
         self.ref_mean_N = None
         self.ref_sigma_Ca = None
         self.ref_mean_Ca = None
-        self.ref_sigma_PF = None
-        self.ref_mean_PF = None
+        self.ref_sigma_pf = None
+        self.ref_mean_pf = None
         self.gaussian_neglog_reference_potentials_noe = None
         self.gaussian_neglog_reference_potentials_H = None
         self.gaussian_neglog_reference_potentials_Ha = None
         self.gaussian_neglog_reference_potentials_N = None
         self.gaussian_neglog_reference_potentials_Ca = None
-        self.gaussian_neglog_reference_potentials_PF = None
+        self.gaussian_neglog_reference_potentials_pf = None
 
         self.sum_neglog_reference_potentials_noe = 0.0	#GYH
         self.sum_neglog_reference_potentials_H = 0.0	#GYH
         self.sum_neglog_reference_potentials_Ha = 0.0	#GYH
         self.sum_neglog_reference_potentials_N = 0.0	#GYH
         self.sum_neglog_reference_potentials_Ca = 0.0	#GYH
-        self.sum_neglog_reference_potentials_PF = 0.0	#GYH
+        self.sum_neglog_reference_potentials_pf = 0.0	#GYH
 
         self.sum_gaussian_neglog_reference_potentials_noe = 0.0      #GYH
         self.sum_gaussian_neglog_reference_potentials_H = 0.0      #GYH
         self.sum_gaussian_neglog_reference_potentials_Ha = 0.0      #GYH
         self.sum_gaussian_neglog_reference_potentials_N = 0.0      #GYH
         self.sum_gaussian_neglog_reference_potentials_Ca = 0.0      #GYH
-        self.sum_gaussian_neglog_reference_potentials_PF = 0.0      #GYH
+        self.sum_gaussian_neglog_reference_potentials_pf = 0.0      #GYH
 
         # If an experimental data file is given, load in the information
 	if data != None:
@@ -307,25 +307,25 @@ class Restraint():
             self.sum_gaussian_neglog_reference_potentials_Ca += self.cs_Ca_restraints[j].weight * self.gaussian_neglog_reference_potentials_Ca[j]
 
 
-    def compute_neglog_reference_potentials_PF(self):              #GYH
+    def compute_neglog_reference_potentials_pf(self):              #GYH
         """Uses the stored beta information (calculated across all structures) to calculate
         - log P_ref(distance[j) for each distance j."""
 
 
-        self.neglog_reference_potentials_PF= np.zeros(self.nprotectionfactor)
-        self.sum_neglog_reference_potentials_PF = 0.
+        self.neglog_reference_potentials_pf= np.zeros(self.nprotectionfactor)
+        self.sum_neglog_reference_potentials_pf = 0.
         for j in range(self.nprotectionfactor):
-            self.neglog_reference_potentials_PF[j] = np.log(self.betas_PF[j]) + self.protectionfactor_restraints[j].model_protectionfactor/self.betas_PF[j]
-            self.sum_neglog_reference_potentials_PF  += self.protectionfactor_restraints[j].weight * self.neglog_reference_potentials_PF[j]
+            self.neglog_reference_potentials_pf[j] = np.log(self.betas_pf[j]) + self.protectionfactor_restraints[j].model_protectionfactor/self.betas_pf[j]
+            self.sum_neglog_reference_potentials_pf  += self.protectionfactor_restraints[j].weight * self.neglog_reference_potentials_pf[j]
 
 
-    def compute_gaussian_neglog_reference_potentials_PF(self):     #GYH
+    def compute_gaussian_neglog_reference_potentials_pf(self):     #GYH
         """An alternative option for reference potential based on Gaussian distribution"""
-        self.gaussian_neglog_reference_potentials_PF = np.zeros(self.nprotectionfactor)
-        self.sum_gaussian_neglog_reference_potentials_PF = 0.
+        self.gaussian_neglog_reference_potentials_pf = np.zeros(self.nprotectionfactor)
+        self.sum_gaussian_neglog_reference_potentials_pf = 0.
         for j in range(self.nprotectionfactor):
-            self.gaussian_neglog_reference_potentials_PF[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_PF[j]) + (self.protectionfactor_restraints[j].model_protectionfactor - self.ref_mean_PF[j])**2.0/(2*self.ref_sigma_PF[j]**2.0)
-            self.sum_gaussian_neglog_reference_potentials_PF += self.protectionfactor_restraints[j].weight * self.gaussian_neglog_reference_potentials_PF[j]
+            self.gaussian_neglog_reference_potentials_pf[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_pf[j]) + (self.protectionfactor_restraints[j].model_protectionfactor - self.ref_mean_pf[j])**2.0/(2*self.ref_sigma_pf[j]**2.0)
+            self.sum_gaussian_neglog_reference_potentials_pf += self.protectionfactor_restraints[j].weight * self.gaussian_neglog_reference_potentials_pf[j]
 
 
     # Compute Dihedral Between 4 Positions:{{{

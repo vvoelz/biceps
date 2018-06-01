@@ -27,7 +27,7 @@ class restraint_cs_H(object):
         # Store chemical shift restraint info   #GYH
         self.cs_H_restraints = []
         self.ncs_H = 0
-        self.sse_cs_H = None 
+        self.sse_cs_H = 0 
         self.Ndof_cs_H = None
 #        self.betas_H = None
 #        self.ref_sigma_H = None

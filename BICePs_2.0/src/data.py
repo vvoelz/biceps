@@ -4,6 +4,8 @@ import re
 
 def sort_data(dataFiles):
     dir_list=[]
+    if not os.path.exists(dataFiles):
+                raise ValueError("data directory doesn't exist")
     if ',' in dataFiles:
         print 'Sorting out the data...\n'
         raw_dir = (dataFiles).split(',')
