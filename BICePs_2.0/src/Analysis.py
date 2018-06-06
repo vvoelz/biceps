@@ -15,7 +15,7 @@ sys.path.append('src')
 
 from Restraint import *
 from PosteriorSampler import *
-import data as d
+import toolbox as d
 import matplotlib
 #matplotlib.use('Agg')
 from matplotlib import pyplot as plt
