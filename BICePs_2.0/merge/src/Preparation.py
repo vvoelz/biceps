@@ -24,7 +24,7 @@ from prep_pf import *
 ##############################################################################
 
 class Preparation(object):
-    """A class to prepare input files for BICePs calculation"""
+    """Prepares input files for BICePs calculation"""
 
     def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None, Karplus=None):
         """ Prepare BICePs input files (converting from raw data)
@@ -38,6 +38,7 @@ class Preparation(object):
         data_dir: data directory (should have *txt file inside)
 	Karplus: Karplus relation for J_coupling constants
 	"""
+
         if scheme not in ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']:
             raise ValueError("scheme must be one of ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']")
         else:
@@ -66,8 +67,9 @@ class Preparation(object):
                 raise ValueError("number of states doesn't equal to file numbers")
 
     def write(self,out_dir=None):
-        """
-        out_dir: output directory
+        """ Writes the data files to the output directory.
+
+        out_dir (str) is the output directory
         """
         if out_dir == None:
             self.out = 'BICePs_'+self.scheme
@@ -89,6 +91,8 @@ class Preparation(object):
 
 
     def write_cs_input(self):
+        """ Parses and organizes chemical shift data."""
+
         for j in xrange(len(self.data)):
 	    model_data = np.loadtxt(self.data[j])
 	    r = prep_cs()
@@ -104,6 +108,8 @@ class Preparation(object):
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_noe_input(self):
+        """ Parses and organizes noe data. """
+
         for j in xrange(len(self.data)):
             model_data = np.loadtxt(self.data[j])
             r = prep_noe()
@@ -119,6 +125,8 @@ class Preparation(object):
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_J_input(self):
+        """ Parses and organizes J coupling constant data. """
+
         for j in xrange(len(self.data)):
             model_data = np.loadtxt(self.data[j])
             r = prep_J()
@@ -133,6 +141,8 @@ class Preparation(object):
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_pf_input(self):
+        """ Parses and organizes protection factor information. """
+
         for j in xrange(len(self.data)):
             model_data = np.loadtxt(self.data[j])
             r = prep_pf()
@@ -145,13 +155,5 @@ class Preparation(object):
     		protectionfactor        = self.restraint_data[i,1]
     		r.add_line_pf(restraint_index, a1, self.topology, protectionfactor)
             r.write('%s/%d.%s'%(self.out,j,self.scheme))
-		
-		    
- 
-        
-                    
 
-                
-        
 
-            

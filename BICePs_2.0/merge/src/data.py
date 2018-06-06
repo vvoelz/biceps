@@ -1,8 +1,25 @@
+##############################################################################
+# Authors: Rob Raddi, Yunhui Ge
+# This file is used to Sorts input data according to experimental observable
+# and matches the numbered file to the correct state.
+##############################################################################
+
+
+##############################################################################
+# Imports
+##############################################################################
+
 import sys, os, glob
 import numpy as np
 import re
 
 def sort_data(dataFiles):
+    """ Sorts input data according to experimental observable and matches
+    the numbered file to the correct state.
+
+    dataFiles (str) is a directory to input data
+    """
+
     dir_list=[]
     if not os.path.exists(dataFiles):
                 raise ValueError("data directory doesn't exist")
