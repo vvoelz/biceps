@@ -1,7 +1,7 @@
 ##############################################################################
 # Authors: Yunhui Ge, Rob Raddi
-# This file includes functions not part of the source code but will be useful 
-# in different cases. 
+# This file includes functions not part of the source code but will be useful
+# in different cases.
 ##############################################################################
 
 

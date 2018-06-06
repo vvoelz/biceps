@@ -1,7 +1,7 @@
 ##############################################################################
 # Authors: Yunhui Ge, Vincent Voelz
 # Contributors: Rob Raddi
-# This file is used to do posterior analysis using MBAR and plot figures. 
+# This file is used to do posterior analysis using MBAR and plot figures.
 ##############################################################################
 
 
@@ -76,14 +76,14 @@ class Analysis(object):
                 else:
                     raise ValueError("Incompatible File extension. Use:{*.noe, *.J, *.cs_H, *.cs_Ha, *.cs_N, *.cs_Ca, *.pf}")
 	self.scheme = d_l
-	
+
     def load_data(self, debug = False):
 	"""load input data from BICePs sampling (*yaml and *pkl files)"""
 	# Load in yaml trajectories
 	exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.yaml') )
 	exp_files.sort()
 	for filename in exp_files:
-		if debug: 
+		if debug:
    			print 'Loading %s ...'%filename
     		self.traj.append( yaml.load( file(filename, 'r') ) )
 
@@ -132,7 +132,7 @@ class Analysis(object):
           				print 'E%d evaluated in model %d'%(k,k), self.traj[k]['trajectory'][n][1],
           				u_kln[k,k,n] = self.traj[k]['trajectory'][n][1]
           			state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index = self.traj[k]['trajectory'][n][3:] 	# IMPORTANT: make sure the order of these parameters is the same as the way they are saved in PosteriorSampler
-          			print 'state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index', state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index 
+          			print 'state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index', state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index
           			states_kn[k,n] = state
           			sigma_noe = self.traj[k]['allowed_sigma_noe'][sigma_noe_index]
           			sigma_J = self.traj[k]['allowed_sigma_J'][sigma_J_index]
@@ -179,7 +179,7 @@ class Analysis(object):
 		print i
         	for p in p_i: print p,
         	for dp in dp_i: print dp,
-		print 
+		print
 	pops, dpops = self.P_dP[:,0:self.K], self.P_dP[:,self.K:2*self.K]
 
 	# save results
