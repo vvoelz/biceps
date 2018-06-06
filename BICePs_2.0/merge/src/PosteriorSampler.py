@@ -1,6 +1,6 @@
 ##############################################################################
 # Authors: Vincent Voelz, Yunhui Ge, Rob Raddi
-# This file is used to do posterior sampling of BICePs calculation. 
+# This file is used to do posterior sampling of BICePs calculation.
 ##############################################################################
 
 
@@ -13,19 +13,17 @@ import numpy as np
 from scipy  import loadtxt, savetxt
 from matplotlib import pylab as plt
 import yaml
-from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
-from prep_cs import *    # Class - creates Chemical shift restraint file
-from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
-from prep_J import *     # Class - creates J-coupling const. restraint file
-from prep_pf import *     # Class - creates Protection factor restraint file   #GYH
-
-import Restraint as R   # Import the Restraint Parent Class as R
-
+from KarplusRelation import *  # Returns J-coupling values from dihedral angles
+from prep_cs import *          # Creates Chemical shift restraint file
+from prep_noe import *         # Creates NOE (Nuclear Overhauser effect) restraint file
+from prep_J import *           # Creates J-coupling const. restraint file
+from prep_pf import *          # Creates Protection factor restraint file
+import Restraint as R          # Import the Restraint Parent Class as R
 
 
 # Class PosteriorSampler: {{{
 class PosteriorSampler(object):
-    """A class to perform posterior sampling of conformational populations"""
+    """ Performs posterior sampling of conformational populations. """
 
     # __init__:{{{
     def __init__(self, ensemble,
@@ -154,7 +152,7 @@ class PosteriorSampler(object):
         self.traj_every = 100
 
 
-	# initialze restraint child class 
+	# initialze restraint child class
 	r_J = R.restraint_J()
         r_cs_Ca = R.restraint_cs_Ca()
 	r_cs_H = R.restraint_cs_H()
@@ -214,7 +212,7 @@ class PosteriorSampler(object):
         self.use_gaussian_reference_potential_N = use_gaussian_reference_potential_N
         self.use_gaussian_reference_potential_Ca = use_gaussian_reference_potential_Ca
         self.use_gaussian_reference_potential_pf = use_gaussian_reference_potential_pf
-	
+
 	s = self.ensembles[0][0]
 	if sum(s.sse_distances) != 0:
             if self.use_reference_potential_noe == True and self.use_gaussian_reference_potential_noe == True:
@@ -251,7 +249,7 @@ class PosteriorSampler(object):
                 self.build_gaussian_reference_potential_pf()
             if self.use_reference_potential_pf == True and self.use_gaussian_reference_potential_pf == False:
                 self.build_reference_potential_pf()
-	
+
 
 
 	   # make a flag if using both exp and gaussian ref potentials for one restraint
@@ -721,7 +719,7 @@ class PosteriorSampler(object):
 
     # -log(P):{{{
     def neglogP(self, new_ensemble_index, new_state, new_sigma_noe, new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha, new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_pf, new_gamma_index, verbose=True):	#GYH
-        """Return -ln P of the current configuration."""
+        """ Returns -ln P of the current configuration. """
 
         # The current structure being sampled
         s = self.ensembles[new_ensemble_index][new_state]
@@ -945,7 +943,7 @@ class PosteriorSampler(object):
 #
     # Sample:{{{
     def sample(self, nsteps):
-        "Perform nsteps of posterior sampling."
+        """ Performs nsteps of posterior sampling. """
 
         for step in range(nsteps):
 
@@ -1086,7 +1084,7 @@ class PosteriorSampler(object):
 
 # Class PosteriorSamplingTrajectory:{{{
 class PosteriorSamplingTrajectory(object):
-    "A class to store and perform operations on the trajectories of sampling runs."
+    """ Stores and performs operations on the trajectories that 'sample' runs."""
 
     # __init__:{{{
     def __init__(self, ensemble, allowed_sigma_noe, allowed_sigma_J,
@@ -1151,7 +1149,8 @@ class PosteriorSamplingTrajectory(object):
         ensemble-average NMR observables.
 
         NOTE: Where possible, we convert to lists, because the YAML output
-        is more readable"""
+        is more readable
+        """
 
         # Store the trajectory in rsults
         self.results['trajectory_headers'] = self.trajectory_headers
@@ -1377,7 +1376,7 @@ class PosteriorSamplingTrajectory(object):
 
 #}}}
 
-
+#}}}
 
 
 

@@ -27,7 +27,7 @@ from restraint_cs_Ha import *
 from restraint_cs_N import *
 from restraint_cs_Ca import *
 from restraint_noe import *
-from data import *
+from toolbox import *
 ##############################################################################
 # Code
 ##############################################################################

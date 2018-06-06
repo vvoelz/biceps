@@ -1,7 +1,7 @@
 ##############################################################################
-# Authors: Rob Raddi, Yunhui Ge
-# This file is used to Sorts input data according to experimental observable
-# and matches the numbered file to the correct state.
+# Authors: Yunhui Ge, Rob Raddi
+# This file includes functions not part of the source code but will be useful 
+# in different cases. 
 ##############################################################################
 
 
@@ -9,17 +9,18 @@
 # Imports
 ##############################################################################
 
+
+
 import sys, os, glob
 import numpy as np
 import re
+import yaml, io
+
+##############################################################################
+# Code
+##############################################################################
 
 def sort_data(dataFiles):
-    """ Sorts input data according to experimental observable and matches
-    the numbered file to the correct state.
-
-    dataFiles (str) is a directory to input data
-    """
-
     dir_list=[]
     if not os.path.exists(dataFiles):
                 raise ValueError("data directory doesn't exist")
@@ -37,7 +38,7 @@ def sort_data(dataFiles):
 	        dir_list.append(dataFiles+'*')
 	else:
 		dir_list.append(dataFiles+'/*')
-    print 'dir_list', dir_list
+#    print 'dir_list', dir_list
 
     data = [[] for x in xrange(7)] # list for every extension; 7 possible experimental observables supported
     # Sorting the data by extension into lists. Various directories is not an issue...
@@ -65,4 +66,9 @@ def sort_data(dataFiles):
     Data = np.stack(data, axis=-1)
     data = Data.tolist()
     return data
+
+def read_yaml(yaml_file):
+    with io.open(yaml_file,'r') as file:
+        loaded_data = yaml.load(file)
+        print('%s'%loaded_data).replace(" '","\n\n '")
 

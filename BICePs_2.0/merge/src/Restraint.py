@@ -1,6 +1,6 @@
 ##############################################################################
 # Authors: Vincent Voelz, Yunhui Ge, Rob Raddi
-# This file is used to initialize variables fir BICePs calculations. 
+# This file is used to initialize variables fir BICePs calculations.
 # It is a parent class of each child class for different experimental observables.
 ##############################################################################
 
@@ -34,9 +34,10 @@ from data import *
 
 #class Restraint(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, restraint_cs_Ca, restraint_noe, restraint_pf):
 class Restraint():
-    """A class to store a molecular structure, its complete set of
+    """ A class to store a molecular structure, its complete set of
     experimental NOE, J-coupling, chemical shift and protection factor data, and
-    Each Instances of this object"""
+    each Instances of this object.
+    """
 
     def __init__(self, PDB_filename, lam, free_energy, data = None,
             use_log_normal_distances=False, dloggamma=np.log(1.01), gamma_min=0.2,
@@ -44,7 +45,7 @@ class Restraint():
 	"""Initialize the class.
         INPUTS
 	PDB_filename	A topology file (*.pdb)
-	lam		lambda value (between 0 and 1)                 
+	lam		lambda value (between 0 and 1)
         free_energy     The (reduced) free energy f = beta*F of this conformation
 	data		input data for BICePs (both model and exp)
 	use_log_normal_distances	Not sure what's this...
@@ -52,6 +53,7 @@ class Restraint():
 	gamma_min	min value of gamma
 	gamma_max	max value of gamma
         """
+
         self.PDB_filename = PDB_filename
 	self.data = data
 	self.conf = mdtraj.load_pdb(PDB_filename)
@@ -60,7 +62,6 @@ class Restraint():
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.free_energy = lam*free_energy
-
 
         # Store info about gamma^(-1/6) scaling  parameter array
         self.dloggamma = dloggamma
@@ -79,8 +80,6 @@ class Restraint():
         r_cs_Ca = restraint_cs_Ca()
         r_J = restraint_J()
         r_pf = restraint_pf()
-
-
 
         # Create a KarplusRelation object
         self.karplus = KarplusRelation()
@@ -150,8 +149,6 @@ class Restraint():
                                 r_cs_Ca.load_data_cs_Ca(i)
                         elif i.endswith('.pf'):
                                 r_pf.load_data_pf(i)
-
-
                         else:
                             raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha, .cs_Ca, .cs_N,.pf}")
         else:
