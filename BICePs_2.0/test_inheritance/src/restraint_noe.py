@@ -33,7 +33,9 @@ class restraint_noe(object):
         self.gamma_min = gamma_min
         self.gamma_max = gamma_max	
 	self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
-        self.sse_distances = np.array([0.0 for gamma in self.allowed_gamma])
+	print "self.allowed_gamma", self.allowed_gamma
+        #self.sse_distances = np.array([0.0 for gamma in self.allowed_gamma])
+	#print "len(self.sse_distances)", len(self.sse_distances)
         self.Ndof_distances = 0.0
 	self.use_log_normal_distances = use_log_normal_distances
 
@@ -124,6 +126,9 @@ class restraint_noe(object):
     def compute_sse_distances(self, debug=False):
         """Returns the (weighted) sum of squared errors for distances,
         and the *effective* number of distances (i.e. the sum of the weights)"""
+	print "len(self.allowed_gamma)",len(self.allowed_gamma)
+	self.sse_distances = np.array([0.0 for gamma in self.allowed_gamma])
+        print "len(self.sse_distances)",len(self.sse_distances)
 	if debug:
 	    print 'self.allowed_gamma', self.allowed_gamma
         for g in range(len(self.allowed_gamma)):

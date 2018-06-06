@@ -30,9 +30,9 @@ out_dir='test_cs_H'
 ############ Initialization #############
 # Specify necessary argument values
 
-dataFiles = 'test_cs_H'
+dataFiles = 'test_noe'
 data = sort_data(dataFiles)
-energies_filename =  'energy.txt'
+energies_filename =  'energy_noe.txt'
 energies = loadtxt(energies_filename)
 energies -= energies.min()  # set ground state to zero, just in case
 outdir = 'results_ref_normal'
@@ -54,12 +54,13 @@ for j in lambda_values:
     lam = j
     # We will instantiate a number of Structure() objects to construct the ensemble
     ensemble = []
-    for i in range(energies.shape[0]):
+#    for i in range(energies.shape[0]):
+    for i in range(2):
         print
         print '#### STRUCTURE %d ####'%i
 	if verbose:
             print data[i]
-        s = Restraint('8690.pdb',lam,energies[i],data = data[i])
+        s = Restraint('Gens0.pdb',lam,energies[i],data = data[i])
 
         ensemble.append( s )
     sys.exit()

@@ -20,21 +20,23 @@ from prep_cs import *    # Class - creates Chemical shift restraint file
 from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
 from prep_J import *     # Class - creates J-coupling const. restraint file
 from prep_pf import *	  # Class - creates Protection factor restraint file   #GYH
-from restraint_cs_H import *	# test (until compute sse) done for work   Yunhui Ge -- 04/2018
-from restraint_J import *
-from restraint_pf import *
-from restraint_cs_Ha import *
-from restraint_cs_N import *
-from restraint_cs_Ca import *
-from restraint_noe import *
-import restraint_cs_H
+#from restraint_cs_H import *	# test (until compute sse) done for work   Yunhui Ge -- 04/2018
+#from restraint_J import *
+#from restraint_pf import *
+#from restraint_cs_Ha import *
+#from restraint_cs_N import *
+#from restraint_cs_Ca import *
+#from restraint_noe import *
+from inheri import *
+#import inheri
 from toolbox import *
 ##############################################################################
 # Code
 ##############################################################################
 
 #class Restraint(restraint_cs_H, restraint_J, restraint_cs_Ha, restraint_cs_N, restraint_cs_Ca, restraint_noe, restraint_pf):
-class Restraint(restraint_cs_H):
+#class Restraint(restraint_cs_H):
+class Restraint(inheri):
     """A class to store a molecular structure, its complete set of
     experimental NOE, J-coupling, chemical shift and protection factor data, and
     Each Instances of this object"""
@@ -53,7 +55,8 @@ class Restraint(restraint_cs_H):
 	gamma_min	min value of gamma
 	gamma_max	max value of gamma
         """
-	restraint_cs_H.__init__(self)
+	inheri.__init__(self)
+
         self.PDB_filename = PDB_filename
 	self.data = data
 	self.conf = mdtraj.load_pdb(PDB_filename)
@@ -74,13 +77,14 @@ class Restraint(restraint_cs_H):
         self.use_log_normal_distances = use_log_normal_distances
 
 	# initialize all restraint child class
-	r_noe = restraint_noe(gamma_min=self.gamma_min,gamma_max=self.gamma_max,dloggamma=self.dloggamma,use_log_normal_distances=self.use_log_normal_distances)
-        r_cs_H = restraint_cs_H()
-        r_cs_Ha = restraint_cs_Ha()
-        r_cs_N = restraint_cs_N()
-        r_cs_Ca = restraint_cs_Ca()
-        r_J = restraint_J()
-        r_pf = restraint_pf()
+	restraint_noe(gamma_min=self.gamma_min,gamma_max=self.gamma_max,dloggamma=self.dloggamma,use_log_normal_distances=self.use_log_normal_distances)	
+#	r_noe = restraint_noe(gamma_min=self.gamma_min,gamma_max=self.gamma_max,dloggamma=self.dloggamma,use_log_normal_distances=self.use_log_normal_distances)
+#        r_cs_H = restraint_cs_H()
+#        r_cs_Ha = restraint_cs_Ha()
+#        r_cs_N = restraint_cs_N()
+#        r_cs_Ca = restraint_cs_Ca()
+#        r_J = restraint_J()
+#        r_pf = restraint_pf()
 
 
 
@@ -139,26 +143,28 @@ class Restraint(restraint_cs_H):
 		for i in data:
 #			print i
 			if i.endswith('.noe'):
-				r_noe.load_data_noe(i)
+#				restraint_noe(gamma_min=self.gamma_min,gamma_max=self.gamma_max,dloggamma=self.dloggamma,use_log_normal_distances=self.use_log_normal_distances)
+				self.load_data_noe(i)
                         elif i.endswith('.J'):
-				r_J.load_data_J(i)
+				self.load_data_J(i)
                         elif i.endswith('.cs_H'):
-                                r_cs_H.load_data_cs_H(i)
-                        elif i.endswith('.cs_Ha'):
-                                r_cs_Ha.load_data_cs_Ha(i)
+                   #             r_cs_H.load_data_cs_H(i)
+                   		self.load_data_cs_H(i)
+		        elif i.endswith('.cs_Ha'):
+                                self.load_data_cs_Ha(i)
                         elif i.endswith('.cs_N'):
-                                r_cs_N.load_data_cs_N(i)
+                                self.load_data_cs_N(i)
                         elif i.endswith('.cs_Ca'):
-                                r_cs_Ca.load_data_cs_Ca(i)
+                                self.load_data_cs_Ca(i)
                         elif i.endswith('.pf'):
-                                r_pf.load_data_pf(i)
+                                self.load_data_pf(i)
 
 
                         else:
                             raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha, .cs_Ca, .cs_N,.pf}")
         else:
 		raise ValueError("Something is wrong in your input file (necessary input file missing)")
-	print "self.sse_cs_H", self.sse_cs_H
+	print "self.sse_distances", self.sse_distances
 
 #        self.sse_distances = r_noe.sse_distances
 #        self.Ndof_distances = r_noe.Ndof_distances
