@@ -113,9 +113,9 @@ class Preparation(object):
             for i in xrange(self.ind.shape[0]):
 		a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
                 restraint_index = self.restraint_data[i,0]
-                exp_distance        = self.restraint_data[i,1]
-                model_distance      = self.model_data[i]
-                r.add_line(restraint_index, a1, a2, self.topology, exp_distance, model_distance)
+                exp_noe        = self.restraint_data[i,1]
+                model_noe      = self.model_data[i]
+                r.add_line(restraint_index, a1, a2, self.topology, exp_noe, model_noe)
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_J_input(self):

@@ -50,7 +50,7 @@ class PosteriorSampler(object):
         self.ensemble_index = 0
 
 
-        # pick initial values for sigma_noe (std of experimental uncertainty in NOE distances)
+        # pick initial values for sigma_noe (std of experimental uncertainty in NOE noe)
         self.dlogsigma_noe = dlogsigma_noe  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
         self.sigma_noe_min = sigma_noe_min
         self.sigma_noe_max = sigma_noe_max
@@ -190,7 +190,7 @@ class PosteriorSampler(object):
                 self.allowed_sigma_pf,
                 self.allowed_gamma)
 
-        # compile reference potential of distances from the uniform distribution of distances
+        # compile reference potential of noe from the uniform distribution of noe
 	self.no_ref = no_ref
         self.use_exp_ref_noe = use_exp_ref_noe
 	self.use_exp_ref_J = use_exp_ref_J
@@ -209,7 +209,7 @@ class PosteriorSampler(object):
 	
 	if not self.no_ref:
         	s = self.ensembles[0][0]
-        	if sum(s.sse_distances) != 0:
+        	if sum(s.sse_noe) != 0:
                     if self.use_exp_ref_noe == True and self.use_gau_ref_noe == True:
                         self.build_gau_ref_noe()
                     if self.use_exp_ref_noe == True and self.use_gau_ref_noe == False:
@@ -273,11 +273,12 @@ class PosteriorSampler(object):
         # store this constant so we're not recalculating it all the time in neglogP
         self.ln2pi = np.log(2.0*np.pi)
 
-    # Build Reference Prior NOE (Nuclear Overhauser effect):{{{
-    def build_exp_ref_noe(self):	#GYH
-        """Look at all the structures to find the average distances
 
-        >>    beta_j = np.array(distance_distributions[j]).sum()/(len(distance_distributions[j])+1.0)
+
+    def build_exp_ref(self):        #GYH
+        """Look at all the structures to find the average noe
+
+        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
 
         then store this info as the reference potential for each structures"""
 
@@ -286,20 +287,59 @@ class PosteriorSampler(object):
             print 'Computing reference potentials (noe) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
-            ndistances = len(ensemble[0].distance_restraints)
-            all_distances = []
-            distance_distributions = [[] for j in range(ndistances)]
+            # collect noe distributions across all structures
+            nnoe = len(ensemble[0].noe_restraints)
+            all_noe = []
+            noe_distributions = [[] for j in range(nnoe)]
             for s in ensemble:
-                for j in range(len(s.distance_restraints)):
-                    distance_distributions[j].append( s.distance_restraints[j].model_distance )
-                    all_distances.append( s.distance_restraints[j].model_distance )
+                for j in range(len(s.noe_restraints)):
+                    noe_distributions[j].append( s.noe_restraints[j].model_noe )
+                    all_noe.append( s.noe_restraints[j].model_noe )
 
-            # Find the MLE average (i.e. beta_j) for each distance
-            betas_noe = np.zeros(ndistances)
-            for j in range(ndistances):
+            # Find the MLE average (i.e. beta_j) for each noe
+            betas_noe = np.zeros(nnoe)
+            for j in range(nnoe):
                 # plot the maximum likelihood exponential distribution fitting the data
-                betas_noe[j] =  np.array(distance_distributions[j]).sum()/(len(distance_distributions[j])+1.0)
+                betas_noe[j] =  np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
+
+            # store the beta information in each structure and compute/store the -log P_potential
+            for s in ensemble:
+                s.betas_noe = betas_noe
+                s.compute_neglog_reference_potentials_noe()
+
+
+
+
+
+
+    # Build Reference Prior NOE (Nuclear Overhauser effect):{{{
+
+    def build_exp_ref_noe(self):	#GYH
+        """Look at all the structures to find the average noe
+
+        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
+
+        then store this info as the reference potential for each structures"""
+
+        for k in range(self.nensembles):
+
+            print 'Computing reference potentials (noe) for ensemble', k, 'of', self.nensembles, '...'
+            ensemble = self.ensembles[k]
+
+            # collect noe distributions across all structures
+            nnoe = len(ensemble[0].noe_restraints)
+            all_noe = []
+            noe_distributions = [[] for j in range(nnoe)]
+            for s in ensemble:
+                for j in range(len(s.noe_restraints)):
+                    noe_distributions[j].append( s.noe_restraints[j].model_noe )
+                    all_noe.append( s.noe_restraints[j].model_noe )
+
+            # Find the MLE average (i.e. beta_j) for each noe
+            betas_noe = np.zeros(nnoe)
+            for j in range(nnoe):
+                # plot the maximum likelihood exponential distribution fitting the data
+                betas_noe[j] =  np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
 
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
@@ -315,26 +355,26 @@ class PosteriorSampler(object):
             print 'Computing gaussian reference potentials (noe) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
-            ndistances = len(ensemble[0].distance_restraints)
-#	    print 'ndistances', ndistances
+            # collect noe distributions across all structures
+            nnoe = len(ensemble[0].noe_restraints)
+#	    print 'nnoe', nnoe
 #	    sys.exit()
-            all_distances = []
-            distance_distributions = [[] for j in range(ndistances)]
+            all_noe = []
+            noe_distributions = [[] for j in range(nnoe)]
             for s in ensemble:
-                for j in range(len(s.distance_restraints)):
-                    distance_distributions[j].append( s.distance_restraints[j].model_distance )
-                    all_distances.append( s.distance_restraints[j].model_distance )
+                for j in range(len(s.noe_restraints)):
+                    noe_distributions[j].append( s.noe_restraints[j].model_noe )
+                    all_noe.append( s.noe_restraints[j].model_noe )
 
-            # Find the MLE average (i.e. beta_j) for each distance
-            ref_mean_noe = np.zeros(ndistances)
-	    ref_sigma_noe = np.zeros(ndistances)
-            for j in range(ndistances):
+            # Find the MLE average (i.e. beta_j) for each noe
+            ref_mean_noe = np.zeros(nnoe)
+	    ref_sigma_noe = np.zeros(nnoe)
+            for j in range(nnoe):
                 # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_noe[j] =  np.array(distance_distributions[j]).mean()
-                squared_diffs_noe = [ (d - ref_mean_noe[j])**2.0 for d in distance_distributions[j] ]
-                ref_sigma_noe[j] = np.sqrt( np.array(squared_diffs_noe).sum() / (len(distance_distributions[j])+1.0))
-#            global_ref_sigma_noe = ( np.array([ref_sigma_noe[j]**-2.0 for j in range(ndistances)]).mean() )**-0.5
+                ref_mean_noe[j] =  np.array(noe_distributions[j]).mean()
+                squared_diffs_noe = [ (d - ref_mean_noe[j])**2.0 for d in noe_distributions[j] ]
+                ref_sigma_noe[j] = np.sqrt( np.array(squared_diffs_noe).sum() / (len(noe_distributions[j])+1.0))
+#            global_ref_sigma_noe = ( np.array([ref_sigma_noe[j]**-2.0 for j in range(nnoe)]).mean() )**-0.5
 #	    print 'global_ref_sigma_noe ', global_ref_sigma_noe
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
@@ -345,9 +385,9 @@ class PosteriorSampler(object):
 
     # Build Ref. Prior H:{{{
     def build_exp_ref_H(self):				#GYH
-        """Look at all the structures to find the average distances
+        """Look at all the structures to find the average noe
 
-        >>    beta_j = np.array(distance_distributions[j]).sum()/(len(distance_distributions[j])+1.0)
+        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
 
         then store this info as the reference potential for each structures"""
 
@@ -356,7 +396,7 @@ class PosteriorSampler(object):
             print 'Computing reference potentials (H) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             ncs_H = len(ensemble[0].cs_H_restraints)
      #       print "ncs_H", ncs_H
             all_cs_H = []
@@ -366,7 +406,7 @@ class PosteriorSampler(object):
                     cs_H_distributions[j].append( s.cs_H_restraints[j].model_cs_H )
                     all_cs_H.append( s.cs_H_restraints[j].model_cs_H )
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             betas_H = np.zeros(ncs_H)
             for j in range(ncs_H):
                 # plot the maximum likelihood exponential distribution fitting the data
@@ -387,7 +427,7 @@ class PosteriorSampler(object):
             print 'Computing Gaussian reference potentials (H) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             ncs_H = len(ensemble[0].cs_H_restraints)
             all_cs_H = []
             cs_H_distributions = [[] for j in range(ncs_H)]
@@ -396,7 +436,7 @@ class PosteriorSampler(object):
                     cs_H_distributions[j].append( s.cs_H_restraints[j].model_cs_H )
                     all_cs_H.append( s.cs_H_restraints[j].model_cs_H )
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             ref_mean_H = np.zeros(ncs_H)
 	    ref_sigma_H = np.zeros(ncs_H)
             for j in range(ncs_H):
@@ -417,9 +457,9 @@ class PosteriorSampler(object):
 
     # Build Ref Prior Ha:{{{
     def build_exp_ref_Ha(self):                          #GYH
-        """Look at all the structures to find the average distances
+        """Look at all the structures to find the average noe
 
-        >>    beta_j = np.array(distance_distributions[j]).sum()/(len(distance_distributions[j])+1.0)
+        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
 
         then store this info as the reference potential for each structures"""
 
@@ -428,7 +468,7 @@ class PosteriorSampler(object):
             print 'Computing reference potentials (Ha) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             ncs_Ha = len(ensemble[0].cs_Ha_restraints)
             all_cs_Ha = []
             cs_Ha_distributions = [[] for j in range(ncs_Ha)]
@@ -437,7 +477,7 @@ class PosteriorSampler(object):
                     cs_Ha_distributions[j].append( s.cs_Ha_restraints[j].model_cs_Ha )
                     all_cs_Ha.append( s.cs_Ha_restraints[j].model_cs_Ha )
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             betas_Ha = np.zeros(ncs_Ha)
             for j in range(ncs_Ha):
                 # plot the maximum likelihood exponential distribution fitting the data
@@ -457,7 +497,7 @@ class PosteriorSampler(object):
             print 'Computing Gaussian reference potentials (Ha) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             ncs_Ha = len(ensemble[0].cs_Ha_restraints)
             all_cs_Ha = []
             cs_Ha_distributions = [[] for j in range(ncs_Ha)]
@@ -466,7 +506,7 @@ class PosteriorSampler(object):
                     cs_Ha_distributions[j].append( s.cs_Ha_restraints[j].model_cs_Ha )
                     all_cs_Ha.append( s.cs_Ha_restraints[j].model_cs_Ha )
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             ref_mean_Ha = np.zeros(ncs_Ha)
 	    ref_sigma_Ha = np.zeros(ncs_Ha)
             for j in range(ncs_Ha):
@@ -487,9 +527,9 @@ class PosteriorSampler(object):
 
     # Build Ref Prior N:{{{
     def build_exp_ref_N(self):                          #GYH
-        """Look at all the structures to find the average distances
+        """Look at all the structures to find the average noe
 
-        >>    beta_j = np.array(distance_distributions[j]).sum()/(len(distance_distributions[j])+1.0)
+        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
 
         then store this info as the reference potential for each structures"""
 
@@ -498,7 +538,7 @@ class PosteriorSampler(object):
             print 'Computing reference potentials (N) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             ncs_N = len(ensemble[0].cs_N_restraints)
             all_cs_N = []
             cs_N_distributions = [[] for j in range(ncs_N)]
@@ -507,7 +547,7 @@ class PosteriorSampler(object):
                     cs_N_distributions[j].append( s.cs_N_restraints[j].model_cs_N )
                     all_cs_N.append( s.cs_N_restraints[j].model_cs_N )
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             betas_N = np.zeros(ncs_N)
             for j in range(ncs_N):
                 # plot the maximum likelihood exponential distribution fitting the data
@@ -528,7 +568,7 @@ class PosteriorSampler(object):
             print 'Computing Gaussian reference potentials (N) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             ncs_N = len(ensemble[0].cs_N_restraints)
             all_cs_N = []
             cs_N_distributions = [[] for j in range(ncs_N)]
@@ -537,7 +577,7 @@ class PosteriorSampler(object):
                     cs_N_distributions[j].append( s.cs_N_restraints[j].model_cs_N )
                     all_cs_N.append( s.cs_N_restraints[j].model_cs_N )
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             ref_mean_N = np.zeros(ncs_N)
 	    ref_sigma_N = np.zeros(ncs_N)
             for j in range(ncs_N):
@@ -559,9 +599,9 @@ class PosteriorSampler(object):
 
     # Build Ref Prior Ca:{{{
     def build_exp_ref_Ca(self):                          #GYH
-        """Look at all the structures to find the average distances
+        """Look at all the structures to find the average noe
 
-        >>    beta_j = np.array(distance_distributions[j]).sum()/(len(distance_distributions[j])+1.0)
+        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
 
         then store this info as the reference potential for each structures"""
 
@@ -570,7 +610,7 @@ class PosteriorSampler(object):
             print 'Computing reference potentials (Ca) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             ncs_Ca = len(ensemble[0].cs_Ca_restraints)
             all_cs_Ca = []
             cs_Ca_distributions = [[] for j in range(ncs_Ca)]
@@ -579,7 +619,7 @@ class PosteriorSampler(object):
                     cs_Ca_distributions[j].append( s.cs_Ca_restraints[j].model_cs_Ca )
                     all_cs_Ca.append( s.cs_Ca_restraints[j].model_cs_Ca )
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             betas_Ca = np.zeros(ncs_Ca)
             for j in range(ncs_Ca):
                 # plot the maximum likelihood exponential distribution fitting the data
@@ -600,7 +640,7 @@ class PosteriorSampler(object):
             print 'Computing Gaussian reference potentials (Ca) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             ncs_Ca = len(ensemble[0].cs_Ca_restraints)
             all_cs_Ca = []
             cs_Ca_distributions = [[] for j in range(ncs_Ca)]
@@ -609,7 +649,7 @@ class PosteriorSampler(object):
                     cs_Ca_distributions[j].append( s.cs_Ca_restraints[j].model_cs_Ca )
                     all_cs_Ca.append( s.cs_Ca_restraints[j].model_cs_Ca )
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             ref_mean_Ca = np.zeros(ncs_Ca)
 	    ref_sigma_Ca = np.zeros(ncs_Ca)
             for j in range(ncs_Ca):
@@ -631,9 +671,9 @@ class PosteriorSampler(object):
 
     # Build Ref Prior pf:{{{
     def build_exp_ref_pf(self):                          #GYH
-        """Look at all the structures to find the average distances
+        """Look at all the structures to find the average noe
 
-        >>    beta_j = np.array(distance_distributions[j]).sum()/(len(distance_distributions[j])+1.0)
+        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
 
         then store this info as the reference potential for each structures"""
 
@@ -642,7 +682,7 @@ class PosteriorSampler(object):
             print 'Computing reference potentials (pf) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             npf = len(ensemble[0].pf_restraints)
             all_pf = []
             pf_distributions = [[] for j in range(npf)]
@@ -651,7 +691,7 @@ class PosteriorSampler(object):
                     pf_distributions[j].append( s.pf_restraints[j].model_pf )
                     all_pf.append( s.pf_restraints[j].model_pf )
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             betas_pf = np.zeros(npf)
             for j in range(npf):
                 # plot the maximum likelihood exponential distribution fitting the data
@@ -672,7 +712,7 @@ class PosteriorSampler(object):
             print 'Computing Gaussian reference potentials (pf) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
 
-            # collect distance distributions across all structures
+            # collect noe distributions across all structures
             npf = len(ensemble[0].pf_restraints)
             all_pf = []
             pf_distributions = [[] for j in range(npf)]
@@ -683,7 +723,7 @@ class PosteriorSampler(object):
 #	    print 'all_pf', all_pf
 	    print 'len(all_pf)', len(all_pf)
 
-            # Find the MLE average (i.e. beta_j) for each distance
+            # Find the MLE average (i.e. beta_j) for each noe
             ref_mean_pf = np.zeros(npf)
 	    ref_sigma_pf = np.zeros(npf)
 #	    squared_diffs_pf = []
@@ -723,13 +763,13 @@ class PosteriorSampler(object):
         # model terms
         result = s.free_energy  + self.logZ
         print 'Result =',result
-        # distance terms
+        # noe terms
         #result += (Nj+1.0)*np.log(self.sigma_noe)
-       	#if s.sse_distances is not None:		# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
-	if sum(s.sse_distances) != 0:
-		result += (s.Ndof_distances)*np.log(new_sigma_noe)  # for use with log-spaced sigma values
-		result += s.sse_distances[new_gamma_index] / (2.0*new_sigma_noe**2.0)
-        	result += (s.Ndof_distances)/2.0*self.ln2pi  # for normalization
+       	#if s.sse_noe is not None:		# trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
+	if sum(s.sse_noe) != 0:
+		result += (s.Ndof_noe)*np.log(new_sigma_noe)  # for use with log-spaced sigma values
+		result += s.sse_noe[new_gamma_index] / (2.0*new_sigma_noe**2.0)
+        	result += (s.Ndof_noe)/2.0*self.ln2pi  # for normalization
                 if self.use_exp_ref_noe == True and self.use_gau_ref_noe == True:
                     result -= s.sum_gaussian_neglog_reference_potentials_noe
                 if self.use_exp_ref_noe == True and self.use_gau_ref_noe == False:
@@ -797,7 +837,7 @@ class PosteriorSampler(object):
 
         if verbose:
             print 'state, f_sim', new_state, s.free_energy,
-            #print 's.sse_distances[', new_gamma_index, ']', s.sse_distances[new_gamma_index], 's.Ndof_distances', s.Ndof_distances
+            #print 's.sse_noe[', new_gamma_index, ']', s.sse_noe[new_gamma_index], 's.Ndof_noe', s.Ndof_noe
             #print 's.sse_dihedrals', s.sse_dihedrals, 's.Ndof_dihedrals', s.Ndof_dihedrals
 	    print 's.sse_cs_H', s.sse_cs_H, 's.Ndof_cs_H', s.Ndof_cs_H # GYH
             print 's.sse_cs_Ha', s.sse_cs_Ha, 's.Ndof_cs_Ha', s.Ndof_cs_Ha # GYH
@@ -812,27 +852,27 @@ class PosteriorSampler(object):
 ## Compute -log( reference potentials (ALL Restraints) ):{{{
 #    def compute_neglog_reference_potentials_noe(self):		#GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
-#        - log P_ref(distance[j) for each distance j."""
+#        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
-#        self.neglog_reference_potentials_noe = np.zeros(self.ndistances)
+#        self.neglog_reference_potentials_noe = np.zeros(self.nnoe)
 #        self.sum_neglog_reference_potentials_noe = 0.
-#        for j in range(self.ndistances):
-#            self.neglog_reference_potentials_noe[j] = np.log(self.betas_noe[j]) + self.distance_restraints[j].model_distance/self.betas_noe[j]
-#            self.sum_neglog_reference_potentials_noe  += self.distance_restraints[j].weight * self.neglog_reference_potentials_noe[j]
+#        for j in range(self.nnoe):
+#            self.neglog_reference_potentials_noe[j] = np.log(self.betas_noe[j]) + self.noe_restraints[j].model_noe/self.betas_noe[j]
+#            self.sum_neglog_reference_potentials_noe  += self.noe_restraints[j].weight * self.neglog_reference_potentials_noe[j]
 #
 #    def compute_gaussian_neglog_reference_potentials_noe(self):	#GYH
 #	"""An alternative option for reference potential based on Gaussian distribution"""
-#	self.gaussian_neglog_reference_potentials_noe = np.zeros(self.ndistances)
+#	self.gaussian_neglog_reference_potentials_noe = np.zeros(self.nnoe)
 #	self.sum_gaussian_neglog_reference_potentials_noe = 0.
-#	for j in range(self.ndistances):
-#	    self.gaussian_neglog_reference_potentials_noe[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_noe[j]) + (self.distance_restraints[j].model_distance - self.ref_mean_noe[j])**2.0/(2*(self.ref_sigma_noe[j]**2.0))
-#	    self.sum_gaussian_neglog_reference_potentials_noe += self.distance_restraints[j].weight * self.gaussian_neglog_reference_potentials_noe[j]
+#	for j in range(self.nnoe):
+#	    self.gaussian_neglog_reference_potentials_noe[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_noe[j]) + (self.noe_restraints[j].model_noe - self.ref_mean_noe[j])**2.0/(2*(self.ref_sigma_noe[j]**2.0))
+#	    self.sum_gaussian_neglog_reference_potentials_noe += self.noe_restraints[j].weight * self.gaussian_neglog_reference_potentials_noe[j]
 #
 #    def compute_neglog_reference_potentials_H(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
-#        - log P_ref(distance[j) for each distance j."""
+#        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
@@ -853,7 +893,7 @@ class PosteriorSampler(object):
 #
 #    def compute_neglog_reference_potentials_Ha(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
-#        - log P_ref(distance[j) for each distance j."""
+#        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
@@ -873,7 +913,7 @@ class PosteriorSampler(object):
 #
 #    def compute_neglog_reference_potentials_N(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
-#        - log P_ref(distance[j) for each distance j."""
+#        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
@@ -894,7 +934,7 @@ class PosteriorSampler(object):
 #
 #    def compute_neglog_reference_potentials_Ca(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
-#        - log P_ref(distance[j) for each distance j."""
+#        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
@@ -915,7 +955,7 @@ class PosteriorSampler(object):
 #
 #    def compute_neglog_reference_potentials_pf(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
-#        - log P_ref(distance[j) for each distance j."""
+#        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
@@ -963,7 +1003,7 @@ class PosteriorSampler(object):
             new_ensemble_index = self.ensemble_index
 
             if np.random.random() < 0.16:
-                # take a step in array of allowed sigma_distance
+                # take a step in array of allowed sigma_noe
                 new_sigma_noe_index += (np.random.randint(3)-1)
                 new_sigma_noe_index = new_sigma_noe_index%(len(self.allowed_sigma_noe)) # don't go out of bounds
                 new_sigma_noe = self.allowed_sigma_noe[new_sigma_noe_index]
@@ -1091,7 +1131,7 @@ class PosteriorSamplingTrajectory(object):
         self.ensemble = ensemble
 
         print 'self.ensemble[0] = ',self.ensemble[0]
-        self.ndistances = len(self.ensemble[0].distance_restraints)
+        self.nnoe = len(self.ensemble[0].noe_restraints)
         self.ndihedrals = len(self.ensemble[0].dihedral_restraints)
 	self.ncs_H = len(self.ensemble[0].cs_H_restraints) #GYH
         self.ncs_Ha = len(self.ensemble[0].cs_Ha_restraints) #GYH
@@ -1198,31 +1238,31 @@ class PosteriorSamplingTrajectory(object):
         self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudocount to avoid log(0)s in the bootstrap
         self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
 
-        # Estimate the ensemble-<r**-6>averaged distances
-        mean_distances = np.zeros(self.ndistances)
-        Z = np.zeros(self.ndistances)
+        # Estimate the ensemble-<r**-6>averaged noe
+        mean_noe = np.zeros(self.nnoe)
+        Z = np.zeros(self.nnoe)
         for i in range(self.nstates):
-            for j in range(self.ndistances):
+            for j in range(self.nnoe):
                 pop = self.results['state_pops'][i]
-                weight = self.ensemble[i].distance_restraints[j].weight
-                r = self.ensemble[i].distance_restraints[j].model_distance
-                mean_distances[j] += pop*weight*(r**(-6.0))
+                weight = self.ensemble[i].noe_restraints[j].weight
+                r = self.ensemble[i].noe_restraints[j].model_noe
+                mean_noe[j] += pop*weight*(r**(-6.0))
                 Z[j] += pop*weight
-        mean_distances = (mean_distances/Z)**(-1.0/6.0)
-        self.results['mean_distances'] = mean_distances.tolist()
+        mean_noe = (mean_noe/Z)**(-1.0/6.0)
+        self.results['mean_noe'] = mean_noe.tolist()
 
-        # compute the experimental distances, using the most likely gamma'
-        exp_distances = np.array([self.results['gamma_mode']*self.ensemble[0].distance_restraints[j].exp_distance \
-                                      for j in range(self.ndistances)])
-        self.results['exp_distances'] = exp_distances.tolist()
+        # compute the experimental noe, using the most likely gamma'
+        exp_noe = np.array([self.results['gamma_mode']*self.ensemble[0].noe_restraints[j].exp_noe \
+                                      for j in range(self.nnoe)])
+        self.results['exp_noe'] = exp_noe.tolist()
 
-        self.results['distance_pairs'] = []
-        for j in range(self.ndistances):
-            pair = [int(self.ensemble[0].distance_restraints[j].i), int(self.ensemble[0].distance_restraints[j].j)]
-            self.results['distance_pairs'].append(pair)
-        abs_diffs = np.abs( exp_distances - mean_distances )
-        self.results['disagreement_distances_mean'] = float(abs_diffs.mean())
-        self.results['disagreement_distances_std'] = float(abs_diffs.std())
+        self.results['noe_pairs'] = []
+        for j in range(self.nnoe):
+            pair = [int(self.ensemble[0].noe_restraints[j].i), int(self.ensemble[0].noe_restraints[j].j)]
+            self.results['noe_pairs'].append(pair)
+        abs_diffs = np.abs( exp_noe - mean_noe )
+        self.results['disagreement_noe_mean'] = float(abs_diffs.mean())
+        self.results['disagreement_noe_std'] = float(abs_diffs.std())
 
         # Estimate the ensemble-averaged J-coupling values
         mean_Jcoupling = np.zeros(self.ndihedrals)
