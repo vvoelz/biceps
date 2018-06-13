@@ -31,6 +31,13 @@ class restraint_cs_Ha(object):
         self.ncs_Ha = 0
         self.sse_cs_Ha = 0 
         self.Ndof_cs_Ha = None
+        self.betas_Ha = None
+        self.neglog_reference_potentials_Ha = None
+        self.ref_sigma_Ha = None
+        self.ref_mean_Ha = None
+        self.gaussian_neglog_reference_potentials_Ha = None
+        self.sum_neglog_reference_potentials_Ha = 0.0   #GYH
+        self.sum_gaussian_neglog_reference_potentials_Ha = 0.0      #GYH
 
     def load_data_cs_Ha(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .cs file format.
@@ -83,6 +90,26 @@ class restraint_cs_Ha(object):
         self.Ndof_cs_Ha = N_Ha
         if debug:
             print 'self.sse_cs_Ha', self.sse_cs_Ha
+
+    def compute_neglog_reference_potentials_Ha(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_reference_potentials_Ha = np.zeros(self.ncs_Ha)
+        self.sum_neglog_reference_potentials_Ha = 0.
+        for j in range(self.ncs_Ha):
+            self.neglog_reference_potentials_Ha[j] = np.log(self.betas_Ha[j]) + self.cs_Ha_restraints[j].model_cs_Ha/self.betas_Ha[j]
+            self.sum_neglog_reference_potentials_Ha  += self.cs_Ha_restraints[j].weight * self.neglog_reference_potentials_Ha[j]
+
+    def compute_gaussian_neglog_reference_potentials_Ha(self):     #GYH
+        """An alternative option for reference potential based on Gaussian distribution"""
+        self.gaussian_neglog_reference_potentials_Ha = np.zeros(self.ncs_Ha)
+        self.sum_gaussian_neglog_reference_potentials_Ha = 0.
+        for j in range(self.ncs_Ha):
+            self.gaussian_neglog_reference_potentials_Ha[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ha[j]) + (self.cs_Ha_restraints[j].model_cs_Ha - self.ref_mean_Ha[j])**2.0/(2*self.ref_sigma_Ha[j]**2.0)
+            self.sum_gaussian_neglog_reference_potentials_Ha += self.cs_Ha_restraints[j].weight * self.gaussian_neglog_reference_potentials_Ha[j]
 
 
 

@@ -29,12 +29,13 @@ class restraint_cs_H(object):
         self.ncs_H = 0
         self.sse_cs_H = 0 
         self.Ndof_cs_H = None
-#        self.betas_H = None
-#        self.ref_sigma_H = None
-#        self.ref_mean_H = None
-#        self.neglog_reference_potentials_H = None
-#        self.sum_neglog_reference_potentials_H = 0.0    #GYH
-#        self.sum_gaussian_neglog_reference_potentials_H = 0.0      #GYH
+        self.betas_H = None
+        self.ref_sigma_H = None
+        self.ref_mean_H = None
+        self.neglog_reference_potentials_H = None
+	self.gaussian_neglog_reference_potentials_H = None
+        self.sum_neglog_reference_potentials_H = 0.0    #GYH
+        self.sum_gaussian_neglog_reference_potentials_H = 0.0      #GYH
 
     def load_data_cs_H(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .cs file format.
@@ -88,6 +89,26 @@ class restraint_cs_H(object):
         self.Ndof_cs_H = N_H
         if debug:
             print 'self.sse_cs_H', self.sse_cs_H
+
+    def compute_neglog_reference_potentials_H(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_reference_potentials_H = np.zeros(self.ncs_H)
+        self.sum_neglog_reference_potentials_H = 0.
+        for j in range(self.ncs_H):
+            self.neglog_reference_potentials_H[j] = np.log(self.betas_H[j]) + self.cs_H_restraints[j].model_cs_H/self.betas_H[j]
+            self.sum_neglog_reference_potentials_H  += self.cs_H_restraints[j].weight * self.neglog_reference_potentials_H[j]
+            print "self.sum_neglog_reference_potentials_H", self.sum_neglog_reference_potentials_H
+    def compute_gaussian_neglog_reference_potentials_H(self):     #GYH
+        """An alternative option for reference potential based on Gaussian distribution"""
+        self.gaussian_neglog_reference_potentials_H = np.zeros(self.ncs_H)
+        self.sum_gaussian_neglog_reference_potentials_H = 0.
+        for j in range(self.ncs_H):
+            self.gaussian_neglog_reference_potentials_H[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_H[j]) + (self.cs_H_restraints[j].model_cs_H - self.ref_mean_H[j])**2.0/(2*self.ref_sigma_H[j]**2.0)
+            self.sum_gaussian_neglog_reference_potentials_H += self.cs_H_restraints[j].weight * self.gaussian_neglog_reference_potentials_H[j]
 
 
 class NMR_Chemicalshift_H(object):        #GYH

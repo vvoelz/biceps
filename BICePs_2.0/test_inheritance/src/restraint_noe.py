@@ -23,53 +23,60 @@ from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restr
 
 # Class Restraint:{{{
 class restraint_noe(object):
-    def __init__(self,gamma_min=0.1,gamma_max=1,dloggamma=0.1, use_log_normal_distances=False):
+    def __init__(self,gamma_min=0.1,gamma_max=1,dloggamma=0.1, use_log_normal_noe=False):
 
-        # Store distance restraint info
-        self.distance_restraints = []
-        self.distance_equivalency_groups = {}
-        self.ndistances = 0
+        # Store noe restraint info
+        self.noe_restraints = []
+        self.noe_equivalency_groups = {}
+        self.nnoe = 0
         self.dloggamma = np.log(1.01)
         self.gamma_min = gamma_min
         self.gamma_max = gamma_max	
 	self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
-	print "self.allowed_gamma", self.allowed_gamma
-        #self.sse_distances = np.array([0.0 for gamma in self.allowed_gamma])
-	#print "len(self.sse_distances)", len(self.sse_distances)
-        self.Ndof_distances = 0.0
-	self.use_log_normal_distances = use_log_normal_distances
+#	print "self.allowed_gamma", self.allowed_gamma
+        self.sse_noe = np.array([0.0 for gamma in self.allowed_gamma])
+	#print "len(self.sse_noe)", len(self.sse_noe)
+        self.Ndof_noe = 0.0
+	self.use_log_normal_noe = use_log_normal_noe
+        self.betas_noe = None   # if reference is used, an array of N_j betas for each noe
+        self.ref_sigma_noe = None
+        self.ref_mean_noe = None
+        self.neglog_reference_potentials_noe = None
+        self.gaussian_neglog_reference_potentials_noe = None
+        self.sum_neglog_reference_potentials_noe = 0.0  #GYH
+        self.sum_gaussian_neglog_reference_potentials_noe = 0.0      #GYH
 
 
     """A class for all restraints"""
 
     # Load Experimental Data (ALL Restraints):{{{
     def load_data_noe(self, filename, verbose=False):
-        """Load in the experimental NOE distance restraints from a .noe file format.
+        """Load in the experimental NOE noe restraints from a .noe file format.
         """
 
         # Read in the lines of the biceps data file
         b = prep_noe(filename=filename)
         data = []
         for line in b.lines:
-                data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, distance]
+                data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, noe]
 
         if verbose:
             print 'Loaded from', filename, ':'
             for entry in data:
                 print entry
 
-        ### distances ###
+        ### noe ###
 
-        # the equivalency indices for distances are in the first column of the *.biceps file
+        # the equivalency indices for noe are in the first column of the *.biceps file
         equivalency_indices = [entry[0] for entry in data]
         if verbose:
-            print 'distance equivalency_indices', equivalency_indices
+            print 'noe equivalency_indices', equivalency_indices
 
 
-        # add the distance restraints
+        # add the noe restraints
         for entry in data:
-            restraint_index, i, j, exp_distance, model_distance = entry[0], entry[1], entry[4], entry[7], entry[8]
-            self.add_distance_restraint(i, j, exp_distance, model_distance, equivalency_index=restraint_index)
+            restraint_index, i, j, exp_noe, model_noe = entry[0], entry[1], entry[4], entry[7], entry[8]
+            self.add_noe_restraint(i, j, exp_noe, model_noe, equivalency_index=restraint_index)
 
         # build groups of equivalency group indices, ambiguous group etc.
         self.build_groups_noe()
@@ -77,106 +84,127 @@ class restraint_noe(object):
 
 
 
-    def add_distance_restraint(self, i, j, exp_distance, model_distance=None,
+    def add_noe_restraint(self, i, j, exp_noe, model_noe=None,
                                equivalency_index=None):
         """Add an NOE NMR_Distance() object to the set"""
 
-        # if the modeled distance is not specified, compute the distance from the conformation
-        if model_distance == None:
+        # if the modeled noe is not specified, compute the noe from the conformation
+        if model_noe == None:
             ri = self.conf.xyz[0,i,:]
             rj = self.conf.xyz[0,j,:]
             dr = rj-ri
-            model_distance = np.dot(dr,dr)**0.5
+            model_noe = np.dot(dr,dr)**0.5
 
-        self.distance_restraints.append( NMR_Distance(i, j, model_distance, exp_distance,
+        self.noe_restraints.append( NMR_Distance(i, j, model_noe, exp_noe,
                                                       equivalency_index=equivalency_index) )
-        self.ndistances += 1
+        self.nnoe += 1
 
 
     def build_groups_noe(self, verbose=False):
-        """Build equivalency and ambiguity groups for distances and dihedrals,
-        and store pre-computed SSE and d.o.f for distances and dihedrals"""
+        """Build equivalency and ambiguity groups for noe and dihedrals,
+        and store pre-computed SSE and d.o.f for noe and dihedrals"""
 
-        # compile distance_equivalency_groups from the list of NMR_Distance() objects
-        for i in range(len(self.distance_restraints)):
-            d = self.distance_restraints[i]
+        # compile noe_equivalency_groups from the list of NMR_Distance() objects
+        for i in range(len(self.noe_restraints)):
+            d = self.noe_restraints[i]
             if d.equivalency_index != None:
-                if not self.distance_equivalency_groups.has_key(d.equivalency_index):
-                    self.distance_equivalency_groups[d.equivalency_index] = []
-                self.distance_equivalency_groups[d.equivalency_index].append(i)
+                if not self.noe_equivalency_groups.has_key(d.equivalency_index):
+                    self.noe_equivalency_groups[d.equivalency_index] = []
+                self.noe_equivalency_groups[d.equivalency_index].append(i)
         if verbose:
-            print 'self.distance_equivalency_groups', self.distance_equivalency_groups
+            print 'self.noe_equivalency_groups', self.noe_equivalency_groups
 
 
-        # adjust the weights of distances and dihedrals to account for equivalencies
+        # adjust the weights of noe and dihedrals to account for equivalencies
         self.adjust_weights()
-        # precompute SSE and Ndof for distances
-        self.compute_sse_distances()
+        # precompute SSE and Ndof for noe
+        self.compute_sse_noe()
 
 
     def adjust_weights(self):
-        """Adjust the weights of distance and dihedral restraints based on their equivalency group."""
+        """Adjust the weights of noe and dihedral restraints based on their equivalency group."""
 
-        for group in self.distance_equivalency_groups.values():
+        for group in self.noe_equivalency_groups.values():
             n = float(len(group))
             for i in group:
-                self.distance_restraints[i].weight = 1.0/n
+                self.noe_restraints[i].weight = 1.0/n
 
 
-    def compute_sse_distances(self, debug=False):
-        """Returns the (weighted) sum of squared errors for distances,
-        and the *effective* number of distances (i.e. the sum of the weights)"""
-	print "len(self.allowed_gamma)",len(self.allowed_gamma)
-	self.sse_distances = np.array([0.0 for gamma in self.allowed_gamma])
-        print "len(self.sse_distances)",len(self.sse_distances)
+    def compute_sse_noe(self, debug=False):
+        """Returns the (weighted) sum of squared errors for noe,
+        and the *effective* number of noe (i.e. the sum of the weights)"""
+#	print "len(self.allowed_gamma)",len(self.allowed_gamma)
+	self.sse_noe = np.array([0.0 for gamma in self.allowed_gamma])
+#        print "len(self.sse_noe)",len(self.sse_noe)
 	if debug:
 	    print 'self.allowed_gamma', self.allowed_gamma
         for g in range(len(self.allowed_gamma)):
 
             sse = 0.
             N = 0.
-            for i in range(self.ndistances):
+            for i in range(self.nnoe):
 
                 gamma = self.allowed_gamma[g]
 #                if g == 0:
-#                    print '---->', i, '(%d,%d)'%(self.distance_restraints[i].i, self.distance_restraints[i].j),
-#                    print '      exp',  self.distance_restraints[i].exp_distance, 'model', self.distance_restraints[i].model_distance
-                if self.use_log_normal_distances:
-                    err = np.log(self.distance_restraints[i].model_distance/(gamma*self.distance_restraints[i].exp_distance))
+#                    print '---->', i, '(%d,%d)'%(self.noe_restraints[i].i, self.noe_restraints[i].j),
+#                    print '      exp',  self.noe_restraints[i].exp_noe, 'model', self.noe_restraints[i].model_noe
+                if self.use_log_normal_noe:
+                    err = np.log(self.noe_restraints[i].model_noe/(gamma*self.noe_restraints[i].exp_noe))
                     #print 'log-normal err', err
                 else:
-                    err = gamma*self.distance_restraints[i].exp_distance - self.distance_restraints[i].model_distance
+                    err = gamma*self.noe_restraints[i].exp_noe - self.noe_restraints[i].model_noe
                     #print 'err', err
-                sse += (self.distance_restraints[i].weight * err**2.0)
-                N += self.distance_restraints[i].weight
+                sse += (self.noe_restraints[i].weight * err**2.0)
+                N += self.noe_restraints[i].weight
             #print 'total sse =', sse
-            self.sse_distances[g] = sse
-            self.Ndof_distances = N
+            self.sse_noe[g] = sse
+            self.Ndof_noe = N
         if debug:
-            print 'self.sse_distances', self.sse_distances
+            print 'self.sse_noe', self.sse_noe
+
+
+    # Compute -log( reference potentials (ALL Restraints) ):{{{
+    def compute_neglog_reference_potentials_noe(self):          #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(noe[j) for each noe j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_reference_potentials_noe = np.zeros(self.nnoe)
+        self.sum_neglog_reference_potentials_noe = 0.
+        for j in range(self.nnoe):
+            self.neglog_reference_potentials_noe[j] = np.log(self.betas_noe[j]) + self.noe_restraints[j].model_noe/self.betas_noe[j]
+            self.sum_neglog_reference_potentials_noe  += self.noe_restraints[j].weight * self.neglog_reference_potentials_noe[j]
+
+    def compute_gaussian_neglog_reference_potentials_noe(self): #GYH
+        """An alternative option for reference potential based on Gaussian distribution"""
+        self.gaussian_neglog_reference_potentials_noe = np.zeros(self.nnoe)
+        self.sum_gaussian_neglog_reference_potentials_noe = 0.
+        for j in range(self.nnoe):
+            self.gaussian_neglog_reference_potentials_noe[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_noe[j]) + (self.noe_restraints[j].model_noe - self.ref_mean_noe[j])**2.0/(2*(self.ref_sigma_noe[j]**2.0))
+            self.sum_gaussian_neglog_reference_potentials_noe += self.noe_restraints[j].weight * self.gaussian_neglog_reference_potentials_noe[j]
 
 class NMR_Distance(object):
-    """A class to store NMR distance information."""
+    """A class to store NMR noe information."""
 
     # __init__:{{{
-    def __init__(self, i, j, model_distance, exp_distance, equivalency_index=None):
+    def __init__(self, i, j, model_noe, exp_noe, equivalency_index=None):
 
-        # Atom indices from the Conformation() defining this distance
+        # Atom indices from the Conformation() defining this noe
         self.i = i
         self.j = j
 
-        # the model distance in this structure (in Angstroms)
-        self.model_distance = model_distance
+        # the model noe in this structure (in Angstroms)
+        self.model_noe = model_noe
 
-        # the experimental NOE distance (in Angstroms)
-        self.exp_distance = exp_distance
+        # the experimental NOE noe (in Angstroms)
+        self.exp_noe = exp_noe
 
         # the index of the equivalency group (i.e. a tag for equivalent H's)
         self.equivalency_index = equivalency_index
 
-        # N equivalent distances should only get 1/N of the weight when computing chi^2
+        # N equivalent noe should only get 1/N of the weight when computing chi^2
         self.weight = 1.0  # default is N=1
-
 
 
 
