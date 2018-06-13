@@ -18,24 +18,24 @@ from prep_cs import *    # Class - creates Chemical shift restraint file
 from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
 from prep_J import *     # Class - creates J-coupling const. restraint file
 from prep_pf import *     # Class - creates Protection factor restraint file   #GYH
-
 import Restraint as R   # Import the Restraint Parent Class as R
-
+from child_pos import *
+from toolbox import *
 
 
 # Class PosteriorSampler: {{{
-class PosteriorSampler(object):
+class PosteriorSampler(child_pos):
     """A class to perform posterior sampling of conformational populations"""
 
     # __init__:{{{
     def __init__(self, ensemble,
-		 dlogsigma_noe=np.log(1.01), sigma_noe_min=0.05, sigma_noe_max=20.0,
-                 dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
-                 dlogsigma_cs_H=np.log(1.02),sigma_cs_H_min=0.05, sigma_cs_H_max=20.0,
-		 dlogsigma_cs_Ha=np.log(1.02),sigma_cs_Ha_min=0.05, sigma_cs_Ha_max=20.0,
-		 dlogsigma_cs_N=np.log(1.02),sigma_cs_N_min=0.05, sigma_cs_N_max=20.0,
-		 dlogsigma_cs_Ca=np.log(1.02),sigma_cs_Ca_min=0.05, sigma_cs_Ca_max=20.0,
-	         dlogsigma_pf=np.log(1.02),sigma_pf_min=0.05, sigma_pf_max=20.0,
+#		 dlogsigma_noe=np.log(1.01), sigma_noe_min=0.05, sigma_noe_max=20.0,
+#                 dlogsigma_J=np.log(1.02), sigma_J_min=0.05, sigma_J_max=20.0,
+#                 #dlogsigma_cs_H=np.log(1.02),sigma_cs_H_min=0.05, sigma_cs_H_max=20.0,
+#		 dlogsigma_cs_Ha=np.log(1.02),sigma_cs_Ha_min=0.05, sigma_cs_Ha_max=20.0,
+#		 dlogsigma_cs_N=np.log(1.02),sigma_cs_N_min=0.05, sigma_cs_N_max=20.0,
+#		 dlogsigma_cs_Ca=np.log(1.02),sigma_cs_Ca_min=0.05, sigma_cs_Ca_max=20.0,
+#	         dlogsigma_pf=np.log(1.02),sigma_pf_min=0.05, sigma_pf_max=20.0,
 		 no_ref = False, use_exp_ref_noe = True, use_exp_ref_H = True, use_exp_ref_Ha = True, 
 		 use_exp_ref_N = True, use_exp_ref_Ca = True, use_exp_ref_pf = True,
                  use_gau_ref_noe = False, use_gau_ref_H = False, use_gau_ref_Ha = False,
@@ -48,79 +48,79 @@ class PosteriorSampler(object):
         self.nstates = len(ensemble)    # number of structures (elements)
         self.nensembles = len(self.ensembles)    # always be equal to 1
         self.ensemble_index = 0
-
+	child_pos.__init__(self)
 
         # pick initial values for sigma_noe (std of experimental uncertainty in NOE noe)
-        self.dlogsigma_noe = dlogsigma_noe  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.sigma_noe_min = sigma_noe_min
-        self.sigma_noe_max = sigma_noe_max
-        self.allowed_sigma_noe = np.exp(np.arange(np.log(self.sigma_noe_min), np.log(self.sigma_noe_max), self.dlogsigma_noe))
-        print 'self.allowed_sigma_noe', self.allowed_sigma_noe
-        print 'len(self.allowed_sigma_noe) =', len(self.allowed_sigma_noe)
-        self.sigma_noe_index = len(self.allowed_sigma_noe)/2    # pick an intermediate value to start with
-        self.sigma_noe = self.allowed_sigma_noe[self.sigma_noe_index]
+#        self.dlogsigma_noe = dlogsigma_noe  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
+#        self.sigma_noe_min = sigma_noe_min
+#        self.sigma_noe_max = sigma_noe_max
+#        self.allowed_sigma_noe = np.exp(np.arange(np.log(self.sigma_noe_min), np.log(self.sigma_noe_max), self.dlogsigma_noe))
+#        print 'self.allowed_sigma_noe', self.allowed_sigma_noe
+#        print 'len(self.allowed_sigma_noe) =', len(self.allowed_sigma_noe)
+#        self.sigma_noe_index = len(self.allowed_sigma_noe)/2    # pick an intermediate value to start with
+#        self.sigma_noe = self.allowed_sigma_noe[self.sigma_noe_index]
 
         # pick initial values for sigma_J (std of experimental uncertainty in J-coupling constant)
-        self.dlogsigma_J = dlogsigma_J  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.sigma_J_min = sigma_J_min
-        self.sigma_J_max = sigma_J_max
-        self.allowed_sigma_J = np.exp(np.arange(np.log(self.sigma_J_min), np.log(self.sigma_J_max), self.dlogsigma_J))
-        print 'self.allowed_sigma_J', self.allowed_sigma_J
-        print 'len(self.allowed_sigma_J) =', len(self.allowed_sigma_J)
-
-        self.sigma_J_index = len(self.allowed_sigma_J)/2   # pick an intermediate value to start with
-        self.sigma_J = self.allowed_sigma_J[self.sigma_J_index]
+#        self.dlogsigma_J = dlogsigma_J  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
+#        self.sigma_J_min = sigma_J_min
+#        self.sigma_J_max = sigma_J_max
+#        self.allowed_sigma_J = np.exp(np.arange(np.log(self.sigma_J_min), np.log(self.sigma_J_max), self.dlogsigma_J))
+#        print 'self.allowed_sigma_J', self.allowed_sigma_J
+#        print 'len(self.allowed_sigma_J) =', len(self.allowed_sigma_J)
+#
+#        self.sigma_J_index = len(self.allowed_sigma_J)/2   # pick an intermediate value to start with
+#        self.sigma_J = self.allowed_sigma_J[self.sigma_J_index]
 
 
 	# pick initial values for sigma_cs_H (std of experimental uncertainty in chemical shift)   #GYH
-        self.dlogsigma_cs_H = dlogsigma_cs_H  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.sigma_cs_H_min = sigma_cs_H_min
-        self.sigma_cs_H_max = sigma_cs_H_max
-        self.allowed_sigma_cs_H = np.exp(np.arange(np.log(self.sigma_cs_H_min), np.log(self.sigma_cs_H_max), self.dlogsigma_cs_H))
-        print 'self.allowed_sigma_cs_H', self.allowed_sigma_cs_H
-        print 'len(self.allowed_sigma_cs_H) =', len(self.allowed_sigma_cs_H)
-        self.sigma_cs_H_index = len(self.allowed_sigma_cs_H)/2   # pick an intermediate value to start with
-        self.sigma_cs_H = self.allowed_sigma_cs_H[self.sigma_cs_H_index]
+#        self.dlogsigma_cs_H = dlogsigma_cs_H  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
+#        self.sigma_cs_H_min = sigma_cs_H_min
+#        self.sigma_cs_H_max = sigma_cs_H_max
+#        self.allowed_sigma_cs_H = np.exp(np.arange(np.log(self.sigma_cs_H_min), np.log(self.sigma_cs_H_max), self.dlogsigma_cs_H))
+#        print 'self.allowed_sigma_cs_H', self.allowed_sigma_cs_H
+#        print 'len(self.allowed_sigma_cs_H) =', len(self.allowed_sigma_cs_H)
+#        self.sigma_cs_H_index = len(self.allowed_sigma_cs_H)/2   # pick an intermediate value to start with
+#        self.sigma_cs_H = self.allowed_sigma_cs_H[self.sigma_cs_H_index]
 
         # pick initial values for sigma_cs_Ha (std of experimental uncertainty in chemical shift)   #GYH
-        self.dlogsigma_cs_Ha = dlogsigma_cs_Ha  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.sigma_cs_Ha_min = sigma_cs_Ha_min
-        self.sigma_cs_Ha_max = sigma_cs_Ha_max
-        self.allowed_sigma_cs_Ha = np.exp(np.arange(np.log(self.sigma_cs_Ha_min), np.log(self.sigma_cs_Ha_max), self.dlogsigma_cs_Ha))
-        print 'self.allowed_sigma_cs_Ha', self.allowed_sigma_cs_Ha
-        print 'len(self.allowed_sigma_cs_Ha) =', len(self.allowed_sigma_cs_Ha)
-        self.sigma_cs_Ha_index = len(self.allowed_sigma_cs_Ha)/2   # pick an intermediate value to start with
-        self.sigma_cs_Ha = self.allowed_sigma_cs_Ha[self.sigma_cs_Ha_index]
-
-
-        # pick initial values for sigma_cs_N (std of experimental uncertainty in chemical shift)   #GYH
-        self.dlogsigma_cs_N = dlogsigma_cs_N  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.sigma_cs_N_min = sigma_cs_N_min
-        self.sigma_cs_N_max = sigma_cs_N_max
-        self.allowed_sigma_cs_N = np.exp(np.arange(np.log(self.sigma_cs_N_min), np.log(self.sigma_cs_N_max), self.dlogsigma_cs_N))
-        print 'self.allowed_sigma_cs_N', self.allowed_sigma_cs_N
-        print 'len(self.allowed_sigma_cs_N) =', len(self.allowed_sigma_cs_N)
-        self.sigma_cs_N_index = len(self.allowed_sigma_cs_N)/2   # pick an intermediate value to start with
-        self.sigma_cs_N = self.allowed_sigma_cs_N[self.sigma_cs_N_index]
-
-        # pick initial values for sigma_cs_Ca (std of experimental uncertainty in chemical shift)   #GYH
-        self.dlogsigma_cs_Ca = dlogsigma_cs_Ca  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.sigma_cs_Ca_min = sigma_cs_Ca_min
-        self.sigma_cs_Ca_max = sigma_cs_Ca_max
-        self.allowed_sigma_cs_Ca = np.exp(np.arange(np.log(self.sigma_cs_Ca_min), np.log(self.sigma_cs_Ca_max), self.dlogsigma_cs_Ca))
-        print 'self.allowed_sigma_cs_Ca', self.allowed_sigma_cs_Ca
-        print 'len(self.allowed_sigma_cs_Ca) =', len(self.allowed_sigma_cs_Ca)
-        self.sigma_cs_Ca_index = len(self.allowed_sigma_cs_Ca)/2   # pick an intermediate value to start with
-        self.sigma_cs_Ca = self.allowed_sigma_cs_Ca[self.sigma_cs_Ca_index]
+#        self.dlogsigma_cs_Ha = dlogsigma_cs_Ha  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
+#        self.sigma_cs_Ha_min = sigma_cs_Ha_min
+#        self.sigma_cs_Ha_max = sigma_cs_Ha_max
+#        self.allowed_sigma_cs_Ha = np.exp(np.arange(np.log(self.sigma_cs_Ha_min), np.log(self.sigma_cs_Ha_max), self.dlogsigma_cs_Ha))
+#        print 'self.allowed_sigma_cs_Ha', self.allowed_sigma_cs_Ha
+#        print 'len(self.allowed_sigma_cs_Ha) =', len(self.allowed_sigma_cs_Ha)
+#        self.sigma_cs_Ha_index = len(self.allowed_sigma_cs_Ha)/2   # pick an intermediate value to start with
+#        self.sigma_cs_Ha = self.allowed_sigma_cs_Ha[self.sigma_cs_Ha_index]
+#
+#
+#        # pick initial values for sigma_cs_N (std of experimental uncertainty in chemical shift)   #GYH
+#        self.dlogsigma_cs_N = dlogsigma_cs_N  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
+#        self.sigma_cs_N_min = sigma_cs_N_min
+#        self.sigma_cs_N_max = sigma_cs_N_max
+#        self.allowed_sigma_cs_N = np.exp(np.arange(np.log(self.sigma_cs_N_min), np.log(self.sigma_cs_N_max), self.dlogsigma_cs_N))
+#        print 'self.allowed_sigma_cs_N', self.allowed_sigma_cs_N
+#        print 'len(self.allowed_sigma_cs_N) =', len(self.allowed_sigma_cs_N)
+#        self.sigma_cs_N_index = len(self.allowed_sigma_cs_N)/2   # pick an intermediate value to start with
+#        self.sigma_cs_N = self.allowed_sigma_cs_N[self.sigma_cs_N_index]
+#
+#        # pick initial values for sigma_cs_Ca (std of experimental uncertainty in chemical shift)   #GYH
+#        self.dlogsigma_cs_Ca = dlogsigma_cs_Ca  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
+#        self.sigma_cs_Ca_min = sigma_cs_Ca_min
+#        self.sigma_cs_Ca_max = sigma_cs_Ca_max
+#        self.allowed_sigma_cs_Ca = np.exp(np.arange(np.log(self.sigma_cs_Ca_min), np.log(self.sigma_cs_Ca_max), self.dlogsigma_cs_Ca))
+#        print 'self.allowed_sigma_cs_Ca', self.allowed_sigma_cs_Ca
+#        print 'len(self.allowed_sigma_cs_Ca) =', len(self.allowed_sigma_cs_Ca)
+#        self.sigma_cs_Ca_index = len(self.allowed_sigma_cs_Ca)/2   # pick an intermediate value to start with
+#        self.sigma_cs_Ca = self.allowed_sigma_cs_Ca[self.sigma_cs_Ca_index]
         # pick initial values for sigma_pf (std of experimental uncertainty in chemical shift)   #GYH
-        self.dlogsigma_pf = dlogsigma_pf  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
-        self.sigma_pf_min = sigma_pf_min
-        self.sigma_pf_max = sigma_pf_max
-        self.allowed_sigma_pf = np.exp(np.arange(np.log(self.sigma_pf_min), np.log(self.sigma_pf_max), self.dlogsigma_pf))
+        #self.dlogsigma_pf = dlogsigma_pf  # stepsize in log(sigma_noe) - i.e. grow/shrink multiplier
+        #self.sigma_pf_min = sigma_pf_min
+        #self.sigma_pf_max = sigma_pf_max
+        #self.allowed_sigma_pf = np.exp(np.arange(np.log(self.sigma_pf_min), np.log(self.sigma_pf_max), self.dlogsigma_pf))
 #        print 'self.allowed_sigma_pf', self.allowed_sigma_pf
 #        print 'len(self.allowed_sigma_pf) =', len(self.allowed_sigma_pf)
-        self.sigma_pf_index = len(self.allowed_sigma_pf)/2   # pick an intermediate value to start with
-        self.sigma_pf = self.allowed_sigma_pf[self.sigma_pf_index]
+        #self.sigma_pf_index = len(self.allowed_sigma_pf)/2   # pick an intermediate value to start with
+        #self.sigma_pf = self.allowed_sigma_pf[self.sigma_pf_index]
 
 	# pick initial values for gamma^(-1/6) (NOE scaling parameter)
         self.allowed_gamma = ensemble[0].allowed_gamma
@@ -144,14 +144,6 @@ class PosteriorSampler(object):
         # frequency of storing trajectory samples
         self.traj_every = freq_save_traj
 
-
-	# initialze restraint child class 
-	r_J = R.restraint_J()
-        r_cs_Ca = R.restraint_cs_Ca()
-	r_cs_H = R.restraint_cs_H()
-        r_cs_N = R.restraint_cs_N()
-        r_cs_Ha = R.restraint_cs_Ha()
-        r_noe = R.restraint_noe()
 
 
         # keep track of what we sampled in a trajectory
@@ -227,441 +219,441 @@ class PosteriorSampler(object):
 
     # Build Reference Prior NOE (Nuclear Overhauser effect):{{{
 
-    def build_exp_ref_noe(self):	#GYH
-        """Look at all the structures to find the average noe
-
-        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
-
-        then store this info as the reference potential for each structures"""
-
-        for k in range(self.nensembles):
-
-            print 'Computing reference potentials (noe) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            nnoe = len(ensemble[0].noe_restraints)
-            all_noe = []
-            noe_distributions = [[] for j in range(nnoe)]
-            for s in ensemble:
-                for j in range(len(s.noe_restraints)):
-                    noe_distributions[j].append( s.noe_restraints[j].model_noe )
-                    all_noe.append( s.noe_restraints[j].model_noe )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            betas_noe = np.zeros(nnoe)
-            for j in range(nnoe):
-                # plot the maximum likelihood exponential distribution fitting the data
-                betas_noe[j] =  np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
-
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.betas_noe = betas_noe
-                s.compute_neglog_exp_ref_noe()
-    #}}}
-
-    # Build Gaussian Ref. Prior NOE:{{{
-    def build_gau_ref_noe(self):        #GYH
-
-        for k in range(self.nensembles):
-
-            print 'Computing gaussian reference potentials (noe) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            nnoe = len(ensemble[0].noe_restraints)
-#	    print 'nnoe', nnoe
-#	    sys.exit()
-            all_noe = []
-            noe_distributions = [[] for j in range(nnoe)]
-            for s in ensemble:
-                for j in range(len(s.noe_restraints)):
-                    noe_distributions[j].append( s.noe_restraints[j].model_noe )
-                    all_noe.append( s.noe_restraints[j].model_noe )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            ref_mean_noe = np.zeros(nnoe)
-	    ref_sigma_noe = np.zeros(nnoe)
-            for j in range(nnoe):
-                # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_noe[j] =  np.array(noe_distributions[j]).mean()
-                squared_diffs_noe = [ (d - ref_mean_noe[j])**2.0 for d in noe_distributions[j] ]
-                ref_sigma_noe[j] = np.sqrt( np.array(squared_diffs_noe).sum() / (len(noe_distributions[j])+1.0))
-#            global_ref_sigma_noe = ( np.array([ref_sigma_noe[j]**-2.0 for j in range(nnoe)]).mean() )**-0.5
-#	    print 'global_ref_sigma_noe ', global_ref_sigma_noe
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.ref_mean_noe = ref_mean_noe
-            	s.ref_sigma_noe = ref_sigma_noe
-	        s.compute_neglog_gau_ref_noe()
-    #}}}
+#    def build_exp_ref_noe(self):	#GYH
+#        """Look at all the structures to find the average noe
+#
+#        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
+#
+#        then store this info as the reference potential for each structures"""
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing reference potentials (noe) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            nnoe = len(ensemble[0].noe_restraints)
+#            all_noe = []
+#            noe_distributions = [[] for j in range(nnoe)]
+#            for s in ensemble:
+#                for j in range(len(s.noe_restraints)):
+#                    noe_distributions[j].append( s.noe_restraints[j].model_noe )
+#                    all_noe.append( s.noe_restraints[j].model_noe )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            betas_noe = np.zeros(nnoe)
+#            for j in range(nnoe):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                betas_noe[j] =  np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
+#
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.betas_noe = betas_noe
+#                s.compute_neglog_exp_ref_noe()
+#    #}}}
+#
+#    # Build Gaussian Ref. Prior NOE:{{{
+#    def build_gau_ref_noe(self):        #GYH
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing gaussian reference potentials (noe) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            nnoe = len(ensemble[0].noe_restraints)
+##	    print 'nnoe', nnoe
+##	    sys.exit()
+#            all_noe = []
+#            noe_distributions = [[] for j in range(nnoe)]
+#            for s in ensemble:
+#                for j in range(len(s.noe_restraints)):
+#                    noe_distributions[j].append( s.noe_restraints[j].model_noe )
+#                    all_noe.append( s.noe_restraints[j].model_noe )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            ref_mean_noe = np.zeros(nnoe)
+#	    ref_sigma_noe = np.zeros(nnoe)
+#            for j in range(nnoe):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                ref_mean_noe[j] =  np.array(noe_distributions[j]).mean()
+#                squared_diffs_noe = [ (d - ref_mean_noe[j])**2.0 for d in noe_distributions[j] ]
+#                ref_sigma_noe[j] = np.sqrt( np.array(squared_diffs_noe).sum() / (len(noe_distributions[j])+1.0))
+##            global_ref_sigma_noe = ( np.array([ref_sigma_noe[j]**-2.0 for j in range(nnoe)]).mean() )**-0.5
+##	    print 'global_ref_sigma_noe ', global_ref_sigma_noe
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.ref_mean_noe = ref_mean_noe
+#            	s.ref_sigma_noe = ref_sigma_noe
+#	        s.compute_neglog_gau_ref_noe()
+#    #}}}
 
     # Build Ref. Prior H:{{{
-    def build_exp_ref_H(self):				#GYH
-        """Look at all the structures to find the average noe
-
-        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
-
-        then store this info as the reference potential for each structures"""
-
-        for k in range(self.nensembles):
-
-            print 'Computing reference potentials (H) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            ncs_H = len(ensemble[0].cs_H_restraints)
-     #       print "ncs_H", ncs_H
-            all_cs_H = []
-            cs_H_distributions = [[] for j in range(ncs_H)]
-            for s in ensemble:
-                for j in range(len(s.cs_H_restraints)):
-                    cs_H_distributions[j].append( s.cs_H_restraints[j].model_cs_H )
-                    all_cs_H.append( s.cs_H_restraints[j].model_cs_H )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            betas_H = np.zeros(ncs_H)
-            for j in range(ncs_H):
-                # plot the maximum likelihood exponential distribution fitting the data
-                betas_H[j] =  np.array(cs_H_distributions[j]).sum()/(len(cs_H_distributions[j])+1.0)
-
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.betas_H = betas_H
-    #            print "s.betas_H", s.betas_H
-                s.compute_neglog_exp_ref_H()
-    #}}}
-
-    # Build Gaussain Ref H:{{{
-    def build_gau_ref_H(self):        #GYH
-
-        for k in range(self.nensembles):
-
-            print 'Computing Gaussian reference potentials (H) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            ncs_H = len(ensemble[0].cs_H_restraints)
-            all_cs_H = []
-            cs_H_distributions = [[] for j in range(ncs_H)]
-            for s in ensemble:
-                for j in range(len(s.cs_H_restraints)):
-                    cs_H_distributions[j].append( s.cs_H_restraints[j].model_cs_H )
-                    all_cs_H.append( s.cs_H_restraints[j].model_cs_H )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            ref_mean_H = np.zeros(ncs_H)
-	    ref_sigma_H = np.zeros(ncs_H)
-            for j in range(ncs_H):
-                # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_H[j] =  np.array(cs_H_distributions[j]).mean()
-                squared_diffs_H = [ (d - ref_mean_H[j])**2.0 for d in cs_H_distributions[j] ]
-                ref_sigma_H[j] = np.sqrt( np.array(squared_diffs_H).sum() / (len(cs_H_distributions[j])+1.0))
-            global_ref_sigma_H = ( np.array([ref_sigma_H[j]**-2.0 for j in range(ncs_H)]).mean() )**-0.5
-            for j in range(ncs_H):
-                ref_sigma_H[j] = global_ref_sigma_H
-#		ref_sigma_H[j] = 12.0
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.ref_mean_H = ref_mean_H
-                s.ref_sigma_H = ref_sigma_H
-                s.compute_neglog_gau_ref_H()
+#    def build_exp_ref_H(self):				#GYH
+#        """Look at all the structures to find the average noe
+#
+#        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
+#
+#        then store this info as the reference potential for each structures"""
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing reference potentials (H) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            ncs_H = len(ensemble[0].cs_H_restraints)
+#     #       print "ncs_H", ncs_H
+#            all_cs_H = []
+#            cs_H_distributions = [[] for j in range(ncs_H)]
+#            for s in ensemble:
+#                for j in range(len(s.cs_H_restraints)):
+#                    cs_H_distributions[j].append( s.cs_H_restraints[j].model_cs_H )
+#                    all_cs_H.append( s.cs_H_restraints[j].model_cs_H )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            betas_H = np.zeros(ncs_H)
+#            for j in range(ncs_H):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                betas_H[j] =  np.array(cs_H_distributions[j]).sum()/(len(cs_H_distributions[j])+1.0)
+#
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.betas_H = betas_H
+#    #            print "s.betas_H", s.betas_H
+#                s.compute_neglog_exp_ref_H()
+#    #}}}
+#
+#    # Build Gaussain Ref H:{{{
+#    def build_gau_ref_H(self):        #GYH
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing Gaussian reference potentials (H) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            ncs_H = len(ensemble[0].cs_H_restraints)
+#            all_cs_H = []
+#            cs_H_distributions = [[] for j in range(ncs_H)]
+#            for s in ensemble:
+#                for j in range(len(s.cs_H_restraints)):
+#                    cs_H_distributions[j].append( s.cs_H_restraints[j].model_cs_H )
+#                    all_cs_H.append( s.cs_H_restraints[j].model_cs_H )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            ref_mean_H = np.zeros(ncs_H)
+#	    ref_sigma_H = np.zeros(ncs_H)
+#            for j in range(ncs_H):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                ref_mean_H[j] =  np.array(cs_H_distributions[j]).mean()
+#                squared_diffs_H = [ (d - ref_mean_H[j])**2.0 for d in cs_H_distributions[j] ]
+#                ref_sigma_H[j] = np.sqrt( np.array(squared_diffs_H).sum() / (len(cs_H_distributions[j])+1.0))
+#            global_ref_sigma_H = ( np.array([ref_sigma_H[j]**-2.0 for j in range(ncs_H)]).mean() )**-0.5
+#            for j in range(ncs_H):
+#                ref_sigma_H[j] = global_ref_sigma_H
+##		ref_sigma_H[j] = 12.0
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.ref_mean_H = ref_mean_H
+#                s.ref_sigma_H = ref_sigma_H
+#                s.compute_neglog_gau_ref_H()
     #}}}
 
     # Build Ref Prior Ha:{{{
-    def build_exp_ref_Ha(self):                          #GYH
-        """Look at all the structures to find the average noe
-
-        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
-
-        then store this info as the reference potential for each structures"""
-
-        for k in range(self.nensembles):
-
-            print 'Computing reference potentials (Ha) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            ncs_Ha = len(ensemble[0].cs_Ha_restraints)
-            all_cs_Ha = []
-            cs_Ha_distributions = [[] for j in range(ncs_Ha)]
-            for s in ensemble:
-                for j in range(len(s.cs_Ha_restraints)):
-                    cs_Ha_distributions[j].append( s.cs_Ha_restraints[j].model_cs_Ha )
-                    all_cs_Ha.append( s.cs_Ha_restraints[j].model_cs_Ha )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            betas_Ha = np.zeros(ncs_Ha)
-            for j in range(ncs_Ha):
-                # plot the maximum likelihood exponential distribution fitting the data
-                betas_Ha[j] =  np.array(cs_Ha_distributions[j]).sum()/(len(cs_Ha_distributions[j])+1.0)
-
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.betas_Ha = betas_Ha
-                s.compute_neglog_exp_ref_Ha()
-    #}}}
-
-    # Build Gaussian Ref Prior Ha:{{{
-    def build_gau_ref_Ha(self):        #GYH
-
-        for k in range(self.nensembles):
-
-            print 'Computing Gaussian reference potentials (Ha) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            ncs_Ha = len(ensemble[0].cs_Ha_restraints)
-            all_cs_Ha = []
-            cs_Ha_distributions = [[] for j in range(ncs_Ha)]
-            for s in ensemble:
-                for j in range(len(s.cs_Ha_restraints)):
-                    cs_Ha_distributions[j].append( s.cs_Ha_restraints[j].model_cs_Ha )
-                    all_cs_Ha.append( s.cs_Ha_restraints[j].model_cs_Ha )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            ref_mean_Ha = np.zeros(ncs_Ha)
-	    ref_sigma_Ha = np.zeros(ncs_Ha)
-            for j in range(ncs_Ha):
-                # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_Ha[j] =  np.array(cs_Ha_distributions[j]).mean()
-                squared_diffs_Ha = [ (d - ref_mean_Ha[j])**2.0 for d in cs_Ha_distributions[j] ]
-                ref_sigma_Ha[j] = np.sqrt( np.array(squared_diffs_Ha).sum() / (len(cs_Ha_distributions[j])+1.0))
-            global_ref_sigma_Ha = ( np.array([ref_sigma_Ha[j]**-2.0 for j in range(ncs_Ha)]).mean() )**-0.5
-            for j in range(ncs_Ha):
-                ref_sigma_Ha[j] = global_ref_sigma_Ha
-#		ref_sigma_Ha[j] = 12.0
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.ref_mean_Ha = ref_mean_Ha
-                s.ref_sigma_Ha = ref_sigma_Ha
-                s.compute_neglog_gau_ref_Ha()
+#    def build_exp_ref_Ha(self):                          #GYH
+#        """Look at all the structures to find the average noe
+#
+#        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
+#
+#        then store this info as the reference potential for each structures"""
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing reference potentials (Ha) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            ncs_Ha = len(ensemble[0].cs_Ha_restraints)
+#            all_cs_Ha = []
+#            cs_Ha_distributions = [[] for j in range(ncs_Ha)]
+#            for s in ensemble:
+#                for j in range(len(s.cs_Ha_restraints)):
+#                    cs_Ha_distributions[j].append( s.cs_Ha_restraints[j].model_cs_Ha )
+#                    all_cs_Ha.append( s.cs_Ha_restraints[j].model_cs_Ha )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            betas_Ha = np.zeros(ncs_Ha)
+#            for j in range(ncs_Ha):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                betas_Ha[j] =  np.array(cs_Ha_distributions[j]).sum()/(len(cs_Ha_distributions[j])+1.0)
+#
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.betas_Ha = betas_Ha
+#                s.compute_neglog_exp_ref_Ha()
+#    #}}}
+#
+#    # Build Gaussian Ref Prior Ha:{{{
+#    def build_gau_ref_Ha(self):        #GYH
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing Gaussian reference potentials (Ha) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            ncs_Ha = len(ensemble[0].cs_Ha_restraints)
+#            all_cs_Ha = []
+#            cs_Ha_distributions = [[] for j in range(ncs_Ha)]
+#            for s in ensemble:
+#                for j in range(len(s.cs_Ha_restraints)):
+#                    cs_Ha_distributions[j].append( s.cs_Ha_restraints[j].model_cs_Ha )
+#                    all_cs_Ha.append( s.cs_Ha_restraints[j].model_cs_Ha )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            ref_mean_Ha = np.zeros(ncs_Ha)
+#	    ref_sigma_Ha = np.zeros(ncs_Ha)
+#            for j in range(ncs_Ha):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                ref_mean_Ha[j] =  np.array(cs_Ha_distributions[j]).mean()
+#                squared_diffs_Ha = [ (d - ref_mean_Ha[j])**2.0 for d in cs_Ha_distributions[j] ]
+#                ref_sigma_Ha[j] = np.sqrt( np.array(squared_diffs_Ha).sum() / (len(cs_Ha_distributions[j])+1.0))
+#            global_ref_sigma_Ha = ( np.array([ref_sigma_Ha[j]**-2.0 for j in range(ncs_Ha)]).mean() )**-0.5
+#            for j in range(ncs_Ha):
+#                ref_sigma_Ha[j] = global_ref_sigma_Ha
+##		ref_sigma_Ha[j] = 12.0
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.ref_mean_Ha = ref_mean_Ha
+#                s.ref_sigma_Ha = ref_sigma_Ha
+#                s.compute_neglog_gau_ref_Ha()
     #}}}
 
     # Build Ref Prior N:{{{
-    def build_exp_ref_N(self):                          #GYH
-        """Look at all the structures to find the average noe
-
-        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
-
-        then store this info as the reference potential for each structures"""
-
-        for k in range(self.nensembles):
-
-            print 'Computing reference potentials (N) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            ncs_N = len(ensemble[0].cs_N_restraints)
-            all_cs_N = []
-            cs_N_distributions = [[] for j in range(ncs_N)]
-            for s in ensemble:
-                for j in range(len(s.cs_N_restraints)):
-                    cs_N_distributions[j].append( s.cs_N_restraints[j].model_cs_N )
-                    all_cs_N.append( s.cs_N_restraints[j].model_cs_N )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            betas_N = np.zeros(ncs_N)
-            for j in range(ncs_N):
-                # plot the maximum likelihood exponential distribution fitting the data
-                betas_N[j] =  np.array(cs_N_distributions[j]).sum()/(len(cs_N_distributions[j])+1.0)
-
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.betas_N = betas_N
-                s.compute_neglog_exp_ref_N()
-
-    #:}}}
-
-    # Build Gaussian Ref Prior N:{{{
-    def build_gau_ref_N(self):        #GYH
-
-        for k in range(self.nensembles):
-
-            print 'Computing Gaussian reference potentials (N) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            ncs_N = len(ensemble[0].cs_N_restraints)
-            all_cs_N = []
-            cs_N_distributions = [[] for j in range(ncs_N)]
-            for s in ensemble:
-                for j in range(len(s.cs_N_restraints)):
-                    cs_N_distributions[j].append( s.cs_N_restraints[j].model_cs_N )
-                    all_cs_N.append( s.cs_N_restraints[j].model_cs_N )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            ref_mean_N = np.zeros(ncs_N)
-	    ref_sigma_N = np.zeros(ncs_N)
-            for j in range(ncs_N):
-                # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_N[j] =  np.array(cs_N_distributions[j]).mean()
-                squared_diffs_N = [ (d - ref_mean_N[j])**2.0 for d in cs_N_distributions[j] ]
-#                ref_sigma_N[j] = np.sqrt( np.array(squared_diffs_N).sum() / (len(cs_N_distributions[j])+1.0))
-#            global_ref_sigma_N = ( np.array([ref_sigma_N[j]**-2.0 for j in range(ncs_N)]).mean() )**-0.5
-            for j in range(ncs_N):
-#                ref_sigma_N[j] = global_ref_sigma_N
-		ref_sigma_N[j] = 12.0
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.ref_mean_N = ref_mean_N
-                s.ref_sigma_N = ref_sigma_N
-                s.compute_neglog_gau_ref_N()
-
-    #:}}}
-
-    # Build Ref Prior Ca:{{{
-    def build_exp_ref_Ca(self):                          #GYH
-        """Look at all the structures to find the average noe
-
-        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
-
-        then store this info as the reference potential for each structures"""
-
-        for k in range(self.nensembles):
-
-            print 'Computing reference potentials (Ca) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            ncs_Ca = len(ensemble[0].cs_Ca_restraints)
-            all_cs_Ca = []
-            cs_Ca_distributions = [[] for j in range(ncs_Ca)]
-            for s in ensemble:
-                for j in range(len(s.cs_Ca_restraints)):
-                    cs_Ca_distributions[j].append( s.cs_Ca_restraints[j].model_cs_Ca )
-                    all_cs_Ca.append( s.cs_Ca_restraints[j].model_cs_Ca )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            betas_Ca = np.zeros(ncs_Ca)
-            for j in range(ncs_Ca):
-                # plot the maximum likelihood exponential distribution fitting the data
-                betas_Ca[j] =  np.array(cs_Ca_distributions[j]).sum()/(len(cs_Ca_distributions[j])+1.0)
-
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.betas_Ca = betas_Ca
-                s.compute_neglog_exp_ref_Ca()
-
-    #:}}}
-
-    # Build Gaussian Ref Prior Ca:{{{
-    def build_gau_ref_Ca(self):        #GYH
-
-        for k in range(self.nensembles):
-
-            print 'Computing Gaussian reference potentials (Ca) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            ncs_Ca = len(ensemble[0].cs_Ca_restraints)
-            all_cs_Ca = []
-            cs_Ca_distributions = [[] for j in range(ncs_Ca)]
-            for s in ensemble:
-                for j in range(len(s.cs_Ca_restraints)):
-                    cs_Ca_distributions[j].append( s.cs_Ca_restraints[j].model_cs_Ca )
-                    all_cs_Ca.append( s.cs_Ca_restraints[j].model_cs_Ca )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            ref_mean_Ca = np.zeros(ncs_Ca)
-	    ref_sigma_Ca = np.zeros(ncs_Ca)
-            for j in range(ncs_Ca):
-                # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_Ca[j] =  np.array(cs_Ca_distributions[j]).mean()
-                squared_diffs_Ca = [ (d - ref_mean_Ca[j])**2.0 for d in cs_Ca_distributions[j] ]
-#                ref_sigma_Ca[j] = np.sqrt( np.array(squared_diffs_Ca).sum() / (len(cs_Ca_distributions[j])+1.0))
-#            global_ref_sigma_Ca = ( np.array([ref_sigma_Ca[j]**-2.0 for j in range(ncs_Ca)]).mean() )**-0.5
-            for j in range(ncs_Ca):
-#                ref_sigma_Ca[j] = global_ref_sigma_Ca
-		ref_sigma_Ca[j] = 12.0
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.ref_mean_Ca = ref_mean_Ca
-                s.ref_sigma_Ca = ref_sigma_Ca
-                s.compute_neglog_gau_ref_Ca()
+#    def build_exp_ref_N(self):                          #GYH
+#        """Look at all the structures to find the average noe
+#
+#        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
+#
+#        then store this info as the reference potential for each structures"""
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing reference potentials (N) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            ncs_N = len(ensemble[0].cs_N_restraints)
+#            all_cs_N = []
+#            cs_N_distributions = [[] for j in range(ncs_N)]
+#            for s in ensemble:
+#                for j in range(len(s.cs_N_restraints)):
+#                    cs_N_distributions[j].append( s.cs_N_restraints[j].model_cs_N )
+#                    all_cs_N.append( s.cs_N_restraints[j].model_cs_N )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            betas_N = np.zeros(ncs_N)
+#            for j in range(ncs_N):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                betas_N[j] =  np.array(cs_N_distributions[j]).sum()/(len(cs_N_distributions[j])+1.0)
+#
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.betas_N = betas_N
+#                s.compute_neglog_exp_ref_N()
+#
+#    #:}}}
+#
+#    # Build Gaussian Ref Prior N:{{{
+#    def build_gau_ref_N(self):        #GYH
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing Gaussian reference potentials (N) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            ncs_N = len(ensemble[0].cs_N_restraints)
+#            all_cs_N = []
+#            cs_N_distributions = [[] for j in range(ncs_N)]
+#            for s in ensemble:
+#                for j in range(len(s.cs_N_restraints)):
+#                    cs_N_distributions[j].append( s.cs_N_restraints[j].model_cs_N )
+#                    all_cs_N.append( s.cs_N_restraints[j].model_cs_N )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            ref_mean_N = np.zeros(ncs_N)
+#	    ref_sigma_N = np.zeros(ncs_N)
+#            for j in range(ncs_N):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                ref_mean_N[j] =  np.array(cs_N_distributions[j]).mean()
+#                squared_diffs_N = [ (d - ref_mean_N[j])**2.0 for d in cs_N_distributions[j] ]
+##                ref_sigma_N[j] = np.sqrt( np.array(squared_diffs_N).sum() / (len(cs_N_distributions[j])+1.0))
+##            global_ref_sigma_N = ( np.array([ref_sigma_N[j]**-2.0 for j in range(ncs_N)]).mean() )**-0.5
+#            for j in range(ncs_N):
+##                ref_sigma_N[j] = global_ref_sigma_N
+#		ref_sigma_N[j] = 12.0
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.ref_mean_N = ref_mean_N
+#                s.ref_sigma_N = ref_sigma_N
+#                s.compute_neglog_gau_ref_N()
+#
+#    #:}}}
+#
+#    # Build Ref Prior Ca:{{{
+#    def build_exp_ref_Ca(self):                          #GYH
+#        """Look at all the structures to find the average noe
+#
+#        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
+#
+#        then store this info as the reference potential for each structures"""
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing reference potentials (Ca) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            ncs_Ca = len(ensemble[0].cs_Ca_restraints)
+#            all_cs_Ca = []
+#            cs_Ca_distributions = [[] for j in range(ncs_Ca)]
+#            for s in ensemble:
+#                for j in range(len(s.cs_Ca_restraints)):
+#                    cs_Ca_distributions[j].append( s.cs_Ca_restraints[j].model_cs_Ca )
+#                    all_cs_Ca.append( s.cs_Ca_restraints[j].model_cs_Ca )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            betas_Ca = np.zeros(ncs_Ca)
+#            for j in range(ncs_Ca):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                betas_Ca[j] =  np.array(cs_Ca_distributions[j]).sum()/(len(cs_Ca_distributions[j])+1.0)
+#
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.betas_Ca = betas_Ca
+#                s.compute_neglog_exp_ref_Ca()
+#
+#    #:}}}
+#
+#    # Build Gaussian Ref Prior Ca:{{{
+#    def build_gau_ref_Ca(self):        #GYH
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing Gaussian reference potentials (Ca) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            ncs_Ca = len(ensemble[0].cs_Ca_restraints)
+#            all_cs_Ca = []
+#            cs_Ca_distributions = [[] for j in range(ncs_Ca)]
+#            for s in ensemble:
+#                for j in range(len(s.cs_Ca_restraints)):
+#                    cs_Ca_distributions[j].append( s.cs_Ca_restraints[j].model_cs_Ca )
+#                    all_cs_Ca.append( s.cs_Ca_restraints[j].model_cs_Ca )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            ref_mean_Ca = np.zeros(ncs_Ca)
+#	    ref_sigma_Ca = np.zeros(ncs_Ca)
+#            for j in range(ncs_Ca):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                ref_mean_Ca[j] =  np.array(cs_Ca_distributions[j]).mean()
+#                squared_diffs_Ca = [ (d - ref_mean_Ca[j])**2.0 for d in cs_Ca_distributions[j] ]
+##                ref_sigma_Ca[j] = np.sqrt( np.array(squared_diffs_Ca).sum() / (len(cs_Ca_distributions[j])+1.0))
+##            global_ref_sigma_Ca = ( np.array([ref_sigma_Ca[j]**-2.0 for j in range(ncs_Ca)]).mean() )**-0.5
+#            for j in range(ncs_Ca):
+##                ref_sigma_Ca[j] = global_ref_sigma_Ca
+#		ref_sigma_Ca[j] = 12.0
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.ref_mean_Ca = ref_mean_Ca
+#                s.ref_sigma_Ca = ref_sigma_Ca
+#                s.compute_neglog_gau_ref_Ca()
 
     #:}}}
 
     # Build Ref Prior pf:{{{
-    def build_exp_ref_pf(self):                          #GYH
-        """Look at all the structures to find the average noe
-
-        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
-
-        then store this info as the reference potential for each structures"""
-
-        for k in range(self.nensembles):
-
-            print 'Computing reference potentials (pf) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            npf = len(ensemble[0].pf_restraints)
-            all_pf = []
-            pf_distributions = [[] for j in range(npf)]
-            for s in ensemble:
-                for j in range(len(s.pf_restraints)):
-                    pf_distributions[j].append( s.pf_restraints[j].model_pf )
-                    all_pf.append( s.pf_restraints[j].model_pf )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            betas_pf = np.zeros(npf)
-            for j in range(npf):
-                # plot the maximum likelihood exponential distribution fitting the data
-                betas_pf[j] =  np.array(pf_distributions[j]).sum()/(len(pf_distributions[j])+1.0)
-
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.betas_pf = betas_pf
-                s.compute_neglog_exp_ref_pf()
-
-    #:}}}
-
-    # Build Gaussian Ref Prior pf:{{{
-    def build_gau_ref_pf(self):        #GYH
-
-        for k in range(self.nensembles):
-
-            print 'Computing Gaussian reference potentials (pf) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-            # collect noe distributions across all structures
-            npf = len(ensemble[0].pf_restraints)
-            all_pf = []
-            pf_distributions = [[] for j in range(npf)]
-            for s in ensemble:
-                for j in range(len(s.pf_restraints)):
-                    pf_distributions[j].append( s.pf_restraints[j].model_pf )
-                    all_pf.append( s.pf_restraints[j].model_pf )
-#	    print 'all_pf', all_pf
-	    print 'len(all_pf)', len(all_pf)
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            ref_mean_pf = np.zeros(npf)
-	    ref_sigma_pf = np.zeros(npf)
-#	    squared_diffs_pf = []
-            for j in range(npf):
-                # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean_pf[j] =  np.array(pf_distributions[j]).mean()
-#                squared_diffs_pf.append( [ (d - ref_mean_pf[j])**2.0 for d in pf_distributions[j] ])
-	    	squared_diffs_pf=( [ (d - ref_mean_pf[j])**2.0 for d in pf_distributions[j] ])
-#		ref_sigma_pf[j] = np.sqrt( np.array(squared_diffs_pf).sum() / (len(pf_distributions[j])+1.0))
-#            global_ref_sigma_pf = ( np.array([ref_sigma_pf[j]**-2.0 for j in range(npf)]).mean() )**-0.5
-
-#            global_ref_sigma_pf = np.array(all_pf).std()
-#            print 'global_ref_sigma_pf', global_ref_sigma_pf
-#            sys.exit(1)
-
-#np.sqrt( np.array(squared_diffs_pf).sum() / (len(squared_diffs_pf) + npf))
-            for j in range(npf):
-#                ref_sigma_pf[j] = global_ref_sigma_pf #np.sqrt( np.array(squared_diffs_pf).sum() / (len(pf_distributions[j])+1.0))
-		ref_sigma_pf[j] = 20.0
-#		ref_sigma_pf[j] = 1.84394160179	#np.sqrt( np.array(squared_diffs_pf).sum() / (len(pf_distributions[j])+1.0))
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.ref_mean_pf = ref_mean_pf
-                s.ref_sigma_pf =  ref_sigma_pf
-                s.compute_neglog_gau_ref_pf()
+#    def build_exp_ref_pf(self):                          #GYH
+#        """Look at all the structures to find the average noe
+#
+#        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
+#
+#        then store this info as the reference potential for each structures"""
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing reference potentials (pf) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            npf = len(ensemble[0].pf_restraints)
+#            all_pf = []
+#            pf_distributions = [[] for j in range(npf)]
+#            for s in ensemble:
+#                for j in range(len(s.pf_restraints)):
+#                    pf_distributions[j].append( s.pf_restraints[j].model_pf )
+#                    all_pf.append( s.pf_restraints[j].model_pf )
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            betas_pf = np.zeros(npf)
+#            for j in range(npf):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                betas_pf[j] =  np.array(pf_distributions[j]).sum()/(len(pf_distributions[j])+1.0)
+#
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.betas_pf = betas_pf
+#                s.compute_neglog_exp_ref_pf()
+#
+#    #:}}}
+#
+#    # Build Gaussian Ref Prior pf:{{{
+#    def build_gau_ref_pf(self):        #GYH
+#
+#        for k in range(self.nensembles):
+#
+#            print 'Computing Gaussian reference potentials (pf) for ensemble', k, 'of', self.nensembles, '...'
+#            ensemble = self.ensembles[k]
+#
+#            # collect noe distributions across all structures
+#            npf = len(ensemble[0].pf_restraints)
+#            all_pf = []
+#            pf_distributions = [[] for j in range(npf)]
+#            for s in ensemble:
+#                for j in range(len(s.pf_restraints)):
+#                    pf_distributions[j].append( s.pf_restraints[j].model_pf )
+#                    all_pf.append( s.pf_restraints[j].model_pf )
+##	    print 'all_pf', all_pf
+#	    print 'len(all_pf)', len(all_pf)
+#
+#            # Find the MLE average (i.e. beta_j) for each noe
+#            ref_mean_pf = np.zeros(npf)
+#	    ref_sigma_pf = np.zeros(npf)
+##	    squared_diffs_pf = []
+#            for j in range(npf):
+#                # plot the maximum likelihood exponential distribution fitting the data
+#                ref_mean_pf[j] =  np.array(pf_distributions[j]).mean()
+##                squared_diffs_pf.append( [ (d - ref_mean_pf[j])**2.0 for d in pf_distributions[j] ])
+#	    	squared_diffs_pf=( [ (d - ref_mean_pf[j])**2.0 for d in pf_distributions[j] ])
+##		ref_sigma_pf[j] = np.sqrt( np.array(squared_diffs_pf).sum() / (len(pf_distributions[j])+1.0))
+##            global_ref_sigma_pf = ( np.array([ref_sigma_pf[j]**-2.0 for j in range(npf)]).mean() )**-0.5
+#
+##            global_ref_sigma_pf = np.array(all_pf).std()
+##            print 'global_ref_sigma_pf', global_ref_sigma_pf
+##            sys.exit(1)
+#
+##np.sqrt( np.array(squared_diffs_pf).sum() / (len(squared_diffs_pf) + npf))
+#            for j in range(npf):
+##                ref_sigma_pf[j] = global_ref_sigma_pf #np.sqrt( np.array(squared_diffs_pf).sum() / (len(pf_distributions[j])+1.0))
+#		ref_sigma_pf[j] = 20.0
+##		ref_sigma_pf[j] = 1.84394160179	#np.sqrt( np.array(squared_diffs_pf).sum() / (len(pf_distributions[j])+1.0))
+#            # store the beta information in each structure and compute/store the -log P_potential
+#            for s in ensemble:
+#                s.ref_mean_pf = ref_mean_pf
+#                s.ref_sigma_pf =  ref_sigma_pf
+#                s.compute_neglog_gau_ref_pf()
 
     #:}}}
 
