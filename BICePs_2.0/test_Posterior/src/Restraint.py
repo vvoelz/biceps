@@ -19,13 +19,13 @@ from prep_cs import *    # Class - creates Chemical shift restraint file
 from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
 from prep_J import *     # Class - creates J-coupling const. restraint file
 from prep_pf import *	  # Class - creates Protection factor restraint file   #GYH
-from inheri import *
+from child_res import *
 from toolbox import *
 ##############################################################################
 # Code
 ##############################################################################
 
-class Restraint(inheri):
+class Restraint(child_res):
     """A class to store a molecular structure, its complete set of
     experimental NOE, J-coupling, chemical shift and protection factor data, and
     Each Instances of this object"""
@@ -44,7 +44,7 @@ class Restraint(inheri):
 	gamma_min	min value of gamma
 	gamma_max	max value of gamma
         """
-	inheri.__init__(self)
+	child_res.__init__(self)
 
         self.PDB_filename = PDB_filename
 	self.data = data
