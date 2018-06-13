@@ -34,7 +34,7 @@ class restraint_cs_N(object):
         self.ref_sigma_N = None
         self.ref_mean_N = None
         self.neglog_exp_ref_N = None
-        self.sum_neglog_exp_ref_N = 0.0    #GYH
+        self.sum_neglog_gau_ref_N = 0.0    #GYH
         self.neglog_gau_ref_N = None
         self.sum_neglog_exp_ref_N = 0.0    #GYH
 

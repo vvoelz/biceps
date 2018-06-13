@@ -168,14 +168,12 @@ class PosteriorSampler(object):
         # compile reference potential of noe from the uniform distribution of noe
 	self.no_ref = no_ref
         self.use_exp_ref_noe = use_exp_ref_noe
-	self.use_exp_ref_J = use_exp_ref_J
         self.use_exp_ref_H = use_exp_ref_H
         self.use_exp_ref_Ha = use_exp_ref_Ha
         self.use_exp_ref_N = use_exp_ref_N
         self.use_exp_ref_Ca = use_exp_ref_Ca
         self.use_exp_ref_pf = use_exp_ref_pf
         self.use_gau_ref_noe = use_gau_ref_noe
-	self.use_gau_ref_J = use_gau_ref_J
         self.use_gau_ref_H = use_gau_ref_H
         self.use_gau_ref_Ha = use_gau_ref_Ha
         self.use_gau_ref_N = use_gau_ref_N
