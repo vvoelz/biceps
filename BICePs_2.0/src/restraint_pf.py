@@ -30,6 +30,13 @@ class restraint_pf(object):
         self.npf = 0
         self.sse_pf = 0
         self.Ndof_pf = None
+        self.betas_pf = None
+        self.ref_sigma_pf = None
+        self.ref_mean_pf = None
+        self.neglog_exp_ref_pf = None
+        self.neglog_gau_ref_pf = None
+        self.sum_neglog_exp_ref_pf = 0.0   #GYH
+        self.sum_neglog_gau_ref_pf = 0.0      #GYH
 
     def load_data_pf(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .chemicalshift file format.
@@ -82,6 +89,25 @@ class restraint_pf(object):
         if debug:
             print 'self.sse_pf', self.sse_pf
 
+    def compute_neglog_exp_ref_pf(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+
+        self.neglog_exp_ref_pf= np.zeros(self.nprotectionfactor)
+        self.sum_neglog_exp_ref_pf = 0.
+        for j in range(self.nprotectionfactor):
+            self.neglog_exp_ref_pf[j] = np.log(self.betas_pf[j]) + self.protectionfactor_restraints[j].model_protectionfactor/self.betas_pf[j]
+            self.sum_neglog_exp_ref_pf  += self.protectionfactor_restraints[j].weight * self.neglog_exp_ref_pf[j]
+
+
+    def compute_neglog_gau_ref_pf(self):     #GYH
+        """An alternative option for reference potential based on Gaussian distribution"""
+        self.neglog_gau_ref_pf = np.zeros(self.nprotectionfactor)
+        self.sum_neglog_gau_ref_pf = 0.
+        for j in range(self.nprotectionfactor):
+            self.neglog_gau_ref_pf[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_pf[j]) + (self.protectionfactor_restraints[j].model_protectionfactor - self.ref_mean_pf[j])**2.0/(2*self.ref_sigma_pf[j]**2.0)
+            self.sum_neglog_gau_ref_pf += self.protectionfactor_restraints[j].weight * self.neglog_gau_ref_pf[j]
 
 
 class NMR_Protectionfactor(object):        #GYH

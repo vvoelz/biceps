@@ -30,6 +30,13 @@ class restraint_cs_N(object):
         self.ncs_N = 0
         self.sse_cs_N = 0
         self.Ndof_cs_N = None
+        self.betas_N = None
+        self.ref_sigma_N = None
+        self.ref_mean_N = None
+        self.neglog_exp_ref_N = None
+        self.sum_neglog_gau_ref_N = 0.0    #GYH
+        self.neglog_gau_ref_N = None
+        self.sum_neglog_exp_ref_N = 0.0    #GYH
 
     def load_data_cs_N(self, filename, verbose=False):
         """Load in the experimental chemical shift restraints from a .cs file format.
@@ -83,6 +90,27 @@ class restraint_cs_N(object):
         self.Ndof_cs_N = N_N
         if debug:
             print 'self.sse_cs_N', self.sse_cs_N
+
+
+    def compute_neglog_exp_ref_N(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_exp_ref_N = np.zeros(self.ncs_N)
+        self.sum_neglog_exp_ref_N = 0.
+        for j in range(self.ncs_N):
+            self.neglog_exp_ref_N[j] = np.log(self.betas_N[j]) + self.cs_N_restraints[j].model_cs_N/self.betas_N[j]
+            self.sum_neglog_exp_ref_N  += self.cs_N_restraints[j].weight * self.neglog_exp_ref_N[j]
+
+    def compute_neglog_gau_ref_N(self):     #GYH
+        """An alternative option for reference potential based on Gaussian distribution"""
+        self.neglog_gau_ref_N = np.zeros(self.ncs_N)
+        self.sum_neglog_gau_ref_N = 0.
+        for j in range(self.ncs_N):
+            self.neglog_gau_ref_N[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_N[j]) + (self.cs_N_restraints[j].model_cs_N - self.ref_mean_N[j])**2.0/(2*self.ref_sigma_N[j]**2.0)
+            self.sum_neglog_gau_ref_N += self.cs_N_restraints[j].weight * self.neglog_gau_ref_N[j]
 
 
 

@@ -154,9 +154,9 @@ class Analysis(object):
 	mbar = MBAR(u_kln, N_k)
 
 	# Extract dimensionless free energy differences and their statistical uncertainties.
-	(Deltaf_ij, dDeltaf_ij) = mbar.getFreeEnergyDifferences()
+#	(Deltaf_ij, dDeltaf_ij) = mbar.getFreeEnergyDifferences()
 	#(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='svd-ew')
-	#(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='approximate')
+	(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='approximate')
 	#print 'Deltaf_ij', Deltaf_ij
 	#print 'dDeltaf_ij', dDeltaf_ij
 	beta = 1.0 # keep in units kT

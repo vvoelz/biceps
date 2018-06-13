@@ -31,6 +31,13 @@ class restraint_cs_Ca(object):
         self.ncs_Ca = 0
         self.sse_cs_Ca = 0 
         self.Ndof_cs_Ca = None 
+        self.betas_Ca = None
+        self.ref_sigma_Ca = None
+        self.ref_mean_Ca = None
+        self.neglog_exp_ref_Ca = None
+        self.neglog_gau_ref_Ca = None
+        self.sum_neglog_exp_ref_Ca = 0.0   #GYH
+        self.sum_neglog_gau_ref_Ca = 0.0      #GYH
 
 
     def load_data_cs_Ca(self, filename, verbose=False):
@@ -85,6 +92,26 @@ class restraint_cs_Ca(object):
         self.Ndof_cs_Ca = N_Ca
         if debug:
             print 'self.sse_cs_Ca', self.sse_cs_Ca
+
+    def compute_neglog_exp_ref_Ca(self):              #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(distance[j) for each distance j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_exp_ref_Ca = np.zeros(self.ncs_Ca)
+        self.sum_neglog_exp_ref_Ca = 0.
+        for j in range(self.ncs_Ca):
+            self.neglog_exp_ref_Ca[j] = np.log(self.betas_Ca[j]) + self.cs_Ca_restraints[j].model_cs_Ca/self.betas_Ca[j]
+            self.sum_neglog_exp_ref_Ca  += self.cs_Ca_restraints[j].weight * self.neglog_exp_ref_Ca[j]
+
+    def compute_neglog_gau_ref_Ca(self):     #GYH
+        """An alternative option for reference potential based on Gaussian distribution"""
+        self.neglog_gau_ref_Ca = np.zeros(self.ncs_Ca)
+        self.sum_neglog_gau_ref_Ca = 0.
+        for j in range(self.ncs_Ca):
+            self.neglog_gau_ref_Ca[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ca[j]) + (self.cs_Ca_restraints[j].model_cs_Ca - self.ref_mean_Ca[j])**2.0/(2*self.ref_sigma_Ca[j]**2.0)
+            self.sum_neglog_gau_ref_Ca += self.cs_Ca_restraints[j].weight * self.neglog_gau_ref_Ca[j]
 
 
 
