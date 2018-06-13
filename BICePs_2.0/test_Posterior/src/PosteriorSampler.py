@@ -36,9 +36,9 @@ class PosteriorSampler(object):
 		 dlogsigma_cs_N=np.log(1.02),sigma_cs_N_min=0.05, sigma_cs_N_max=20.0,
 		 dlogsigma_cs_Ca=np.log(1.02),sigma_cs_Ca_min=0.05, sigma_cs_Ca_max=20.0,
 	         dlogsigma_pf=np.log(1.02),sigma_pf_min=0.05, sigma_pf_max=20.0,
-		 no_ref = False, use_exp_ref_noe = True, use_exp_ref_J = True, use_exp_ref_H = True,
-                 use_exp_ref_Ha = True, use_exp_ref_N = True, use_exp_ref_Ca = True, use_exp_ref_pf = True,
-                 use_gau_ref_noe = False, use_gau_ref_J = False, use_gau_ref_H = False, use_gau_ref_Ha = False,
+		 no_ref = False, use_exp_ref_noe = True, use_exp_ref_H = True, use_exp_ref_Ha = True, 
+		 use_exp_ref_N = True, use_exp_ref_Ca = True, use_exp_ref_pf = True,
+                 use_gau_ref_noe = False, use_gau_ref_H = False, use_gau_ref_Ha = False,
                  use_gau_ref_N = False, use_gau_ref_Ca = False, use_gau_ref_pf = False,
 		 freq_write_traj=1000, freq_print=1000, freq_save_traj=100):
 
@@ -214,11 +214,6 @@ class PosteriorSampler(object):
                         self.build_gau_ref_noe()
                     if self.use_exp_ref_noe == True and self.use_gau_ref_noe == False:
                         self.build_exp_ref_noe()
-        	elif s.sse_dihedrals != 0:
-                    if self.use_exp_ref_J == True and self.use_gau_ref_J == True:
-                        self.build_gau_ref_J()
-                    if self.use_exp_ref_J == True and self.use_gau_ref_J == False:
-                        self.build_exp_ref_J()
                 elif s.sse_cs_H != 0:
                     if self.use_exp_ref_H == True and self.use_gau_ref_H == True:
                         self.build_gau_ref_H()
@@ -275,7 +270,7 @@ class PosteriorSampler(object):
 
 
 
-    def build_exp_ref(self):        #GYH
+    def build_exp_ref(self,scheme):        #GYH
         """Look at all the structures to find the average noe
 
         >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
@@ -286,6 +281,12 @@ class PosteriorSampler(object):
 
             print 'Computing reference potentials (noe) for ensemble', k, 'of', self.nensembles, '...'
             ensemble = self.ensembles[k]
+
+	    if scheme == 'noe':
+		nobs = len(ensemble[0].noe_restraints)
+	    all_obs = []	
+	    distributions = [[] for j in range(nobs)]
+
 
             # collect noe distributions across all structures
             nnoe = len(ensemble[0].noe_restraints)
@@ -780,10 +781,6 @@ class PosteriorSampler(object):
 		result += (s.Ndof_dihedrals)*np.log(new_sigma_J) # for use with log-spaced sigma values
 		result += s.sse_dihedrals / (2.0*new_sigma_J**2.0)
         	result += (s.Ndof_dihedrals)/2.0*self.ln2pi  # for normalization
-                if self.use_exp_ref_J == True and self.use_gau_ref_J == True:
-                    result -= s.sum_gaussian_neglog_reference_potentials_J
-                if self.use_exp_ref_J == True and self.use_gau_ref_J == False:
-                    result -= s.sum_neglog_reference_potentials_J
 
 	# cs terms                           # GYH
 	if s.sse_cs_H != 0:
