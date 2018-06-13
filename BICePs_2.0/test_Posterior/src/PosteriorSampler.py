@@ -153,31 +153,6 @@ class PosteriorSampler(object):
         r_cs_Ha = R.restraint_cs_Ha()
         r_noe = R.restraint_noe()
 
-#        self.allowed_sigma_noe = r_noe.allowed_sigma_noe
-#        self.allowed_sigma_J = r_J.allowed_sigma_J
-#        self.allowed_sigma_cs_H = r_cs_H.allowed_sigma_cs_H
-#        self.allowed_sigma_cs_Ha = r_cs_Ha.allowed_sigma_cs_Ha
-#        self.allowed_sigma_cs_N = r_cs_N.allowed_sigma_cs_N
-#        self.allowed_sigma_cs_Ca = r_cs_Ca.allowed_sigma_cs_Ca
-#        self.allowed_gamma = r_noe.allowed_gamma
-
-#        self.sigma_noe = r_noe.sigma_noe
-#        self.sigma_noe_index = r_noe.sigma_noe_index
-#        self.sigma_J = r_J.sigma_J
-#        self.sigma_J_index = r_J.sigma_J_index
-#        self.sigma_cs_H = r_cs_H.sigma_cs_H
-#        self.sigma_cs_H_index = r_cs_H.sigma_cs_H_index
-#        self.sigma_cs_Ha = r_cs_Ha.sigma_cs_Ha
-#        self.sigma_cs_Ha_index = r_cs_Ha.sigma_cs_Ha_index
-#        self.sigma_cs_N = r_cs_N.sigma_cs_N
-#        self.sigma_cs_N_index = r_cs_N.sigma_cs_N_index
-#        self.sigma_cs_Ca = r_cs_Ca.sigma_cs_Ca
-#        self.sigma_cs_Ca_index = r_cs_Ca.sigma_cs_Ca_index
-#        self.gamma = r_noe.gamma
-#        self.gamma_index = r_noe.gamma_index
-
-
-
 
         # keep track of what we sampled in a trajectory
         self.traj = PosteriorSamplingTrajectory(self.ensembles[0],
@@ -239,23 +214,6 @@ class PosteriorSampler(object):
                         self.build_gau_ref_pf()
                     if self.use_exp_ref_pf == True and self.use_gau_ref_pf == False:
                         self.build_exp_ref_pf()
-        	
-
-
-	   # make a flag if using both exp and gaussian ref potentials for one restraint
-#        if self.use_exp_ref_noe and self.use_gau_ref_noe:
-#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-#        if self.use_exp_ref_H and self.use_gau_ref_H:
-#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-#        if self.use_exp_ref_Ha and self.use_gau_ref_Ha:
-#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-#        if self.use_exp_ref_N and self.use_gau_ref_N:
-#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-#        if self.use_exp_ref_Ca and self.use_gau_ref_Ca:
-#                sys.exit("error: Cannot use different reference potentials for one exp restraint")
-#  	if self.use_exp_ref_pf and self.use_gau_ref_pf:
-#	        sys.exit("error: Cannot use different reference potentials for one exp restraint")
-
 
 
         # VERY IMPORTANT: compute reference state self.logZ  for the free energies, so they are properly normalized #
@@ -267,50 +225,6 @@ class PosteriorSampler(object):
 
         # store this constant so we're not recalculating it all the time in neglogP
         self.ln2pi = np.log(2.0*np.pi)
-
-
-
-    def build_exp_ref(self,scheme):        #GYH
-        """Look at all the structures to find the average noe
-
-        >>    beta_j = np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
-
-        then store this info as the reference potential for each structures"""
-
-        for k in range(self.nensembles):
-
-            print 'Computing reference potentials (noe) for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
-
-	    if scheme == 'noe':
-		nobs = len(ensemble[0].noe_restraints)
-	    all_obs = []	
-	    distributions = [[] for j in range(nobs)]
-
-
-            # collect noe distributions across all structures
-            nnoe = len(ensemble[0].noe_restraints)
-            all_noe = []
-            noe_distributions = [[] for j in range(nnoe)]
-            for s in ensemble:
-                for j in range(len(s.noe_restraints)):
-                    noe_distributions[j].append( s.noe_restraints[j].model_noe )
-                    all_noe.append( s.noe_restraints[j].model_noe )
-
-            # Find the MLE average (i.e. beta_j) for each noe
-            betas_noe = np.zeros(nnoe)
-            for j in range(nnoe):
-                # plot the maximum likelihood exponential distribution fitting the data
-                betas_noe[j] =  np.array(noe_distributions[j]).sum()/(len(noe_distributions[j])+1.0)
-
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.betas_noe = betas_noe
-                s.compute_neglog_reference_potentials_noe()
-
-
-
-
 
 
     # Build Reference Prior NOE (Nuclear Overhauser effect):{{{
@@ -345,7 +259,7 @@ class PosteriorSampler(object):
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
                 s.betas_noe = betas_noe
-                s.compute_neglog_reference_potentials_noe()
+                s.compute_neglog_exp_ref_noe()
     #}}}
 
     # Build Gaussian Ref. Prior NOE:{{{
@@ -381,7 +295,7 @@ class PosteriorSampler(object):
             for s in ensemble:
                 s.ref_mean_noe = ref_mean_noe
             	s.ref_sigma_noe = ref_sigma_noe
-	        s.compute_gaussian_neglog_reference_potentials_noe()
+	        s.compute_neglog_gau_ref_noe()
     #}}}
 
     # Build Ref. Prior H:{{{
@@ -417,7 +331,7 @@ class PosteriorSampler(object):
             for s in ensemble:
                 s.betas_H = betas_H
     #            print "s.betas_H", s.betas_H
-                s.compute_neglog_reference_potentials_H()
+                s.compute_neglog_exp_ref_H()
     #}}}
 
     # Build Gaussain Ref H:{{{
@@ -453,7 +367,7 @@ class PosteriorSampler(object):
             for s in ensemble:
                 s.ref_mean_H = ref_mean_H
                 s.ref_sigma_H = ref_sigma_H
-                s.compute_gaussian_neglog_reference_potentials_H()
+                s.compute_neglog_gau_ref_H()
     #}}}
 
     # Build Ref Prior Ha:{{{
@@ -487,7 +401,7 @@ class PosteriorSampler(object):
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
                 s.betas_Ha = betas_Ha
-                s.compute_neglog_reference_potentials_Ha()
+                s.compute_neglog_exp_ref_Ha()
     #}}}
 
     # Build Gaussian Ref Prior Ha:{{{
@@ -523,7 +437,7 @@ class PosteriorSampler(object):
             for s in ensemble:
                 s.ref_mean_Ha = ref_mean_Ha
                 s.ref_sigma_Ha = ref_sigma_Ha
-                s.compute_gaussian_neglog_reference_potentials_Ha()
+                s.compute_neglog_gau_ref_Ha()
     #}}}
 
     # Build Ref Prior N:{{{
@@ -557,7 +471,7 @@ class PosteriorSampler(object):
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
                 s.betas_N = betas_N
-                s.compute_neglog_reference_potentials_N()
+                s.compute_neglog_exp_ref_N()
 
     #:}}}
 
@@ -594,7 +508,7 @@ class PosteriorSampler(object):
             for s in ensemble:
                 s.ref_mean_N = ref_mean_N
                 s.ref_sigma_N = ref_sigma_N
-                s.compute_gaussian_neglog_reference_potentials_N()
+                s.compute_neglog_gau_ref_N()
 
     #:}}}
 
@@ -629,7 +543,7 @@ class PosteriorSampler(object):
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
                 s.betas_Ca = betas_Ca
-                s.compute_neglog_reference_potentials_Ca()
+                s.compute_neglog_exp_ref_Ca()
 
     #:}}}
 
@@ -666,7 +580,7 @@ class PosteriorSampler(object):
             for s in ensemble:
                 s.ref_mean_Ca = ref_mean_Ca
                 s.ref_sigma_Ca = ref_sigma_Ca
-                s.compute_gaussian_neglog_reference_potentials_Ca()
+                s.compute_neglog_gau_ref_Ca()
 
     #:}}}
 
@@ -701,7 +615,7 @@ class PosteriorSampler(object):
             # store the beta information in each structure and compute/store the -log P_potential
             for s in ensemble:
                 s.betas_pf = betas_pf
-                s.compute_neglog_reference_potentials_pf()
+                s.compute_neglog_exp_ref_pf()
 
     #:}}}
 
@@ -749,7 +663,7 @@ class PosteriorSampler(object):
             for s in ensemble:
                 s.ref_mean_pf = ref_mean_pf
                 s.ref_sigma_pf =  ref_sigma_pf
-                s.compute_gaussian_neglog_reference_potentials_pf()
+                s.compute_neglog_gau_ref_pf()
 
     #:}}}
 
@@ -772,9 +686,9 @@ class PosteriorSampler(object):
 		result += s.sse_noe[new_gamma_index] / (2.0*new_sigma_noe**2.0)
         	result += (s.Ndof_noe)/2.0*self.ln2pi  # for normalization
                 if self.use_exp_ref_noe == True and self.use_gau_ref_noe == True:
-                    result -= s.sum_gaussian_neglog_reference_potentials_noe
+                    result -= s.sum_neglog_gau_ref_noe
                 if self.use_exp_ref_noe == True and self.use_gau_ref_noe == False:
-                    result -= s.sum_neglog_reference_potentials_noe
+                    result -= s.sum_neglog_exp_ref_noe
 
         # dihedral terms
         if s.sse_dihedrals != 0:
@@ -788,18 +702,18 @@ class PosteriorSampler(object):
          	result += s.sse_cs_H / (2.0*new_sigma_cs_H**2.0)
         	result += (s.Ndof_cs_H)/2.0*self.ln2pi
                 if self.use_exp_ref_H == True and self.use_gau_ref_H == True:
-                    result -= s.sum_gaussian_neglog_reference_potentials_H
+                    result -= s.sum_neglog_gau_ref_H
                 if self.use_exp_ref_H == True and self.use_gau_ref_H == False:
-                    result -= s.sum_neglog_reference_potentials_H
+                    result -= s.sum_neglog_exp_ref_H
 
 	if s.sse_cs_Ha != 0:
 		result += (s.Ndof_cs_Ha)*np.log(new_sigma_cs_Ha)
 	        result += s.sse_cs_Ha / (2.0*new_sigma_cs_Ha**2.0)
 	        result += (s.Ndof_cs_Ha)/2.0*self.ln2pi
                 if self.use_exp_ref_Ha == True and self.use_gau_ref_Ha == True:
-                    result -= s.sum_gaussian_neglog_reference_potentials_Ha
+                    result -= s.sum_neglog_gau_ref_Ha
                 if self.use_exp_ref_Ha == True and self.use_gau_ref_Ha == False:
-                    result -= s.sum_neglog_reference_potentials_Ha
+                    result -= s.sum_neglog_exp_ref_Ha
 
 
 	if s.sse_cs_N != 0:
@@ -807,9 +721,9 @@ class PosteriorSampler(object):
 	        result += s.sse_cs_N / (2.0*new_sigma_cs_N**2.0)
 	        result += (s.Ndof_cs_N)/2.0*self.ln2pi
                 if self.use_exp_ref_N == True and self.use_gau_ref_N == True:
-                    result -= s.sum_gaussian_neglog_reference_potentials_N
+                    result -= s.sum_neglog_gau_ref_N
                 if self.use_exp_ref_N == True and self.use_gau_ref_N == False:
-                    result -= s.sum_neglog_reference_potentials_N
+                    result -= s.sum_neglog_exp_ref_N
 
 
 	if s.sse_cs_Ca != 0:
@@ -817,9 +731,9 @@ class PosteriorSampler(object):
 	        result += s.sse_cs_Ca / (2.0*new_sigma_cs_Ca**2.0)
 	        result += (s.Ndof_cs_Ca)/2.0*self.ln2pi
                 if self.use_exp_ref_Ca == True and self.use_gau_ref_Ca == True:
-                    result -= s.sum_gaussian_neglog_reference_potentials_Ca
+                    result -= s.sum_neglog_gau_ref_Ca
                 if self.use_exp_ref_Ca == True and self.use_gau_ref_Ca == False:
-                    result -= s.sum_neglog_reference_potentials_Ca
+                    result -= s.sum_neglog_exp_ref_Ca
 
 
         # pf terms                           # GYH
@@ -828,9 +742,9 @@ class PosteriorSampler(object):
 	        result += s.sse_pf / (2.0*new_sigma_pf**2.0)
 	        result += (s.Ndof_pf)/2.0*self.ln2pi
                 if self.use_exp_ref_pf == True and self.use_gau_ref_pf == True:
-                    result -= s.sum_gaussian_neglog_reference_potentials_pf
+                    result -= s.sum_neglog_gau_ref_pf
                 if self.use_exp_ref_pf == True and self.use_gau_ref_pf == False:
-                    result -= s.sum_neglog_reference_potentials_pf
+                    result -= s.sum_neglog_exp_ref_pf
 
         if verbose:
             print 'state, f_sim', new_state, s.free_energy,
@@ -841,136 +755,136 @@ class PosteriorSampler(object):
             print 's.sse_cs_N', s.sse_cs_N, 's.Ndof_cs_N', s.Ndof_cs_N # GYH
             print 's.sse_cs_Ca', s.sse_cs_Ca, 's.Ndof_cs_Ca', s.Ndof_cs_Ca # GYH
 	    print 's.sse_pf', s.sse_pf, 's.Ndof_pf', s.Ndof_pf
-	    print 's.sum_neglog_reference_potentials_noe', s.sum_neglog_reference_potentials_noe, 's.sum_neglog_reference_potentials_H', s.sum_neglog_reference_potentials_H, 's.sum_neglog_reference_potentials_Ha',s.sum_neglog_reference_potentials_Ha, 's.sum_neglog_reference_potentials_N', s.sum_neglog_reference_potentials_N, 's.sum_neglog_reference_potentials_Ca', s.sum_neglog_reference_potentials_Ca, 's.sum_neglog_reference_potentials_pf', s.sum_neglog_reference_potentials_pf	#GYH
-	    print 's.sum_gaussian_neglog_reference_potentials_noe', s.sum_gaussian_neglog_reference_potentials_noe, 's.sum_gaussian_neglog_reference_potentials_H', s.sum_gaussian_neglog_reference_potentials_H, 's.sum_gaussian_neglog_reference_potentials_Ha', s.sum_gaussian_neglog_reference_potentials_Ha, 's.sum_gaussian_neglog_reference_potentials_N', s.sum_gaussian_neglog_reference_potentials_N, 's.sum_gaussian_neglog_reference_potentials_Ca', s.sum_gaussian_neglog_reference_potentials_Ca, 's.sum_gaussian_neglog_reference_potentials_pf', s.sum_gaussian_neglog_reference_potentials_pf       #GYH
+	    print 's.sum_neglog_exp_ref_noe', s.sum_neglog_exp_ref_noe, 's.sum_neglog_exp_ref_H', s.sum_neglog_exp_ref_H, 's.sum_neglog_exp_ref_Ha',s.sum_neglog_exp_ref_Ha, 's.sum_neglog_exp_ref_N', s.sum_neglog_exp_ref_N, 's.sum_neglog_exp_ref_Ca', s.sum_neglog_exp_ref_Ca, 's.sum_neglog_exp_ref_pf', s.sum_neglog_exp_ref_pf	#GYH
+	    print 's.sum_neglog_gau_ref_noe', s.sum_neglog_gau_ref_noe, 's.sum_neglog_gau_ref_H', s.sum_neglog_gau_ref_H, 's.sum_neglog_gau_ref_Ha', s.sum_neglog_gau_ref_Ha, 's.sum_neglog_gau_ref_N', s.sum_neglog_gau_ref_N, 's.sum_neglog_gau_ref_Ca', s.sum_neglog_gau_ref_Ca, 's.sum_neglog_gau_ref_pf', s.sum_neglog_gau_ref_pf       #GYH
         return result
     # }}}
 
 ## Compute -log( reference potentials (ALL Restraints) ):{{{
-#    def compute_neglog_reference_potentials_noe(self):		#GYH
+#    def compute_neglog_exp_ref_noe(self):		#GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
 #        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
-#        self.neglog_reference_potentials_noe = np.zeros(self.nnoe)
-#        self.sum_neglog_reference_potentials_noe = 0.
+#        self.neglog_exp_ref_noe = np.zeros(self.nnoe)
+#        self.sum_neglog_exp_ref_noe = 0.
 #        for j in range(self.nnoe):
-#            self.neglog_reference_potentials_noe[j] = np.log(self.betas_noe[j]) + self.noe_restraints[j].model_noe/self.betas_noe[j]
-#            self.sum_neglog_reference_potentials_noe  += self.noe_restraints[j].weight * self.neglog_reference_potentials_noe[j]
+#            self.neglog_exp_ref_noe[j] = np.log(self.betas_noe[j]) + self.noe_restraints[j].model_noe/self.betas_noe[j]
+#            self.sum_neglog_exp_ref_noe  += self.noe_restraints[j].weight * self.neglog_exp_ref_noe[j]
 #
-#    def compute_gaussian_neglog_reference_potentials_noe(self):	#GYH
+#    def compute_neglog_gau_ref_noe(self):	#GYH
 #	"""An alternative option for reference potential based on Gaussian distribution"""
-#	self.gaussian_neglog_reference_potentials_noe = np.zeros(self.nnoe)
-#	self.sum_gaussian_neglog_reference_potentials_noe = 0.
+#	self.neglog_gau_ref_noe = np.zeros(self.nnoe)
+#	self.sum_neglog_gau_ref_noe = 0.
 #	for j in range(self.nnoe):
-#	    self.gaussian_neglog_reference_potentials_noe[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_noe[j]) + (self.noe_restraints[j].model_noe - self.ref_mean_noe[j])**2.0/(2*(self.ref_sigma_noe[j]**2.0))
-#	    self.sum_gaussian_neglog_reference_potentials_noe += self.noe_restraints[j].weight * self.gaussian_neglog_reference_potentials_noe[j]
+#	    self.neglog_gau_ref_noe[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_noe[j]) + (self.noe_restraints[j].model_noe - self.ref_mean_noe[j])**2.0/(2*(self.ref_sigma_noe[j]**2.0))
+#	    self.sum_neglog_gau_ref_noe += self.noe_restraints[j].weight * self.neglog_gau_ref_noe[j]
 #
-#    def compute_neglog_reference_potentials_H(self):              #GYH
+#    def compute_neglog_exp_ref_H(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
 #        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
-#        self.neglog_reference_potentials_H = np.zeros(self.ncs_H)
-#        self.sum_neglog_reference_potentials_H = 0.
+#        self.neglog_exp_ref_H = np.zeros(self.ncs_H)
+#        self.sum_neglog_exp_ref_H = 0.
 #        for j in range(self.ncs_H):
-#            self.neglog_reference_potentials_H[j] = np.log(self.betas_H[j]) + self.cs_H_restraints[j].model_cs_H/self.betas_H[j]
-#            self.sum_neglog_reference_potentials_H  += self.cs_H_restraints[j].weight * self.neglog_reference_potentials_H[j]
+#            self.neglog_exp_ref_H[j] = np.log(self.betas_H[j]) + self.cs_H_restraints[j].model_cs_H/self.betas_H[j]
+#            self.sum_neglog_exp_ref_H  += self.cs_H_restraints[j].weight * self.neglog_exp_ref_H[j]
 #
-#    def compute_gaussian_neglog_reference_potentials_H(self):     #GYH
+#    def compute_neglog_gau_ref_H(self):     #GYH
 #        """An alternative option for reference potential based on Gaussian distribution"""
-#        self.gaussian_neglog_reference_potentials_H = np.zeros(self.ncs_H)
-#        self.sum_gaussian_neglog_reference_potentials_H = 0.
+#        self.neglog_gau_ref_H = np.zeros(self.ncs_H)
+#        self.sum_neglog_gau_ref_H = 0.
 #        for j in range(self.ncs_H):
-#            self.gaussian_neglog_reference_potentials_H[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_H[j]) + (self.cs_H_restraints[j].model_cs_H - self.ref_mean_H[j])**2.0/(2*self.ref_sigma_H[j]**2.0)
-#            self.sum_gaussian_neglog_reference_potentials_H += self.cs_H_restraints[j].weight * self.gaussian_neglog_reference_potentials_H[j]
+#            self.neglog_gau_ref_H[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_H[j]) + (self.cs_H_restraints[j].model_cs_H - self.ref_mean_H[j])**2.0/(2*self.ref_sigma_H[j]**2.0)
+#            self.sum_neglog_gau_ref_H += self.cs_H_restraints[j].weight * self.neglog_gau_ref_H[j]
 #
 #
-#    def compute_neglog_reference_potentials_Ha(self):              #GYH
+#    def compute_neglog_exp_ref_Ha(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
 #        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
-#        self.neglog_reference_potentials_Ha = np.zeros(self.ncs_Ha)
-#        self.sum_neglog_reference_potentials_Ha = 0.
+#        self.neglog_exp_ref_Ha = np.zeros(self.ncs_Ha)
+#        self.sum_neglog_exp_ref_Ha = 0.
 #        for j in range(self.ncs_Ha):
-#            self.neglog_reference_potentials_Ha[j] = np.log(self.betas_Ha[j]) + self.cs_Ha_restraints[j].model_cs_Ha/self.betas_Ha[j]
-#            self.sum_neglog_reference_potentials_Ha  += self.cs_Ha_restraints[j].weight * self.neglog_reference_potentials_Ha[j]
+#            self.neglog_exp_ref_Ha[j] = np.log(self.betas_Ha[j]) + self.cs_Ha_restraints[j].model_cs_Ha/self.betas_Ha[j]
+#            self.sum_neglog_exp_ref_Ha  += self.cs_Ha_restraints[j].weight * self.neglog_exp_ref_Ha[j]
 #
-#    def compute_gaussian_neglog_reference_potentials_Ha(self):     #GYH
+#    def compute_neglog_gau_ref_Ha(self):     #GYH
 #        """An alternative option for reference potential based on Gaussian distribution"""
-#        self.gaussian_neglog_reference_potentials_Ha = np.zeros(self.ncs_Ha)
-#        self.sum_gaussian_neglog_reference_potentials_Ha = 0.
+#        self.neglog_gau_ref_Ha = np.zeros(self.ncs_Ha)
+#        self.sum_neglog_gau_ref_Ha = 0.
 #        for j in range(self.ncs_Ha):
-#            self.gaussian_neglog_reference_potentials_Ha[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ha[j]) + (self.cs_Ha_restraints[j].model_cs_Ha - self.ref_mean_Ha[j])**2.0/(2*self.ref_sigma_Ha[j]**2.0)
-#            self.sum_gaussian_neglog_reference_potentials_Ha += self.cs_Ha_restraints[j].weight * self.gaussian_neglog_reference_potentials_Ha[j]
+#            self.neglog_gau_ref_Ha[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ha[j]) + (self.cs_Ha_restraints[j].model_cs_Ha - self.ref_mean_Ha[j])**2.0/(2*self.ref_sigma_Ha[j]**2.0)
+#            self.sum_neglog_gau_ref_Ha += self.cs_Ha_restraints[j].weight * self.neglog_gau_ref_Ha[j]
 #
-#    def compute_neglog_reference_potentials_N(self):              #GYH
+#    def compute_neglog_exp_ref_N(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
 #        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
-#        self.neglog_reference_potentials_N = np.zeros(self.ncs_N)
-#        self.sum_neglog_reference_potentials_N = 0.
+#        self.neglog_exp_ref_N = np.zeros(self.ncs_N)
+#        self.sum_neglog_exp_ref_N = 0.
 #        for j in range(self.ncs_N):
-#            self.neglog_reference_potentials_N[j] = np.log(self.betas_N[j]) + self.cs_N_restraints[j].model_cs_N/self.betas_N[j]
-#            self.sum_neglog_reference_potentials_N  += self.cs_N_restraints[j].weight * self.neglog_reference_potentials_N[j]
+#            self.neglog_exp_ref_N[j] = np.log(self.betas_N[j]) + self.cs_N_restraints[j].model_cs_N/self.betas_N[j]
+#            self.sum_neglog_exp_ref_N  += self.cs_N_restraints[j].weight * self.neglog_exp_ref_N[j]
 #
-#    def compute_gaussian_neglog_reference_potentials_N(self):     #GYH
+#    def compute_neglog_gau_ref_N(self):     #GYH
 #        """An alternative option for reference potential based on Gaussian distribution"""
-#        self.gaussian_neglog_reference_potentials_N = np.zeros(self.ncs_N)
-#        self.sum_gaussian_neglog_reference_potentials_N = 0.
+#        self.neglog_gau_ref_N = np.zeros(self.ncs_N)
+#        self.sum_neglog_gau_ref_N = 0.
 #        for j in range(self.ncs_N):
-#            self.gaussian_neglog_reference_potentials_N[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_N[j]) + (self.cs_N_restraints[j].model_cs_N - self.ref_mean_N[j])**2.0/(2*self.ref_sigma_N[j]**2.0)
-#            self.sum_gaussian_neglog_reference_potentials_N += self.cs_N_restraints[j].weight * self.gaussian_neglog_reference_potentials_N[j]
+#            self.neglog_gau_ref_N[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_N[j]) + (self.cs_N_restraints[j].model_cs_N - self.ref_mean_N[j])**2.0/(2*self.ref_sigma_N[j]**2.0)
+#            self.sum_neglog_gau_ref_N += self.cs_N_restraints[j].weight * self.neglog_gau_ref_N[j]
 #
 #
-#    def compute_neglog_reference_potentials_Ca(self):              #GYH
+#    def compute_neglog_exp_ref_Ca(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
 #        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
-#        self.neglog_reference_potentials_Ca = np.zeros(self.ncs_Ca)
-#        self.sum_neglog_reference_potentials_Ca = 0.
+#        self.neglog_exp_ref_Ca = np.zeros(self.ncs_Ca)
+#        self.sum_neglog_exp_ref_Ca = 0.
 #        for j in range(self.ncs_Ca):
-#            self.neglog_reference_potentials_Ca[j] = np.log(self.betas_Ca[j]) + self.cs_Ca_restraints[j].model_cs_Ca/self.betas_Ca[j]
-#            self.sum_neglog_reference_potentials_Ca  += self.cs_Ca_restraints[j].weight * self.neglog_reference_potentials_Ca[j]
+#            self.neglog_exp_ref_Ca[j] = np.log(self.betas_Ca[j]) + self.cs_Ca_restraints[j].model_cs_Ca/self.betas_Ca[j]
+#            self.sum_neglog_exp_ref_Ca  += self.cs_Ca_restraints[j].weight * self.neglog_exp_ref_Ca[j]
 #
-#    def compute_gaussian_neglog_reference_potentials_Ca(self):     #GYH
+#    def compute_neglog_gau_ref_Ca(self):     #GYH
 #        """An alternative option for reference potential based on Gaussian distribution"""
-#        self.gaussian_neglog_reference_potentials_Ca = np.zeros(self.ncs_Ca)
-#        self.sum_gaussian_neglog_reference_potentials_Ca = 0.
+#        self.neglog_gau_ref_Ca = np.zeros(self.ncs_Ca)
+#        self.sum_neglog_gau_ref_Ca = 0.
 #        for j in range(self.ncs_Ca):
-#            self.gaussian_neglog_reference_potentials_Ca[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ca[j]) + (self.cs_Ca_restraints[j].model_cs_Ca - self.ref_mean_Ca[j])**2.0/(2*self.ref_sigma_Ca[j]**2.0)
-#            self.sum_gaussian_neglog_reference_potentials_Ca += self.cs_Ca_restraints[j].weight * self.gaussian_neglog_reference_potentials_Ca[j]
+#            self.neglog_gau_ref_Ca[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_Ca[j]) + (self.cs_Ca_restraints[j].model_cs_Ca - self.ref_mean_Ca[j])**2.0/(2*self.ref_sigma_Ca[j]**2.0)
+#            self.sum_neglog_gau_ref_Ca += self.cs_Ca_restraints[j].weight * self.neglog_gau_ref_Ca[j]
 #
 #
-#    def compute_neglog_reference_potentials_pf(self):              #GYH
+#    def compute_neglog_exp_ref_pf(self):              #GYH
 #        """Uses the stored beta information (calculated across all structures) to calculate
 #        - log P_ref(noe[j) for each noe j."""
 #
 #        # print 'self.betas', self.betas
 #
-#        self.neglog_reference_potentials_pf= np.zeros(self.npf)
-#        self.sum_neglog_reference_potentials_pf = 0.
+#        self.neglog_exp_ref_pf= np.zeros(self.npf)
+#        self.sum_neglog_exp_ref_pf = 0.
 #        for j in range(self.npf):
-#            self.neglog_reference_potentials_pf[j] = np.log(self.betas_pf[j]) + self.pf_restraints[j].model_pf/self.betas_pf[j]
-#            self.sum_neglog_reference_potentials_pf  += self.pf_restraints[j].weight * self.neglog_reference_potentials_pf[j]
+#            self.neglog_exp_ref_pf[j] = np.log(self.betas_pf[j]) + self.pf_restraints[j].model_pf/self.betas_pf[j]
+#            self.sum_neglog_exp_ref_pf  += self.pf_restraints[j].weight * self.neglog_exp_ref_pf[j]
 #
 #
-#    def compute_gaussian_neglog_reference_potentials_pf(self):     #GYH
+#    def compute_neglog_gau_ref_pf(self):     #GYH
 #        """An alternative option for reference potential based on Gaussian distribution"""
-#        self.gaussian_neglog_reference_potentials_pf = np.zeros(self.npf)
-#        self.sum_gaussian_neglog_reference_potentials_pf = 0.
+#        self.neglog_gau_ref_pf = np.zeros(self.npf)
+#        self.sum_neglog_gau_ref_pf = 0.
 #        for j in range(self.npf):
 ##	    print j, 'self.ref_sigma_pf[j]', self.ref_sigma_pf[j], 'self.ref_mean_pf[j]', self.ref_mean_pf[j]
-#            self.gaussian_neglog_reference_potentials_pf[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_pf[j]) + (self.pf_restraints[j].model_pf - self.ref_mean_pf[j])**2.0/(2*self.ref_sigma_pf[j]**2.0)
-#            self.sum_gaussian_neglog_reference_potentials_pf += self.pf_restraints[j].weight * self.gaussian_neglog_reference_potentials_pf[j]
+#            self.neglog_gau_ref_pf[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_pf[j]) + (self.pf_restraints[j].model_pf - self.ref_mean_pf[j])**2.0/(2*self.ref_sigma_pf[j]**2.0)
+#            self.sum_neglog_gau_ref_pf += self.pf_restraints[j].weight * self.neglog_gau_ref_pf[j]
 #    # }}}
 #
     # Sample:{{{

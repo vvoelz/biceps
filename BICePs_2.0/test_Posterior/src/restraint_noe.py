@@ -33,11 +33,18 @@ class restraint_noe(object):
         self.gamma_min = gamma_min
         self.gamma_max = gamma_max	
 	self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
-	print "self.allowed_gamma", self.allowed_gamma
-        #self.sse_noe = np.array([0.0 for gamma in self.allowed_gamma])
+#	print "self.allowed_gamma", self.allowed_gamma
+        self.sse_noe = np.array([0.0 for gamma in self.allowed_gamma])
 	#print "len(self.sse_noe)", len(self.sse_noe)
         self.Ndof_noe = 0.0
 	self.use_log_normal_noe = use_log_normal_noe
+        self.betas_noe = None   # if reference is used, an array of N_j betas for each noe
+        self.ref_sigma_noe = None
+        self.ref_mean_noe = None
+        self.neglog_exp_ref_noe = None
+        self.neglog_gau_ref_noe = None
+        self.sum_neglog_exp_ref_noe = 0.0  #GYH
+        self.sum_neglog_gau_ref_noe = 0.0      #GYH
 
 
     """A class for all restraints"""
@@ -126,9 +133,9 @@ class restraint_noe(object):
     def compute_sse_noe(self, debug=False):
         """Returns the (weighted) sum of squared errors for noe,
         and the *effective* number of noe (i.e. the sum of the weights)"""
-	print "len(self.allowed_gamma)",len(self.allowed_gamma)
+#	print "len(self.allowed_gamma)",len(self.allowed_gamma)
 	self.sse_noe = np.array([0.0 for gamma in self.allowed_gamma])
-        print "len(self.sse_noe)",len(self.sse_noe)
+#        print "len(self.sse_noe)",len(self.sse_noe)
 	if debug:
 	    print 'self.allowed_gamma', self.allowed_gamma
         for g in range(len(self.allowed_gamma)):
@@ -155,6 +162,28 @@ class restraint_noe(object):
         if debug:
             print 'self.sse_noe', self.sse_noe
 
+
+    # Compute -log( reference potentials (ALL Restraints) ):{{{
+    def compute_neglog_exp_ref_noe(self):          #GYH
+        """Uses the stored beta information (calculated across all structures) to calculate
+        - log P_ref(noe[j) for each noe j."""
+
+        # print 'self.betas', self.betas
+
+        self.neglog_exp_ref_noe = np.zeros(self.nnoe)
+        self.sum_neglog_exp_ref_noe = 0.
+        for j in range(self.nnoe):
+            self.neglog_exp_ref_noe[j] = np.log(self.betas_noe[j]) + self.noe_restraints[j].model_noe/self.betas_noe[j]
+            self.sum_neglog_exp_ref_noe  += self.noe_restraints[j].weight * self.neglog_exp_ref_noe[j]
+
+    def compute_neglog_gau_ref_noe(self): #GYH
+        """An alternative option for reference potential based on Gaussian distribution"""
+        self.neglog_gau_ref_noe = np.zeros(self.nnoe)
+        self.sum_neglog_gau_ref_noe = 0.
+        for j in range(self.nnoe):
+            self.neglog_gau_ref_noe[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma_noe[j]) + (self.noe_restraints[j].model_noe - self.ref_mean_noe[j])**2.0/(2*(self.ref_sigma_noe[j]**2.0))
+            self.sum_neglog_gau_ref_noe += self.noe_restraints[j].weight * self.neglog_gau_ref_noe[j]
+
 class NMR_Distance(object):
     """A class to store NMR noe information."""
 
@@ -176,7 +205,6 @@ class NMR_Distance(object):
 
         # N equivalent noe should only get 1/N of the weight when computing chi^2
         self.weight = 1.0  # default is N=1
-
 
 
 
