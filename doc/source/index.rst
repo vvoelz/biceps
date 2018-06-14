@@ -7,11 +7,9 @@ Supported experimental observables include:
  - `NMR nuclear Overhauser effect (NOE) <https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect>`_.
  - `NMR chemical shifts <https://en.wikipedia.org/wiki/Chemical_shift>`_ (``HA``, ``NH``, ``CA`` and ``N``).
  - `J couplings <https://en.wikipedia.org/wiki/J-coupling>`_ (both small molecules and amino acids)
- - `Hydrogen–deuterium exchange (HDX)<https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange>`_.
+ - `Hydrogen–deuterium exchange (HDX) <https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange>`_.
 
-
-`GitHub Repository for BICePs
-<https://github.com/vvoelz/biceps/>`_
+All source codes and examples are available here:`GitHub Repository for BICePs <https://github.com/vvoelz/biceps/>`_
 
 ---------------------------------------------
 
@@ -21,6 +19,7 @@ Supported experimental observables include:
 
    installation
    theory
+   workflow
    examples/index
    versions/index
 
