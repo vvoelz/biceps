@@ -57,7 +57,7 @@ ensemble-averaged experimental observables
 :math:`\mathbf{r} = (r_1, r_2, ..., r_N)`. Such observables are
 low-dimensional projections of some high-dimensional state space
 :math:`X`, and therefore these restraints in the space of observables
-need to be treated as *potentials of mean force*.[#f1]_[#f2]_[#f3]_
+need to be treated as *potentials of mean force*.[#f1]_ [#f2]_ [#f3]_
 
 .. math:: P(X | D) \propto \bigg[ \frac{Q(\mathbf{r}(X)|D)}{Q_{\text{ref}}(\mathbf{r}(X))} \bigg] P(X)
 
@@ -89,6 +89,7 @@ small distances where the reference potential
 
 .. figure:: figures/Figure1.pdf
    :align: center
+
    Figure 1.
 
 BICePs scores for quantitative model selection
@@ -128,6 +129,7 @@ experimental restraints.
 
 .. figure:: figures/Figure2.pdf
    :align: center
+
    Figure 2.
 
 In Bayesian statistics, the so-called Bayes factor,
@@ -180,7 +182,7 @@ key advantages as follows:
 -  With proper reference potentials, BICePs scores can be used for
    unambiguous, objective model selection.
 
-For more details about theory beneath BICePs, please check these work. [#f4]_[#f5]_
+For more details about theory beneath BICePs, please check these work. [#f4]_ [#f5]_
 
 References
 ----------
