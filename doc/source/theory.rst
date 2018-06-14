@@ -57,7 +57,7 @@ ensemble-averaged experimental observables
 :math:`\mathbf{r} = (r_1, r_2, ..., r_N)`. Such observables are
 low-dimensional projections of some high-dimensional state space
 :math:`X`, and therefore these restraints in the space of observables
-need to be treated as *potentials of mean force*.
+need to be treated as *potentials of mean force*.[#f1]_[#f2]_[#f3]_
 
 .. math:: P(X | D) \propto \bigg[ \frac{Q(\mathbf{r}(X)|D)}{Q_{\text{ref}}(\mathbf{r}(X))} \bigg] P(X)
 
@@ -73,7 +73,7 @@ bias is introduced when many non-informative restraints are used.
 
 As an example to illustrate the importance of reference potentials,
 consider an experimental distance restraint applied to two residues of a
-polypeptide chain. In the absence of any
+polypeptide chain (Figure 1). In the absence of any
 experimental information, we assume a reference potential
 :math:`Q_{\text{ref}}(\mathbf{r})` corresponding to the end-to-end
 distance of a random-coil polymer with a chain length equal to that of
@@ -89,7 +89,7 @@ small distances where the reference potential
 
 .. figure:: figures/Figure1.pdf
    :align: center
-
+   Figure 1.
 
 BICePs scores for quantitative model selection
 ----------------------------------------------
@@ -121,13 +121,14 @@ overlap integral between the prior :math:`P^{(k)}(X)` and a likelihood
 function
 :math:`Q(X) = \int [Q(\mathbf{r}(X)|D,\sigma)/Q_{\text{ref}}(\mathbf{r}(X)) ] P(\sigma) d\sigma`.
 The overlap integral quantifies how well the theoretical modeling agrees
-with the experimental data; i.e. the
+with the experimental data (Figure 2); i.e. the
 value of :math:`Z^{(k)}` is maximal when :math:`P^{(k)}(X)` most closely
 matches the likelihood distribution :math:`Q(X)` specified by the
 experimental restraints.
 
 .. figure:: figures/Figure2.pdf
    :align: center
+   Figure 2.
 
 In Bayesian statistics, the so-called Bayes factor,
 :math:`Z^{(1)}/Z^{(2)}` is a likelihood ratio that can be used to choose
@@ -145,7 +146,7 @@ posterior for a uniform prior :math:`P(X)`, i.e. no information from
 theoretical modeling. We call :math:`f^{(k)}` the BICePs score. The
 BICePs score provides an unequivocal measure of model quality, to be
 used for objective model selection. The lower the BICePs score, the
-better the model. This useful property means that the
+better the model (Figure 2). This useful property means that the
 BICePs score can be used a metric for force field validation and
 parameterization. In addition, the BICePs score has a useful physical
 interpretation: it reflects the improvement (or disimprovement) of the
@@ -179,6 +180,12 @@ key advantages as follows:
 -  With proper reference potentials, BICePs scores can be used for
    unambiguous, objective model selection.
 
+For more details about theory beneath BICePs, please check these work. [#f4]_[#f5]_
+
 References
 ----------
-.. [#f1] Yunhui Ge and Vincent A. Voelz, `Model selection using BICePs: A Bayesian approach to force field validation and parameterization <https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871>`_ Journal of Physical Chemistry B (2018) 122 (21): 5610–5622 
+.. [#f1] Olsson, S.; Frellsen, J.; Boomsma, W.; Mardia, K. V.; Hamelryck, T. `Inference of Structure Ensembles of Flexible Biomolecules from Sparse, Averaged Data. <http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0079439>`_ PLoS One 2013, 8, e79439
+.. [#f2] Olsson, S.; Boomsma, W.; Frellsen, J.; Bottaro, S.; Harder, T.; Ferkinghoff-Borg, J.; Hamelryck, T. `Generative Probabilistic Models Extend the Scope of Inferential Structure Determination. <https://www.sciencedirect.com/science/article/pii/S1090780711003090?via%3Dihub>`_ J. Magn. Reson. 2011, 213, 182−186.
+.. [#f3] Hamelryck, T.; Borg, M.; Paluszewski, M.; Paulsen, J.; Frellsen, J.; Andreetta, C.; Boomsma, W.; Bottaro, S.; Ferkinghoff-Borg, J. `Potentials of Mean Force for Protein Structure Prediction Vindicated, Formalized and Generalized. <http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0013714>`_ PLoS One 2010, 5, e13714.
+.. [#f4] Voelz, V. A.; Zhou, G. `Bayesian Inference of Conformational State Populations from Computational Models and Sparse Exper- imental Observables. <https://onlinelibrary.wiley.com/doi/abs/10.1002/jcc.23738>`_ J. Comput. Chem. 2014, 35, 2215−2224.
+.. [#f5] Yunhui Ge and Vincent A. Voelz, `Model selection using BICePs: A Bayesian approach to force field validation and parameterization <https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871>`_ Journal of Physical Chemistry B (2018) 122 (21): 5610–5622 
