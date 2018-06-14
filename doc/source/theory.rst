@@ -112,7 +112,6 @@ and values of :math:`\sigma`:
 
 .. math::
 
-   \begin{aligned}
    Z^{(k)} = \int P^{(k)}(X,\sigma | D)  dX d\sigma  &=& \int P^{(k)}(X) Q(X) dX\\
     \text{total evidence for model } P^{(k)} && \text{overlap integral} 
 
