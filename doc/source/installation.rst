@@ -28,11 +28,11 @@ Windows.
 Dependencies of BICePs
 -------------------------
 
-Pymbar 	--> 3.0 or later
-MDTraj 	--> 1.9 or later
-Yaml   	--> 0.1.7 or later
-Matplotlib --> 2.1.2 or later
-Numpy 	--> 1.14.0 or later
+ - Pymbar 	-->  3.0 or later
+ - MDTraj 	-->  1.9 or later
+ - Yaml   	-->  0.1.7 or later
+ - Matplotlib 	-->  2.1.2 or later
+ - Numpy 	-->  1.14.0 or later
 
 Testing Your Installation
 -------------------------
