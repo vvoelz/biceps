@@ -57,7 +57,7 @@ ensemble-averaged experimental observables
 :math:`\mathbf{r} = (r_1, r_2, ..., r_N)`. Such observables are
 low-dimensional projections of some high-dimensional state space
 :math:`X`, and therefore these restraints in the space of observables
-need to be treated as *potentials of mean force*.[#f1]_ [#f2]_ [#f3]_
+need to be treated as *potentials of mean force*. [#f1]_ [#f2]_ [#f3]_
 
 .. math:: P(X | D) \propto \bigg[ \frac{Q(\mathbf{r}(X)|D)}{Q_{\text{ref}}(\mathbf{r}(X))} \bigg] P(X)
 
