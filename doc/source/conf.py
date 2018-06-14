@@ -131,7 +131,7 @@ htmlhelp_basename = 'BICePs'
 
 # -- Options for LaTeX output ---------------------------------------------
 
-latex_elements = {
+#latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
@@ -147,23 +147,23 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
-}
+#}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc),
-]
+#latex_documents = [
+#    (master_doc),
+#]
 
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'tu_chem', u'TU_Chem Documentation',
-     [author], 1)
+#man_pages = [
+#    (master_doc, 'tu_chem', u'TU_Chem Documentation',
+#     [author], 1)
 ]
 
 
@@ -172,9 +172,9 @@ man_pages = [
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [
-    (master_doc,author),
-]
+#texinfo_documents = [
+#    (master_doc,author),
+#]
 
 
 
@@ -196,7 +196,7 @@ epub_copyright = copyright
 # epub_uid = ''
 
 # A list of files that should not be packed into the epub file.
-epub_exclude_files = ['search.html']
+#epub_exclude_files = ['search.html']
 
 
 
