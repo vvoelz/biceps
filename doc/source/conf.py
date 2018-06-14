@@ -120,7 +120,7 @@ html_logo = ''
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['']
+#html_static_path = ['']
 
 
 # -- Options for HTMLHelp output ------------------------------------------
@@ -164,7 +164,7 @@ htmlhelp_basename = 'BICePs'
 #man_pages = [
 #    (master_doc, 'tu_chem', u'TU_Chem Documentation',
 #     [author], 1)
-]
+#]
 
 
 # -- Options for Texinfo output -------------------------------------------
