@@ -2,17 +2,16 @@
 BICePs - Bayesian Inference of Conformational Populations
 ===========================================================
 
-
-.. raw:: html
-
-    <h2 style="margin-top: -1em; font-size: 120%;">
-    The BICePs algorithm (Bayesian Inference of Conformational Populations) is a statistically rigorous Bayesian inference method to reconcile theoretical predictions of conformational state populations with sparse and/or noisy experimental measurements and objectively compare different models.
-    </h2>
-
+The BICePs algorithm (Bayesian Inference of Conformational Populations) is a statistically rigorous Bayesian inference method to reconcile theoretical predictions of conformational state populations with sparse and/or noisy experimental measurements and objectively compare different models.
+Supported experimental observables include:
+ - `NMR nuclear Overhauser effect (NOE) <https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect>`_.
+ - `NMR chemical shifts <https://en.wikipedia.org/wiki/Chemical_shift>`_ (``HA``, ``NH``, ``CA`` and ``N``).
+ - `J couplings <https://en.wikipedia.org/wiki/J-coupling>`_ (both small molecules and amino acids)
+ - `Hydrogen–deuterium exchange (HDX)<https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange>`_.
 
 
 `GitHub Repository for BICePs
-<https://github.com/vvoelz/nmr-biceps/>`_
+<https://github.com/vvoelz/biceps/>`_
 
 ---------------------------------------------
 
@@ -20,19 +19,10 @@ BICePs - Bayesian Inference of Conformational Populations
    :maxdepth: 1
    :glob:
 
-   installation/index
+   installation
+   theory
    examples/index
    versions/index
-
-
-
-Preferred installation
-=======================
-
-
-.. code:: bash
-
-    $ pip install BICePs
 
 
 
