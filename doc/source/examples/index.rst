@@ -9,6 +9,13 @@ A series of examples are provided on this page and each of them is based on a pr
    :maxdepth: 3
    :glob:
 
-   *
+   Macrolide-antibiotics
+   Cyclic-peptides
+   Peptoid-pentamers
+   2D-HP-lattice-model
+   ApoMyoglobin
+   Designed-MDM2-binders
+   Designed-beta-hairpins
+
 
 You are welcome to contribute your own examples and please let us know by simply submit a pull request on our `GitHub <https://github.com/vvoelz/biceps>`_! 
