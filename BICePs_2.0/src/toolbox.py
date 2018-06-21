@@ -145,9 +145,7 @@ def get_J3_HA_HN(trajectories,topol):
                     print 'Model %s : Avg J : %s = '%(Models[j],str(atom).split('-')[0]), avg
                     model_result.append(avg)
         results.append(model_result)
-
     np.save('%s.npy'%fname,results)
-#
 
 
 def rmsd(v,w):
@@ -242,5 +240,8 @@ def Plot(x,y,models,xlabel='x',ylabel='y',name=None,
     else:
         fig.savefig('%s'%name)
     fig.show()
+
+
+
 
 
