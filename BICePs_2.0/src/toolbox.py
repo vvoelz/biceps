@@ -18,7 +18,7 @@ import yaml, io
 #
 import mdtraj as md
 import glob
-from J_coupling import * # MDTraj altered src code
+#from J_coupling import * # MDTraj altered src code
 import scipy ############################# Linest
 from scipy import stats
 import matplotlib ######################## Plotting
@@ -92,60 +92,6 @@ def read_yaml(yaml_file):
         loaded_data = yaml.load(file)
         print('%s'%loaded_data).replace(" '","\n\n '")
 
-
-def get_J3_HA_HN(trajectories,topol):
-    '''Computes the average J3_HA_HN for all trajectories and all models.
-    Parameters
-    ----------
-    trajectories - Path to glob
-    topol - Path to load in the file
-
-    '''
-    #NOTE: Alter this method to select which models to loop over.
-
-
-    # List of all the Karplus coefficient Models
-    Models = ["Ruterjans1999","Bax2007","Bax1997","Habeck" ,"Vuister","Pardi"]
-    # Set paths
-    #data = '/Users/tuc41004/Desktop/nmr-biceps/BICePs_2.0/test_J_coupling/%s/'%fname
-    #topol = data+'%s.gro'%gfiles[N]
-    top = md.load_topology(topol)
-    #trajs = [data + 'traj%s.xtc'%i for i in range(len(glob.glob(data+'traj*.xtc')))]
-    trajs = sorted(glob.glob(trajectories))
-
-
-
-    J = {}       # Dictionary of all J3_HN_HA values for each model
-    J_val = {}   #
-    J_3_exp = [] #
-    results = [] #
-    # Compute the Values for J coupling const.
-    for j in range(len(Models)):
-        for i in range(len(trajs)):
-            t = md.load(trajs[i],top=top)[0]
-            name = trajs[i].split('/')[-1].split('.')[0]
-            print 'Computing 3J_Ha_HN with model %s for %s ...'%(Models[j],trajs[i].split('/')[-1])
-            J["%s"%Models[j]+'_'+name] = compute_J3_HN_HA(t, model=Models[j])
-
-        # Print out the residues names involved:
-        ind = J["%s"%Models[j]+'_'+name][0] # number of residues?
-        for i in range(len(ind)):
-            for m in range(len(ind[i])):
-                atom = t.top.atom(index=ind[i][m])
-                if m == len(ind[i])-1:
-                    J_val["%s"%(str(atom).split('-')[0])] = J["%s"%Models[j]+'_'+name][1][0][i]
-
-        # Computing the average values of all trajectories for each residue:
-        model_result = []
-        for i in range(len(ind)):
-            for n in range(len(ind[i])):
-                atom = t.top.atom(index=ind[i][n])
-                if n == len(ind[i])-1:
-                    avg = np.average(J_val["%s"%(str(atom).split('-')[0])])
-                    print 'Model %s : Avg J : %s = '%(Models[j],str(atom).split('-')[0]), avg
-                    model_result.append(avg)
-        results.append(model_result)
-    np.save('%s.npy'%fname,results)
 
 
 def rmsd(v,w):
