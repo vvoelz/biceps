@@ -16,6 +16,8 @@ import datetime
 # Lets' create input files for BICePs
 ############ Preparation ################
 # Specify necessary argument values
+file_ext = 'npz'
+
 path='cs_H/cs/H/*txt'
 states=50
 indices='cs_H/cs_indices_NH.txt'
