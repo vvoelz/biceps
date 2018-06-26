@@ -12,14 +12,6 @@ import os, sys, glob, copy
 import numpy as np
 from scipy  import loadtxt, savetxt
 from matplotlib import pylab as plt
-<<<<<<< HEAD
-import yaml
-import numpy as np
-import yaml, io
-import h5py
-import pickle
-#import xml
-=======
 #import yaml
 #import numpy as np
 import yaml, io
@@ -28,7 +20,6 @@ import pickle
 import xml
 
 
->>>>>>> 712bfa3eb0884077cf8c553763534317753324ff
 
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
 from prep_cs import *    # Class - creates Chemical shift restraint file
@@ -1392,34 +1383,12 @@ class PosteriorSamplingTrajectory(object):
     ##}}}
 
     #import numpy as np
-<<<<<<< HEAD
-#    import yaml, io
-=======
     #import yaml, io
->>>>>>> 712bfa3eb0884077cf8c553763534317753324ff
     #import h5py
     #import pickle
     #import xml
 
 
-<<<<<<< HEAD
-    ## Numpy Z Compression{{{
-    ##NOTE: This will work well with Cython if we go that route.
-    ## Standardized: Yes ; Binary: Yes; Human Readable: No;
-
-    #def write_results(self, outfilename):
-    #    """Writes a compact file of several arrays into binary format."""
-
-    #    np.savez_compressed(outfilename, self.results)
-
-    #def read_results(filename):
-    #    """Reads a npz file"""
-
-    #    loaded = np.load(filename)
-    #    print loaded.items()
-    ## }}}
-
-=======
 #    # Numpy Z Compression{{{
 #    #NOTE: This will work well with Cython if we go that route.
 #    # Standardized: Yes ; Binary: Yes; Human Readable: No;
@@ -1436,7 +1405,6 @@ class PosteriorSamplingTrajectory(object):
 #        print loaded.items()
 #    # }}}
 #
->>>>>>> 712bfa3eb0884077cf8c553763534317753324ff
 #    # YAML{{{
 #    #NOTE:
 #    # Standardized: Yes; Binary: No; Human Readable: Yes;
@@ -1453,11 +1421,7 @@ class PosteriorSamplingTrajectory(object):
 #        with io.open(filename,'r') as file:
 #            loaded_data = yaml.load(file)
 #            print('%s'%loaded_data).replace(" '","\n\n '")
-<<<<<<< HEAD
-# }}}
-=======
 ## }}}
->>>>>>> 712bfa3eb0884077cf8c553763534317753324ff
 #
     # H5{{{
     #NOTE: Cython wrapping of the HDF5 C API
@@ -1466,13 +1430,6 @@ class PosteriorSamplingTrajectory(object):
     def write_results(self, outfilename):
         """ """
 
-<<<<<<< HEAD
-        hf = h5py.File(outfilename, 'w')
-        hf.create_dataset('dataset', data=self.results)
-        hf.close()
-
-
-=======
         hf = h5py.File(outfilename, 'a')
         for k,v in self.results.items():
             hf.create_dataset(k, data=v)
@@ -1493,7 +1450,6 @@ class PosteriorSamplingTrajectory(object):
 
 
 
->>>>>>> 712bfa3eb0884077cf8c553763534317753324ff
     def read_results(filename):
         f = h5py.File(filename,'r')
         print f.items()
