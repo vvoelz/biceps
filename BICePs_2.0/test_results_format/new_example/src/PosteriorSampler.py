@@ -13,6 +13,14 @@ import numpy as np
 from scipy  import loadtxt, savetxt
 from matplotlib import pylab as plt
 #import yaml
+#import numpy as np
+import yaml, io
+import h5py
+import pickle
+import xml
+
+
+
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
 from prep_cs import *    # Class - creates Chemical shift restraint file
 from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
@@ -1374,29 +1382,29 @@ class PosteriorSamplingTrajectory(object):
     #    yaml.dump(self.results, fout, default_flow_style=False)
     ##}}}
 
-    import numpy as np
+    #import numpy as np
     #import yaml, io
     #import h5py
     #import pickle
     #import xml
 
 
-    # Numpy Z Compression{{{
-    #NOTE: This will work well with Cython if we go that route.
-    # Standardized: Yes ; Binary: Yes; Human Readable: No;
-
-    def write_results(self, outfilename):
-        """Writes a compact file of several arrays into binary format."""
-
-        np.savez_compressed(outfilename, self.results)
-
-    def read_results(filename):
-        """Reads a npz file"""
-
-        loaded = np.load(filename)
-        print loaded.items()
-    # }}}
-
+#    # Numpy Z Compression{{{
+#    #NOTE: This will work well with Cython if we go that route.
+#    # Standardized: Yes ; Binary: Yes; Human Readable: No;
+#
+#    def write_results(self, outfilename):
+#        """Writes a compact file of several arrays into binary format."""
+#
+#        np.savez_compressed(outfilename, self.results)
+#
+#    def read_results(filename):
+#        """Reads a npz file"""
+#
+#        loaded = np.load(filename)
+#        print loaded.items()
+#    # }}}
+#
 #    # YAML{{{
 #    #NOTE:
 #    # Standardized: Yes; Binary: No; Human Readable: Yes;
@@ -1415,25 +1423,40 @@ class PosteriorSamplingTrajectory(object):
 #            print('%s'%loaded_data).replace(" '","\n\n '")
 ## }}}
 #
-#    # H5{{{
-#    #NOTE: Cython wrapping of the HDF5 C API
-#    # Standardized: Yes; Binary: Yes; Human Readable: No;
-#
+    # H5{{{
+    #NOTE: Cython wrapping of the HDF5 C API
+    # Standardized: Yes; Binary: Yes; Human Readable: No;
+
+    def write_results(self, outfilename):
+        """ """
+
+        hf = h5py.File(outfilename, 'a')
+        for k,v in self.results.items():
+            hf.create_dataset(k, data=v)
+        hf.close()
+
+
 #    def write_results(self, outfilename):
 #        """ """
 #
 #        hf = h5py.File(outfilename, 'w')
+#        grp = hf.create_group(None)
+#        for k,v in self.results.items():
+#            grp.create_dataset(k,data=v)
 #        hf.create_dataset('dataset', data=self.results)
 #        hf.close()
-#
-#
-#    def read_results(filename):
-#        f = h5py.File(filename,'r')
-#        print f.items()
-#        #a_group_key = list(f.keys())[0]
-#        # Get the data
-#        #data = list(f[a_group_key])
-## }}}
+
+
+
+
+
+    def read_results(filename):
+        f = h5py.File(filename,'r')
+        print f.items()
+        #a_group_key = list(f.keys())[0]
+        # Get the data
+        #data = list(f[a_group_key])
+# }}}
 #
 #    # Python Pickle{{{
 #    #NOTE:
