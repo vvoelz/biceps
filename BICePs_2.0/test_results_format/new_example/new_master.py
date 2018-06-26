@@ -16,7 +16,7 @@ import datetime
 # Lets' create input files for BICePs
 ############ Preparation ################
 # Specify necessary argument values
-file_ext = 'npz'
+file_ext = 'h5'
 
 path='cs_H/cs/H/*txt'
 states=50
@@ -25,11 +25,14 @@ exp_data='cs_H/chemical_shift_NH.txt'
 top='cs_H/8690.pdb'
 data_dir=path
 out_dir='test_cs_H'
-
+time=[]
 #p=Preparation('cs_H',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=data_dir)
 #p.write(out_dir=out_dir)
 print "start time: ", datetime.datetime.now()
-
+time.append(datetime.datetime.now())
+#a.append(datetime.datetime.now())
+#print a
+#sys.exit()
 #########################################
 # Let's create our ensemble of structures
 ############ Initialization #############
@@ -43,7 +46,7 @@ energies = loadtxt(energies_filename)
 energies -= energies.min()  # set ground state to zero, just in case
 outdir = 'results_ref_normal'
 # Temporarily placing the number of steps here...
-nsteps = 100000 # 10000000
+nsteps = 10000000 # 10000000
 """OUTPUT
 
     Files written:
@@ -98,12 +101,12 @@ for j in lambda_values:
 
 
     print "current time for lambda",j, ":", datetime.datetime.now()
-
+    time.append(datetime.datetime.now())
 #########################################
 # Let's do analysis using MBAR and plot figures
 ############ MBAR and Figures ###########
 # Specify necessary argument values
-
+print time
 sys.exit()
 
 
