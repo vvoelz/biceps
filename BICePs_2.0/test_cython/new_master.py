@@ -16,7 +16,7 @@ import datetime
 # Lets' create input files for BICePs
 ############ Preparation ################
 # Specify necessary argument values
-file_ext = 'h5'
+file_ext = 'npz'
 
 path='cs_H/cs/H/*txt'
 states=50
@@ -46,7 +46,7 @@ energies = loadtxt(energies_filename)
 energies -= energies.min()  # set ground state to zero, just in case
 outdir = 'results_ref_normal'
 # Temporarily placing the number of steps here...
-nsteps = 1000 # 10000000
+nsteps = 100000 # 10000000
 """OUTPUT
 
     Files written:

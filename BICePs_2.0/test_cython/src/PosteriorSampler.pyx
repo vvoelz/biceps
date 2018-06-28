@@ -938,8 +938,13 @@ class PosteriorSampler(object):
 #    # }}}
 #
     # Sample:{{{
-    def sample(self, nsteps):
+
+    def sample(self, int nsteps):
         "Perform nsteps of posterior sampling."
+        cdef int step
+        cdef int new_sigma_noe_index, new_sigma_J_index, new_sigma_cs_H_index
+        cdef int new_sigma_cs_Ha_index, new_sigma_cs_N_index, new_sigma_cs_Ca_index
+        cdef int new_sigma_pf_index, new_gamma_index, new_ensemble_index
 
         for step in range(nsteps):
 
@@ -1379,11 +1384,11 @@ class PosteriorSamplingTrajectory(object):
 #    #NOTE: This will work well with Cython if we go that route.
 #    # Standardized: Yes ; Binary: Yes; Human Readable: No;
 #
-#    def write_results(self, outfilename):
-#        """Writes a compact file of several arrays into binary format."""
-#
-#        np.savez_compressed(outfilename, self.results)
-#
+    def write_results(self, outfilename):
+        """Writes a compact file of several arrays into binary format."""
+
+        np.savez_compressed(outfilename, self.results)
+
 #    def read_results(filename):
 #        """Reads a npz file"""
 #
@@ -1409,19 +1414,19 @@ class PosteriorSamplingTrajectory(object):
 #            print(('%s'%loaded_data).replace(" '","\n\n '"))
 ## }}}
 #
-    # H5{{{
-    #NOTE: Cython wrapping of the HDF5 C API
-    # Standardized: Yes; Binary: Yes; Human Readable: No;
-
-    def write_results(self, outfilename):
-        """ """
-
-        hf = h5py.File(outfilename, 'a')
-        for k,v in self.results.items():
-            hf.create_dataset(k, data=v)
-        hf.close()
-
-
+#    # H5{{{
+#    #NOTE: Cython wrapping of the HDF5 C API
+#    # Standardized: Yes; Binary: Yes; Human Readable: No;
+#
+#    def write_results(self, outfilename):
+#        """ """
+#
+#        hf = h5py.File(outfilename, 'a')
+#        for k,v in self.results.items():
+#            hf.create_dataset(k, data=v)
+#        hf.close()
+#
+#
 #    def write_results(self, outfilename):
 #        """ """
 #
