@@ -941,27 +941,34 @@ class PosteriorSampler(object):
 
     def sample(self, int nsteps):
         "Perform nsteps of posterior sampling."
-        cdef int step
+        cdef int step, new_state
         cdef int new_sigma_noe_index, new_sigma_J_index, new_sigma_cs_H_index
         cdef int new_sigma_cs_Ha_index, new_sigma_cs_N_index, new_sigma_cs_Ca_index
         cdef int new_sigma_pf_index, new_gamma_index, new_ensemble_index
+        cdef float new_sigma_noe, new_sigma_J, new_sigma_cs_H,
+        cdef float new_sigma_cs_Ha, new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_pf, new_gamma, new_E
+
 
         for step in range(nsteps):
 
             new_sigma_noe = self.sigma_noe
             new_sigma_noe_index = self.sigma_noe_index
             new_sigma_J = self.sigma_J
+            #print( '\n\nnew_sigma_J = ',type(new_sigma_J),new_sigma_J )
             new_sigma_J_index = self.sigma_J_index
-            new_sigma_cs_H = self.sigma_cs_H                #GYH
-            new_sigma_cs_H_index = self.sigma_cs_H_index    #GYH
-            new_sigma_cs_Ha = self.sigma_cs_Ha                #GYH
-            new_sigma_cs_Ha_index = self.sigma_cs_Ha_index    #GYH
-            new_sigma_cs_N = self.sigma_cs_N                #GYH
-            new_sigma_cs_N_index = self.sigma_cs_N_index    #GYH
-            new_sigma_cs_Ca = self.sigma_cs_Ca                #GYH
-            new_sigma_cs_Ca_index = self.sigma_cs_Ca_index    #GYH
-            new_sigma_pf = self.sigma_pf                #GYH
-            new_sigma_pf_index = self.sigma_pf_index    #GYH
+            new_sigma_cs_H = self.sigma_cs_H
+            #print( '\n\nnew_sigma_cs_H = ',type(new_sigma_cs_H),new_sigma_cs_H )
+            new_sigma_cs_H_index = self.sigma_cs_H_index
+            new_sigma_cs_Ha = self.sigma_cs_Ha
+            new_sigma_cs_Ha_index = self.sigma_cs_Ha_index
+            new_sigma_cs_N = self.sigma_cs_N
+            new_sigma_cs_N_index = self.sigma_cs_N_index
+            new_sigma_cs_Ca = self.sigma_cs_Ca
+            new_sigma_cs_Ca_index = self.sigma_cs_Ca_index
+            new_sigma_pf = self.sigma_pf
+
+            print( '\n\nnew_sigma_pf = ',type(new_sigma_pf),new_sigma_pf )
+            new_sigma_pf_index = self.sigma_pf_index
             new_gamma = self.gamma
             new_gamma_index = self.gamma_index
 
@@ -995,7 +1002,7 @@ class PosteriorSampler(object):
                 new_sigma_cs_Ca_index = new_sigma_cs_Ca_index%(len(self.allowed_sigma_cs_Ca)) # don't go out of bounds
                 new_sigma_cs_Ca = self.allowed_sigma_cs_Ca[new_sigma_cs_Ca_index]
 
-            elif np.random.random() < 0.60 :        #GYH
+            elif np.random.random() < 0.60 :
             # take a step in array of allowed sigma_pf
                 new_sigma_pf_index += (np.random.randint(3)-1)
                 new_sigma_pf_index = new_sigma_pf_index%(len(self.allowed_sigma_pf)) # don't go out of bounds
@@ -1022,10 +1029,15 @@ class PosteriorSampler(object):
             verbose = True
 #            if step%self.print(_every == 0:)
 #                verbose = True
+            #cdef
+
             new_E = self.neglogP(new_ensemble_index, new_state, new_sigma_noe,
                     new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha,
                     new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_pf,
                     new_gamma_index,  verbose=verbose)
+
+            #print( '\n\nnew_E = ',type(new_E),new_E )
+
 
             # accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -1041,13 +1053,21 @@ class PosteriorSampler(object):
             # Store trajectory counts
             self.traj.sampled_sigma_noe[self.sigma_noe_index] += 1
             self.traj.sampled_sigma_J[self.sigma_J_index] += 1
-            self.traj.sampled_sigma_cs_H[self.sigma_cs_H_index] += 1  #GYH
-            self.traj.sampled_sigma_cs_Ha[self.sigma_cs_Ha_index] += 1  #GYH
-            self.traj.sampled_sigma_cs_N[self.sigma_cs_N_index] += 1  #GYH
-            self.traj.sampled_sigma_cs_Ca[self.sigma_cs_Ca_index] += 1  #GYH
-            self.traj.sampled_sigma_pf[self.sigma_pf_index] += 1 #GYH
+            self.traj.sampled_sigma_cs_H[self.sigma_cs_H_index] += 1
+            self.traj.sampled_sigma_cs_Ha[self.sigma_cs_Ha_index] += 1
+            self.traj.sampled_sigma_cs_N[self.sigma_cs_N_index] += 1
+            self.traj.sampled_sigma_cs_Ca[self.sigma_cs_Ca_index] += 1
+            self.traj.sampled_sigma_pf[self.sigma_pf_index] += 1
             self.traj.sampled_gamma[self.gamma_index] += 1
             self.traj.state_counts[self.state] += 1
+
+
+
+            #print( '\n\nnew_E = ',type(new_E),new_E )
+            #print( '\n\nself.traj.sampled_sigma_noe[self.sigma_noe_index] = ',type(self.traj.sampled_sigma_noe[self.sigma_noe_index]),self.traj.sampled_sigma_noe[self.sigma_noe_index] )
+            print( '\n\nself.traj.state_counts[self.state] = ',type(self.traj.state_counts[self.state]),self.traj.state_counts[self.state] )
+
+
 
             # update parameters
             if accept:
@@ -1056,16 +1076,16 @@ class PosteriorSampler(object):
                 self.sigma_noe_index = new_sigma_noe_index
                 self.sigma_J = new_sigma_J
                 self.sigma_J_index = new_sigma_J_index
-                self.sigma_cs_H = new_sigma_cs_H                    #GYH
-                self.sigma_cs_H_index = new_sigma_cs_H_index        #GYH
-                self.sigma_cs_Ha = new_sigma_cs_Ha                    #GYH
-                self.sigma_cs_Ha_index = new_sigma_cs_Ha_index        #GYH
-                self.sigma_cs_N = new_sigma_cs_N                    #GYH
-                self.sigma_cs_N_index = new_sigma_cs_N_index        #GYH
-                self.sigma_cs_Ca = new_sigma_cs_Ca                    #GYH
-                self.sigma_cs_Ca_index = new_sigma_cs_Ca_index        #GYH
-                self.sigma_pf = new_sigma_pf                    #GYH
-                self.sigma_pf_index = new_sigma_pf_index        #GYH
+                self.sigma_cs_H = new_sigma_cs_H
+                self.sigma_cs_H_index = new_sigma_cs_H_index
+                self.sigma_cs_Ha = new_sigma_cs_Ha
+                self.sigma_cs_Ha_index = new_sigma_cs_Ha_index
+                self.sigma_cs_N = new_sigma_cs_N
+                self.sigma_cs_N_index = new_sigma_cs_N_index
+                self.sigma_cs_Ca = new_sigma_cs_Ca
+                self.sigma_cs_Ca_index = new_sigma_cs_Ca_index
+                self.sigma_pf = new_sigma_pf
+                self.sigma_pf_index = new_sigma_pf_index
                 self.gamma = new_gamma
                 self.gamma_index = new_gamma_index
                 self.state = new_state
@@ -1075,7 +1095,7 @@ class PosteriorSampler(object):
 
             # store trajectory samples
             if step%self.traj_every == 0:
-                self.traj.trajectory.append( [int(step), float(self.E), int(accept), int(self.state), int(self.sigma_noe_index), int(self.sigma_J_index), int(self.sigma_cs_H_index), int(self.sigma_cs_Ha_index), int(self.sigma_cs_N_index), int(self.sigma_cs_Ca_index), int(self.sigma_pf_index), int(self.gamma_index)] )    #GYH
+                self.traj.trajectory.append( [int(step), float(self.E), int(accept), int(self.state), int(self.sigma_noe_index), int(self.sigma_J_index), int(self.sigma_cs_H_index), int(self.sigma_cs_Ha_index), int(self.sigma_cs_N_index), int(self.sigma_cs_Ca_index), int(self.sigma_pf_index), int(self.gamma_index)] )
 
 #            if step%self.print(_every == 0:)
 #                print( 'accratio =', self.accepted/self.total)
