@@ -88,10 +88,11 @@ Note - Memory Used: ~ 27.5 GB
 # numpy z compression
 546.3 min
 
+# h5
+536.9 min
 
 # Python pkl
 528.83 min
-
 
 
 
@@ -108,7 +109,6 @@ Without Cython
 0.3666 min
 -------------
 0.3333/0.36666 = 0.818
-
 
 Cython - 100,000,000 steps & 1000 States & 1 lambda USING numpy z compression
 OLD: 288.25 min
