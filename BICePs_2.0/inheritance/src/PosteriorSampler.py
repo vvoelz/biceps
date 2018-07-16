@@ -3,16 +3,13 @@
 # This file is used to do posterior sampling of BICePs calculation.
 ##############################################################################
 
-
 ##############################################################################
 # Imports
 ##############################################################################
-
 import os, sys, glob, copy
 import numpy as np
 from scipy  import loadtxt, savetxt
 from matplotlib import pylab as plt
-import yaml
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
 from Restraint import *   # Import the Restraint Parent Class as R
 from toolbox import *
@@ -25,22 +22,20 @@ class PosteriorSampler(object):
     """A class to perform posterior sampling of conformational populations"""
 
     def __init__(self, ensemble, no_ref=False, use_exp_ref=True, use_gau_ref=False,
-            dlogsigma=np.log(1.02),sigma_min=0.05, sigma_max=20.0,
-            dloggamma=np.log(1.01), gamma_min=0.2,gamma_max=10.0,
             freq_write_traj=1000, freq_print=1000,
             freq_save_traj=100):
         """Initialize PosteriorSampler Class."""
 
+        # Step frequencies to write trajectory info
+        self.write_traj = freq_write_traj
 
-        self.write_traj = freq_write_traj  # step frequencies to write trajectory info
-
-        # frequency of printing to the screen
+        # Frequency of printing to the screen
         self.print_every = freq_print # debug
 
-        # frequency of storing trajectory samples
+        # Frequency of storing trajectory samples
         self.traj_every = freq_save_traj
 
-        # the ensemble is a list of Structure() objects
+        # Ensemble is a list of Restraint objects
         self.ensembles = [ ensemble ]
         self.nstates = len(ensemble)
         self.nensembles = len(self.ensembles)
@@ -51,22 +46,6 @@ class PosteriorSampler(object):
         self.E = 1.0e99   # initial energy
         self.accepted = 0
         self.total = 0
-
-        # pick initial values for sigma (std of experimental uncertainty)
-        self.dlogsigma = dlogsigma  # stepsize in log(sigma) - i.e. grow/shrink multiplier
-        self.sigma_min = sigma_min
-        self.sigma_max = sigma_max
-        self.allowed_sigma = np.exp(np.arange(np.log(self.sigma_min), np.log(self.sigma_max), self.dlogsigma))
-        self.sigma_index = len(self.allowed_sigma)/2
-        self.sigma = self.allowed_sigma[self.sigma_index]
-
-        # Store info about gamma^(-1/6) scaling  parameter array
-        self.dloggamma = dloggamma
-        self.gamma_min = gamma_min
-        self.gamma_max = gamma_max
-        self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
-        self.gamma_index = len(self.allowed_gamma)/2
-        self.gamma = self.allowed_gamma[self.gamma_index]
 
         # keep track of what we sampled in a trajectory
         self.traj = PosteriorSamplingTrajectory(
@@ -233,7 +212,7 @@ class PosteriorSampler(object):
                 new_sigma = self.allowed_sigma[new_sigma_index]
 
             elif np.random.random() < 0.60 :
-            # take a step in array of allowed sigma_pf
+                # take a step in array of allowed sigma_pf
                 new_sigma_index += (np.random.randint(3)-1)
                 new_sigma_index = new_sigma_index%(len(self.allowed_sigma)) # don't go out of bounds
                 new_sigma = self.allowed_sigma[new_sigma_index]
