@@ -1,6 +1,6 @@
 ##############################################################################
 # Authors: Vincent Voelz, Yunhui Ge, Rob Raddi
-# This file is used to do posterior sampling of BICePs calculation. 
+# This file is used to do posterior sampling of BICePs calculation.
 ##############################################################################
 
 
@@ -36,7 +36,7 @@ class PosteriorSampler(child_pos):
 #		 dlogsigma_cs_N=np.log(1.02),sigma_cs_N_min=0.05, sigma_cs_N_max=20.0,
 #		 dlogsigma_cs_Ca=np.log(1.02),sigma_cs_Ca_min=0.05, sigma_cs_Ca_max=20.0,
 #	         dlogsigma_pf=np.log(1.02),sigma_pf_min=0.05, sigma_pf_max=20.0,
-		 no_ref = False, use_exp_ref_noe = True, use_exp_ref_H = True, use_exp_ref_Ha = True, 
+		 no_ref = False, use_exp_ref_noe = True, use_exp_ref_H = True, use_exp_ref_Ha = True,
 		 use_exp_ref_N = True, use_exp_ref_Ca = True, use_exp_ref_pf = True,
                  use_gau_ref_noe = False, use_gau_ref_H = False, use_gau_ref_Ha = False,
                  use_gau_ref_N = False, use_gau_ref_Ca = False, use_gau_ref_pf = False,
@@ -171,7 +171,7 @@ class PosteriorSampler(child_pos):
         self.use_gau_ref_N = use_gau_ref_N
         self.use_gau_ref_Ca = use_gau_ref_Ca
         self.use_gau_ref_pf = use_gau_ref_pf
-	
+
 	if not self.no_ref:
         	s = self.ensembles[0][0]
         	if sum(s.sse_noe) != 0:
