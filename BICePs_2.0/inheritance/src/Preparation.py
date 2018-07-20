@@ -107,10 +107,10 @@ class Preparation(object):
             all_atom_residues = [atom.residue for atom in self.topology.atoms]
             all_atom_names = [atom.name for atom in self.topology.atoms]
             for i in xrange(self.ind.shape[0]):
-		a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
+                a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
                 restraint_index = self.restraint_data[i,0]
                 exp_noe        = self.restraint_data[i,1]
-                model_noe      = self.model_data[i]
+                model_noe      = model_data[i]
                 r.add_line(restraint_index, a1, a2, self.topology, exp_noe, model_noe)
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
