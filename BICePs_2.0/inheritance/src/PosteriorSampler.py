@@ -19,11 +19,27 @@ from toolbox import *
 ##############################################################################
 
 class PosteriorSampler(object):
-    """A class to perform posterior sampling of conformational populations"""
+    """A class to perform posterior sampling of conformational populations
 
-    def __init__(self, ensemble, no_ref=False, use_exp_ref=True, use_gau_ref=False,
-            freq_write_traj=1000, freq_print=1000,
-            freq_save_traj=100):
+    INPUTS
+
+        ensemble        - a list of lists of Restraint objects, one list for each conformation. 
+
+    OPTIONS
+
+        freq_write_traj - the frequency (in steps) to write the MCMC trajectory
+        freq_print      - the frequency (in steps) to print status
+        freq_save_traj  - the frequency (in steps) to store the MCMC trajectory
+
+    HISTORY of changes
+
+       July 20, 2018 - changed ensembles[0] to ensemble - NO multiple ensembles!(VAV)
+                     - removed the reference potential info -- these are in each child Restaint() class (VAV)
+
+    """
+
+    def __init__(self, ensemble, freq_write_traj=1000, freq_print=1000, freq_save_traj=100):
+
         """Initialize PosteriorSampler Class."""
 
         # Step frequencies to write trajectory info
@@ -36,10 +52,7 @@ class PosteriorSampler(object):
         self.traj_every = freq_save_traj
 
         # Ensemble is a list of Restraint objects
-        self.ensembles = [ ensemble ]
         self.nstates = len(ensemble)
-        self.nensembles = len(self.ensembles)
-        self.ensemble_index = 0
 
         # the initial state of the structural ensemble we're sampling from
         self.state = 0    # index in the ensemble
@@ -48,102 +61,116 @@ class PosteriorSampler(object):
         self.total = 0
 
         # keep track of what we sampled in a trajectory
-        self.traj = PosteriorSamplingTrajectory(
-                self.ensembles[0],self.allowed_sigma,self.allowed_gamma)
+        self.traj = PosteriorSamplingTrajectory(self.ensemble)  # VAV not needed:, self.allowed_sigma, self.allowed_gamma)
 
-        # compile reference potential of noe from the uniform distribution of noe
-        self.no_ref = no_ref
-        self.use_exp_ref = use_exp_ref
-        self.use_gau_ref = use_gau_ref
+        # Go through each restraint type, and construct the specified reference potential if needed
 
+        ## the list of Restraints should be the same for all structures in the ensemble -
+	## ... use the first structure's list to determine what kind of reference potential each Restraint has
+        ref_types = [ R.ref for R in ensemble[0] ]
+
+        # for each Restraint, calculate global reference potential parameters by looking across all structures 
+        for rest_index in range(len(ensemble[0])):
+
+            if ref_types[rest_index] == 'uniform':
+                pass
+            elif ref_types[rest_index] == 'exp':
+                self.build_exp_ref(rest_index)
+            elif ref_types[rest_index] == 'gaussian':
+                self.build_gaussian_ref(rest_index, use_global_ref_sigma=R.use_global_ref_sigma)
+
+
+                # calculate beta[j] for every observable r_j
+                
+
+
+   
         if not self.no_ref:
-            s = self.ensembles[0][0]
+            s = self.ensemble[0]
             print '\n\n\n',s.sse,'\n\n\n'
             if s.sse != 0:
                 if self.use_exp_ref == True and self.use_gau_ref == True:
-                    self.build_gau_ref()
+                    self.build_gaussian_ref()
                 if self.use_exp_ref == True and self.use_gau_ref == False:
                     self.build_exp_ref()
 
         # VERY IMPORTANT: compute reference state self.logZ  for the free energies, so they are properly normalized #
         Z = 0.0
-        for ensemble_index in range(self.nensembles):
-            for s in self.ensembles[ensemble_index]:
-                Z +=  np.exp(-s.free_energy)
+        for s in self.ensemble:
+            Z +=  np.exp(-s.free_energy)
         self.logZ = np.log(Z)
 
         # store this constant so we're not recalculating it all the time in neglogP
         self.ln2pi = np.log(2.0*np.pi)
 
-    def build_exp_ref(self):
-        """Look at all the structures to find the average noe
+    def build_exp_ref(self, rest_index):
+        """Look at all the structures to find the average observables r_j 
 
         >>    beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
 
-        then store this info as the reference potential for each structures"""
+        then store this reference potential info for all Restraints of this type for each structure"""
 
-        for k in range(self.nensembles):
 
-            print 'Computing reference potentials for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
+        print 'Computing parameters for exponential reference potentials...'
 
-            # collect noe distributions across all structures
-            n = len(ensemble[0].restraints)
-     #       print "n", n
-            All = []
-            print 'n = ',n
-            distributions = [[] for j in range(n)]
-            for s in ensemble:
-                for j in range(len(s.restraints)):
-                    print s.restraints[j].model
-                    distributions[j].append( s.restraints[j].model )
-                    All.append( s.restraints[j].model )
 
-            # Find the MLE average (i.e. beta_j) for each noe
-            betas = np.zeros(n)
-            for j in range(n):
-                # plot the maximum likelihood exponential distribution fitting the data
-                betas[j] =  np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
+        # collect distributions of observables r_j across all structures
+        n_observables = len(ensemble[0][rest_index])  # the number of (model,exp) data values in this rstain
+        print 'n_observables = ',n_observables
 
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.betas = betas
-    #            print "s.betas", s.betas
-                s.compute_neglog_exp_ref()
+        distributions = [[] for j in range(n_observables)]
+        for s in ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
+            for j in range(len(s[rest_index].restraints)):
+                print s[rest_index].restraints[j].model
+                distributions[j].append( s[rest_index].restraints[j].model )
 
-    def build_gau_ref(self):
+        # Find the MLE average (i.e. beta_j) for each noe
+        betas = np.zeros(n_observables)
+        for j in range(n_observables):
+            # the maximum likelihood exponential distribution fitting the data
+            betas[j] =  np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
 
-        for k in range(self.nensembles):
+        # store the beta information in each structure and compute/store the -log P_potential
+        for s in ensemble:
+            s[rest_index].betas = betas
+            s[rest_index].compute_neglog_exp_ref()
 
-            print 'Computing Gaussian reference potentials for ensemble', k, 'of', self.nensembles, '...'
-            ensemble = self.ensembles[k]
 
-            # collect noe distributions across All structures
-            n = len(ensemble[0].restraints)
-            All = []
-            distributions = [[] for j in range(n)]
-            for s in ensemble:
-                for j in range(len(s.restraints)):
-                    distributions[j].append( s.restraints[j].model )
-                    All.append( s.restraints[j].model )
+    def build_gaussian_ref(self, rest_index, use_global_ref_sigma=True):
+        """Look at all the structures to find the mean (mu) and std (sigma) of  observables r_j 
+        then store this reference potential info for all Restraints of this type for each structure"""
 
-            # Find the MLE average (i.e. beta_j) for each noe
-            ref_mean = np.zeros(n)
-            ref_sigma = np.zeros(n)
-            for j in range(n):
-                # plot the maximum likelihood exponential distribution fitting the data
-                ref_mean[j] =  np.array(distributions[j]).mean()
-                squared_diffs = [ (d - ref_mean[j])**2.0 for d in distributions[j] ]
-                ref_sigma[j] = np.sqrt( np.array(squared_diffs).sum() / (len(distributions[j])+1.0))
-            global_ref_sigma = ( np.array([ref_sigma[j]**-2.0 for j in range(n)]).mean() )**-0.5
-            for j in range(n):
+        print 'Computing parameters for Gaussian reference potentials...'
+
+        # collect distributions of observables r_j across all structures
+        n_observables = len(ensemble[0][rest_index])  # the number of (model,exp) data values in this rstain
+        print 'n_observables = ',n_observables
+
+        distributions = [[] for j in range(n_observables)]
+        for s in ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
+            for j in range(len(s[rest_index].restraints)):
+                print s[rest_index].restraints[j].model
+                distributions[j].append( s[rest_index].restraints[j].model )
+
+        # Find the MLE mean (ref_mu_j) and std (ref_sigma_j) for each observable
+        ref_mean  = np.zeros(n_observables)
+        ref_sigma = np.zeros(n_observables)
+        for j in range(n_observables):
+            ref_mean[j] =  np.array(distributions[j]).mean()
+            squared_diffs = [ (d - ref_mean[j])**2.0 for d in distributions[j] ]
+            ref_sigma[j] = np.sqrt( np.array(squared_diffs).sum() / (len(distributions[j])+1.0))
+         
+        if use_global_ref_sigma == True: 
+            # Use the variance across all ref_sigma[j] values to calculate a single value of ref_sigma for all observables 
+            global_ref_sigma = ( np.array([ref_sigma[j]**-2.0 for j in range(n_observables)]).mean() )**-0.5
+            for j in range(n_observables):
                 ref_sigma[j] = global_ref_sigma
-#               ref_sigma[j] = 12.0
-            # store the beta information in each structure and compute/store the -log P_potential
-            for s in ensemble:
-                s.ref_mean = ref_mean
-                s.ref_sigma = ref_sigma
-                s.compute_neglog_gau_ref()
+
+        # store the ref_mean and ref_sigma information in each structure and compute/store the -log P_potential
+        for s in ensemble:
+            s[rest_index].ref_mean = ref_mean
+            s[rest_index].ref_sigma = ref_sigma
+            s[rest_index].compute_neglog_gaussian_ref()
 
 
 
@@ -166,16 +193,16 @@ class PosteriorSampler(object):
             #result += s.sse[new_gamma_index] / (2.0*new_sigma**2.0)
             result += s.sse / (2.0*new_sigma**2.0)
             result += (s.Ndof)/2.0*self.ln2pi  # for normalization
-            #if self.use_exp_ref == True and self.use_gau_ref == True:
+            #if self.use_exp_ref == True and self.use_gaussian_ref == True:
             #    result -= s.sum_neglog_gau_ref
-            #if self.use_exp_ref == True and self.use_gau_ref == False:
+            #if self.use_exp_ref == True and self.use_gaussian_ref == False:
             #    result -= s.sum_neglog_exp_ref
 
         if verbose:
             print 'state, f_sim', new_state, s.free_energy,
             print 's.sse', s.sse, 's.Ndof', s.Ndof
             print 's.sum_neglog_exp_ref', s.sum_neglog_exp_ref
-            print 's.sum_neglog_gau_ref', s.sum_neglog_gau_ref
+            print 's.sum_neglog_gaussian_ref', s.sum_neglog_gaussian_ref
         return result
 
 
