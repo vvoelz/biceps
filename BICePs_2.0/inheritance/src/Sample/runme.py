@@ -3,7 +3,8 @@ import numpy as np
 from Sample import *
 
 name = 'new_array.txt'
-x = np.array([0.00,0.00,0.00],dtype=np.float64)
+#x = np.array([0.00,0.00,0.00],dtype=np.float64)
+x = np.array([0.7896,1.564,0.24002],dtype=np.float64)
 #for i in [100,150,200,250]:
 print('Initial values = ',x)
 print('Start..')

@@ -1,3 +1,7 @@
+/* This C++ is the PosteriorSampler Sample method.
+ * The method takes a 1-dimensional numpy array and randomly chooses an
+ * index of the array to add 1 to the coresponding element.
+ */
 #include <iostream>
 //#include <Python.h>
 #include <cmath>
