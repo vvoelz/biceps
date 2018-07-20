@@ -55,20 +55,58 @@ for j in lambda_values:
     ensemble = []
     for i in range(energies.shape[0]):
         print '\n#### STRUCTURE %d ####'%i
-	if verbose:
+        if verbose:
             print data[i]
-        s = Restraint_cs_H('8690.pdb',lam,
-                energies[i],data=data[i])
-        s.load_data(str(data[i][0]))#,verbose=True)
-        ensemble.append( s )
+        if 'cs_H' in data[i][0].split('.')[-1]:
+            R = Restraint_cs_H('8690.pdb')
+            R.prep_observable(lam=lam, free_energy=energies[i],
+                    filename=data[i][0])
+            print 'Loaded ',data[i][0]
+
+        elif 'cs_Ca' in data[i][0].split('.')[-1]:
+            R = Restraint_cs_Ca('8690.pdb')
+            R.prep_observable(lam=lam, free_energy=energies[i],
+                    filename=data[i][0])
+            print 'Loaded ',data[i][0]
+
+        elif 'cs_Ha' in data[i][0].split('.')[-1]:
+            R = Restraint_cs_Ha('8690.pdb')
+            R.prep_observable(lam=lam, free_energy=energies[i],
+                    filename=data[i][0])
+            print 'Loaded ',data[i][0]
+
+        elif 'cs_N' in data[i][0].split('.')[-1]:
+            R = Restraint_cs_N('8690.pdb')
+            R.prep_observable(lam=lam, free_energy=energies[i],
+                    filename=data[i][0])
+            print 'Loaded ',data[i][0]
+
+        elif 'J' in data[i][0].split('.')[-1]:
+            R = Restraint_J('8690.pdb')
+            R.prep_observable(lam=lam, free_energy=energies[i],
+                    filename=data[i][0])
+            print 'Loaded ',data[i][0]
+
+        elif 'noe' in data[i][0].split('.')[-1]:
+            R = Restraint_noe('8690.pdb')
+            R.prep_observable(lam=lam, free_energy=energies[i],
+                    filename=data[i][0])
+            print 'Loaded ',data[i][0]
+
+        elif 'pf' in data[i][0].split('.')[-1]:
+            R = Restraint_pf('8690.pdb')
+            R.prep_observable(lam=lam, free_energy=energies[i],
+                    filename=data[i][0])
+            print 'Loaded ',data[i][0]
+
+        ensemble.append(R)
+        #sys.exit(1)
     print ensemble
-    sys.exit(1)
 
 
   ##########################################
   # Next, let's do some posterior sampling
   ########## Posterior Sampling ############
-
 
     sampler = PosteriorSampler(ensemble)
     sampler.sample(nsteps)  # number of steps
