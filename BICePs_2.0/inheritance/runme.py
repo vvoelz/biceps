@@ -20,11 +20,19 @@ indices='cs_H/cs_indices_NH.txt'
 exp_data='cs_H/chemical_shift_NH.txt'
 top='cs_H/8690.pdb'
 data_dir=path
-dataFiles = 'test_cs_H'
+#dataFiles = 'test_cs_H'
+dataFiles = 'test_cs_mixed'
 out_dir=dataFiles
 
-p=Preparation('cs_H',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=data_dir)
-p.write(out_dir=out_dir)
+#p=Preparation('cs_H',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=data_dir)
+#p.write(out_dir=out_dir)
+
+#p=Preparation('noe',states=15037,
+#        exp_data='noe/noe.txt',
+#        top='noe/Gens/Gens0.pdb',
+#        data_dir='noe/micro_distances/dis_*.txt',
+#        indices='noe/noe_indices.txt')
+#p.write(out_dir=out_dir)
 
 #########################################
 # Let's create our ensemble of structures
@@ -32,10 +40,13 @@ p.write(out_dir=out_dir)
 # Specify necessary argument values
 
 data = sort_data(dataFiles)
+print data
+print len(data),len(data[0])
+#sys.exit(1)
 energies_filename =  'energy.txt'
 energies = loadtxt(energies_filename)
 energies -= energies.min()  # set ground state to zero, just in case
-outdir = 'results_ref_normal_cs_H'
+outdir = 'results_ref_normal_cs_mixed'
 # Temporarily placing the number of steps here...
 nsteps = 1000 # 10000000
 
@@ -49,57 +60,55 @@ if not os.path.exists(outdir):
 
 lambda_values = [0.0,1.0]
 for j in lambda_values:
-    verbose = False
+    verbose = True#False
     lam = j
     # We will instantiate a number of Structure() objects to construct the ensemble
     ensemble = []
     for i in range(energies.shape[0]):
         print '\n#### STRUCTURE %d ####'%i
-        if verbose:
-            print data[i]
-        if 'cs_H' in data[i][0].split('.')[-1]:
-            R = Restraint_cs_H('8690.pdb')
-            R.prep_observable(lam=lam, free_energy=energies[i],
-                    filename=data[i][0])
-            print 'Loaded ',data[i][0]
 
-        elif 'cs_Ca' in data[i][0].split('.')[-1]:
-            R = Restraint_cs_Ca('8690.pdb')
-            R.prep_observable(lam=lam, free_energy=energies[i],
-                    filename=data[i][0])
-            print 'Loaded ',data[i][0]
+        for k in range(len(data[0])):
+            File = data[i][k]
+            if verbose:
+                print File
 
-        elif 'cs_Ha' in data[i][0].split('.')[-1]:
-            R = Restraint_cs_Ha('8690.pdb')
-            R.prep_observable(lam=lam, free_energy=energies[i],
-                    filename=data[i][0])
-            print 'Loaded ',data[i][0]
+            # Call on the Restraint that corresponds to File
+            if 'cs_H' in File.split('.')[-1]:
+                R = Restraint_cs_H('8690.pdb')
+                R.prep_observable(lam=lam, free_energy=energies[i],
+                        filename=File)
 
-        elif 'cs_N' in data[i][0].split('.')[-1]:
-            R = Restraint_cs_N('8690.pdb')
-            R.prep_observable(lam=lam, free_energy=energies[i],
-                    filename=data[i][0])
-            print 'Loaded ',data[i][0]
+            elif 'cs_CA' in File.split('.')[-1]:
+                R = Restraint_cs_Ca('8690.pdb')
+                R.prep_observable(lam=lam, free_energy=energies[i],
+                        filename=File)
 
-        elif 'J' in data[i][0].split('.')[-1]:
-            R = Restraint_J('8690.pdb')
-            R.prep_observable(lam=lam, free_energy=energies[i],
-                    filename=data[i][0])
-            print 'Loaded ',data[i][0]
+            elif 'cs_Ha' in File.split('.')[-1]:
+                R = Restraint_cs_Ha('8690.pdb')
+                R.prep_observable(lam=lam, free_energy=energies[i],
+                        filename=File)
 
-        elif 'noe' in data[i][0].split('.')[-1]:
-            R = Restraint_noe('8690.pdb')
-            R.prep_observable(lam=lam, free_energy=energies[i],
-                    filename=data[i][0])
-            print 'Loaded ',data[i][0]
+            elif 'cs_N' in File.split('.')[-1]:
+                R = Restraint_cs_N('8690.pdb')
+                R.prep_observable(lam=lam, free_energy=energies[i],
+                        filename=File)
 
-        elif 'pf' in data[i][0].split('.')[-1]:
-            R = Restraint_pf('8690.pdb')
-            R.prep_observable(lam=lam, free_energy=energies[i],
-                    filename=data[i][0])
-            print 'Loaded ',data[i][0]
+            elif 'J' in File.split('.')[-1]:
+                R = Restraint_J('8690.pdb')
+                R.prep_observable(lam=lam, free_energy=energies[i],
+                        filename=File)
 
-        ensemble.append(R)
+            elif 'noe' in File.split('.')[-1]:
+                R = Restraint_noe('8690.pdb')
+                R.prep_observable(lam=lam, free_energy=energies[i],
+                        filename=File)
+
+            elif 'pf' in File.split('.')[-1]:
+                R = Restraint_pf('8690.pdb')
+                R.prep_observable(lam=lam, free_energy=energies[i],
+                        filename=File)
+
+            ensemble.append(R)
         #sys.exit(1)
     print ensemble
 
