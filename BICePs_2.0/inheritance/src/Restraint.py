@@ -15,14 +15,14 @@ from prep_cs import *    # Class - creates Chemical shift restraint file
 from prep_J import *     # Creates J-coupling const. restraint file
 from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
 from prep_pf import *    # Class - prepare functions for protection factors restraint file
+from Observable import * #
 
 ##############################################################################
 # TODO:
 ##############################################################################
 '''
-• Make a general function for load_data()
-• place all the correct initialization variables inside each of the children
-
+ place all the correct initialization variables inside each of the children
+Complete the remaining children - U stopped at cs_N
 
 
 '''
@@ -64,9 +64,24 @@ class Restraint(object):
         self.n = 0 # Initialize the overall restraint count
 
 
-    def load_data(self, filename, verbose=False):
-        """Load in the experimental data."""
-        pass
+#    def load_data(self, filename, verbose=False):
+#        """Load in the experimental data."""
+#        pass
+    def load_data(self, prep, verbose=False):
+        """Load in the experimental chemical shift restraints from a .cs file format."""
+
+        # Read in the lines of the cs data file
+        read = prep
+        if verbose:
+                print read.lines
+        data = []
+        for line in read.lines:
+                data.append( read.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, cs]
+        self.data = data
+
+
+
+
 
 
     def add_restraint(self, restraint):
@@ -115,6 +130,17 @@ class Restraint(object):
             self.sum_neglog_gau_ref += self.restraints[j].weight * self.neglog_gau_ref[j]
 
 
+    def exp_uncertainty(self,dlogsigma=np.log(1.02),sigma_min=0.05,
+            sigma_max=20.0):
+
+        # Initialize values for sigma (std of experimental uncertainty)
+        self.dlogsigma = dlogsigma  # stepsize in log(sigma) - i.e. grow/shrink multiplier
+        self.sigma_min = sigma_min
+        self.sigma_max = sigma_max
+        self.allowed_sigma = np.exp(np.arange(np.log(self.sigma_min), np.log(self.sigma_max), self.dlogsigma))
+        self.sigma_index = len(self.allowed_sigma)/2
+        self.sigma = self.allowed_sigma[self.sigma_index]
+
 
 
 
@@ -136,123 +162,128 @@ class Restraint(object):
 class Restraint_cs_Ca(Restraint):
     """A derived class of RestraintClass() for C_alpha chemical shift restraints."""
 
-    def load_data(self, filename, verbose=False):
-        """Load in the experimental chemical shift restraints from a .cs file format."""
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
 
         self.n = 0
+        # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         self.free_energy = free_energy
-        # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.free_energy = lam*free_energy
-
-        self.sse = 0
         self.Ndof = None
 
-        # Initialize values for sigma (std of experimental uncertainty)
-        dlogsigma=np.log(1.02)
-        sigma_min=0.05
-        sigma_max=20.0
-        self.dlogsigma = dlogsigma  # stepsize in log(sigma) - i.e. grow/shrink multiplier
-        self.sigma_min = sigma_min
-        self.sigma_max = sigma_max
-        self.allowed_sigma = np.exp(np.arange(np.log(self.sigma_min), np.log(self.sigma_max), self.dlogsigma))
-        self.sigma_index = len(self.allowed_sigma)/2
-        self.sigma = self.allowed_sigma[self.sigma_index]
+        # Initialize the experimental uncertainties
+        self.exp_uncertainty()
 
-
-        # Read in the lines of the cs data file
+        # Reading the data from loading in filenames
         read = prep_cs(filename=filename)
-        if verbose:
-                print read.lines
-        data = []
-        for line in read.lines:
-                data.append( read.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, cs]
-        # add the chemical shift restraints
+        self.load_data(read)
+
+        # Add the chemical shift restraints
         if verbose:
             print 'Loaded from', filename, ':'
-        for entry in data:
+        for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
-            self.add_restraint(NMR_Chemicalshift(i, exp, model))
+            Obs = NMR_Chemicalshift(i, exp, model)
+            self.add_restraint(Obs)
             if verbose:
                 print entry
-        self.compute_sse()
+        self.compute_sse(debug=True)
         self.n += 1
 
 
 class Restraint_cs_H(Restraint):
     """A derived class of RestraintClass() for H chemical shift restraints."""
 
-    def load_data(self, filename, verbose=False):
-        """Load in the experimental chemical shift restraints from a .cs file format."""
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
 
         self.n = 0
-        # Read in the lines of the cs data file
+        # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
+        self.lam = lam
+        self.free_energy = free_energy
+        self.free_energy = lam*free_energy
+        self.Ndof = None
+
+        # Initialize the experimental uncertainties
+        self.exp_uncertainty()
+
+        # Reading the data from loading in filenames
         read = prep_cs(filename=filename)
-        if verbose:
-                print read.lines
-        data = []
-        for line in read.lines:
-                data.append( read.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, cs]
+        self.load_data(read)
+
         # add the chemical shift restraints
         if verbose:
             print 'Loaded from', filename, ':'
-        for entry in data:
+        for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
             self.add_restraint(NMR_Chemicalshift(i, exp, model))
             if verbose:
                 print entry
-        self.compute_sse()
+        self.compute_sse(debug=True)
+        self.n += 1
+
+
 
 class Restraint_cs_Ha(Restraint):
-    """ """
+    """A derived class of RestraintClass() for Ha chemical shift restraints."""
 
-    def load_data(self, filename, verbose=False):
-        """Load in the experimental chemical shift restraints from a .cs file format."""
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
 
-        #self.n = 0
-        # Read in the lines of the cs data file
+        self.n = 0
+        # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
+        self.lam = lam
+        self.free_energy = free_energy
+        self.free_energy = lam*free_energy
+        self.Ndof = None
+
+        # Initialize the experimental uncertainties
+        self.exp_uncertainty()
+
+        # Reading the data from loading in filenames
         read = prep_cs(filename=filename)
-        if verbose:
-                print read.lines
-        data = []
-        for line in read.lines:
-                data.append( read.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, cs]
+        self.load_data(read)
+
         # add the chemical shift restraints
         if verbose:
             print 'Loaded from', filename, ':'
-        for entry in data:
+        for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
             self.add_restraint(NMR_Chemicalshift(i, exp, model))
             if verbose:
                 print entry
-        self.compute_sse()
-        #self.n += 1
+        self.compute_sse(debug=True)
+        self.n += 1
+
 
 
 class Restraint_cs_N(Restraint):
-    """A derived class of Restraint() for N chemical shift restraints."""
+    """A derived class of RestraintClass() for N chemical shift restraints."""
 
-    def load_data_cs_N(self, filename, verbose=False):
-        """Load in the experimental chemical shift restraints from a .cs file format."""
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
 
-        # Read in the lines of the cs data file
-        b = prep_cs(filename=filename)
-        if verbose:
-                print b.lines
-        data = []
-        for line in b.lines:
-                data.append( b.parse_line(line) )  # [restraint_index, atom_index1, res1, atom_name1, cs]
+        self.n = 0
+        # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
+        self.lam = lam
+        self.free_energy = free_energy
+        self.free_energy = lam*free_energy
+        self.Ndof = None
+
+        # Initialize the experimental uncertainties
+        self.exp_uncertainty()
+
+        # Reading the data from loading in filenames
+        read = prep_cs(filename=filename)
+        self.load_data(read)
+
+        # add the chemical shift restraints
         if verbose:
             print 'Loaded from', filename, ':'
-            for entry in data:
-                print entry
-        # add the chemical shift restraints
-        for entry in data:
+        for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
             self.add_restraint(NMR_Chemicalshift(i, exp, model))
-        self.compute_sse()
-      #  self.n += 1
-
+            if verbose:
+                print entry
+        self.compute_sse(debug=True)
+        self.n += 1
 
 
 

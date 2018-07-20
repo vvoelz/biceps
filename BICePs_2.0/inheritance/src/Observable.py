@@ -1,6 +1,6 @@
 ##############################################################################
 # Authors: Vincent Voelz, Yunhui Ge, Rob Raddi
-# This file is used to do posterior sampling of BICePs calculation.
+#
 ##############################################################################
 
 ##############################################################################
@@ -8,7 +8,6 @@
 ##############################################################################
 import os, sys
 import numpy as np
-from Restraint import *   # Import the Restraint Parent Class as R
 
 ##############################################################################
 # Main
@@ -16,12 +15,32 @@ from Restraint import *   # Import the Restraint Parent Class as R
 
 class Observable(object):
     """A Parent class of observables """
-    def __init__(self):
+    def __init__(self, i, model, exp,
+            model_angle=None, j=None, k=None, l=None,
+            equivalency_index=None, ambiguity_index=None):
 
-#    def __init__(self, i, model, exp,
-#            model_angle=None, j=None, k=None, l=None,
-#            equivalency_index=None, ambiguity_index=None):
+        # Atom indices from the Conformation() defining this dihedral
+        self.i = i
+        self.j = j
+        self.k = k
+        self.l = l
 
+        # the model distance in this structure (in Angstroms)
+        self.model = model
+        self.model_angle = model_angle
+
+        # the experimental J-coupling constant
+        self.exp = exp
+
+        # the index of the equivalency group (i.e. a tag for equivalent H's)
+        self.equivalency_index = equivalency_index
+
+        # N equivalent distances should only get 1/N of the weight when computing chi^2
+        self.weight = 1.0  # default is N=1
+
+        # the index of the ambiguity group (i.e. some groups distances have
+        # distant values, but ambiguous assignments.  We can do posterior sampling over these)
+        self.ambiguity_index = ambiguity_index
 
 
 
