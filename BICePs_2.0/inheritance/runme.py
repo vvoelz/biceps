@@ -66,7 +66,7 @@ for j in lambda_values:
     ensemble = []
     for i in range(energies.shape[0]):
         print '\n#### STRUCTURE %d ####'%i
-
+        ensemble.append([])
         for k in range(len(data[0])):
             File = data[i][k]
             if verbose:
@@ -74,41 +74,41 @@ for j in lambda_values:
 
             # Call on the Restraint that corresponds to File
             if 'cs_H' in File.split('.')[-1]:
-                R = Restraint_cs_H('8690.pdb')
+                R = Restraint_cs_H('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
             elif 'cs_CA' in File.split('.')[-1]:
-                R = Restraint_cs_Ca('8690.pdb')
+                R = Restraint_cs_Ca('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
             elif 'cs_Ha' in File.split('.')[-1]:
-                R = Restraint_cs_Ha('8690.pdb')
+                R = Restraint_cs_Ha('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
             elif 'cs_N' in File.split('.')[-1]:
-                R = Restraint_cs_N('8690.pdb')
+                R = Restraint_cs_N('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
             elif 'J' in File.split('.')[-1]:
-                R = Restraint_J('8690.pdb')
+                R = Restraint_J('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
             elif 'noe' in File.split('.')[-1]:
-                R = Restraint_noe('8690.pdb')
+                R = Restraint_noe('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
             elif 'pf' in File.split('.')[-1]:
-                R = Restraint_pf('8690.pdb')
+                R = Restraint_pf('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
-            ensemble.append(R)
+            ensemble[-1].append(R)
         #sys.exit(1)
     print ensemble
 
