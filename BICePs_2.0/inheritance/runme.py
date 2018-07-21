@@ -73,38 +73,38 @@ for j in lambda_values:
                 print File
 
             # Call on the Restraint that corresponds to File
-            if 'cs_H' in File.split('.')[-1]:
+            if File.endswith('cs_H'):
                 R = Restraint_cs_H('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
-            elif 'cs_CA' in File.split('.')[-1]:
-                R = Restraint_cs_Ca('8690.pdb',ref='exp')
+            elif File.endswith('cs_CA'):
+                R = Restraint_cs_Ca('8690.pdb',ref='gaussian')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
-            elif 'cs_Ha' in File.split('.')[-1]:
-                R = Restraint_cs_Ha('8690.pdb',ref='exp')
+            elif File.endswith('cs_Ha'):
+                R = Restraint_cs_Ha('8690.pdb',ref='gaussian')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
-            elif 'cs_N' in File.split('.')[-1]:
+            elif File.endswith('cs_N'):
                 R = Restraint_cs_N('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
-            elif 'J' in File.split('.')[-1]:
-                R = Restraint_J('8690.pdb',ref='exp')
+            elif File.endswith('J'):
+                R = Restraint_J('8690.pdb',ref='uniform')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
-            elif 'noe' in File.split('.')[-1]:
+            elif File.endswith('noe'):
                 R = Restraint_noe('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
-            elif 'pf' in File.split('.')[-1]:
-                R = Restraint_pf('8690.pdb',ref='exp')
+            elif File.endswith('pf'):
+                R = Restraint_pf('8690.pdb',ref='gaussian')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
@@ -118,6 +118,9 @@ for j in lambda_values:
   ########## Posterior Sampling ############
 
     sampler = PosteriorSampler(ensemble)
+    #sys.exit(1)
+    sampler.construct_matrix()
+    sys.exit(1)
     sampler.sample(nsteps)  # number of steps
     print 'Processing trajectory...',
 #    sys.exit(1)

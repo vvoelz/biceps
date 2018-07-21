@@ -6,8 +6,12 @@
 ##############################################################################
 # Imports
 ##############################################################################
+
+from __future__ import print_function
 import os, sys, glob, copy
 import numpy as np
+#cimport numpy as np
+#import cython
 from scipy  import loadtxt, savetxt
 from matplotlib import pylab as plt
 from KarplusRelation import *     # Class - returns J-coupling values from dihedral angles
@@ -23,7 +27,7 @@ class PosteriorSampler(object):
 
     INPUTS
 
-        ensemble        - a list of lists of Restraint objects, one list for each conformation. 
+        ensemble        - a list of lists of Restraint objects, one list for each conformation.
 
     OPTIONS
 
@@ -41,6 +45,9 @@ class PosteriorSampler(object):
     def __init__(self, ensemble, freq_write_traj=1000, freq_print=1000, freq_save_traj=100):
 
         """Initialize PosteriorSampler Class."""
+
+        # Allow the ensemble to pass through the class
+        self.ensemble = ensemble
 
         # Step frequencies to write trajectory info
         self.write_traj = freq_write_traj
@@ -61,15 +68,17 @@ class PosteriorSampler(object):
         self.total = 0
 
         # keep track of what we sampled in a trajectory
-        self.traj = PosteriorSamplingTrajectory(self.ensemble)  # VAV not needed:, self.allowed_sigma, self.allowed_gamma)
+#NOTE        self.traj = PosteriorSamplingTrajectory(self.ensemble)  # VAV not needed:, self.allowed_sigma, self.allowed_gamma)
 
         # Go through each restraint type, and construct the specified reference potential if needed
 
         ## the list of Restraints should be the same for all structures in the ensemble -
 	## ... use the first structure's list to determine what kind of reference potential each Restraint has
         ref_types = [ R.ref for R in ensemble[0] ]
+        #for R in ensemble[0]:
+        #    ref_types = R.ref
 
-        # for each Restraint, calculate global reference potential parameters by looking across all structures 
+        # for each Restraint, calculate global reference potential parameters by looking across all structures
         for rest_index in range(len(ensemble[0])):
 
             if ref_types[rest_index] == 'uniform':
@@ -77,52 +86,50 @@ class PosteriorSampler(object):
             elif ref_types[rest_index] == 'exp':
                 self.build_exp_ref(rest_index)
             elif ref_types[rest_index] == 'gaussian':
-                self.build_gaussian_ref(rest_index, use_global_ref_sigma=R.use_global_ref_sigma)
+                self.build_gaussian_ref(rest_index,
+                        use_global_ref_sigma=self.ensemble[0][rest_index].use_global_ref_sigma)
+            else:
+                print('Please choose a reference potential of the following:\n \
+                        {%s,%s,%s}'%('uniform','exp','gaussian'))
 
 
                 # calculate beta[j] for every observable r_j
-                
-
-
-   
-        if not self.no_ref:
-            s = self.ensemble[0]
-            print '\n\n\n',s.sse,'\n\n\n'
-            if s.sse != 0:
-                if self.use_exp_ref == True and self.use_gau_ref == True:
-                    self.build_gaussian_ref()
-                if self.use_exp_ref == True and self.use_gau_ref == False:
-                    self.build_exp_ref()
 
         # VERY IMPORTANT: compute reference state self.logZ  for the free energies, so they are properly normalized #
         Z = 0.0
-        for s in self.ensemble:
-            Z +=  np.exp(-s.free_energy)
+        for ensemble_index in range(len(ensemble[0])):
+            for s in ensemble[ensemble_index]:
+                Z +=  np.exp(-s.free_energy)
         self.logZ = np.log(Z)
 
         # store this constant so we're not recalculating it all the time in neglogP
         self.ln2pi = np.log(2.0*np.pi)
 
-    def build_exp_ref(self, rest_index):
-        """Look at all the structures to find the average observables r_j 
+
+
+
+    def build_exp_ref(self, rest_index,verbose=False):
+        """Look at all the structures to find the average observables r_j
 
         >>    beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
 
         then store this reference potential info for all Restraints of this type for each structure"""
 
 
-        print 'Computing parameters for exponential reference potentials...'
-
+        print( 'Computing parameters for exponential reference potentials...')
 
         # collect distributions of observables r_j across all structures
-        n_observables = len(ensemble[0][rest_index])  # the number of (model,exp) data values in this rstain
-        print 'n_observables = ',n_observables
+        n_observables  = self.ensemble[0][rest_index].nObs  # the number of (model,exp) data values in this restraint
+        print('n_observables = ',n_observables)
 
         distributions = [[] for j in range(n_observables)]
-        for s in ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
+        for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
             for j in range(len(s[rest_index].restraints)):
-                print s[rest_index].restraints[j].model
+                if verbose == True:
+                    print( s[rest_index].restraints[j].model)
                 distributions[j].append( s[rest_index].restraints[j].model )
+        if verbose == True:
+            print('distributions',distributions)
 
         # Find the MLE average (i.e. beta_j) for each noe
         betas = np.zeros(n_observables)
@@ -131,26 +138,29 @@ class PosteriorSampler(object):
             betas[j] =  np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
 
         # store the beta information in each structure and compute/store the -log P_potential
-        for s in ensemble:
+        for s in self.ensemble:
             s[rest_index].betas = betas
             s[rest_index].compute_neglog_exp_ref()
 
 
-    def build_gaussian_ref(self, rest_index, use_global_ref_sigma=True):
-        """Look at all the structures to find the mean (mu) and std (sigma) of  observables r_j 
+    def build_gaussian_ref(self, rest_index, use_global_ref_sigma=True,verbose=False):
+        """Look at all the structures to find the mean (mu) and std (sigma) of  observables r_j
         then store this reference potential info for all Restraints of this type for each structure"""
 
-        print 'Computing parameters for Gaussian reference potentials...'
+        print( 'Computing parameters for Gaussian reference potentials...')
 
         # collect distributions of observables r_j across all structures
-        n_observables = len(ensemble[0][rest_index])  # the number of (model,exp) data values in this rstain
-        print 'n_observables = ',n_observables
+        n_observables  = self.ensemble[0][rest_index].nObs  # the number of (model,exp) data values in this restraint
+        print('n_observables = ',n_observables)
 
         distributions = [[] for j in range(n_observables)]
-        for s in ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
+        for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
             for j in range(len(s[rest_index].restraints)):
-                print s[rest_index].restraints[j].model
+                if verbose == True:
+                    print( s[rest_index].restraints[j].model)
                 distributions[j].append( s[rest_index].restraints[j].model )
+        if verbose == True:
+            print('distributions',distributions)
 
         # Find the MLE mean (ref_mu_j) and std (ref_sigma_j) for each observable
         ref_mean  = np.zeros(n_observables)
@@ -159,246 +169,376 @@ class PosteriorSampler(object):
             ref_mean[j] =  np.array(distributions[j]).mean()
             squared_diffs = [ (d - ref_mean[j])**2.0 for d in distributions[j] ]
             ref_sigma[j] = np.sqrt( np.array(squared_diffs).sum() / (len(distributions[j])+1.0))
-         
-        if use_global_ref_sigma == True: 
-            # Use the variance across all ref_sigma[j] values to calculate a single value of ref_sigma for all observables 
+
+        if use_global_ref_sigma == True:
+            # Use the variance across all ref_sigma[j] values to calculate a single value of ref_sigma for all observables
             global_ref_sigma = ( np.array([ref_sigma[j]**-2.0 for j in range(n_observables)]).mean() )**-0.5
             for j in range(n_observables):
                 ref_sigma[j] = global_ref_sigma
 
         # store the ref_mean and ref_sigma information in each structure and compute/store the -log P_potential
-        for s in ensemble:
+        for s in self.ensemble:
             s[rest_index].ref_mean = ref_mean
             s[rest_index].ref_sigma = ref_sigma
             s[rest_index].compute_neglog_gaussian_ref()
 
 
-
-    def neglogP(self, new_ensemble_index, new_state, new_sigma,
-            new_gamma_index, verbose=True):
-        """Return -ln P of the current configuration."""
-
-        # The current structure being sampled
-        s = self.ensembles[new_ensemble_index][new_state]
-
-        print 's = ',s
-        # model terms
-        result = s.free_energy + self.logZ
-        print 'Result =',result
-        # noe terms
-        #result += (Nj+1.0)*np.log(self.sigma)
-        #if s.sse is not None:        # trying to fix a future warning:"comparison to `None` will result in an elementwise object comparison in the future."
-        if s.sse != 0:
-            result += (s.Ndof)*np.log(new_sigma)  # for use with log-spaced sigma values
-            #result += s.sse[new_gamma_index] / (2.0*new_sigma**2.0)
-            result += s.sse / (2.0*new_sigma**2.0)
-            result += (s.Ndof)/2.0*self.ln2pi  # for normalization
-            #if self.use_exp_ref == True and self.use_gaussian_ref == True:
-            #    result -= s.sum_neglog_gau_ref
-            #if self.use_exp_ref == True and self.use_gaussian_ref == False:
-            #    result -= s.sum_neglog_exp_ref
-
-        if verbose:
-            print 'state, f_sim', new_state, s.free_energy,
-            print 's.sse', s.sse, 's.Ndof', s.Ndof
-            print 's.sum_neglog_exp_ref', s.sum_neglog_exp_ref
-            print 's.sum_neglog_gaussian_ref', s.sum_neglog_gaussian_ref
-        return result
-
-
-#NOTE: sample(self, nsteps) will be rewritten in cpp
-
-    def sample(self, nsteps):
-        "Perform nsteps of posterior sampling."
-
-        for step in range(nsteps):
-
-            new_sigma = self.sigma
-            new_sigma_index = self.sigma_index
-            new_gamma = self.gamma
-            new_gamma_index = self.gamma_index
-            new_state = self.state
-            new_ensemble_index = self.ensemble_index
-
-            if np.random.random() < 0.16:
-                # take a step in array of allowed sigma
-                new_sigma_index += (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(self.allowed_sigma)) # don't go out of bounds
-                new_sigma = self.allowed_sigma[new_sigma_index]
-
-            elif np.random.random() < 0.32:
-                # take a step in array of allowed sigma_J
-                new_sigma_index += (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(self.allowed_sigma)) # don't go out of bounds
-                new_sigma = self.allowed_sigma[new_sigma_index]
-
-            elif np.random.random() < 0.48 :
-                # take a step in array of allowed sigma_cs
-                new_sigma_index += (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(self.allowed_sigma)) # don't go out of bounds
-                new_sigma = self.allowed_sigma[new_sigma_index]
-
-            elif np.random.random() < 0.60 :
-                # take a step in array of allowed sigma_pf
-                new_sigma_index += (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(self.allowed_sigma)) # don't go out of bounds
-                new_sigma = self.allowed_sigma[new_sigma_index]
-
-            elif np.random.random() < 0.78:
-                # take a step in array of allowed gamma
-                new_sigma_index += (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(self.allowed_sigma)) # don't go out of bounds
-                new_sigma = self.allowed_sigma[new_sigma_index]
-
-            elif np.random.random() < 0.99:
-                # take a random step in state space
-                new_state = np.random.randint(self.nstates)
-
-            else:
-                # pick a random pair of ambiguous groups to switch
-                new_ensemble_index = np.random.randint(self.nensembles)
-
-            # compute new "energy"
-            verbose = True
-#            if step%self.print_every == 0:
-#                verbose = True
-            new_E = self.neglogP(new_ensemble_index, new_state, new_sigma,
-                    new_gamma_index, verbose=verbose)
-
-            # accept or reject the MC move according to Metroplis criterion
-            accept = False
-            if new_E < self.E:
-                accept = True
-            else:
-                if np.random.random() < np.exp( self.E - new_E ):
-                    accept = True
-
-            # Store trajectory counts
-            self.traj.sampled_sigma[self.sigma_index] += 1
-            self.traj.sampled_gamma[self.gamma_index] += 1
-            self.traj.state_counts[self.state] += 1
-
-            # update parameters
-            if accept:
-                self.E = new_E
-                self.sigma = new_sigma
-                self.sigma_index = new_sigma_index
-                self.gamma = new_gamma
-                self.gamma_index = new_gamma_index
-                self.state = new_state
-                self.ensemble_index = new_ensemble_index
-                self.accepted += 1.0
-            self.total += 1.0
-
-            # store trajectory samples
-            if step%self.traj_every == 0:
-                self.traj.trajectory.append( [int(step), float(self.E),
-                    int(accept), int(self.state), int(self.sigma_index),
-                    int(self.gamma_index)] )
-
-
-class PosteriorSamplingTrajectory(object):
-    "A class to store and perform operations on the trajectories of sampling runs."
-
-    def __init__(self, ensemble, allowed_sigma, allowed_gamma):
-        "Initialize the PosteriorSamplingTrajectory."
-
-        self.nstates = len(ensemble)
-        #print 'self.nstates = ',self.nstates
-        self.ensemble = ensemble
-
-        self.n = len(ensemble[0].restraints)
-
-        print 'self.ensemble[0] = ',self.ensemble[0]
-        self.restraints = len(self.ensemble[0].restraints)
-
-        self.allowed_sigma = allowed_sigma
-        self.sampled_sigma = np.zeros(len(allowed_sigma))
-
-        self.allowed_gamma = allowed_gamma
-        self.sampled_gamma = np.zeros(len(allowed_gamma))
-
-        self.state_counts = np.ones(self.nstates)  # add a pseudocount to avoid log(0) errors
-
-        self.f_sim = np.array([e.free_energy for e in ensemble])
-        self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
-
-        # stores samples [step, self.E, accept, state, sigma, sigma_J, sigma_cs, gamma]
-        self.trajectory_headers = ['step', 'E', 'accept', 'state', 'sigma_index', 'sigma_J_index', 'sigma_index', 'sigmaa_index', 'sigma_cs_N_index', 'sigma_cs_Ca_index', 'sigma_pf_index', 'gamma_index']
-        self.trajectory = []
-
-        # a dictionary to store results for YAML file
-        self.results = {}
+    def get_dimensions(self):
+        pass
 
 
 
-    def process(self):
-        """Process the trajectory, computing sampling statistics,
-        ensemble-average NMR observables.
+    def construct_matrix(self):
+        """ Constructs a matrix with dimensions of nConformations (x) by nSigmas
+        and by nGamma parameters from the restraint objects for the output of a
+        matrix with numerical values to be sampled """
 
-        NOTE: Where possible, we convert to lists, because the YAML output
-        is more readable"""
+        matrix = []
+        x = 0
+        for rest_index in range(len(self.ensemble[0])):
+            for s in self.ensemble:
+                ref_sigma = s[rest_index].ref_sigma
+                betas = s[rest_index].betas
+                Ndof = s[rest_index].Ndof
+                ref_sigma = s[rest_index].ref_sigma
+                sigma_index = s[rest_index].sigma_index
+                sigma = s[rest_index].sigma
+                ref_sigma = s[rest_index].ref_sigma
 
-        # Store the trajectory in rsults
-        self.results['trajectory_headers'] = self.trajectory_headers
-        self.results['trajectory'] = self.trajectory
 
-        # Store the nuisance parameter distributions
-        self.results['allowed_sigma'] = self.allowed_sigma.tolist()
-        self.results['allowed_gamma'] = self.allowed_gamma.tolist()
-        self.results['sampled_sigma'] = self.sampled_sigma.tolist()
-        self.results['sampled_gamma'] = self.sampled_gamma.tolist()
+                print('x=%s,ref_sigma=%s,\n\
+                        betas=%s,\n\
+                        Ndof=%s,ref_sigma=%s,\n\
+                        sigma_index=%s,sigma=%s,'\
+                        %(x,ref_sigma,betas,Ndof,ref_sigma,sigma_index,sigma))
+                try:
+                    if s[rest_index].gamma:
+                        gamma = s[rest_index].gamma
+                except AttributeError:
+                    print("No gamma here")
+                x += 1
 
-        # Calculate the modes of the nuisance parameter marginal distributions
-        self.results['sigma_mode'] = float(self.allowed_sigma[ np.argmax(self.sampled_sigma) ])
-        self.results['gamma_mode'] = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
 
-        # copy over the purely computational free energies f_i
-        self.results['comp_f'] = self.f_sim.tolist()
 
-        # Estimate the populations of each state
-        self.results['state_pops'] = (self.state_counts/self.state_counts.sum()).tolist()
+        #confSpace = np.outer(np.linspace(-5, 5, n), np.ones(n))
+        Matrix = np.array(matrix)
+        print( Matrix.shape)
+        print( Matrix)
 
-        # Estimate uncertainty in the populations by bootstrap
-        self.nbootstraps = 1000
-        self.bootstrapped_state_pops = np.random.multinomial(self.state_counts.sum(), self.results['state_pops'], size=self.nbootstraps)
-        self.results['state_pops_std'] = self.bootstrapped_state_pops.std(axis=0).tolist()
 
-        # Estimate the free energies of each state
-        self.results['state_f'] = (-np.log(self.results['state_pops'])).tolist()
-        state_f = -np.log(self.results['state_pops'])
-        ref_f = state_f.min()
-        state_f -=  ref_f
-        self.results['state_f'] = state_f.tolist()
-        self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudocount to avoid log(0)s in the bootstrap
-        self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
-#################################################################################
-        # Estimate the ensemble-<r**-6>averaged noe
-        mean = np.zeros(self.n)
-        Z = np.zeros(self.n)
-        for i in range(self.nstates):
-            for j in range(self.n):
-                pop = self.results['state_pops'][i]
-                weight = self.ensemble[i].restraints[j].weight
-                r = self.ensemble[i].restraints[j].model
-                mean[j] += pop*weight*(r**(-6.0))
-                Z[j] += pop*weight
-        mean = (mean/Z)**(-1.0/6.0)
-        self.results['mean'] = mean.tolist()
 
-        # compute the experimental noe, using the most likely gamma'
-        exp = np.array([self.results['gamma_mode']*self.ensemble[0].restraints[j].exp \
-                                      for j in range(self.n)])
-        self.results['exp'] = exp.tolist()
+#    def neglogP(self, new_ensemble_index, new_state, new_sigma,
+#            new_gamma_index, verbose=True):
+#        """Return -ln P of the current configuration."""
+#
+#        # The current structure being sampled
+#        s = self.ensembles[new_ensemble_index][new_state]
+#        print( 's = ',s)
+#
+#        # model terms
+#        result = s.free_energy + self.logZ
+#        print( 'Result =',result)
+#
+#        # noe terms
+#        #result += (Nj+1.0)*np.log(self.sigma)
+#        if s.sse != 0:
+#            result += (s.Ndof)*np.log(new_sigma)  # for use with log-spaced sigma values
+#            #result += s.sse[new_gamma_index] / (2.0*new_sigma**2.0)
+#            result += s.sse / (2.0*new_sigma**2.0)
+#            result += (s.Ndof)/2.0*self.ln2pi  # for normalization
+#
+#        if verbose:
+#            print( 'state, f_sim', new_state, s.free_energy,)
+#            print( 's.sse', s.sse, 's.Ndof', s.Ndof)
+#            print( 's.sum_neglog_exp_ref', s.sum_neglog_exp_ref)
+#            print( 's.sum_neglog_gaussian_ref', s.sum_neglog_gaussian_ref)
+#        return result
+#
+#
+#
+#
+#    def sample(self, nsteps):
+#        "Perform nsteps of posterior sampling."
+#
+##        new_nuisence = [[] for j in ]
+#
+#        for rest_index in range(len(self.ensemble[0])):
+#            for s in self.ensemble:
+#                s[rest_index].ref_sigma = ref_sigma
+#                s[rest_index].betas = betas
+#
+#
+#
+#
+#        new_sigma_noe = self.sigma_noe
+#        new_sigma_noe_index = self.sigma_noe_index
+#        new_sigma_J = self.sigma_J
+#        new_sigma_J_index = self.sigma_J_index
+#        new_sigma_cs_H = self.sigma_cs_H
+#        new_sigma_cs_H_index = self.sigma_cs_H_index
+#        new_sigma_cs_Ha = self.sigma_cs_Ha
+#        new_sigma_cs_Ha_index = self.sigma_cs_Ha_index
+#        new_sigma_cs_N = self.sigma_cs_N
+#        new_sigma_cs_N_index = self.sigma_cs_N_index
+#        new_sigma_cs_Ca = self.sigma_cs_Ca
+#        new_sigma_cs_Ca_index = self.sigma_cs_Ca_index
+#        new_sigma_pf = self.sigma_pf
+#        new_sigma_pf_index = self.sigma_pf_index
+#	    new_gamma = self.gamma
+#        new_gamma_index = self.gamma_index
+#
+#        new_state = self.state
+#        new_ensemble_index = self.ensemble_index
+#
+#
+#        for step in range(nsteps):
+#
+#
+#            if np.random.random() < 0.16:
+#                # take a step in array of allowed sigma_noe
+#                new_sigma_noe_index += (np.random.randint(3)-1)
+#                new_sigma_noe_index = new_sigma_noe_index%(len(self.allowed_sigma_noe)) # don't go out of bounds
+#                new_sigma_noe = self.allowed_sigma_noe[new_sigma_noe_index]
+#
+#            elif np.random.random() < 0.32:
+#                # take a step in array of allowed sigma_J
+#                new_sigma_J_index += (np.random.randint(3)-1)
+#                new_sigma_J_index = new_sigma_J_index%(len(self.allowed_sigma_J)) # don't go out of bounds
+#                new_sigma_J = self.allowed_sigma_J[new_sigma_J_index]
+#
+#	        elif np.random.random() < 0.48 :
+#                # take a step in array of allowed sigma_cs
+#                new_sigma_cs_H_index += (np.random.randint(3)-1)
+#                new_sigma_cs_H_index = new_sigma_cs_H_index%(len(self.allowed_sigma_cs_H)) # don't go out of bounds
+#                new_sigma_cs_H = self.allowed_sigma_cs_H[new_sigma_cs_H_index]
+#                new_sigma_cs_Ha_index += (np.random.randint(3)-1)
+#                new_sigma_cs_Ha_index = new_sigma_cs_Ha_index%(len(self.allowed_sigma_cs_Ha)) # don't go out of bounds
+#                new_sigma_cs_Ha = self.allowed_sigma_cs_Ha[new_sigma_cs_Ha_index]
+#                new_sigma_cs_N_index += (np.random.randint(3)-1)
+#                new_sigma_cs_N_index = new_sigma_cs_N_index%(len(self.allowed_sigma_cs_N)) # don't go out of bounds
+#                new_sigma_cs_N = self.allowed_sigma_cs_N[new_sigma_cs_N_index]
+#                new_sigma_cs_Ca_index += (np.random.randint(3)-1)
+#                new_sigma_cs_Ca_index = new_sigma_cs_Ca_index%(len(self.allowed_sigma_cs_Ca)) # don't go out of bounds
+#                new_sigma_cs_Ca = self.allowed_sigma_cs_Ca[new_sigma_cs_Ca_index]
+#
+#   	        elif np.random.random() < 0.60 :
+#		        # take a step in array of allowed sigma_pf
+#                new_sigma_pf_index += (np.random.randint(3)-1)
+#                new_sigma_pf_index = new_sigma_pf_index%(len(self.allowed_sigma_pf)) # don't go out of bounds
+#                new_sigma_pf = self.allowed_sigma_pf[new_sigma_pf_index]
+#
+#            elif np.random.random() < 0.78:
+#                # take a step in array of allowed gamma
+#                new_gamma_index += (np.random.randint(3)-1)
+#                new_gamma_index = new_gamma_index%(len(self.allowed_gamma)) # don't go out of bounds
+#                new_gamma  = self.allowed_gamma[new_gamma_index]
+#
+#            elif np.random.random() < 0.99:
+#                # take a random step in state space
+#                new_state = np.random.randint(self.nstates)
+#
+#            else:
+#                # pick a random pair of ambiguous groups to switch
+#                new_ensemble_index = np.random.randint(self.nensembles)
+#
+#            # compute new "energy"
+#            verbose = True
+#            new_E = self.neglogP(new_ensemble_index, new_state, new_sigma_noe,
+#                    new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha,
+#                    new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_pf,
+#                    new_gamma_index,  verbose=verbose)
+#
+#            # accept or reject the MC move according to Metroplis criterion
+#            accept = False
+#            if new_E < self.E:
+#                accept = True
+#            else:
+#                if np.random.random() < np.exp( self.E - new_E ):
+#                    accept = True
+#
+##            print( 'step', step, 'E', self.E, 'new_E', new_E, 'accept', accept, 'new_sigma_noe', new_sigma_noe, 'new_sigma_J', new_sigma_J, 'new_sigma_cs_H', new_sigma_cs_H, 'new_sigma_cs_Ha', new_sigma_cs_Ha, 'new_sigma_cs_N', new_sigma_cs_N, 'new_sigma_cs_Ca', new_sigma_cs_Ca, 'new_sigma_pf', new_sigma_pf, 'new_gamma', new_gamma,'new_state', new_state, 'new_ensemble_index', new_ensemble_index)
+#      	    # Store trajectory counts
+#            self.traj.sampled_sigma_noe[self.sigma_noe_index] += 1
+#            self.traj.sampled_sigma_J[self.sigma_J_index] += 1
+#	        self.traj.sampled_sigma_cs_H[self.sigma_cs_H_index] += 1
+#            self.traj.sampled_sigma_cs_Ha[self.sigma_cs_Ha_index] += 1
+#            self.traj.sampled_sigma_cs_N[self.sigma_cs_N_index] += 1
+#            self.traj.sampled_sigma_cs_Ca[self.sigma_cs_Ca_index] += 1
+#	        self.traj.sampled_sigma_pf[self.sigma_pf_index] += 1
+#            self.traj.sampled_gamma[self.gamma_index] += 1
+#            self.traj.state_counts[self.state] += 1
+#
+#            # update parameters
+#            if accept:
+#                self.E = new_E
+#                self.sigma_noe = new_sigma_noe
+#                self.sigma_noe_index = new_sigma_noe_index
+#                self.sigma_J = new_sigma_J
+#                self.sigma_J_index = new_sigma_J_index
+#                self.sigma_cs_H = new_sigma_cs_H
+#                self.sigma_cs_H_index = new_sigma_cs_H_index
+#                self.sigma_cs_Ha = new_sigma_cs_Ha
+#                self.sigma_cs_Ha_index = new_sigma_cs_Ha_index
+#                self.sigma_cs_N = new_sigma_cs_N
+#                self.sigma_cs_N_index = new_sigma_cs_N_index
+#                self.sigma_cs_Ca = new_sigma_cs_Ca
+#                self.sigma_cs_Ca_index = new_sigma_cs_Ca_index
+#                self.sigma_pf = new_sigma_pf
+#                self.sigma_pf_index = new_sigma_pf_index
+#		        self.gamma = new_gamma
+#                self.gamma_index = new_gamma_index
+#                self.state = new_state
+#                self.ensemble_index = new_ensemble_index
+#                self.accepted += 1.0
+#                self.total += 1.0
+#
+#            # store trajectory samples
+#            if step%self.traj_every == 0:
+#                self.traj.trajectory.append( [int(step), float(self.E), int(accept), int(self.state), int(self.sigma_noe_index), int(self.sigma_J_index), int(self.sigma_cs_H_index), int(self.sigma_cs_Ha_index), int(self.sigma_cs_N_index), int(self.sigma_cs_Ca_index), int(self.sigma_pf_index), int(self.gamma_index)] )
+#
+#class PosteriorSamplingTrajectory(object):
+#    "A class to store and perform operations on the trajectories of sampling runs."
+#
+#    def __init__(self, ensemble, allowed_sigma_noe, allowed_sigma_J,
+#            allowed_sigma_cs_H, allowed_sigma_cs_Ha, allowed_sigma_cs_N,
+#            allowed_sigma_cs_Ca, allowed_sigma_pf, allowed_gamma):
+#        "Initialize the PosteriorSamplingTrajectory."
+#
+#        self.nstates = len(ensemble)
+#        self.ensemble = ensemble
+#
+#        print( 'self.ensemble[0] = ',self.ensemble[0])
+#        self.nnoe = len(self.ensemble[0].noe_restraints)
+#        self.ndihedrals = len(self.ensemble[0].dihedral_restraints)
+#	    self.ncs_H = len(self.ensemble[0].cs_H_restraints)
+#        self.ncs_Ha = len(self.ensemble[0].cs_Ha_restraints)
+#        self.ncs_Ca = len(self.ensemble[0].cs_Ca_restraints)
+#        self.ncs_N = len(self.ensemble[0].cs_N_restraints)
+#	    self.npf = len(self.ensemble[0].pf_restraints)
+#
+#        self.allowed_sigma_noe = allowed_sigma_noe
+#        self.sampled_sigma_noe = np.zeros(len(allowed_sigma_noe))
+#
+#        self.allowed_sigma_J = allowed_sigma_J
+#        self.sampled_sigma_J = np.zeros(len(allowed_sigma_J))
+#
+#        self.allowed_sigma_cs_H = allowed_sigma_cs_H
+#        self.sampled_sigma_cs_H = np.zeros(len(allowed_sigma_cs_H))
+#
+#        self.allowed_sigma_cs_Ha = allowed_sigma_cs_Ha
+#        self.sampled_sigma_cs_Ha = np.zeros(len(allowed_sigma_cs_Ha))
+#
+#        self.allowed_sigma_cs_N = allowed_sigma_cs_N
+#        self.sampled_sigma_cs_N = np.zeros(len(allowed_sigma_cs_N))
+#
+#        self.allowed_sigma_cs_Ca = allowed_sigma_cs_Ca
+#        self.sampled_sigma_cs_Ca = np.zeros(len(allowed_sigma_cs_Ca))
+#
+#        self.allowed_sigma_pf = allowed_sigma_pf
+#        self.sampled_sigma_pf = np.zeros(len(allowed_sigma_pf))
+#
+#        self.allowed_gamma = allowed_gamma
+#        self.sampled_gamma = np.zeros(len(allowed_gamma))
+#
+#
+#        self.state_counts = np.ones(self.nstates)  # add a pseudocount to avoid log(0) errors
+#
+#        self.f_sim = np.array([e.free_energy for e in ensemble])
+#        self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
+#
+#        # stores samples [step, self.E, accept, state, sigma_noe, sigma_J, sigma_cs, gamma]
+#        self.trajectory_headers = ['step', 'E', 'accept', 'state', 'sigma_noe_index', 'sigma_J_index', 'sigma_cs_H_index', 'sigma_cs_Ha_index', 'sigma_cs_N_index', 'sigma_cs_Ca_index', 'sigma_pf_index', 'gamma_index']
+#        self.trajectory = []
+#
+#        # a dictionary to store results for YAML file
+#        self.results = {}
 
-#        self.results['pairs'] = []
-#        for j in range(self.n):
-#            pair = [int(self.ensemble[0].restraints[j].i), int(self.ensemble[0].restraints[j].j)]
-#            self.results['pairs'].append(pair)
-#        abs_diffs = np.abs( exp - mean )
-#        self.results['disagreement_mean'] = float(abs_diffs.mean())
-#        self.results['disagreement_std'] = float(abs_diffs.std())
-
+#
+#    def process(self):
+#        """Process the trajectory, computing sampling statistics,
+#        ensemble-average NMR observables.
+#
+#        NOTE: Where possible, we convert to lists, because the YAML output
+#        is more readable"""
+#
+#        # Store the trajectory in rsults
+#        self.results['trajectory_headers'] = self.trajectory_headers
+#        self.results['trajectory'] = self.trajectory
+#
+#        # Store the nuisance parameter distributions
+#        self.results['allowed_sigma_noe'] = self.allowed_sigma_noe.tolist()
+#        self.results['allowed_sigma_J'] = self.allowed_sigma_J.tolist()
+#        self.results['allowed_sigma_cs_H'] = self.allowed_sigma_cs_H.tolist()
+#        self.results['allowed_sigma_cs_Ha'] = self.allowed_sigma_cs_Ha.tolist()
+#        self.results['allowed_sigma_cs_N'] = self.allowed_sigma_cs_N.tolist()
+#        self.results['allowed_sigma_cs_Ca'] = self.allowed_sigma_cs_Ca.tolist()
+#     	self.results['allowed_sigma_pf'] = self.allowed_sigma_pf.tolist()
+#        self.results['allowed_gamma'] = self.allowed_gamma.tolist()
+#        self.results['sampled_sigma_noe'] = self.sampled_sigma_noe.tolist()
+#        self.results['sampled_sigma_J'] = self.sampled_sigma_J.tolist()
+#        self.results['sampled_sigma_cs_H'] = self.sampled_sigma_cs_H.tolist()
+#        self.results['sampled_sigma_cs_Ha'] = self.sampled_sigma_cs_Ha.tolist()
+#        self.results['sampled_sigma_cs_N'] = self.sampled_sigma_cs_N.tolist()
+#        self.results['sampled_sigma_cs_Ca'] = self.sampled_sigma_cs_Ca.tolist()
+#	    self.results['sampled_sigma_pf'] = self.sampled_sigma_pf.tolist()
+#        self.results['sampled_gamma'] = self.sampled_gamma.tolist()
+#
+#        # Calculate the modes of the nuisance parameter marginal distributions
+#        self.results['sigma_noe_mode'] = float(self.allowed_sigma_noe[ np.argmax(self.sampled_sigma_noe) ])
+#        self.results['sigma_J_mode']   = float(self.allowed_sigma_J[ np.argmax(self.sampled_sigma_J) ])
+#        self.results['sigma_cs_H_mode']   = float(self.allowed_sigma_cs_H[ np.argmax(self.sampled_sigma_cs_H) ])
+#        self.results['sigma_cs_Ha_mode']   = float(self.allowed_sigma_cs_Ha[ np.argmax(self.sampled_sigma_cs_Ha) ])
+#        self.results['sigma_cs_N_mode']   = float(self.allowed_sigma_cs_N[ np.argmax(self.sampled_sigma_cs_N) ])
+#        self.results['sigma_cs_Ca_mode']   = float(self.allowed_sigma_cs_Ca[ np.argmax(self.sampled_sigma_cs_Ca) ])
+#     	self.results['sigma_pf_mode']	= float(self.allowed_sigma_pf[ np.argmax(self.sampled_sigma_pf) ])
+#        self.results['gamma_mode']     = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
+#
+#        # copy over the purely computational free energies f_i
+#        self.results['comp_f'] = self.f_sim.tolist()
+#
+#        # Estimate the populations of each state
+#        self.results['state_pops'] = (self.state_counts/self.state_counts.sum()).tolist()
+#
+#        # Estimate uncertainty in the populations by bootstrap
+#        self.nbootstraps = 1000
+#        self.bootstrapped_state_pops = np.random.multinomial(self.state_counts.sum(), self.results['state_pops'], size=self.nbootstraps)
+#        self.results['state_pops_std'] = self.bootstrapped_state_pops.std(axis=0).tolist()
+#
+#        # Estimate the free energies of each state
+#        self.results['state_f'] = (-np.log(self.results['state_pops'])).tolist()
+#        state_f = -np.log(self.results['state_pops'])
+#        ref_f = state_f.min()
+#        state_f -=  ref_f
+#        self.results['state_f'] = state_f.tolist()
+#        self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudocount to avoid log(0)s in the bootstrap
+#        self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
+#
+#        # Estimate the ensemble-<r**-6>averaged noe
+#        mean_noe = np.zeros(self.nnoe)
+#        Z = np.zeros(self.nnoe)
+#        for i in range(self.nstates):
+#            for j in range(self.nnoe):
+#                pop = self.results['state_pops'][i]
+#                weight = self.ensemble[i].noe_restraints[j].weight
+#                r = self.ensemble[i].noe_restraints[j].model_noe
+#                mean_noe[j] += pop*weight*(r**(-6.0))
+#                Z[j] += pop*weight
+#        mean_noe = (mean_noe/Z)**(-1.0/6.0)
+#        self.results['mean_noe'] = mean_noe.tolist()
+#
+#        # compute the experimental noe, using the most likely gamma'
+#        exp_noe = np.array([self.results['gamma_mode']*self.ensemble[0].noe_restraints[j].exp_noe \
+#                                      for j in range(self.nnoe)])
+#        self.results['exp_noe'] = exp_noe.tolist()
+#
+#        self.results['noe_pairs'] = []
+#        for j in range(self.nnoe):
+#            pair = [int(self.ensemble[0].noe_restraints[j].i), int(self.ensemble[0].noe_restraints[j].j)]
+#            self.results['noe_pairs'].append(pair)
+#        abs_diffs = np.abs( exp_noe - mean_noe )
+#        self.results['disagreement_noe_mean'] = float(abs_diffs.mean())
+#        self.results['disagreement_noe_std'] = float(abs_diffs.std())
+#
 #        # Estimate the ensemble-averaged J-coupling values
 #        mean_Jcoupling = np.zeros(self.ndihedrals)
 #        Z = np.zeros(self.ndihedrals)
@@ -419,25 +559,25 @@ class PosteriorSamplingTrajectory(object):
 #        self.results['disagreement_Jcoupling_mean'] = float(abs_Jdiffs.mean())
 #        self.results['disagreement_Jcoupling_std'] = float(abs_Jdiffs.std())
 #
-        # Estimate the ensemble-averaged chemical shift values
-        mean = np.zeros(self.n)
-        Z = np.zeros(self.n)
-        for i in range(self.nstates):
-            for j in range(self.n):
-                pop = self.results['state_pops'][i]
-                weight = self.ensemble[i].restraints[j].weight
-                r = self.ensemble[i].restraints[j].model
-                mean[j] += pop*weight*r
-                Z[j] += pop*weight
-        mean = (mean/Z)
-        self.results['mean'] = mean.tolist()
-
-        # Compute the experiment chemical shift
-        exp = np.array([self.ensemble[0].restraints[j].exp for j in range(self.n)])
-        self.results['exp'] = exp.tolist()
-        abs_diffs = np.abs( exp - mean )
-        self.results['disagreement_mean'] = float(abs_diffs.mean())
-        self.results['disagreement_std'] = float(abs_diffs.std())
+#        # Estimate the ensemble-averaged chemical shift values
+#        mean_cs_H = np.zeros(self.ncs_H)
+#        Z = np.zeros(self.ncs_H)
+#        for i in range(self.nstates):
+#            for j in range(self.ncs_H):
+#                pop = self.results['state_pops'][i]
+#                weight = self.ensemble[i].cs_H_restraints[j].weight
+#                r = self.ensemble[i].cs_H_restraints[j].model_cs_H
+#                mean_cs_H[j] += pop*weight*r
+#                Z[j] += pop*weight
+#        mean_cs_H = (mean_cs_H/Z)
+#        self.results['mean_cs_H'] = mean_cs_H.tolist()
+#
+#        # Compute the experiment chemical shift
+#        exp_cs_H = np.array([self.ensemble[0].cs_H_restraints[j].exp_cs_H for j in range(self.ncs_H)])
+#        self.results['exp_cs_H'] = exp_cs_H.tolist()
+#        abs_cs_H_diffs = np.abs( exp_cs_H - mean_cs_H )
+#        self.results['disagreement_cs_H_mean'] = float(abs_cs_H_diffs.mean())
+#        self.results['disagreement_cs_H_std'] = float(abs_cs_H_diffs.std())
 #
 #        # Estimate the ensemble-averaged chemical shift values
 #        mean_cs_Ha = np.zeros(self.ncs_Ha)
@@ -518,14 +658,14 @@ class PosteriorSamplingTrajectory(object):
 #
 #        # Compute the experiment protection factor
 #
-#        exp_pf = np.array([self.ensemble[0].pf_restraints[j].exp_pf for j in range(self.npf)])
+#    	exp_pf = np.array([self.ensemble[0].pf_restraints[j].exp_pf for j in range(self.npf)])
 ##        exp_pf = np.array([self.ensemble[0].pf_restraints[j].exp_pf for j in range(self.npf)])
 #        self.results['exp_pf'] = exp_pf.tolist()
 #        abs_pfdiffs = np.abs( exp_pf - mean_pf )
 #        self.results['disagreement_pf_mean'] = float(abs_pfdiffs.mean())
 #        self.results['disagreement_pf_std'] = float(abs_pfdiffs.std())
-
-
+#
+#
     def logspaced_array(self, xmin, xmax, nsteps):
         ymin, ymax = np.log(xmin), np.log(xmax)
         dy = (ymax-ymin)/nsteps
@@ -544,7 +684,7 @@ class PosteriorSamplingTrajectory(object):
         """Reads a npz file"""
 
         loaded = np.load(filename)
-        print loaded.items()
+        print( loaded.items())
 
 
 
