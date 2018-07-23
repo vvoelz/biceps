@@ -97,8 +97,8 @@ class PosteriorSampler(object):
 
         # VERY IMPORTANT: compute reference state self.logZ  for the free energies, so they are properly normalized #
         Z = 0.0
-        for ensemble_index in range(len(ensemble[0])):
-            for s in ensemble[ensemble_index]:
+        for rest_index in range(len(ensemble[0])):
+            for s in ensemble[rest_index]:
                 Z +=  np.exp(-s.free_energy)
         self.logZ = np.log(Z)
 
@@ -147,6 +147,7 @@ class PosteriorSampler(object):
         """Look at all the structures to find the mean (mu) and std (sigma) of  observables r_j
         then store this reference potential info for all Restraints of this type for each structure"""
 
+    #NOTE: Is this correct?!
         print( 'Computing parameters for Gaussian reference potentials...')
 
         # collect distributions of observables r_j across all structures
@@ -169,12 +170,14 @@ class PosteriorSampler(object):
             ref_mean[j] =  np.array(distributions[j]).mean()
             squared_diffs = [ (d - ref_mean[j])**2.0 for d in distributions[j] ]
             ref_sigma[j] = np.sqrt( np.array(squared_diffs).sum() / (len(distributions[j])+1.0))
+            print(ref_sigma[j])
 
         if use_global_ref_sigma == True:
             # Use the variance across all ref_sigma[j] values to calculate a single value of ref_sigma for all observables
-            global_ref_sigma = ( np.array([ref_sigma[j]**-2.0 for j in range(n_observables)]).mean() )**-0.5
+            global_ref_sigma = ( np.array([ref_sigma[j]**(-2.0) for j in range(n_observables)]).mean() )**-0.5
             for j in range(n_observables):
                 ref_sigma[j] = global_ref_sigma
+                print(ref_sigma[j])
 
         # store the ref_mean and ref_sigma information in each structure and compute/store the -log P_potential
         for s in self.ensemble:
@@ -188,175 +191,162 @@ class PosteriorSampler(object):
 
 
 
-    def construct_matrix(self):
+    def construct_matrix(self,verbose=False):
         """ Constructs a matrix with dimensions of nConformations (x) by nSigmas
         and by nGamma parameters from the restraint objects for the output of a
         matrix with numerical values to be sampled """
 
-        matrix = []
-        x = 0
+        Obs = []
+        nX = 0
+        nGamma = 0
+        Matrix = [[],[],[],[],[],[],[],[],[],[]]
         for rest_index in range(len(self.ensemble[0])):
             for s in self.ensemble:
-                ref_sigma = s[rest_index].ref_sigma
-                betas = s[rest_index].betas
-                Ndof = s[rest_index].Ndof
-                ref_sigma = s[rest_index].ref_sigma
-                sigma_index = s[rest_index].sigma_index
-                sigma = s[rest_index].sigma
-                ref_sigma = s[rest_index].ref_sigma
+                Obs.append(s[rest_index].n)
+
+                # Start Creating the Matrix:
+                Matrix[0].append(nX)
+                Matrix[1].append(s[rest_index].Ndof)
+                Matrix[2].append(s[rest_index].sigma)
+                Matrix[3].append(s[rest_index].allowed_sigma)
+                Matrix[4].append(s[rest_index].sigma_index)
+                Matrix[5].append(s[rest_index].ref_sigma)
+                Matrix[6].append(s[rest_index].betas)
+
+                # Append depending on if there are gamma parameters
+                if hasattr(s, 'gamma'):
+                    Matrix[7].append(s[rest_index].gamma)
+                    Matrix[8].append(s[rest_index].allowed_gamma)
+                    Matrix[9].append(s[rest_index].gamma_index)
+                    nGamma += 1
+                nX += 1
+
+        self.Matrix = np.array(Matrix)
+        if verbose == True:
+            print('Matrix.shape',self.Matrix.shape)
+            print(self.Matrix)
 
 
-                print('x=%s,ref_sigma=%s,\n\
-                        betas=%s,\n\
-                        Ndof=%s,ref_sigma=%s,\n\
-                        sigma_index=%s,sigma=%s,'\
-                        %(x,ref_sigma,betas,Ndof,ref_sigma,sigma_index,sigma))
-                try:
-                    if s[rest_index].gamma:
-                        gamma = s[rest_index].gamma
-                except AttributeError:
-                    print("No gamma here")
-                x += 1
+    def neglogP(self, new_state, new_sigma,
+            new_gamma_index, verbose=True):
+        """Return -ln P of the current configuration."""
+
+        # Current Structure being sampled:
+        s = self.ensemble[0][new_state]
+
+        result = s.free_energy + self.logz
+
+        if s.sse != 0:
+           result += (s.Ndof)*np.log(new_sigma)  # for use with log-spaced sigma values
+           result += s.sse / (2.0*new_sigma**2.0)
+           result += (s.Ndof)/2.0*self.ln2pi  # for normalization
+           if new_gamme_index != None:
+               result += s.sse[new_gamma_index] / (2.0*new_sigma**2.0)
+
+        if verbose:
+            print('s = ',s)
+            print('Result =',result)
+
+            print('state, f_sim', new_state, s.free_energy,)
+            print('s.sse', s.sse, 's.Ndof', s.Ndof)
+            print('s.sum_neglog_exp_ref', s.sum_neglog_exp_ref)
+            print('s.sum_neglog_gaussian_ref', s.sum_neglog_gaussian_ref)
+        return result
 
 
 
-        #confSpace = np.outer(np.linspace(-5, 5, n), np.ones(n))
-        Matrix = np.array(matrix)
-        print( Matrix.shape)
-        print( Matrix)
+    def sample(self, nsteps):
+        "Perform nsteps of posterior sampling on the constructed matrix."
+
+        Matrix = self.Matrix
+        ## Partition the various degrees of freedom of the Matrix
+        # Conformational Space
+        X = Matrix[0]
+        nX = len(X)
+        print('Number of Conformations: ',nX)
+
+        # Degrees of freedom
+        Ndof = Matrix[1]
+
+        # Sigma Space
+        new_sigma = Matrix[2]
+        nSigma = len(new_sigma)
+        print('nSigma ',(nSigma))
+
+        # allowed sigma
+        Allowed_sigma = Matrix[3]
+
+        # Sigma index
+        new_sigma_index = Matrix[4][0]
+#        print('Sigma_index ',Sigma_index)
+
+        # ref sigma
+        Ref_sigma = Matrix[5]
+
+        # Beta space
+        Betas = Matrix[6]
+
+        # Gamma portion of Matrix
+        if hasattr(self.ensemble, 'gamma'):
+            new_gamma = Matrix[7]
+            Allowed_gamma = Matrix[8]
+            new_gamma_index = Matrix[9]
+        else:
+            new_gamma_index = None
+            #print('Gamma',new_gamma)
+
+        # Set the state
+        new_state = X[0]
+
+        for step in range(nsteps):
+
+            if np.random.random() < 0.16:
+                new_sigma_index +=  (np.random.randint(3)-1)
+                new_sigma_index = new_sigma_index%(len(Allowed_sigma))
+                new_sigma = Allowed_sigma[new_sigma_index]
+
+            elif np.random.random() < 0.32:
+                new_sigma_index +=  (np.random.randint(3)-1)
+                new_sigma_index = new_sigma_index%(len(Allowed_sigma))
+                new_sigma = Allowed_sigma[new_sigma_index]
+
+            elif np.random.random() < 0.48:
+                new_sigma_index +=  (np.random.randint(3)-1)
+                new_sigma_index = new_sigma_index%(len(Allowed_sigma))
+                new_sigma = Allowed_sigma[new_sigma_index]
+
+            elif np.random.random() < 0.60:
+                new_sigma_index +=  (np.random.randint(3)-1)
+                new_sigma_index = new_sigma_index%(len(Allowed_sigma))
+                new_sigma = Allowed_sigma[new_sigma_index]
+
+            elif np.random.random() < 0.78:
+                if hasattr(self.ensemble, 'gamma'):
+                    new_gamma_index +=  (np.random.randint(3)-1)
+                    new_gamma_index = new_gamma_index%(len(Allowed_gamma))
+                    new_gamma = Allowed_gamma[new_gamma_index]
+
+            elif np.random.random() < 0.99:
+                # take a random step in state space
+                new_state = np.random.randint(nX)
+
+            else:
+                new_state = np.random.randint(nX)
+
+            # compute new "energy"
+            verbose = True
+            new_E = self.neglogP(new_state, new_sigma, new_gamma_index, verbose=verbose)
 
 
+            # accept or reject the MC move according to Metroplis criterion
+            accept = False
+            if new_E < self.E:
+                accept = True
+            else:
+                if np.random.random() < np.exp( self.E - new_E ):
+                    accept = True
 
-#    def neglogP(self, new_ensemble_index, new_state, new_sigma,
-#            new_gamma_index, verbose=True):
-#        """Return -ln P of the current configuration."""
 #
-#        # The current structure being sampled
-#        s = self.ensembles[new_ensemble_index][new_state]
-#        print( 's = ',s)
-#
-#        # model terms
-#        result = s.free_energy + self.logZ
-#        print( 'Result =',result)
-#
-#        # noe terms
-#        #result += (Nj+1.0)*np.log(self.sigma)
-#        if s.sse != 0:
-#            result += (s.Ndof)*np.log(new_sigma)  # for use with log-spaced sigma values
-#            #result += s.sse[new_gamma_index] / (2.0*new_sigma**2.0)
-#            result += s.sse / (2.0*new_sigma**2.0)
-#            result += (s.Ndof)/2.0*self.ln2pi  # for normalization
-#
-#        if verbose:
-#            print( 'state, f_sim', new_state, s.free_energy,)
-#            print( 's.sse', s.sse, 's.Ndof', s.Ndof)
-#            print( 's.sum_neglog_exp_ref', s.sum_neglog_exp_ref)
-#            print( 's.sum_neglog_gaussian_ref', s.sum_neglog_gaussian_ref)
-#        return result
-#
-#
-#
-#
-#    def sample(self, nsteps):
-#        "Perform nsteps of posterior sampling."
-#
-##        new_nuisence = [[] for j in ]
-#
-#        for rest_index in range(len(self.ensemble[0])):
-#            for s in self.ensemble:
-#                s[rest_index].ref_sigma = ref_sigma
-#                s[rest_index].betas = betas
-#
-#
-#
-#
-#        new_sigma_noe = self.sigma_noe
-#        new_sigma_noe_index = self.sigma_noe_index
-#        new_sigma_J = self.sigma_J
-#        new_sigma_J_index = self.sigma_J_index
-#        new_sigma_cs_H = self.sigma_cs_H
-#        new_sigma_cs_H_index = self.sigma_cs_H_index
-#        new_sigma_cs_Ha = self.sigma_cs_Ha
-#        new_sigma_cs_Ha_index = self.sigma_cs_Ha_index
-#        new_sigma_cs_N = self.sigma_cs_N
-#        new_sigma_cs_N_index = self.sigma_cs_N_index
-#        new_sigma_cs_Ca = self.sigma_cs_Ca
-#        new_sigma_cs_Ca_index = self.sigma_cs_Ca_index
-#        new_sigma_pf = self.sigma_pf
-#        new_sigma_pf_index = self.sigma_pf_index
-#	    new_gamma = self.gamma
-#        new_gamma_index = self.gamma_index
-#
-#        new_state = self.state
-#        new_ensemble_index = self.ensemble_index
-#
-#
-#        for step in range(nsteps):
-#
-#
-#            if np.random.random() < 0.16:
-#                # take a step in array of allowed sigma_noe
-#                new_sigma_noe_index += (np.random.randint(3)-1)
-#                new_sigma_noe_index = new_sigma_noe_index%(len(self.allowed_sigma_noe)) # don't go out of bounds
-#                new_sigma_noe = self.allowed_sigma_noe[new_sigma_noe_index]
-#
-#            elif np.random.random() < 0.32:
-#                # take a step in array of allowed sigma_J
-#                new_sigma_J_index += (np.random.randint(3)-1)
-#                new_sigma_J_index = new_sigma_J_index%(len(self.allowed_sigma_J)) # don't go out of bounds
-#                new_sigma_J = self.allowed_sigma_J[new_sigma_J_index]
-#
-#	        elif np.random.random() < 0.48 :
-#                # take a step in array of allowed sigma_cs
-#                new_sigma_cs_H_index += (np.random.randint(3)-1)
-#                new_sigma_cs_H_index = new_sigma_cs_H_index%(len(self.allowed_sigma_cs_H)) # don't go out of bounds
-#                new_sigma_cs_H = self.allowed_sigma_cs_H[new_sigma_cs_H_index]
-#                new_sigma_cs_Ha_index += (np.random.randint(3)-1)
-#                new_sigma_cs_Ha_index = new_sigma_cs_Ha_index%(len(self.allowed_sigma_cs_Ha)) # don't go out of bounds
-#                new_sigma_cs_Ha = self.allowed_sigma_cs_Ha[new_sigma_cs_Ha_index]
-#                new_sigma_cs_N_index += (np.random.randint(3)-1)
-#                new_sigma_cs_N_index = new_sigma_cs_N_index%(len(self.allowed_sigma_cs_N)) # don't go out of bounds
-#                new_sigma_cs_N = self.allowed_sigma_cs_N[new_sigma_cs_N_index]
-#                new_sigma_cs_Ca_index += (np.random.randint(3)-1)
-#                new_sigma_cs_Ca_index = new_sigma_cs_Ca_index%(len(self.allowed_sigma_cs_Ca)) # don't go out of bounds
-#                new_sigma_cs_Ca = self.allowed_sigma_cs_Ca[new_sigma_cs_Ca_index]
-#
-#   	        elif np.random.random() < 0.60 :
-#		        # take a step in array of allowed sigma_pf
-#                new_sigma_pf_index += (np.random.randint(3)-1)
-#                new_sigma_pf_index = new_sigma_pf_index%(len(self.allowed_sigma_pf)) # don't go out of bounds
-#                new_sigma_pf = self.allowed_sigma_pf[new_sigma_pf_index]
-#
-#            elif np.random.random() < 0.78:
-#                # take a step in array of allowed gamma
-#                new_gamma_index += (np.random.randint(3)-1)
-#                new_gamma_index = new_gamma_index%(len(self.allowed_gamma)) # don't go out of bounds
-#                new_gamma  = self.allowed_gamma[new_gamma_index]
-#
-#            elif np.random.random() < 0.99:
-#                # take a random step in state space
-#                new_state = np.random.randint(self.nstates)
-#
-#            else:
-#                # pick a random pair of ambiguous groups to switch
-#                new_ensemble_index = np.random.randint(self.nensembles)
-#
-#            # compute new "energy"
-#            verbose = True
-#            new_E = self.neglogP(new_ensemble_index, new_state, new_sigma_noe,
-#                    new_sigma_J, new_sigma_cs_H, new_sigma_cs_Ha,
-#                    new_sigma_cs_N, new_sigma_cs_Ca, new_sigma_pf,
-#                    new_gamma_index,  verbose=verbose)
-#
-#            # accept or reject the MC move according to Metroplis criterion
-#            accept = False
-#            if new_E < self.E:
-#                accept = True
-#            else:
-#                if np.random.random() < np.exp( self.E - new_E ):
-#                    accept = True
-#
-##            print( 'step', step, 'E', self.E, 'new_E', new_E, 'accept', accept, 'new_sigma_noe', new_sigma_noe, 'new_sigma_J', new_sigma_J, 'new_sigma_cs_H', new_sigma_cs_H, 'new_sigma_cs_Ha', new_sigma_cs_Ha, 'new_sigma_cs_N', new_sigma_cs_N, 'new_sigma_cs_Ca', new_sigma_cs_Ca, 'new_sigma_pf', new_sigma_pf, 'new_gamma', new_gamma,'new_state', new_state, 'new_ensemble_index', new_ensemble_index)
 #      	    # Store trajectory counts
 #            self.traj.sampled_sigma_noe[self.sigma_noe_index] += 1
 #            self.traj.sampled_sigma_J[self.sigma_J_index] += 1

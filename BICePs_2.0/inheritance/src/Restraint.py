@@ -154,9 +154,8 @@ class Restraint(object):
         """Uses the stored beta information (calculated across all structures)
         to calculate -log P_ref(observable[j]) for each observable j."""
 
-        # print 'self.betas', self.betas
         self.neglog_exp_ref = np.zeros(self.n)
-        self.sum_neglog_exp_ref = 0.
+        self.sum_neglog_exp_ref = 0.0
         for j in range(self.n):
             self.neglog_exp_ref[j] = np.log(self.betas[j]) + self.restraints[j].model/self.betas[j]
             self.sum_neglog_exp_ref  += self.restraints[j].weight * self.neglog_exp_ref[j]
@@ -164,13 +163,13 @@ class Restraint(object):
     def compute_neglog_gaussian_ref(self):
         """An alternative option for reference potential based on
         Gaussian distribution."""
-#TODO: study this and write out the equations to make sure that it is correct
+    #NOTE: Is this correct?!
         self.neglog_gau_ref = np.zeros(self.n)
-        self.sum_neglog_gau_ref_ = 0.
+        self.sum_neglog_gau_ref = 0.0
         for j in range(self.n):
-            self.neglog_gau_ref[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma[j]) + (self.restraints[j].model - self.ref_mean[j])**2.0/(2*self.ref_sigma[j]**2.0)
+            self.neglog_gau_ref[j] = float(j+1)*np.log(self.ref_sigma[j]) + self.sse/(2.0*self.ref_sigma[j]) - self.sum_neglog_gau_ref
             self.sum_neglog_gau_ref += self.restraints[j].weight * self.neglog_gau_ref[j]
-
+            #print(self.neglog_gau_ref[j])
 
     def exp_uncertainty(self,dlogsigma=np.log(1.02),sigma_min=0.05,
             sigma_max=20.0):
