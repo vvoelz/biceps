@@ -79,7 +79,7 @@ for j in lambda_values:
                         filename=File)
 
             elif File.endswith('cs_CA'):
-                R = Restraint_cs_Ca('8690.pdb',ref='exp')
+                R = Restraint_cs_Ca('8690.pdb',ref='gaussian')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
@@ -110,7 +110,7 @@ for j in lambda_values:
 
             ensemble[-1].append(R)
         #sys.exit(1)
-    print ensemble
+    #print ensemble
 
     ##########################################
     # Next, let's do some posterior sampling
@@ -119,12 +119,12 @@ for j in lambda_values:
     sampler = PosteriorSampler(ensemble)
     sampler.construct_matrix()
 
-    #sys.exit(1)
+   # sys.exit(1)
 
     sampler.sample(nsteps)  # number of steps
 
     print 'Processing trajectory...',
-    sys.exit(1)
+    #sys.exit(1)
     sampler.traj.process()  # compute averages, etc.
     print '...Done.'
 

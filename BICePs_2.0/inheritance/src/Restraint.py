@@ -162,12 +162,13 @@ class Restraint(object):
 
     def compute_neglog_gaussian_ref(self):
         """An alternative option for reference potential based on
-        Gaussian distribution."""
-    #NOTE: Is this correct?!
+        Gaussian distribution. (Ignoring constant terms) """
+
         self.neglog_gau_ref = np.zeros(self.n)
         self.sum_neglog_gau_ref = 0.0
         for j in range(self.n):
-            self.neglog_gau_ref[j] = float(j+1)*np.log(self.ref_sigma[j]) + self.sse/(2.0*self.ref_sigma[j]) - self.sum_neglog_gau_ref
+            self.neglog_gau_ref[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma[j]) + (self.cs_restraints[j].model_cs - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
+            #self.neglog_gau_ref[j] = np.log(self.ref_sigma[j]) + self.sse/(2.0*self.ref_sigma[j]) - self.sum_neglog_gau_ref
             self.sum_neglog_gau_ref += self.restraints[j].weight * self.neglog_gau_ref[j]
             #print(self.neglog_gau_ref[j])
 
