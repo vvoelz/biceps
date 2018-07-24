@@ -247,6 +247,7 @@ class PosteriorSampler(object):
         "Perform nsteps of posterior sampling on the constructed matrix."
 
         Matrix = self.Matrix
+        self.write_results()
         #### Partition the Matrix ####
         ## Conformational Space
         new_rest_index = 0
@@ -343,6 +344,12 @@ class PosteriorSampler(object):
                 self.traj.trajectory.append( [int(step), float(self.E),
                     int(accept), int(self.state), int(new_sigma_index),
                     new_gamma_index] )
+
+
+    def write_results(self, outfilename='Matrix.npz'):
+       """Writes a compact file of several arrays into binary format."""
+
+       np.savez_compressed(outfilename, self.Matrix)
 
 
 

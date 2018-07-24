@@ -125,6 +125,8 @@ for j in lambda_values:
 
     print 'Processing trajectory...',
     #sys.exit(1)
+    sampler.write_results(os.path.join(outdir,'Matrix_lambda%2.2f.npz'%lam))
+
     sampler.traj.process()  # compute averages, etc.
     print '...Done.'
 
