@@ -339,6 +339,20 @@ class PosteriorSampler(object):
                 self.accepted += 1.0
                 self.total += 1.0
 
+                ## Conformational Space
+                s = Matrix[new_rest_index][new_state]
+                sigma_space = s[1]
+                sigma_space[0] = new_sigma
+                sigma_space[1] = allowed_sigma
+                sigma_space[2] = new_sigma_index
+
+                ## Gamma Space
+                if hasattr(self.ensemble, 'gamma'):
+                    s[2] = gamma_space
+                    gamma_space[0] = new_gamma
+                    gamma_space[1] = allowed_gamma
+                    gamma_space[2] = new_gamma_index
+
             # store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step), float(self.E),
