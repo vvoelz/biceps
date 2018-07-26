@@ -200,22 +200,17 @@ class PosteriorSampler(object):
                 # Start Creating the Matrix:
                 s_r = s[rest_index]
 
-#                # Are there are gamma parameters?
-#                if hasattr(s, 'gamma'):
-#                    Matrix[rest_index].append([ [s_r.Ndof],
-#                        [s_r.sigma,list(s_r.allowed_sigma),s_r.sigma_index],
-#                        [s_r.gamma,list(s_r.allowed_gamma),s_r.gamma_index] ])
-#                else:
-#                    Matrix[rest_index].append([ [s_r.Ndof],
-#                        [s_r.sigma,list(s_r.allowed_sigma),s_r.sigma_index] ])
-
                 # Are there are gamma parameters?
+                #TODO: 2D array and a 3D array
                 if hasattr(s, 'gamma'):
-                    Matrix[rest_index].append([s_r.Ndof,s_r.sigma,s_r.sigma_index,s_r.gamma,s_r.gamma_index])
-                    allowed_Matrix[rest_index].append([s_r.allowed_sigma,s_r.allowed_gamma])
+                    Matrix[rest_index].append([ s_r.Ndof,s_r.sigma,
+                        s_r.sigma_index,s_r.gamma,s_r.gamma_index ])
+                    allowed_Matrix[rest_index].append([ s_r.allowed_sigma,
+                        s_r.allowed_gamma ])
                 else:
-                    Matrix[rest_index].append([ s_r.Ndof,s_r.sigma,s_r.sigma_index ])
-                    allowed_Matrix[rest_index].append([s_r.allowed_sigma])
+                    Matrix[rest_index].append([ s_r.Ndof,s_r.sigma,
+                        s_r.sigma_index ])
+                    allowed_Matrix[rest_index].append([ s_r.allowed_sigma ])
 
         self.Matrix = np.array(Matrix, dtype=np.float64)
         self.allowed_Matrix = np.array(allowed_Matrix, dtype=np.float64)
@@ -260,7 +255,7 @@ class PosteriorSampler(object):
 
         Matrix = self.Matrix
         allowed_Matrix = self.allowed_Matrix
-        self.write_results()
+
         #### Partition the Matrix ####
         ## Conformational Space
         new_rest_index = 0
@@ -268,21 +263,6 @@ class PosteriorSampler(object):
         new_state = self.state  # which is set to 0
         s = Matrix[new_rest_index][new_state]
         a = allowed_Matrix[new_rest_index][new_state]
-
-  #      ## Sigma Space
-  #      sigma_space = s[1]
-  #      new_sigma = sigma_space[0]
-  #      allowed_sigma = sigma_space[1]
-  #      new_sigma_index = sigma_space[2]
-
-  #      ## Gamma Space
-  #      if hasattr(self.ensemble, 'gamma'):
-  #          gamma_space = s[2]
-  #          new_gamma = gamma_space[0]
-  #          allowed_gamma = gamma_space[1]
-  #          new_gamma_index = gamma_space[2]
-  #      else:
-  #          new_gamma_index = None
 
         ## Sigma Space
         new_sigma = s[1]
@@ -302,47 +282,32 @@ class PosteriorSampler(object):
 
         for step in range(nsteps):
 
-            if np.random.random() < 0.16:
-                # Sample in sigma space
+            if np.random.random() < 0.25:
+                # Take a step in sigma space
                 new_sigma_index +=  (np.random.randint(3)-1)
                 new_sigma_index = new_sigma_index%(len(allowed_sigma))
                 new_sigma = allowed_sigma[new_sigma_index]
 
-            elif np.random.random() < 0.32:
-                # Sample in sigma space
-                new_sigma_index +=  (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(allowed_sigma))
-                new_sigma = allowed_sigma[new_sigma_index]
-
-            elif np.random.random() < 0.48:
-                # Sample in sigma space
-                new_sigma_index +=  (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(allowed_sigma))
-                new_sigma = allowed_sigma[new_sigma_index]
-
-            elif np.random.random() < 0.60:
-                # Sample in restraint space
+            elif np.random.random() < 0.50:
+                # Take a step in restraint space
                 new_rest_index = np.random.randint(len(Matrix))
 
-            elif np.random.random() < 0.78:
-                # Sample in gamma space
+            elif np.random.random() < 0.75:
+                # take a random step in state space
+                new_state = np.random.randint(self.nstates)
+
+            else:
+                # Take a step in gamma space
                 if hasattr(self.ensemble, 'gamma'):
                     new_gamma_index +=  (np.random.randint(3)-1)
                     new_gamma_index = new_gamma_index%(len(allowed_gamma))
                     new_gamma = allowed_gamma[new_gamma_index]
 
-            elif np.random.random() < 0.99:
-                # take a random step in state space
-                new_state = np.random.randint(self.nstates)
-
-            else:
-                # take a random step in state space
-                new_state = np.random.randint(self.nstates)
-
             # compute new "energy"
             verbose = True
 
-            new_E = self.neglogP(new_state, new_rest_index, new_sigma, new_gamma_index, verbose=verbose)
+            new_E = self.neglogP(new_state, new_rest_index,
+                    new_sigma, new_gamma_index, verbose=verbose)
 
             # accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -359,27 +324,6 @@ class PosteriorSampler(object):
            # if hasattr(self.ensemble, 'gamma'):
            #     self.traj.sampled_gamma[self.gamma_index] += 1
 
-#            # update parameters
-#            if accept:
-#                self.E = new_E
-#                self.state = new_state
-#                self.accepted += 1.0
-#                self.total += 1.0
-#
-#                ## Conformational Space
-#                s = Matrix[new_rest_index][new_state]
-#                sigma_space = s[1]
-#                sigma_space[0] = new_sigma
-#                sigma_space[1] = allowed_sigma
-#                sigma_space[2] = new_sigma_index
-#
-#                ## Gamma Space
-#                if hasattr(self.ensemble, 'gamma'):
-#                    s[2] = gamma_space
-#                    gamma_space[0] = new_gamma
-#                    gamma_space[1] = allowed_gamma
-#                    gamma_space[2] = new_gamma_index
-
             # update parameters
             if accept:
                 self.E = new_E
@@ -387,30 +331,24 @@ class PosteriorSampler(object):
                 self.accepted += 1.0
                 self.total += 1.0
 
-                ## Conformational Space
-                s = Matrix[new_rest_index][new_state]
-                s[1] = new_sigma
-                s[2] = new_sigma_index
-                a[0] = allowed_sigma
-
-                ## Gamma Space
-                if hasattr(self.ensemble, 'gamma'):
-                    s[3] = new_gamma
-                    s[4] = new_gamma_index
-                    a[1] = allowed_gamma
+#NOTE: Do we need to update the table?
+#                ## Conformational Space
+#                s = Matrix[new_rest_index][new_state]
+#                s[1] = new_sigma
+#                s[2] = new_sigma_index
+#                a[0] = allowed_sigma
+#
+#                ## Gamma Space
+#                if hasattr(self.ensemble, 'gamma'):
+#                    s[3] = new_gamma
+#                    s[4] = new_gamma_index
+#                    a[1] = allowed_gamma
 
             # store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step), float(self.E),
                     int(accept), int(self.state), int(new_sigma_index),
                     new_gamma_index] )
-
-
-    def write_results(self, outfilename='Matrix.npz'):
-       """Writes a compact file of several arrays into binary format."""
-
-       np.savez_compressed(outfilename, self.Matrix)
-
 
 
 class PosteriorSamplingTrajectory(object):
@@ -420,6 +358,21 @@ class PosteriorSamplingTrajectory(object):
         "Initialize the PosteriorSamplingTrajectory."
 
 
+        self.nstates = len(ensemble)
+        self.ensemble = ensemble
+
+        ##TODO
+
+        #self.nnoe = len(self.ensemble[0].noe_restraints)
+
+        #self.allowed_sigma_noe = allowed_sigma_noe
+        #self.sampled_sigma_noe = np.zeros(len(allowed_sigma_noe))
+
+        #self.allowed_gamma = allowed_gamma
+        #self.sampled_gamma = np.zeros(len(allowed_gamma))
+
+        #self.state_counts = np.ones(self.nstates)  # add a pseudocount to avoid log(0) errors
+
         #self.f_sim = np.array([e.free_energy for e in ensemble])
         #self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
 
@@ -428,30 +381,59 @@ class PosteriorSamplingTrajectory(object):
 
         self.trajectory = []
 
-        # a dictionary to store results for YAML file
         self.results = {}
 
     def process(self):
         """Process the trajectory, computing sampling statistics,
         ensemble-average NMR observables.
-        NOTE: Where possible, we convert to lists, because the YAML output
+        NOTE: Where possible, we convert to lists, because the YAML ouTODO
         is more readable"""
 
         # Store the trajectory in rsults
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
 
+        ##TODO
+
+        ## Store the nuisance parameter distributions
+        #self.results['allowed_sigma'] = self.allowed_sigma.tolist()
+        #self.results['allowed_gamma'] = self.allowed_gamma.tolist()
+        #self.results['sampled_sigma'] = self.sampled_sigma.tolist()
+        #self.results['sampled_gamma'] = self.sampled_gamma.tolist()
+
+        ## Calculate the modes of the nuisance parameter marginal distributions
+        #self.results['sigma_mode'] = float(self.allowed_sigma[ np.argmax(self.sampled_sigma) ])
+        #self.results['gamma_mode'] = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
+
+        ## copy over the purely computational free energies f_i
+        #self.results['comp_f'] = self.f_sim.tolist()
+
+        ## Estimate the populations of each state
+        #self.results['state_pops'] = (self.state_counts/self.state_counts.sum()).tolist()
+
+        ## Estimate uncertainty in the populations by bootstrap
+        #self.nbootstraps = 1000
+        #self.bootstrapped_state_pops = np.random.multinomial(self.state_counts.sum(), self.results['state_pops'], size=self.nbootstraps)
+        #self.results['state_pops_std'] = self.bootstrapped_state_pops.std(axis=0).tolist()
+
+        ## Estimate the free energies of each state
+        #self.results['state_f'] = (-np.log(self.results['state_pops'])).tolist()
+        #state_f = -np.log(self.results['state_pops'])
+        #ref_f = state_f.min()
+        #state_f -=  ref_f
+        #self.results['state_f'] = state_f.tolist()
+        #self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudocount to avoid log(0)s in the bootstrap
+        #self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
+
+
     def logspaced_array(self, xmin, xmax, nsteps):
         ymin, ymax = np.log(xmin), np.log(xmax)
         dy = (ymax-ymin)/nsteps
         return np.exp(np.arange(ymin, ymax, dy))
 
-
-    #NOTE: This will work well with Cython if we go that route.
-    # Standardized: Yes ; Binary: Yes; Human Readable: No;
-
     def write_results(self, outfilename='traj.npz'):
-        """Writes a compact file of several arrays into binary format."""
+        """Writes a compact file of several arrays into binary format.
+        Standardized: Yes ; Binary: Yes; Human Readable: No;"""
 
         np.savez_compressed(outfilename, self.results)
 
