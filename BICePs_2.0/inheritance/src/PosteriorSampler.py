@@ -212,26 +212,31 @@ class PosteriorSampler(object):
         np.save('Matrix.npy',self.Matrix)
 
 
-    def neglogP(self, new_state, new_rest_index, new_sigma,
-            new_gamma_index, verbose=True):
+    def neglogP(self, verbose=True):
         """Return -ln P of the current configuration."""
 
         # Current Structure being sampled:
-        s = self.ensemble[int(new_state)][int(new_rest_index)]
+        s = self.ensemble[int(self.new_state)][int(self.new_rest_index)]
 
         result = s.free_energy + self.logZ
 
         if s.sse != 0:
-           result += (s.Ndof)*np.log(new_sigma)  # for use with log-spaced sigma values
-           result += s.sse / (2.0*new_sigma**2.0)
+           result += (s.Ndof)*np.log(self.new_sigma)  # for use with log-spaced sigma values
+           result += s.sse / (2.0*self.new_sigma**2.0)
            result += (s.Ndof)/2.0*self.ln2pi  # for normalization
-           if new_gamma_index != None:
-               result += s.sse[int(new_gamma_index)] / (2.0*new_sigma**2.0)
+           if self.new_gamma_index != None:
+               result += s.sse[int(self.new_gamma_index)] / (2.0*self.new_sigma**2.0)
+
+           if hasattr(s, 'sum_neglog_exp_ref'):
+               result += s.sum_neglog_exp_ref
+           if hasattr(s, 'sum_neglog_gaussian_ref'):
+               result += s.sum_neglog_gaussian_ref
 
         if verbose:
+            print('\nstep = ',int(self.total+1))
             print('s = ',s)
             print('Result =',result)
-            print('state %s, f_sim %s'%(new_state, s.free_energy))
+            print('state %s, f_sim %s'%(self.new_state, s.free_energy))
             print('s.sse', s.sse, 's.Ndof', s.Ndof)
             if hasattr(s, 'sum_neglog_exp_ref'):
                 print('s.sum_neglog_exp_ref', s.sum_neglog_exp_ref)
@@ -246,60 +251,59 @@ class PosteriorSampler(object):
         "Perform nsteps of posterior sampling on the constructed matrix."
 
         #### Partition the Matrix ####
-        Matrix = self.Matrix
 
         ## Conformational Space
-        new_rest_index = np.random.randint(len(Matrix))
+        self.new_rest_index = np.random.randint(len(self.Matrix))
         # Set the state to the first state
-        new_state = self.state
-        s = Matrix[new_rest_index][new_state]
+        self.new_state = self.state
+        self.M = self.Matrix[self.new_rest_index][self.new_state]
 
         ## Sigma Space
-        new_sigma = self.ensemble[new_state][new_rest_index].sigma
-        new_sigma_index = self.ensemble[new_state][new_rest_index].sigma_index
-        allowed_sigma = s[0]
+        self.new_sigma = self.ensemble[self.new_state][self.new_rest_index].sigma
+        self.new_sigma_index = self.ensemble[self.new_state][self.new_rest_index].sigma_index
+        self.allowed_sigma = self.M[0]
 
         ## Gamma Space
         if hasattr(self.ensemble, 'gamma'):
-            new_gamma = self.ensemble[new_state][new_rest_index].gamma
-            new_gamma_index = self.ensemble[new_state][new_rest_index].gamma_index
-            allowed_gamma = s[1]
+            self.new_gamma = self.ensemble[self.new_state][self.new_rest_index].gamma
+            self.new_gamma_index = self.ensemble[self.new_state][self.new_rest_index].gamma_index
+            self.allowed_gamma = self.M[1]
         else:
-            new_gamma = None
-            new_gamma_index = None
+            self.new_gamma = None
+            self.new_gamma_index = None
 
         for step in range(nsteps):
 
             if np.random.random() < 0.25:
                 # Take a step in sigma space
-                new_sigma_index +=  (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(allowed_sigma))
-                new_sigma = allowed_sigma[new_sigma_index]
+                self.new_sigma_index +=  (np.random.randint(3)-1)
+                self.new_sigma_index = self.new_sigma_index%(len(self.allowed_sigma))
+                self.new_sigma = self.allowed_sigma[self.new_sigma_index]
 
             elif np.random.random() < 0.50:
                 # Take a step in restraint space
-                new_rest_index = np.random.randint(len(Matrix))
+                self.new_rest_index = np.random.randint(len(self.Matrix))
 
             elif np.random.random() < 0.75:
                 # take a random step in state space
-                new_state = np.random.randint(self.nstates)
+                self.new_state = np.random.randint(self.nstates)
 
             else:
                 # Take a step in gamma space
                 if hasattr(self.ensemble, 'gamma'):
-                    new_gamma_index +=  (np.random.randint(3)-1)
-                    new_gamma_index = new_gamma_index%(len(allowed_gamma))
-                    new_gamma = allowed_gamma[new_gamma_index]
+                    self.new_gamma_index +=  (np.random.randint(3)-1)
+                    self.new_gamma_index = self.new_gamma_index%(len(self.allowed_gamma))
+                    self.new_gamma = self.allowed_gamma[self.new_gamma_index]
 
             # compute new "energy"
-            new_E = self.neglogP(new_state, new_rest_index, new_sigma,
-                    new_gamma_index, verbose=True)
+            new_E = self.neglogP(verbose=True)
 
             # accept or reject the MC move according to Metroplis criterion
             accept = False
 
             if new_E < self.E:
                 accept = True
+
             else:
                 if np.random.random() < np.exp( self.E - new_E ):
                     accept = True
@@ -313,7 +317,7 @@ class PosteriorSampler(object):
             # update parameters
             if accept:
                 self.E = new_E
-                self.state = new_state
+                self.state = self.new_state
                 self.accepted += 1.0
             self.total += 1.0
 
@@ -321,9 +325,9 @@ class PosteriorSampler(object):
 
             # store trajectory samples
             if step%self.traj_every == 0:
-                self.traj.trajectory.append( [int(step), float(self.E),
-                    int(accept), int(self.state), int(new_sigma_index),
-                    new_gamma_index] )
+                self.traj.trajectory.append( [int(step+1), float(self.E),
+                    int(accept), int(self.state), int(self.new_sigma_index),
+                    self.new_gamma_index] )
 
 
 class PosteriorSamplingTrajectory(object):

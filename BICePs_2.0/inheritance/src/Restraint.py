@@ -88,7 +88,6 @@ class Restraint(object):
         """Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list."""
 
         self.restraints.append(restraint)
-        #self.n += 1
 
     #NOTE: try to merge "compute_sse" and "compute_sse_dihedrals"
     def compute_sse(self, debug=False):
@@ -157,7 +156,8 @@ class Restraint(object):
         self.neglog_exp_ref = np.zeros(self.n)
         self.sum_neglog_exp_ref = 0.0
         for j in range(self.n):
-            self.neglog_exp_ref[j] = np.log(self.betas[j]) + self.restraints[j].model/self.betas[j]
+            self.neglog_exp_ref[j] = np.log(self.betas[j])\
+                    + self.restraints[j].model/self.betas[j]
             self.sum_neglog_exp_ref  += self.restraints[j].weight * self.neglog_exp_ref[j]
 
     def compute_neglog_gaussian_ref(self):
@@ -167,10 +167,10 @@ class Restraint(object):
         self.neglog_gau_ref = np.zeros(self.n)
         self.sum_neglog_gau_ref = 0.0
         for j in range(self.n):
-            self.neglog_gau_ref[j] = np.log(np.sqrt(2.0*np.pi)) + np.log(self.ref_sigma[j]) + (self.cs_restraints[j].model_cs - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
-            #self.neglog_gau_ref[j] = np.log(self.ref_sigma[j]) + self.sse/(2.0*self.ref_sigma[j]) - self.sum_neglog_gau_ref
+            self.neglog_gau_ref[j] = np.log(np.sqrt(2.0*np.pi))\
+                    + np.log(self.ref_sigma[j]) + (self.restraints[j].model \
+                    - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
             self.sum_neglog_gau_ref += self.restraints[j].weight * self.neglog_gau_ref[j]
-            #print(self.neglog_gau_ref[j])
 
     def exp_uncertainty(self,dlogsigma=np.log(1.02),sigma_min=0.05,
             sigma_max=20.0):
