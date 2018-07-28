@@ -186,14 +186,13 @@ class PosteriorSampler(object):
             s[rest_index].compute_neglog_gaussian_ref()
 
 
-    def construct_matrix(self,verbose=False):
-        """ Constructs a matrix of type double with shape:
+    def construct_Matrix(self,verbose=False):
+        """ Constructs arrays of type double with shape:
         (N restraint types,  N Conformations, N parameters)
         This matrix will be sampled over, where the new parameters
         are stored in the location of the old. """
 
         Matrix = [ [] for i in range(len(self.ensemble[0])) ]
-        allowed_Matrix = [ [] for i in range(len(self.ensemble[0])) ]
         for s in self.ensemble:
             for rest_index in range(len(Matrix)):
 
@@ -201,24 +200,16 @@ class PosteriorSampler(object):
                 s_r = s[rest_index]
 
                 # Are there are gamma parameters?
-                #TODO: 2D array and a 3D array
                 if hasattr(s, 'gamma'):
-                    Matrix[rest_index].append([ s_r.Ndof,s_r.sigma,
-                        s_r.sigma_index,s_r.gamma,s_r.gamma_index ])
-                    allowed_Matrix[rest_index].append([ s_r.allowed_sigma,
-                        s_r.allowed_gamma ])
+                    Matrix[rest_index].append( [s_r.allowed_sigma, s_r.allowed_gamma] )
                 else:
-                    Matrix[rest_index].append([ s_r.Ndof,s_r.sigma,
-                        s_r.sigma_index ])
-                    allowed_Matrix[rest_index].append([ s_r.allowed_sigma ])
+                    Matrix[rest_index].append( [s_r.allowed_sigma] )
 
         self.Matrix = np.array(Matrix, dtype=np.float64)
-        self.allowed_Matrix = np.array(allowed_Matrix, dtype=np.float64)
         if verbose == True:
             print('Matrix.shape',self.Matrix.shape)
             print(self.Matrix)
         np.save('Matrix.npy',self.Matrix)
-        np.save('allowed_Matrix.npy',self.allowed_Matrix)
 
 
     def neglogP(self, new_state, new_rest_index, new_sigma,
@@ -226,7 +217,7 @@ class PosteriorSampler(object):
         """Return -ln P of the current configuration."""
 
         # Current Structure being sampled:
-        s = self.ensemble[new_state][new_rest_index]
+        s = self.ensemble[int(new_state)][int(new_rest_index)]
 
         result = s.free_energy + self.logZ
 
@@ -235,7 +226,7 @@ class PosteriorSampler(object):
            result += s.sse / (2.0*new_sigma**2.0)
            result += (s.Ndof)/2.0*self.ln2pi  # for normalization
            if new_gamma_index != None:
-               result += s.sse[new_gamma_index] / (2.0*new_sigma**2.0)
+               result += s.sse[int(new_gamma_index)] / (2.0*new_sigma**2.0)
 
         if verbose:
             print('s = ',s)
@@ -251,34 +242,31 @@ class PosteriorSampler(object):
 
 
     def sample(self, nsteps):
+    #NOTE cpp: def sample(self, nsteps, sigma_index, gamma_index=None):
         "Perform nsteps of posterior sampling on the constructed matrix."
 
-        Matrix = self.Matrix
-        allowed_Matrix = self.allowed_Matrix
-
         #### Partition the Matrix ####
+        Matrix = self.Matrix
+
         ## Conformational Space
-        new_rest_index = 0
+        new_rest_index = np.random.randint(len(Matrix))
         # Set the state to the first state
-        new_state = self.state  # which is set to 0
+        new_state = self.state
         s = Matrix[new_rest_index][new_state]
-        a = allowed_Matrix[new_rest_index][new_state]
 
         ## Sigma Space
-        new_sigma = s[1]
-        new_sigma_index = s[2]
-        allowed_sigma = a[0]
+        new_sigma = self.ensemble[new_state][new_rest_index].sigma
+        new_sigma_index = self.ensemble[new_state][new_rest_index].sigma_index
+        allowed_sigma = s[0]
 
         ## Gamma Space
         if hasattr(self.ensemble, 'gamma'):
-            new_gamma = s[3]
-            new_gamma_index = s[4]
-            allowed_gamma = a[1]
+            new_gamma = self.ensemble[new_state][new_rest_index].gamma
+            new_gamma_index = self.ensemble[new_state][new_rest_index].gamma_index
+            allowed_gamma = s[1]
         else:
+            new_gamma = None
             new_gamma_index = None
-
-        ## Degrees of Freedom
-        Ndof = s[0]
 
         for step in range(nsteps):
 
@@ -304,10 +292,8 @@ class PosteriorSampler(object):
                     new_gamma = allowed_gamma[new_gamma_index]
 
             # compute new "energy"
-            verbose = True
-
-            new_E = self.neglogP(new_state, new_rest_index,
-                    new_sigma, new_gamma_index, verbose=verbose)
+            new_E = self.neglogP(new_state, new_rest_index, new_sigma,
+                    new_gamma_index, verbose=True)
 
             # accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -329,20 +315,9 @@ class PosteriorSampler(object):
                 self.E = new_E
                 self.state = new_state
                 self.accepted += 1.0
-                self.total += 1.0
+            self.total += 1.0
 
 #NOTE: Do we need to update the table?
-#                ## Conformational Space
-#                s = Matrix[new_rest_index][new_state]
-#                s[1] = new_sigma
-#                s[2] = new_sigma_index
-#                a[0] = allowed_sigma
-#
-#                ## Gamma Space
-#                if hasattr(self.ensemble, 'gamma'):
-#                    s[3] = new_gamma
-#                    s[4] = new_gamma_index
-#                    a[1] = allowed_gamma
 
             # store trajectory samples
             if step%self.traj_every == 0:

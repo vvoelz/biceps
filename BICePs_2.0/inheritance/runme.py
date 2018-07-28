@@ -94,12 +94,12 @@ for j in lambda_values:
                         filename=File)
 
             elif File.endswith('J'):
-                R = Restraint_J('8690.pdb',ref='uniform')
+                R = Restraint_J('8690.pdb',ref='uniform')  # good ref
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
             elif File.endswith('noe'):
-                R = Restraint_noe('8690.pdb',ref='exp')
+                R = Restraint_noe('8690.pdb',ref='exp')   # good ref
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
 
@@ -117,9 +117,9 @@ for j in lambda_values:
     ########## Posterior Sampling ############
 
     sampler = PosteriorSampler(ensemble)
-    sampler.construct_matrix()
+    sampler.construct_Matrix()
 
-  #  sys.exit(1)
+    #sys.exit(1)
 
     sampler.sample(nsteps)  # number of steps
 
