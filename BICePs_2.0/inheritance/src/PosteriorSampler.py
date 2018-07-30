@@ -229,6 +229,7 @@ class PosteriorSampler(object):
 
            if hasattr(s, 'sum_neglog_exp_ref'):
                result += s.sum_neglog_exp_ref
+
            if hasattr(s, 'sum_neglog_gaussian_ref'):
                result += s.sum_neglog_gaussian_ref
 
@@ -253,39 +254,46 @@ class PosteriorSampler(object):
         #### Partition the Matrix ####
 
         ## Conformational Space
+        # Generate random restraint index
         self.new_rest_index = np.random.randint(len(self.Matrix))
+
         # Set the state to the first state
         self.new_state = self.state
+
+        # Generate the Restraint object for indices and initial values
+        self.Restraint = self.ensemble[self.new_state][self.new_rest_index]
+
+        # Get Matrix values
         self.M = self.Matrix[self.new_rest_index][self.new_state]
 
         ## Sigma Space
-        self.new_sigma = self.ensemble[self.new_state][self.new_rest_index].sigma
-        self.new_sigma_index = self.ensemble[self.new_state][self.new_rest_index].sigma_index
+        self.new_sigma = self.Restraint.sigma
+        self.new_sigma_index = self.Restraint.sigma_index
         self.allowed_sigma = self.M[0]
 
         ## Gamma Space
-        if hasattr(self.ensemble, 'gamma'):
-            self.new_gamma = self.ensemble[self.new_state][self.new_rest_index].gamma
-            self.new_gamma_index = self.ensemble[self.new_state][self.new_rest_index].gamma_index
+        if hasattr(Restraint, 'gamma'):
+            self.new_gamma = self.Restraint.gamma
+            self.new_gamma_index = self.Restraint.gamma_index
             self.allowed_gamma = self.M[1]
         else:
             self.new_gamma = None
             self.new_gamma_index = None
 
         for step in range(nsteps):
+            # Redefine based upon randomly generated restraint index
+            self.new_rest_index = np.random.randint(len(self.Matrix))
+            self.Restraint = self.ensemble[self.new_state][self.new_rest_index]
+            self.M = self.Matrix[self.new_rest_index][self.new_state]
 
-            if np.random.random() < 0.25:
+            if np.random.random() < 0.3333:
                 # Take a step in sigma space
                 self.new_sigma_index +=  (np.random.randint(3)-1)
                 self.new_sigma_index = self.new_sigma_index%(len(self.allowed_sigma))
                 self.new_sigma = self.allowed_sigma[self.new_sigma_index]
 
-            elif np.random.random() < 0.50:
-                # Take a step in restraint space
-                self.new_rest_index = np.random.randint(len(self.Matrix))
-
-            elif np.random.random() < 0.75:
-                # take a random step in state space
+            elif np.random.random() < 0.6666:
+                # Take a random step in state space
                 self.new_state = np.random.randint(self.nstates)
 
             else:
@@ -295,10 +303,16 @@ class PosteriorSampler(object):
                     self.new_gamma_index = self.new_gamma_index%(len(self.allowed_gamma))
                     self.new_gamma = self.allowed_gamma[self.new_gamma_index]
 
-            # compute new "energy"
+                else:
+                    # Take a step in sigma space
+                    self.new_sigma_index +=  (np.random.randint(3)-1)
+                    self.new_sigma_index = self.new_sigma_index%(len(self.allowed_sigma))
+                    self.new_sigma = self.allowed_sigma[self.new_sigma_index]
+
+            # Compute new "energy"
             new_E = self.neglogP(verbose=True)
 
-            # accept or reject the MC move according to Metroplis criterion
+            # Accept or reject the MC move according to Metroplis criterion
             accept = False
 
             if new_E < self.E:
@@ -308,52 +322,62 @@ class PosteriorSampler(object):
                 if np.random.random() < np.exp( self.E - new_E ):
                     accept = True
 
-      	   # # Store trajectory counts
-           # self.traj.sampled_sigma[new_sigma_index] += 1
-           # self.traj.state_counts[self.state] += 1
-           # if hasattr(self.ensemble, 'gamma'):
-           #     self.traj.sampled_gamma[self.gamma_index] += 1
-
-            # update parameters
+            # Update parameters
             if accept:
                 self.E = new_E
                 self.state = self.new_state
                 self.accepted += 1.0
             self.total += 1.0
 
-#NOTE: Do we need to update the table?
+      	    # Store trajectory counts
+            #print(self.traj.sampled_sigmas)
+            #sys.exit(1)
+            self.traj.sampled_sigmas[self.new_rest_index][self.new_sigma_index] += 1
+            self.traj.state_counts[self.state] += 1
+            if hasattr(self.ensemble, 'gamma'):
+                self.traj.sampled_gamma[self.gamma_index] += 1
 
-            # store trajectory samples
+            # Store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step+1), float(self.E),
                     int(accept), int(self.state), int(self.new_sigma_index),
                     self.new_gamma_index] )
+        print('\nAccepted  %s out of %s \n'%(self.accepted,self.total))
+#NOTE: Seem to be getting approximately 153 out of 10000 moves accepted. Check neglogP
 
 
 class PosteriorSamplingTrajectory(object):
-    "A class to store and perform operations on the trajectories of sampling runs."
+    """A container class to store and perform operations on the trajectories of
+    sampling runs."""
 
     def __init__(self, ensemble):
-        "Initialize the PosteriorSamplingTrajectory."
+        """Initialize the PosteriorSamplingTrajectory."""
 
-
-        self.nstates = len(ensemble)
         self.ensemble = ensemble
+        self.nstates = len(self.ensemble)
+        self.state_counts = np.ones(self.nstates)  # add a pseudocount to avoid log(0) errors
 
-        ##TODO
+        self.sampled_sigmas = [ [] for i in range(len(ensemble[0])) ]
+        self.allowed_sigmas = [ [] for i in range(len(ensemble[0])) ]
+        f_sim = []
+        rest_index = 0
+        for S in ensemble:
+            for restraint in S:
+                f_sim.append(restraint.free_energy)
+                allowed_sigma = restraint.allowed_sigma
+                if rest_index < len(self.sampled_sigmas):
+                    self.sampled_sigmas[rest_index] = np.zeros(len(allowed_sigma))
+                    self.allowed_sigmas[rest_index] = allowed_sigma
+                    if hasattr(restraint, 'gamma'):
+                        self.allowed_gamma = restraint.allowed_gamma
+                        self.sampled_gamma = list(np.zeros(len(self.allowed_gamma)))
+                    else:
+                        self.allowed_gamma = None
+                        self.sampled_gamma = None
 
-        #self.nnoe = len(self.ensemble[0].noe_restraints)
-
-        #self.allowed_sigma_noe = allowed_sigma_noe
-        #self.sampled_sigma_noe = np.zeros(len(allowed_sigma_noe))
-
-        #self.allowed_gamma = allowed_gamma
-        #self.sampled_gamma = np.zeros(len(allowed_gamma))
-
-        #self.state_counts = np.ones(self.nstates)  # add a pseudocount to avoid log(0) errors
-
-        #self.f_sim = np.array([e.free_energy for e in ensemble])
-        #self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
+                rest_index += 1
+        self.f_sim = np.array(f_sim)
+        self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
 
         self.trajectory_headers = ['step', 'E', 'accept', 'state',
                 'sigma_index', 'gamma_index']
@@ -364,45 +388,62 @@ class PosteriorSamplingTrajectory(object):
 
     def process(self):
         """Process the trajectory, computing sampling statistics,
-        ensemble-average NMR observables.
-        NOTE: Where possible, we convert to lists, because the YAML ouTODO
-        is more readable"""
+        ensemble-average NMR observables."""
+
+#NOTE: We need to check this process method!
 
         # Store the trajectory in rsults
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
 
-        ##TODO
+        # Store the nuisance parameter distributions
+        self.results['allowed_sigmas'] = self.allowed_sigmas
+        self.results['allowed_gamma'] = self.allowed_gamma
+        self.results['sampled_sigma'] = self.sampled_sigmas
+        self.results['sampled_gamma'] = self.sampled_gamma
 
-        ## Store the nuisance parameter distributions
-        #self.results['allowed_sigma'] = self.allowed_sigma.tolist()
-        #self.results['allowed_gamma'] = self.allowed_gamma.tolist()
-        #self.results['sampled_sigma'] = self.sampled_sigma.tolist()
-        #self.results['sampled_gamma'] = self.sampled_gamma.tolist()
+        # Calculate the modes of the nuisance parameter marginal distributions
+        self.results['sigma_mode'] = [ float(self.allowed_sigmas[i][ np.argmax(self.sampled_sigmas[i]) ]) for i in range(len(self.sampled_sigmas)) ]
+        if self.allowed_gamma != None:
+            self.results['gamma_mode'] = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
 
-        ## Calculate the modes of the nuisance parameter marginal distributions
-        #self.results['sigma_mode'] = float(self.allowed_sigma[ np.argmax(self.sampled_sigma) ])
-        #self.results['gamma_mode'] = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
+        # copy over the purely computational free energies f_i
+        self.results['comp_f'] = self.f_sim.tolist()
 
-        ## copy over the purely computational free energies f_i
-        #self.results['comp_f'] = self.f_sim.tolist()
+        # Estimate the populations of each state
+        self.results['state_pops'] = (self.state_counts/self.state_counts.sum()).tolist()
 
-        ## Estimate the populations of each state
-        #self.results['state_pops'] = (self.state_counts/self.state_counts.sum()).tolist()
+        # Estimate uncertainty in the populations by bootstrap
+        self.nbootstraps = 1000
+        self.bootstrapped_state_pops = np.random.multinomial(self.state_counts.sum(),
+                self.results['state_pops'], size=self.nbootstraps)
+        self.results['state_pops_std'] = self.bootstrapped_state_pops.std(axis=0).tolist()
 
-        ## Estimate uncertainty in the populations by bootstrap
-        #self.nbootstraps = 1000
-        #self.bootstrapped_state_pops = np.random.multinomial(self.state_counts.sum(), self.results['state_pops'], size=self.nbootstraps)
-        #self.results['state_pops_std'] = self.bootstrapped_state_pops.std(axis=0).tolist()
+        # Estimate the free energies of each state
+        self.results['state_f'] = (-np.log(self.results['state_pops'])).tolist()
+        state_f = -np.log(self.results['state_pops'])
+        ref_f = state_f.min()
+        state_f -=  ref_f
+        self.results['state_f'] = state_f.tolist()
+        self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudocount to avoid log(0)s in the bootstrap
+        self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
 
-        ## Estimate the free energies of each state
-        #self.results['state_f'] = (-np.log(self.results['state_pops'])).tolist()
-        #state_f = -np.log(self.results['state_pops'])
-        #ref_f = state_f.min()
-        #state_f -=  ref_f
-        #self.results['state_f'] = state_f.tolist()
-        #self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudocount to avoid log(0)s in the bootstrap
-        #self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
+        # Estimate the ensemble-averaged restraint values
+        mean = [ np.zeros(len(self.ensemble[0][rest_index].restraints)) for rest_index in range(len(self.ensemble[0])) ]
+        Z = [ np.zeros(len(self.ensemble[0][rest_index].restraints)) for rest_index in range(len(self.ensemble[0])) ]
+        i = 0
+        for rest_index in range(len(self.ensemble[0])):
+            pop = self.results['state_pops'][i]
+            weight = self.ensemble[0][rest_index].restraints[i].weight
+            model = self.ensemble[0][rest_index].restraints[i].model
+            mean[rest_index][i] += pop*weight*model
+            Z[rest_index][i] += pop*weight
+            i += 1
+        MEAN = []
+        for i in range(len(mean)):
+            mean = (mean[i]/Z[i])**(-1.0/6.0)
+            MEAN.append(mean)
+        self.results['mean'] = MEAN
 
 
     def logspaced_array(self, xmin, xmax, nsteps):

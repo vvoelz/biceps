@@ -60,12 +60,11 @@ class Restraint(object):
         # used for Gaussian reference potential
         self.ref_sigma = None
         self.ref_mean = None
-        self.neglog_gau_ref = None
-        self.sum_neglog_gau_ref = 0.0
+        self.neglog_gaussian_ref = None
+        self.sum_neglog_gaussian_ref = 0.0
         self.use_global_ref_sigma = use_global_ref_sigma
 
         self.see = None
-        #self.n = 0 # Initialize the overall restraint count
 
         # Storing the reference potential
         self.ref = ref
@@ -163,14 +162,14 @@ class Restraint(object):
     def compute_neglog_gaussian_ref(self):
         """An alternative option for reference potential based on
         Gaussian distribution. (Ignoring constant terms) """
-
-        self.neglog_gau_ref = np.zeros(self.n)
-        self.sum_neglog_gau_ref = 0.0
+#NOTE fix gau or check to see if it messes things up
+        self.neglog_gaussian_ref = np.zeros(self.n)
+        self.sum_neglog_gaussian_ref = 0.0
         for j in range(self.n):
-            self.neglog_gau_ref[j] = np.log(np.sqrt(2.0*np.pi))\
+            self.neglog_gaussian_ref[j] = np.log(np.sqrt(2.0*np.pi))\
                     + np.log(self.ref_sigma[j]) + (self.restraints[j].model \
                     - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
-            self.sum_neglog_gau_ref += self.restraints[j].weight * self.neglog_gau_ref[j]
+            self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
 
     def exp_uncertainty(self,dlogsigma=np.log(1.02),sigma_min=0.05,
             sigma_max=20.0):

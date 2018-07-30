@@ -110,7 +110,7 @@ for j in lambda_values:
 
             ensemble[-1].append(R)
         #sys.exit(1)
-    #print ensemble
+    print ensemble
 
     ##########################################
     # Next, let's do some posterior sampling
