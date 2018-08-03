@@ -75,8 +75,6 @@ class PosteriorSampler(object):
         ## the list of Restraints should be the same for all structures in the ensemble -
 	## ... use the first structure's list to determine what kind of reference potential each Restraint has
         ref_types = [ R.ref for R in ensemble[0] ]
-        #for R in ensemble[0]:
-        #    ref_types = R.ref
 
         # for each Restraint, calculate global reference potential parameters by looking across all structures
         for rest_index in range(len(ensemble[0])):
@@ -147,7 +145,6 @@ class PosteriorSampler(object):
         """Look at all the structures to find the mean (mu) and std (sigma) of  observables r_j
         then store this reference potential info for all Restraints of this type for each structure"""
 
-    #NOTE: Is this correct?!
         print( 'Computing parameters for Gaussian reference potentials...')
 
         # collect distributions of observables r_j across all structures
@@ -212,20 +209,21 @@ class PosteriorSampler(object):
         np.save('Matrix.npy',self.Matrix)
 
 
-    def neglogP(self, verbose=True):
+    def neglogP(self, new_state, new_rest_index,
+            new_sigma, new_gamma_index, verbose=True):
         """Return -ln P of the current configuration."""
 
         # Current Structure being sampled:
-        s = self.ensemble[int(self.new_state)][int(self.new_rest_index)]
+        s = self.ensemble[int(new_state)][int(new_rest_index)]
 
         result = s.free_energy + self.logZ
 
         if s.sse != 0:
-           result += (s.Ndof)*np.log(self.new_sigma)  # for use with log-spaced sigma values
-           result += s.sse / (2.0*self.new_sigma**2.0)
+           result += (s.Ndof)*np.log(new_sigma)  # for use with log-spaced sigma values
+           result += s.sse / (2.0*new_sigma**2.0)
            result += (s.Ndof)/2.0*self.ln2pi  # for normalization
-           if self.new_gamma_index != None:
-               result += s.sse[int(self.new_gamma_index)] / (2.0*self.new_sigma**2.0)
+           if new_gamma_index != None:
+               result += s.sse[int(new_gamma_index)] / (2.0*new_sigma**2.0)
 
            if hasattr(s, 'sum_neglog_exp_ref'):
                result += s.sum_neglog_exp_ref
@@ -237,7 +235,7 @@ class PosteriorSampler(object):
             print('\nstep = ',int(self.total+1))
             print('s = ',s)
             print('Result =',result)
-            print('state %s, f_sim %s'%(self.new_state, s.free_energy))
+            print('state %s, f_sim %s'%(new_state, s.free_energy))
             print('s.sse', s.sse, 's.Ndof', s.Ndof)
             if hasattr(s, 'sum_neglog_exp_ref'):
                 print('s.sum_neglog_exp_ref', s.sum_neglog_exp_ref)
@@ -248,7 +246,6 @@ class PosteriorSampler(object):
 
 
     def sample(self, nsteps):
-    #NOTE cpp: def sample(self, nsteps, sigma_index, gamma_index=None):
         "Perform nsteps of posterior sampling on the constructed matrix."
 
         #### Partition the Matrix ####
@@ -272,7 +269,7 @@ class PosteriorSampler(object):
         self.allowed_sigma = self.M[0]
 
         ## Gamma Space
-        if hasattr(Restraint, 'gamma'):
+        if hasattr(self.Restraint, 'gamma'):
             self.new_gamma = self.Restraint.gamma
             self.new_gamma_index = self.Restraint.gamma_index
             self.allowed_gamma = self.M[1]
@@ -282,35 +279,38 @@ class PosteriorSampler(object):
 
         for step in range(nsteps):
             # Redefine based upon randomly generated restraint index
-            self.new_rest_index = np.random.randint(len(self.Matrix))
-            self.Restraint = self.ensemble[self.new_state][self.new_rest_index]
-            self.M = self.Matrix[self.new_rest_index][self.new_state]
+            new_rest_index = np.random.randint(len(self.Matrix)) #self.new_rest_index
+            new_state = self.new_state
+            new_sigma = self.new_sigma
+            new_sigma_index = self.new_sigma_index
+            new_gamma = self.new_gamma
+            new_gamma_index  = self.new_gamma_index
 
             if np.random.random() < 0.3333:
                 # Take a step in sigma space
-                self.new_sigma_index +=  (np.random.randint(3)-1)
-                self.new_sigma_index = self.new_sigma_index%(len(self.allowed_sigma))
-                self.new_sigma = self.allowed_sigma[self.new_sigma_index]
-
+                new_sigma_index +=  (np.random.randint(3)-1)
+                new_sigma_index = new_sigma_index%(len(self.allowed_sigma))
+                new_sigma = self.allowed_sigma[new_sigma_index]
             elif np.random.random() < 0.6666:
                 # Take a random step in state space
-                self.new_state = np.random.randint(self.nstates)
+                new_state = np.random.randint(self.nstates)
 
             else:
                 # Take a step in gamma space
                 if hasattr(self.ensemble, 'gamma'):
-                    self.new_gamma_index +=  (np.random.randint(3)-1)
-                    self.new_gamma_index = self.new_gamma_index%(len(self.allowed_gamma))
-                    self.new_gamma = self.allowed_gamma[self.new_gamma_index]
+                    new_gamma_index +=  (np.random.randint(3)-1)
+                    new_gamma_index = new_gamma_index%(len(self.allowed_gamma))
+                    new_gamma = self.allowed_gamma[new_gamma_index]
 
                 else:
                     # Take a step in sigma space
-                    self.new_sigma_index +=  (np.random.randint(3)-1)
-                    self.new_sigma_index = self.new_sigma_index%(len(self.allowed_sigma))
-                    self.new_sigma = self.allowed_sigma[self.new_sigma_index]
+                    new_sigma_index +=  (np.random.randint(3)-1)
+                    new_sigma_index = new_sigma_index%(len(self.allowed_sigma))
+                    new_sigma = self.allowed_sigma[new_sigma_index]
 
             # Compute new "energy"
-            new_E = self.neglogP(verbose=True)
+            new_E = self.neglogP(new_state, new_rest_index,
+                    new_sigma, new_gamma_index, verbose=True)
 
             # Accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -322,28 +322,32 @@ class PosteriorSampler(object):
                 if np.random.random() < np.exp( self.E - new_E ):
                     accept = True
 
-            # Update parameters
-            if accept:
-                self.E = new_E
-                self.state = self.new_state
-                self.accepted += 1.0
-            self.total += 1.0
-
       	    # Store trajectory counts
-            #print(self.traj.sampled_sigmas)
-            #sys.exit(1)
             self.traj.sampled_sigmas[self.new_rest_index][self.new_sigma_index] += 1
             self.traj.state_counts[self.state] += 1
             if hasattr(self.ensemble, 'gamma'):
                 self.traj.sampled_gamma[self.gamma_index] += 1
+
+            # Update parameters
+            if accept:
+                self.E = new_E
+                self.state = new_state
+                self.new_sigma = new_sigma
+                self.new_sigma_index = new_sigma_index
+                self.new_rest_index = new_rest_index
+                self.new_gamma = new_gamma
+                self.new_gamma_index = new_gamma_index
+
+                self.accepted += 1.0
+            self.total += 1.0
 
             # Store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step+1), float(self.E),
                     int(accept), int(self.state), int(self.new_sigma_index),
                     self.new_gamma_index] )
+
         print('\nAccepted  %s out of %s \n'%(self.accepted,self.total))
-#NOTE: Seem to be getting approximately 153 out of 10000 moves accepted. Check neglogP
 
 
 class PosteriorSamplingTrajectory(object):
@@ -431,14 +435,14 @@ class PosteriorSamplingTrajectory(object):
         # Estimate the ensemble-averaged restraint values
         mean = [ np.zeros(len(self.ensemble[0][rest_index].restraints)) for rest_index in range(len(self.ensemble[0])) ]
         Z = [ np.zeros(len(self.ensemble[0][rest_index].restraints)) for rest_index in range(len(self.ensemble[0])) ]
-        i = 0
+
         for rest_index in range(len(self.ensemble[0])):
-            pop = self.results['state_pops'][i]
-            weight = self.ensemble[0][rest_index].restraints[i].weight
-            model = self.ensemble[0][rest_index].restraints[i].model
-            mean[rest_index][i] += pop*weight*model
-            Z[rest_index][i] += pop*weight
-            i += 1
+            for i in range(len(self.ensemble[0][rest_index].restraints)):
+                pop = self.results['state_pops'][i]
+                weight = self.ensemble[0][rest_index].restraints[i].weight
+                model = self.ensemble[0][rest_index].restraints[i].model
+                mean[rest_index][i] += pop*weight*model
+                Z[rest_index][i] += pop*weight
         MEAN = []
         for i in range(len(mean)):
             mean = (mean[i]/Z[i])**(-1.0/6.0)

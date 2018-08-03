@@ -77,6 +77,10 @@ for j in lambda_values:
                 R = Restraint_cs_H('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
+                # Change the experimental Uncertainty after prepping observable
+                R.exp_uncertainty(dlogsigma=np.log(1.02),sigma_min=0.05,
+                        sigma_max=20.0)
+
 
             elif File.endswith('cs_CA'):
                 R = Restraint_cs_Ca('8690.pdb',ref='gaussian')
@@ -109,7 +113,6 @@ for j in lambda_values:
                         filename=File)
 
             ensemble[-1].append(R)
-        #sys.exit(1)
     print ensemble
 
     ##########################################
@@ -119,13 +122,9 @@ for j in lambda_values:
     sampler = PosteriorSampler(ensemble)
     sampler.construct_Matrix()
 
-    #sys.exit(1)
-
     sampler.sample(nsteps)  # number of steps
 
     print 'Processing trajectory...',
-    #sys.exit(1)
-    #sampler.write_results(os.path.join(outdir,'Matrix_lambda%2.2f.npz'%lam))
 
     sampler.traj.process()  # compute averages, etc.
     print '...Done.'
@@ -135,7 +134,6 @@ for j in lambda_values:
     print '...Done.'
     sampler.traj.read_results(os.path.join(outdir,'traj_lambda%2.2f.npz'%lam))
 
-    # pickle the sampler object
     print 'Pickling the sampler object ...',
     outfilename = 'sampler_lambda%2.2f.pkl'%lam
     print outfilename,
@@ -144,7 +142,6 @@ for j in lambda_values:
     cPickle.dump(sampler, fout)
     fout.close()
     print '...Done.'
-
 
 
 sys.exit(1)
