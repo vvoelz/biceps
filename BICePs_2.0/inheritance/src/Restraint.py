@@ -109,45 +109,6 @@ class Restraint(object):
             print 'self.sse', self.sse
 
 
-    def compute_sse_dihedrals(self, debug=False):
-        """Returns the (weighted) sum of squared errors for J-coupling values,
-        and the *effective* number of distances (i.e. the sum of the weights)"""
-
-        pass
-
-#        sse = 0.0
-#        N =  0.0
-#
-#        remaining_dihedral_indices = range(len(self.dihedral_restraints))
-#
-#        # First, find all the equivalent groups, and average them.
-#        # (We assume that all of the experimental values have set to the same J value)
-#        for equivalency_index, group in self.dihedral_equivalency_groups.iteritems():
-#            avgJ = np.array([self.dihedral_restraints[i].model_Jcoupling for i in group]).mean()
-#            err = self.dihedral_restraints[group[0]].exp_Jcoupling - avgJ
-#            if debug:
-#                print group, 'avgJ_model',avgJ, 'expJ',self.dihedral_restraints[group[0]].exp_Jcoupling, 'err', err
-#            sse += err**2.0
-#            N += 1
-#            # remove group indices from remaining_dihedral_indices
-#            for i in group:
-#                remaining_dihedral_indices.remove(i)
-#
-#        for i in remaining_dihedral_indices:
-#            err = self.dihedral_restraints[i].exp_Jcoupling - self.dihedral_restraints[i].model_Jcoupling
-#            if debug:
-#                print 'J_model', self.dihedral_restraints[i].model_Jcoupling, 'exp', self.dihedral_restraints[i].exp_Jcoupling, 'err', err
-#            sse += (self.dihedral_restraints[i].weight * err**2.0)
-#            N += self.dihedral_restraints[i].weight
-#
-#        if debug:
-#            print 'total sse', sse
-#        self.sse_dihedrals = sse
-#        self.Ndof_dihedrals = N
-
-
-
-
     def compute_neglog_exp_ref(self):
         """Uses the stored beta information (calculated across all structures)
         to calculate -log P_ref(observable[j]) for each observable j."""
@@ -162,7 +123,7 @@ class Restraint(object):
     def compute_neglog_gaussian_ref(self):
         """An alternative option for reference potential based on
         Gaussian distribution. (Ignoring constant terms) """
-#NOTE fix gau or check to see if it messes things up
+
         self.neglog_gaussian_ref = np.zeros(self.n)
         self.sum_neglog_gaussian_ref = 0.0
         for j in range(self.n):
@@ -190,8 +151,6 @@ class Restraint(object):
             np.log(self.sigma_max), self.dlogsigma))
         self.sigma_index = len(self.allowed_sigma)/2
         self.sigma = self.allowed_sigma[self.sigma_index]
-
-
 
 
 ###########################################################################
@@ -323,7 +282,6 @@ class Restraint_cs_Ha(Restraint):
             self.n += 1
         self.compute_sse(debug=True)
 
-
 class Restraint_cs_N(Restraint):
     """A derived class of RestraintClass() for N chemical shift restraints."""
 
@@ -422,20 +380,35 @@ class Restraint_J(Restraint):
                 print entry
             self.n += 1
 
-        self.compute_sse_dihedral(debug=True)
+        self.equivalency_groups = {}
 
-        # build groups of equivalency group indices, etc.
-        self.build_groups()
+        # Compile equivalency_groups from the list of NMR_Dihedral() objects
+        for i in range(len(self.restraints)):
+            if 'NMR_Dihedral' in self.restraints[i].__str__():
+                d = self.restraints[i]
+                # print 'd', d, 'd.equivalency_index', d.equivalency_index
+                if d.equivalency_index != None:
+                    if not self.equivalency_groups.has_key(d.equivalency_index):
+                        self.equivalency_groups[d.equivalency_index] = []
+                        self.equivalency_groups[d.equivalency_index].append(i)
+
+        if verbose:
+            print 'self.equivalency_groups', self.equivalency_groups
+        # adjust the weights of distances and dihedrals to account for equivalencies
+        self.adjust_weights()
+        self.compute_sse(debug=True)
 
 
     def adjust_weights(self):
         """Adjust the weights of distance and dihedral restraints based on
         their equivalency group."""
 
-        for group in self.dihedral_equivalency_groups.values():
+        #NOTE: Check to make sure this is correct
+        for group in self.equivalency_groups.values():
             n = float(len(group))
-            for i in group:
-                self.restraints[i].weight = 1.0/n
+            for i in range(len(self.restraints)):
+                if 'NMR_Dihedral' in self.restraints[i].__str__():
+                    self.restraints[i].weight = 1.0/n
 
 
 
@@ -504,10 +477,36 @@ class Restraint_noe(Restraint):
                 print entry
             self.n += 1
 
+        self.equivalency_groups = {}
+
+        # Compile equivalency_groups from the list of NMR_Distance() objects
+        for i in range(len(self.restraints)):
+            if 'NMR_Distance' in self.restraints[i].__str__():
+                d = self.restraints[i]
+                # print 'd', d, 'd.equivalency_index', d.equivalency_index
+                if d.equivalency_index != None:
+                    if not self.equivalency_groups.has_key(d.equivalency_index):
+                        self.equivalency_groups[d.equivalency_index] = []
+                        self.equivalency_groups[d.equivalency_index].append(i)
+
+        if verbose:
+            print 'self.equivalency_groups', self.equivalency_groups
+
+        # adjust the weights of distances and dihedrals to account for equivalencies
+        self.adjust_weights()
         self.compute_sse(debug=True)
 
-        # build groups of equivalency group indices, etc.
-        self.build_groups()
+    def adjust_weights(self):
+        """Adjust the weights of distance restraints based on
+        their equivalency group."""
+
+        #NOTE: Check to make sure this is correct
+        for group in self.equivalency_groups.values():
+            n = float(len(group))
+            for i in range(len(self.restraints)):
+                if 'NMR_Distance' in self.restraints[i].__str__():
+                    self.restraints[i].weight = 1.0/n
+
 
 
 class Restraint_pf(Restraint):
