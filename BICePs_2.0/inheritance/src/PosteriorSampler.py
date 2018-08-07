@@ -209,44 +209,51 @@ class PosteriorSampler(object):
         np.save('Matrix.npy',self.Matrix)
 
 
-    def neglogP(self, new_state, new_rest_index,
+
+    def neglogP(self, new_state,
             new_sigma, new_gamma_index, verbose=True):
         """Return -ln P of the current configuration."""
 
         # Current Structure being sampled:
-        s = self.ensemble[int(new_state)][int(new_rest_index)]
+        s = self.ensemble[int(new_state)]#[int(new_rest_index)]
 
-        result = s.free_energy + self.logZ
+        result = s[0].free_energy + self.logZ
 
-        if s.sse != 0:
-           result += (s.Ndof)*np.log(new_sigma)  # for use with log-spaced sigma values
-           result += s.sse / (2.0*new_sigma**2.0)
-           result += (s.Ndof)/2.0*self.ln2pi  # for normalization
-           if new_gamma_index != None:
-               result += s.sse[int(new_gamma_index)] / (2.0*new_sigma**2.0)
+        for i in range(len(s)):
+            result += (s[i].Ndof)*np.log(new_sigma)  # for use with log-spaced sigma values
 
-           if hasattr(s, 'sum_neglog_exp_ref'):
-               result += s.sum_neglog_exp_ref
+            if new_gamma_index == None:
+                result += s[i].sse / (2.0*new_sigma**2.0)
+            else:
+                result += s[i].sse[int(new_gamma_index)] / (2.0*new_sigma**2.0)
 
-           if hasattr(s, 'sum_neglog_gaussian_ref'):
-               result += s.sum_neglog_gaussian_ref
+            result += (s[i].Ndof)/2.0*self.ln2pi  # for normalization
 
+            if hasattr(s[i], 'sum_neglog_exp_ref'):
+                result -= s[i].sum_neglog_exp_ref
+
+            if hasattr(s[i], 'sum_neglog_gaussian_ref'):
+                result -= s[i].sum_neglog_gaussian_ref
+
+            if verbose:
+                print('\nstep = ',int(self.total+1))
+                print('s[%s] = '%(i),s[i])
+                print('Result =',result)
+                print('state %s, f_sim %s'%(new_state, s[i].free_energy))
+                print('s[%s].sse'%i, s[i].sse, 's[%s].Ndof'%i, s[i].Ndof)
+                if hasattr(s[i], 'sum_neglog_exp_ref'):
+                    print('s[%s].sum_neglog_exp_ref'%i, s[i].sum_neglog_exp_ref)
+                if hasattr(s[i], 'sum_neglog_gaussian_ref'):
+                    print('s[%s].sum_neglog_gaussian_ref'%i, s[i].sum_neglog_gaussian_ref)
         if verbose:
-            print('\nstep = ',int(self.total+1))
-            print('s = ',s)
-            print('Result =',result)
-            print('state %s, f_sim %s'%(new_state, s.free_energy))
-            print('s.sse', s.sse, 's.Ndof', s.Ndof)
-            if hasattr(s, 'sum_neglog_exp_ref'):
-                print('s.sum_neglog_exp_ref', s.sum_neglog_exp_ref)
-            if hasattr(s, 'sum_neglog_gaussian_ref'):
-                print('s.sum_neglog_gaussian_ref', s.sum_neglog_gaussian_ref)
+            print('######################################################')
         return result
 
 
 
     def sample(self, nsteps):
-        "Perform nsteps of posterior sampling on the constructed matrix."
+        """Perform nsteps of posterior sampling on the previously
+        constructed matrix."""
 
         #### Partition the Matrix ####
 
@@ -279,7 +286,7 @@ class PosteriorSampler(object):
 
         for step in range(nsteps):
             # Redefine based upon randomly generated restraint index
-            new_rest_index = np.random.randint(len(self.Matrix)) #self.new_rest_index
+            new_rest_index = self.new_rest_index
             new_state = self.new_state
             new_sigma = self.new_sigma
             new_sigma_index = self.new_sigma_index
@@ -291,25 +298,23 @@ class PosteriorSampler(object):
                 new_sigma_index +=  (np.random.randint(3)-1)
                 new_sigma_index = new_sigma_index%(len(self.allowed_sigma))
                 new_sigma = self.allowed_sigma[new_sigma_index]
+
             elif np.random.random() < 0.6666:
                 # Take a random step in state space
                 new_state = np.random.randint(self.nstates)
 
             else:
                 # Take a step in gamma space
-                if hasattr(self.ensemble, 'gamma'):
+                if hasattr(self.Restraint, 'gamma'):
                     new_gamma_index +=  (np.random.randint(3)-1)
                     new_gamma_index = new_gamma_index%(len(self.allowed_gamma))
                     new_gamma = self.allowed_gamma[new_gamma_index]
 
                 else:
-                    # Take a step in sigma space
-                    new_sigma_index +=  (np.random.randint(3)-1)
-                    new_sigma_index = new_sigma_index%(len(self.allowed_sigma))
-                    new_sigma = self.allowed_sigma[new_sigma_index]
+                    new_rest_index = np.random.randint(len(self.Matrix))
 
             # Compute new "energy"
-            new_E = self.neglogP(new_state, new_rest_index,
+            new_E = self.neglogP(new_state,
                     new_sigma, new_gamma_index, verbose=True)
 
             # Accept or reject the MC move according to Metroplis criterion
@@ -324,14 +329,14 @@ class PosteriorSampler(object):
 
       	    # Store trajectory counts
             self.traj.sampled_sigmas[self.new_rest_index][self.new_sigma_index] += 1
-            self.traj.state_counts[self.state] += 1
-            if hasattr(self.ensemble, 'gamma'):
-                self.traj.sampled_gamma[self.gamma_index] += 1
+            self.traj.state_counts[self.new_state] += 1
+            if hasattr(self.Restraint, 'gamma'):
+                self.traj.sampled_gamma[self.new_gamma_index] += 1
 
             # Update parameters
             if accept:
                 self.E = new_E
-                self.state = new_state
+                self.new_state = new_state
                 self.new_sigma = new_sigma
                 self.new_sigma_index = new_sigma_index
                 self.new_rest_index = new_rest_index
@@ -341,13 +346,32 @@ class PosteriorSampler(object):
                 self.accepted += 1.0
             self.total += 1.0
 
+            # Update parameters
+            if accept:
+                print('*****************************************')
+                print('self.E', self.E)
+                print('self.new_state ', self.new_state )
+                print('self.new_sigma ', self.new_sigma )
+                print('self.new_sigma_index ', self.new_sigma_index )
+                print('self.new_rest_index ', self.new_rest_index )
+                print('self.new_gamma ', self.new_gamma )
+                print('self.new_gamma_index ', self.new_gamma_index )
+                print('self.accepted', self.accepted)
+                print('*****************************************')
+
+
             # Store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step+1), float(self.E),
-                    int(accept), int(self.state), int(self.new_sigma_index),
+                    int(accept), int(self.new_state), int(self.new_sigma_index),
                     self.new_gamma_index] )
 
-        print('\nAccepted  %s out of %s \n'%(self.accepted,self.total))
+        print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
+
+
+
+
+
 
 
 class PosteriorSamplingTrajectory(object):
@@ -355,7 +379,7 @@ class PosteriorSamplingTrajectory(object):
     sampling runs."""
 
     def __init__(self, ensemble):
-        """Initialize the PosteriorSamplingTrajectory."""
+        """Initialize the PosteriorSamplingTrajectory container class."""
 
         self.ensemble = ensemble
         self.nstates = len(self.ensemble)
@@ -394,7 +418,7 @@ class PosteriorSamplingTrajectory(object):
         """Process the trajectory, computing sampling statistics,
         ensemble-average NMR observables."""
 
-#NOTE: We need to check this process method!
+        #NOTE: We need to check this process method!
 
         # Store the trajectory in rsults
         self.results['trajectory_headers'] = self.trajectory_headers
