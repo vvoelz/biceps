@@ -11,16 +11,15 @@ import numpy as np
 import mdtraj
 from KarplusRelation import * # Returns J-coupling values from dihedral angles
 from toolbox import *
-from prep_cs import *    # Class - creates Chemical shift restraint file
+from prep_cs import *    # Creates Chemical shift restraint file
 from prep_J import *     # Creates J-coupling const. restraint file
-from prep_noe import *   # Class - creates NOE (Nuclear Overhauser effect) restraint file
-from prep_pf import *    # Class - prepare functions for protection factors restraint file
-from Observable import * #
+from prep_noe import *   # Creates NOE (Nuclear Overhauser effect) restraint file
+from prep_pf import *    # Prepare functions for protection factors restraint file
+from Observable import * # Containers for experimental observables
 
 ##############################################################################
 # Code
 ##############################################################################
-
 class Restraint(object):
     """The parent class of all Restraint() objects."""
 
@@ -56,7 +55,6 @@ class Restraint(object):
         self.neglog_gaussian_ref = None
         self.sum_neglog_gaussian_ref = 0.0
         self.use_global_ref_sigma = use_global_ref_sigma
-
         self.see = None
 
         # Storing the reference potential
@@ -85,6 +83,7 @@ class Restraint(object):
     def compute_sse(self, debug=False):
         """Returns the (weighted) sum of squared errors for chemical shift values"""
 
+        # Does the restraint child class contain any gamma information?
         if hasattr(self, 'allowed_gamma'):
             self.sse = np.array([0.0 for gamma in self.allowed_gamma])
             for g in range(len(self.allowed_gamma)):
@@ -141,8 +140,7 @@ class Restraint(object):
                     - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
             self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
 
-    def exp_uncertainty(self,dlogsigma=np.log(1.02),sigma_min=0.05,
-            sigma_max=20.0):
+    def exp_uncertainty(self, dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0):
         """Initialize values for Std. deviation of experimental
         observables, sigma.
 
@@ -165,7 +163,6 @@ class Restraint(object):
 ###########################################################################
 # Children
 ###########################################################################
-
 class Restraint_cs_Ca(Restraint):
     """A derived class of RestraintClass() for C_alpha chemical shift restraints."""
 
@@ -196,6 +193,7 @@ class Restraint_cs_Ca(Restraint):
         # Add the chemical shift restraints
         self.n = 0
 
+        # Extract the data corresponding to an observable and add a the restraint
         if verbose:
             print 'Loaded from', filename, ':'
         self.nObs = len(self.data)
@@ -236,9 +234,9 @@ class Restraint_cs_H(Restraint):
         read = prep_cs(filename=filename)
         self.load_data(read)
 
-        # add the chemical shift restraints
         self.n = 0
 
+        # Extract the data corresponding to an observable and add a the restraint
         if verbose:
             print 'Loaded from', filename, ':'
         self.nObs = len(self.data)
@@ -279,9 +277,9 @@ class Restraint_cs_Ha(Restraint):
         read = prep_cs(filename=filename)
         self.load_data(read)
 
-        # add the chemical shift restraints
         self.n = 0
 
+        # Extract the data corresponding to an observable and add a the restraint
         if verbose:
             print 'Loaded from', filename, ':'
         self.nObs = len(self.data)
@@ -308,7 +306,6 @@ class Restraint_cs_N(Restraint):
         free_energy  - The (reduced) free energy f = beta*F of this conformation"""
 
 
-
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         self.free_energy = free_energy
@@ -322,9 +319,9 @@ class Restraint_cs_N(Restraint):
         read = prep_cs(filename=filename)
         self.load_data(read)
 
-        # add the chemical shift restraints
         self.n = 0
 
+        # Extract the data corresponding to an observable and add a the restraint
         if verbose:
             print 'Loaded from', filename, ':'
         self.nObs = len(self.data)
@@ -368,6 +365,7 @@ class Restraint_J(Restraint):
 
         self.n = 0
 
+        # Extract the data corresponding to an observable and add a the restraint
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, j, k, l, exp, karplus  = entry[0], entry[1],\
@@ -407,7 +405,6 @@ class Restraint_J(Restraint):
         """Adjust the weights of distance and dihedral restraints based on
         their equivalency group."""
 
-        #NOTE: Check to make sure this is correct
         for group in self.equivalency_groups.values():
             n = float(len(group))
             for i in range(len(self.restraints)):
@@ -445,8 +442,6 @@ class Restraint_noe(Restraint):
         # Flag to use log-normal distance errors log(d/d0)
         self.use_log_normal_noe = use_log_normal_noe
 
-        # The remaining is standard observable prep:
-
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         self.free_energy = free_energy
@@ -462,6 +457,7 @@ class Restraint_noe(Restraint):
 
         self.n = 0
 
+        # Extract the data corresponding to an observable and add a the restraint
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, j, exp, model = entry[0], entry[1], entry[4], entry[7], entry[8]
@@ -497,7 +493,6 @@ class Restraint_noe(Restraint):
         """Adjust the weights of distance restraints based on
         their equivalency group."""
 
-        #NOTE: Check to make sure this is correct
         for group in self.equivalency_groups.values():
             n = float(len(group))
             for i in range(len(self.restraints)):
@@ -520,7 +515,6 @@ class Restraint_pf(Restraint):
         free_energy  - The (reduced) free energy f = beta*F of this conformation"""
 
 
-
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         self.free_energy = free_energy
@@ -534,9 +528,9 @@ class Restraint_pf(Restraint):
         read = prep_pf(filename=filename)
         self.load_data(read)
 
-        # add the Protection Factor restraints
-
         self.n = 0
+
+        # Extract the data corresponding to an observable and add a the restraint
         if verbose:
             print 'Loaded from', filename, ':'
 
@@ -582,9 +576,9 @@ class Restraint_pf_spec(Restraint):
         read = prep_pf(filename=filename)
         self.load_data(read)
 
-        # add the Protection Factor restraints
-
         self.n = 0
+
+        # Extract the data corresponding to an observable and add a the restraint
         if verbose:
             print 'Loaded from', filename, ':'
 
