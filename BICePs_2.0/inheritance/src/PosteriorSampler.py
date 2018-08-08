@@ -297,26 +297,34 @@ class PosteriorSampler(object):
             new_rest_index = self.new_rest_index
             new_state = self.new_state
             new_sigma_list = self.sigma_list
+#            new_allowed_sigma = self.Matrix[self.new_rest_index][self.new_state][0]
             new_sigma = self.new_sigma
             new_sigma_index = self.new_sigma_index
             new_gamma = self.new_gamma
             new_gamma_index  = self.new_gamma_index
+	    
 
             if np.random.random() < 0.3333:
                 # Take a step in sigma space
-                new_sigma_index +=  (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(self.allowed_sigma))
-                new_sigma = self.allowed_sigma[new_sigma_index]
+		new_rest_index = np.random.randint(len(self.Matrix))
+		new_allowed_sigma = self.Matrix[new_rest_index][self.new_state][0]
 
+                new_sigma_index +=  (np.random.randint(3)-1)
+                new_sigma_index = new_sigma_index%(len(new_allowed_sigma))
+#                new_sigma_index = new_sigma_index%(len(self.allowed_sigma))
+#                new_sigma = self.allowed_sigma[new_sigma_index]
+                new_sigma = new_allowed_sigma[new_sigma_index]
                 # Replace the old sigma with the new sigma that corresponds to a specific restraint
                 new_sigma_list[new_rest_index] = new_sigma
+
+#                new_rest_index = np.random.randint(len(self.Matrix))
 
             elif np.random.random() < 0.6666:
                 ## new_state and rest_index are independent of each other
                 # Take a random step in state space
                 new_state = np.random.randint(self.nstates)
                 # Randomly generate restraint index
-                new_rest_index = np.random.randint(len(self.Matrix))
+            #    new_rest_index = np.random.randint(len(self.Matrix))
 
             else:
                 # Take a step in gamma space
@@ -340,10 +348,10 @@ class PosteriorSampler(object):
                     accept = True
 
       	    # Store trajectory counts
-            self.traj.sampled_sigmas[self.new_rest_index][self.new_sigma_index] += 1
-            self.traj.state_counts[self.new_state] += 1
-            if hasattr(self.Restraint, 'gamma'):
-                self.traj.sampled_gamma[self.new_gamma_index] += 1
+#            self.traj.sampled_sigmas[self.new_rest_index][self.new_sigma_index] += 1
+#            self.traj.state_counts[self.new_state] += 1
+#            if hasattr(self.Restraint, 'gamma'):
+#                self.traj.sampled_gamma[self.new_gamma_index] += 1
 
             # Update parameters based upon acceptance (Metroplis criterion)
             if accept:
@@ -371,6 +379,13 @@ class PosteriorSampler(object):
                     print('self.new_gamma_index ', self.new_gamma_index )
                     print('self.accepted', self.accepted)
                     print('*****************************************')
+
+            # Store trajectory counts
+            self.traj.sampled_sigmas[self.new_rest_index][self.new_sigma_index] += 1
+            self.traj.state_counts[self.new_state] += 1
+            if hasattr(self.Restraint, 'gamma'):
+                self.traj.sampled_gamma[self.new_gamma_index] += 1
+
 
             # Store trajectory samples
             if step%self.traj_every == 0:
