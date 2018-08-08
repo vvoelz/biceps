@@ -91,6 +91,8 @@ for j in lambda_values:
                 R = Restraint_cs_Ha('8690.pdb',ref='exp')
                 R.prep_observable(lam=lam, free_energy=energies[i],
                         filename=File)
+                R.exp_uncertainty(dlogsigma=np.log(1.02),sigma_min=10.0,
+                        sigma_max=20.0)
 
             elif File.endswith('cs_N'):
                 R = Restraint_cs_N('8690.pdb',ref='gaussian')
