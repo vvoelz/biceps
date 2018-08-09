@@ -177,37 +177,44 @@ class PosteriorSampler(object):
             s[rest_index].ref_sigma = ref_sigma
             s[rest_index].compute_neglog_gaussian_ref()
 
+#NOTE: Will implement later
 
-    def construct_Matrix(self,verbose=False):
-        """ Constructs arrays of type double with shape:
-        (N restraint types,  N Conformations, N parameters)
-        This matrix will be sampled over, where the new parameters
-        are stored in the location of the old. """
+#    def construct_Matrix(self,verbose=False):
+#        """ Constructs arrays of type double with shape:
+#        (N restraint types,  N Conformations, N parameters)
+#        This matrix will be sampled over, where the new parameters
+#        are stored in the location of the old. """
+#
+#        # Generate empty lists for reach restraint type
+#        Matrix = [ [] for i in range(len(self.ensemble[0])) ]
+#
+#        for s in self.ensemble:
+#            for rest_index in range(len(Matrix)):
+#
+#                # s_r is a specific restraint for a specific state
+#                s_r = s[rest_index]
+#
+#                # Are there are gamma parameters for this specific restraint?
+#                if hasattr(s_r, 'allowed_gamma'):
+#                    Matrix[rest_index].append( np.array(s_r.allowed_sigma, s_r.allowed_gamma, dtype=np.float64) )
+#                else:
+#                    Matrix[rest_index].append( np.array(s_r.allowed_sigma, dtype=np.float64) )
+#
+#        self.Matrix = Matrix
+#        # Construct the matrix converting all values to floats for C++
+#        if verbose == True:
+#            print('Matrix.shape',self.Matrix.shape)
+#            print(self.Matrix)
 
-        # Generate empty lists for reach restraint type
-        Matrix = [ [] for i in range(len(self.ensemble[0])) ]
 
-        for s in self.ensemble:
-            for rest_index in range(len(Matrix)):
-
-                # s_r is a specific restraint for a specific state
-                s_r = s[rest_index]
-
-                # Are there are gamma parameters for this specific restraint?
-                if hasattr(s, 'gamma'):
-                    Matrix[rest_index].append( [s_r.allowed_sigma, s_r.allowed_gamma] )
-                else:
-                    Matrix[rest_index].append( [s_r.allowed_sigma] )
-
-        # Contruct the matrix converting all values to floats for C++
-        self.Matrix = np.array(Matrix, dtype=np.float64)
-        if verbose == True:
-            print('Matrix.shape',self.Matrix.shape)
-            print(self.Matrix)
-
-
-    def neglogP(self, new_state,new_sigma_list, new_gamma_index, verbose=True):
-        """Return -ln P of the current configuration."""
+    def neglogP(self, new_state, new_sigma, new_gamma_index, verbose=True):
+        """Return -ln P of the current configuration.
+        INPUTS
+        -------
+            new_state         - the new conformational state from Sample()
+            new_sigma         - a list of the updated sigma values for each restraint
+            new_gamma_index   - the new index of gamma (iff NOE data exists, otherwise None)
+        """
 
         # Current Structure being sampled (list of restraint objects):
         s = self.ensemble[int(new_state)]
@@ -219,14 +226,14 @@ class PosteriorSampler(object):
         for rest_index in range(len(s)):
 
             # Use with log-spaced sigma values
-            result += (s[rest_index].Ndof)*np.log(new_sigma_list[rest_index])
+            result += (s[rest_index].Ndof)*np.log(new_sigma[rest_index])
 
-            # Is gamma a paramater we need to consider?
-            if new_gamma_index == None:
-                result += s[rest_index].sse / (2.0*new_sigma_list[rest_index]**2.0)
+            # Is gamma a parameter we need to consider?
+            if hasattr(s[rest_index], 'allowed_gamma'):
+                result += s[rest_index].sse[int(new_gamma_index)] / (2.0*new_sigma[rest_index]**2.0)
 
             else:
-                result += s[rest_index].sse[int(new_gamma_index)] / (2.0*new_sigma_list[rest_index]**2.0)
+                result += s[rest_index].sse / (2.0*new_sigma[rest_index]**2.0)
 
             result += (s[rest_index].Ndof)/2.0*self.ln2pi  # for normalization
 
@@ -252,89 +259,91 @@ class PosteriorSampler(object):
         return result
 
 
-
     def sample(self, nsteps, verbose=True):
-        """Perform nsteps of posterior sampling"""
+        """Perform n number of steps (nsteps) of posterior sampling, where Monte
+        Carlo moves are accepted or rejected according to Metroplis criterion."""
 
-        #### Partition the Matrix ####
+        # Generate random restraint index to initialize the sigma and gamma parameters
+        self.new_rest_index = np.random.randint(len(self.ensemble[0]))
 
-        ### Conformational Space
-        # Generate random restraint index
-        self.new_rest_index = np.random.randint(len(self.Matrix))
-
-        # Initilaize the state
+        # Initialize the state
         self.new_state = self.state
 
-        # Generate the Restraint object for indices and initial values
+        # Generate the Restraint object
         self.Restraint = self.ensemble[self.new_state][self.new_rest_index]
 
-        # Get Matrix values
-        self.M = self.Matrix[self.new_rest_index][self.new_state]
-
-        ### Sigma Space
+        ### Sigma Space ###
         self.new_sigma = self.Restraint.sigma
-        self.new_sigma_index = self.Restraint.sigma_index
-        self.allowed_sigma = self.M[0]
 
         # Store a list of sigmas for each restraint
-        self.sigma_list = []
-        for rest_index in range(len(self.ensemble[self.new_state])):
-            self.sigma_list.append(self.ensemble[self.new_state][rest_index].sigma)
+        self.sigma, self.sigma_index = [], []
+        self.new_gamma_index = None
 
-        ### Gamma Space
-        if hasattr(self.Restraint, 'gamma'):
-            self.new_gamma = self.Restraint.gamma
-            self.new_gamma_index = self.Restraint.gamma_index
-            self.allowed_gamma = self.M[1]
-        else:
+        # Loop through the restraints, store sigmas and tell me if there are gamma parameters
+        for rest_index in range(len(self.ensemble[self.new_state])):
+            self.sigma.append(self.ensemble[self.new_state][rest_index].sigma)
+            self.sigma_index.append(self.ensemble[self.new_state][rest_index].sigma_index)
+
+            ### Gamma Space ###
+            if hasattr(self.ensemble[self.new_state][rest_index], 'allowed_gamma'):
+                self.new_gamma = self.ensemble[self.new_state][rest_index].gamma
+                self.new_gamma_index = self.ensemble[self.new_state][rest_index].gamma_index
+
+        if type(self.new_gamma_index) != int:
             self.new_gamma = None
             self.new_gamma_index = None
 
-
         for step in range(nsteps):
 
+            # Store the randomly generated new restraint index for each step
+            new_rest_index =  self.new_rest_index
+
             # Redefine based upon acceptance (Metroplis criterion)
-            new_rest_index = self.new_rest_index
             new_state = self.new_state
-            new_sigma_list = self.sigma_list
-#            new_allowed_sigma = self.Matrix[self.new_rest_index][self.new_state][0]
-            new_sigma = self.new_sigma
-            new_sigma_index = self.new_sigma_index
+            new_sigma = self.sigma
+            new_sigma_index = self.sigma_index
             new_gamma = self.new_gamma
             new_gamma_index  = self.new_gamma_index
-	    
+
+            # Regenerate the Restraint object to update new_allowed_sigma
+        #...according to the restraint index
+            Restraint = self.ensemble[new_state][new_rest_index]
+            new_allowed_sigma = Restraint.allowed_sigma
+
+            ### Gamma Space
+            if hasattr(Restraint, 'allowed_gamma'):
+                new_allowed_gamma = Restraint.allowed_gamma
 
             if np.random.random() < 0.3333:
                 # Take a step in sigma space
-		new_rest_index = np.random.randint(len(self.Matrix))
-		new_allowed_sigma = self.Matrix[new_rest_index][self.new_state][0]
+                new_sigma_index[new_rest_index] +=  (np.random.randint(3)-1)
+                new_sigma_index[new_rest_index] = new_sigma_index[new_rest_index]%(len(new_allowed_sigma))
 
-                new_sigma_index +=  (np.random.randint(3)-1)
-                new_sigma_index = new_sigma_index%(len(new_allowed_sigma))
-#                new_sigma_index = new_sigma_index%(len(self.allowed_sigma))
-#                new_sigma = self.allowed_sigma[new_sigma_index]
-                new_sigma = new_allowed_sigma[new_sigma_index]
                 # Replace the old sigma with the new sigma that corresponds to a specific restraint
-                new_sigma_list[new_rest_index] = new_sigma
-
-#                new_rest_index = np.random.randint(len(self.Matrix))
+                new_sigma[new_rest_index] = new_allowed_sigma[new_sigma_index[new_rest_index]]
 
             elif np.random.random() < 0.6666:
-                ## new_state and rest_index are independent of each other
                 # Take a random step in state space
                 new_state = np.random.randint(self.nstates)
-                # Randomly generate restraint index
-            #    new_rest_index = np.random.randint(len(self.Matrix))
 
             else:
                 # Take a step in gamma space
-                if hasattr(self.Restraint, 'gamma'):
+                if hasattr(Restraint, 'allowed_gamma'):
                     new_gamma_index +=  (np.random.randint(3)-1)
-                    new_gamma_index = new_gamma_index%(len(self.allowed_gamma))
-                    new_gamma = self.allowed_gamma[new_gamma_index]
+                    new_gamma_index = new_gamma_index%(len(new_allowed_gamma))
+                    new_gamma = new_allowed_gamma[new_gamma_index]
+
+            if verbose:
+                print('*****************************************')
+                print('new_rest_index ', new_rest_index )
+                print('new_state ', new_state )
+                print('new_sigma ', new_sigma )
+                print('new_sigma_index ', new_sigma_index )
+                print('new_allowed_sigma ', new_allowed_sigma )
+                print('*****************************************')
 
             # Compute new "energy"
-            new_E = self.neglogP(new_state, new_sigma_list,
+            new_E = self.neglogP(new_state, new_sigma,
                     new_gamma_index, verbose=True)
 
             # Accept or reject the MC move according to Metroplis criterion
@@ -347,22 +356,16 @@ class PosteriorSampler(object):
                 if np.random.random() < np.exp( self.E - new_E ):
                     accept = True
 
-      	    # Store trajectory counts
-#            self.traj.sampled_sigmas[self.new_rest_index][self.new_sigma_index] += 1
-#            self.traj.state_counts[self.new_state] += 1
-#            if hasattr(self.Restraint, 'gamma'):
-#                self.traj.sampled_gamma[self.new_gamma_index] += 1
-
             # Update parameters based upon acceptance (Metroplis criterion)
             if accept:
                 self.E = new_E
                 self.new_state = new_state
-                self.new_sigma = new_sigma
-                self.new_sigma_list = new_sigma_list
-                self.new_sigma_index = new_sigma_index
+                self.sigma = new_sigma
+                self.sigma_index = new_sigma_index
                 self.new_rest_index = new_rest_index
                 self.new_gamma = new_gamma
                 self.new_gamma_index = new_gamma_index
+                self.allowed_sigma = new_allowed_sigma
                 self.accepted += 1.0
             self.total += 1.0
 
@@ -372,26 +375,28 @@ class PosteriorSampler(object):
                     print('self.E', self.E)
                     print('self.new_state ', self.new_state )
                     print('self.new_sigma ', self.new_sigma )
-                    print('self.new_sigma_list ', self.new_sigma_list )
-                    print('self.new_sigma_index ', self.new_sigma_index )
+                    print('self.sigma_index ', self.sigma_index )
                     print('self.new_rest_index ', self.new_rest_index )
                     print('self.new_gamma ', self.new_gamma )
                     print('self.new_gamma_index ', self.new_gamma_index )
                     print('self.accepted', self.accepted)
                     print('*****************************************')
 
-            # Store trajectory counts
-            self.traj.sampled_sigmas[self.new_rest_index][self.new_sigma_index] += 1
+      	    # Store trajectory counts
+            self.traj.sampled_sigmas[self.new_rest_index][self.sigma_index[self.new_rest_index]] += 1
             self.traj.state_counts[self.new_state] += 1
-            if hasattr(self.Restraint, 'gamma'):
+            if hasattr(Restraint, 'allowed_gamma'):
                 self.traj.sampled_gamma[self.new_gamma_index] += 1
-
 
             # Store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step+1), float(self.E),
-                    int(accept), int(self.new_state), int(self.new_sigma_index),
+                    int(accept), int(self.new_state),
+                    int(self.sigma_index[self.new_rest_index]),
                     self.new_gamma_index] )
+
+            # Randomly generate new restraint index for the next step
+            self.new_rest_index = np.random.randint(len(self.ensemble[0]))
 
         print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
 
@@ -405,27 +410,24 @@ class PosteriorSamplingTrajectory(object):
 
         self.ensemble = ensemble
         self.nstates = len(self.ensemble)
-        self.state_counts = np.ones(self.nstates)  # add a pseudocount to avoid log(0) errors
+        self.state_counts = np.ones(self.nstates)  # add a pseudo-count to avoid log(0) errors
 
         self.sampled_sigmas = [ [] for i in range(len(ensemble[0])) ]
         self.allowed_sigmas = [ [] for i in range(len(ensemble[0])) ]
         f_sim = []
         rest_index = 0
-        for S in ensemble:
-            for restraint in S:
-                f_sim.append(restraint.free_energy)
-                allowed_sigma = restraint.allowed_sigma
+        for s in ensemble:
+            for rest_index in range(len(s)):
+                f_sim.append(s[rest_index].free_energy)
+                allowed_sigma = s[rest_index].allowed_sigma
                 if rest_index < len(self.sampled_sigmas):
                     self.sampled_sigmas[rest_index] = np.zeros(len(allowed_sigma))
                     self.allowed_sigmas[rest_index] = allowed_sigma
-                    if hasattr(restraint, 'gamma'):
-                        self.allowed_gamma = restraint.allowed_gamma
+                    if hasattr(s[rest_index], 'gamma'):
+                        self.allowed_gamma = s[rest_index].allowed_gamma
                         self.sampled_gamma = list(np.zeros(len(self.allowed_gamma)))
-                    else:
-                        self.allowed_gamma = None
-                        self.sampled_gamma = None
-
                 rest_index += 1
+
         self.f_sim = np.array(f_sim)
         self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
 
@@ -440,21 +442,26 @@ class PosteriorSamplingTrajectory(object):
         """Process the trajectory, computing sampling statistics,
         ensemble-average NMR observables."""
 
-        #NOTE: We need to check this process method!
-
-        # Store the trajectory in rsults
+        # Store the trajectory in results
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
 
         # Store the nuisance parameter distributions
         self.results['allowed_sigmas'] = self.allowed_sigmas
-        self.results['allowed_gamma'] = self.allowed_gamma
         self.results['sampled_sigma'] = self.sampled_sigmas
-        self.results['sampled_gamma'] = self.sampled_gamma
+
+        self.results['allowed_gamma'] = None
+        for s in self.ensemble:
+            for rest_index in range(len(s)):
+                if hasattr(s[rest_index], 'gamma'):
+                    self.results['sampled_gamma'] = self.sampled_gamma
+                    self.results['allowed_gamma'] = self.allowed_gamma
 
         # Calculate the modes of the nuisance parameter marginal distributions
-        self.results['sigma_mode'] = [ float(self.allowed_sigmas[i][ np.argmax(self.sampled_sigmas[i]) ]) for i in range(len(self.sampled_sigmas)) ]
-        if self.allowed_gamma != None:
+        self.results['sigma_mode'] = [ float(self.allowed_sigmas[i][ np.argmax(
+            self.sampled_sigmas[i]) ]) for i in range(len(self.sampled_sigmas)) ]
+
+        if self.results['allowed_gamma'] != None:
             self.results['gamma_mode'] = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
 
         # copy over the purely computational free energies f_i
@@ -475,12 +482,15 @@ class PosteriorSamplingTrajectory(object):
         ref_f = state_f.min()
         state_f -=  ref_f
         self.results['state_f'] = state_f.tolist()
-        self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudocount to avoid log(0)s in the bootstrap
+        self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudo-count to avoid log(0)s in the bootstrap
         self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
 
         # Estimate the ensemble-averaged restraint values
-        mean = [ np.zeros(len(self.ensemble[0][rest_index].restraints)) for rest_index in range(len(self.ensemble[0])) ]
-        Z = [ np.zeros(len(self.ensemble[0][rest_index].restraints)) for rest_index in range(len(self.ensemble[0])) ]
+        mean = [ np.zeros(len(self.ensemble[0][rest_index].restraints))
+                for rest_index in range(len(self.ensemble[0])) ]
+
+        Z = [ np.zeros(len(self.ensemble[0][rest_index].restraints))
+                for rest_index in range(len(self.ensemble[0])) ]
 
         for rest_index in range(len(self.ensemble[0])):
             for i in range(len(self.ensemble[0][rest_index].restraints)):
