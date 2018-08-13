@@ -425,8 +425,8 @@ class PosteriorSampler(object):
             # Store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step+1), float(self.E),
-                    int(accept), int(self.new_state),
-                    int(self.new_rest_index), self.sigma_index,int(self.sigma_index[self.new_rest_index]),
+                    int(accept), int(self.new_rest_index),int(self.new_state),
+                    self.sigma_index, int(self.sigma_index[self.new_rest_index]),self.new_sigma,
                     self.new_gamma_index] )
 
             # Randomly generate new restraint index for the next step
@@ -465,8 +465,8 @@ class PosteriorSamplingTrajectory(object):
         self.f_sim = np.array(f_sim)
         self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
 
-        self.trajectory_headers = ['step', 'E', 'accept', 'state', 'rest_index',
-                'sigma_index', 'gamma_index']
+        self.trajectory_headers = ['step', 'E', 'accept', 'rest_index','state',
+                'sigma_index', 'new_sigma','gamma_index']
 
         self.trajectory = []
 
