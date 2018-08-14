@@ -59,10 +59,7 @@ class Analysis(object):
 	input_data = d.sort_data(self.data)
 	d_l=[]
 	for i in input_data[0]:
-	        if i.endswith('.noe'):
-            	    d_l.append('sigma_noe')
-	            d_l.append('gamma')
-                elif i.endswith('.cs_H'):
+                if i.endswith('.cs_H'):
                     d_l.append('sigma_cs_H')
                 elif i.endswith('.cs_Ha'):
                     d_l.append('sigma_cs_Ha')
@@ -74,6 +71,9 @@ class Analysis(object):
                     d_l.append('sigma_J')
 		elif i.endswith('.pf'):
                     d_l.append('sigma_pf')
+                elif i.endswith('.noe'):
+                    d_l.append('sigma_noe')
+                    d_l.append('gamma')
                 else:
                     raise ValueError("Incompatible File extension. Use:{*.noe, *.J, *.cs_H, *.cs_Ha, *.cs_N, *.cs_Ca, *.pf}")
 	self.scheme = d_l
@@ -243,12 +243,13 @@ class Analysis(object):
     	for i in range(len(pops1)):
         	if (i==0) or (pops1[i] > 0.05):
             		plt.text( pops0[i], pops1[i], str(i), color='g' )
-    	for k in range(len(self.scheme)):
+        if self.scheme.find('gamma') != -1:
+            for k in range(len(self.scheme)-1):
         	plt.subplot(r,c,k+2)
-        	plt.step(t0['allowed_'+self.scheme[k]], t0['sampled_'+self.scheme[k]], 'b-')
+        	plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
         	plt.hold(True)
         	plt.xlim(0,5)
-        	plt.step(t1['allowed_'+self.scheme[k]], t1['sampled_'+self.scheme[k]], 'r-')
+        	plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
         	plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
         	if self.scheme[k].find('cs') == -1:
             		plt.xlabel("$\%s$"%self.scheme[k], fontsize=label_fontsize)
@@ -258,7 +259,31 @@ class Analysis(object):
             		plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:],fontsize=label_fontsize)
             		plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:],fontsize=label_fontsize)
             		plt.yticks([])
-
+            plt.subplot(r,c,len(self.scheme))
+            plt.step(t0['allowed_gamma'][k],t0['sampled_gamma'][k],'b-')
+            plt.hold(True)
+            plt.xlim(0,5)
+            plt.step(t1['allowed_gamma'][k],t1['sampled_gamma'][k], 'r-')
+            plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
+            plt.xlabel("$\%s$"%self.scheme[k], fontsize=label_fontsize)
+            plt.ylabel("$P(\%s)$"%self.scheme[k], fontsize=label_fontsize)
+            plt.yticks([])
+        else:
+            for k in range(len(self.scheme)):
+                plt.subplot(r,c,k+2)
+                plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
+                plt.hold(True)
+                plt.xlim(0,5)
+                plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
+                plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
+                if self.scheme[k].find('cs') == -1:
+                        plt.xlabel("$\%s$"%self.scheme[k], fontsize=label_fontsize)
+                        plt.ylabel("$P(\%s)$"%self.scheme[k], fontsize=label_fontsize)
+                        plt.yticks([])
+                else:
+                        plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:],fontsize=label_fontsize)
+                        plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:],fontsize=label_fontsize)
+                        plt.yticks([])
     	plt.tight_layout()
     	plt.savefig(self.picfile)
 
