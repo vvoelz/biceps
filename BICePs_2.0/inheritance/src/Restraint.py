@@ -394,10 +394,10 @@ class Restraint_J(Restraint):
         for i in range(len(self.restraints)):
             if 'NMR_Dihedral' in self.restraints[i].__str__():
                 d = self.restraints[i]
-                if d.restraint_index != None:
-                    if not self.equivalency_groups.has_key(d.restraint_index):
-                        self.equivalency_groups[d.restraint_index] = []
-                        self.equivalency_groups[d.restraint_index].append(i)
+                if d.equivalency_index != None:
+                    if not self.equivalency_groups.has_key(d.equivalency_index):
+                        self.equivalency_groups[d.equivalency_index] = []
+                        self.equivalency_groups[d.equivalency_index].append(i)
 
         if verbose:
             print 'self.equivalency_groups', self.equivalency_groups
@@ -483,10 +483,10 @@ class Restraint_noe(Restraint):
         for i in range(len(self.restraints)):
             if 'NMR_Distance' in self.restraints[i].__str__():
                 d = self.restraints[i]
-                if d.restraint_index != None:
-                    if not self.equivalency_groups.has_key(d.restraint_index):
-                        self.equivalency_groups[d.restraint_index] = []
-                        self.equivalency_groups[d.restraint_index].append(i)
+                if d.equivalency_index != None:
+                    if not self.equivalency_groups.has_key(d.equivalency_index):
+                        self.equivalency_groups[d.equivalency_index] = []
+                        self.equivalency_groups[d.equivalency_index].append(i)
 
         if verbose:
             print 'self.equivalency_groups', self.equivalency_groups
