@@ -19,7 +19,7 @@
 #needs_sphinx = '1.0'
 
 import os,sys
-sys.path.insert(0, os.path.abspath('sphinxext'))
+#sys.path.insert(0, os.path.abspath('sphinxext'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -38,6 +38,10 @@ extensions = [
 autosummary_generate = True
 autodoc_default_flags = ['members', 'inherited-members']
 numpydoc_class_members_toctree = False
+
+# concatenate both class and __init__ docstrings when generating autodoc class
+# docs
+autoclass_content = 'both'
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
