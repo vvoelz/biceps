@@ -182,6 +182,7 @@ class Restraint_cs_Ca(Restraint):
         self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
+        self.nuisance_parameters = ['allowed_sigma']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -226,6 +227,7 @@ class Restraint_cs_H(Restraint):
         self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
+        self.nuisance_parameters = ['allowed_sigma']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -269,6 +271,7 @@ class Restraint_cs_Ha(Restraint):
         self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
+        self.nuisance_parameters = ['allowed_sigma']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -311,6 +314,7 @@ class Restraint_cs_N(Restraint):
         self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
+        self.nuisance_parameters = ['allowed_sigma']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -355,6 +359,7 @@ class Restraint_J(Restraint):
         self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
+        self.nuisance_parameters = ['allowed_sigma']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -376,7 +381,7 @@ class Restraint_J(Restraint):
             ri, rj, rk, rl = [self.conf.xyz[0,x,:] for x in [i, j, k, l]]
             model_angle = self.dihedral_angle(ri,rj,rk,rl)
             model = self.karplus.J(model_angle, "Karplus_HH")
-            Obs = NMR_Dihedral(i,j,k,l,model,exp,model_angle,
+            Obs = NMR_Dihedral(i,j,k,l,exp,model,model_angle,
                     equivalency_index=restraint_index)
             self.add_restraint(Obs)
             if verbose:
@@ -447,6 +452,7 @@ class Restraint_noe(Restraint):
         self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
+        self.nuisance_parameters = ['allowed_sigma','allowed_gamma']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -465,7 +471,7 @@ class Restraint_noe(Restraint):
             rj = self.conf.xyz[0,j,:]
             dr = rj-ri
             model = np.dot(dr,dr)**0.5
-            Obs = NMR_Distance(i, j, model, exp, restraint_index)
+            Obs = NMR_Distance(i, j, exp, model, equivalency_index=restraint_index)
             self.add_restraint(Obs)
             if verbose:
                 print entry
@@ -520,6 +526,8 @@ class Restraint_pf(Restraint):
         self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
+        self.nuisance_parameters = ['allowed_sigma','beta_c', 'beta_h',
+                'beta_0', 'Nc', 'Nh']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -590,7 +598,7 @@ class Restraint_pf_spec(Restraint):
         # add the chemical shift restraints
             restraint_index, i, exp, model  = entry[0], entry[0], entry[3]
             model = self.compute_PF_multi(self.Ncs[:,:,i], self.Nhs[:,:,i], debug=True)
-            Obs = NMR_Protectionfactor(i, model, exp)
+            Obs = NMR_Protectionfactor(i, exp, model)
             self.add_restraint(Obs)
             if verbose:
                 print entry
