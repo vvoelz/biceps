@@ -14,12 +14,13 @@ All source codes and examples are available here:`GitHub Repository for BICePs <
 ---------------------------------------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :glob:
 
    installation
    theory
    workflow
+   Restraint
    examples/index
    versions/index
 
