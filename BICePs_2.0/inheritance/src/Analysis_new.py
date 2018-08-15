@@ -14,7 +14,7 @@ import sys, os, glob
 sys.path.append('src')
 
 from Restraint import *
-from PosteriorSampler import *
+from PosteriorSampler_test import *
 import toolbox as d
 import matplotlib
 #matplotlib.use('Agg')
@@ -99,7 +99,7 @@ class Analysis(object):
 
 	# parse the lambda* filenames to get the full list of lambdas
 	self.nlambda = len(exp_files)
-	self.lam = [float( (s.split('lambda')[1]).replace('.yaml','') ) for s in exp_files ]
+	self.lam = [float( (s.split('lambda')[1]).replace('.npz','') ) for s in exp_files ]
 	if debug:
 		print 'lam =', self.lam
 
@@ -132,13 +132,13 @@ class Analysis(object):
       				if k==l:
           				print 'E%d evaluated in model %d'%(k,k), self.traj[k]['trajectory'][n][1],
           				u_kln[k,k,n] = self.traj[k]['trajectory'][n][1]
-                                state, sigma_index, gamma_index = self.traj[k]['trajectory'][n][4:]
+                                state, sigma_index, gamma_index = self.traj[k]['trajectory'][n][3:]
 #          			state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index = self.traj[k]['trajectory'][n][3:] 	# IMPORTANT: make sure the order of these parameters is the same as the way they are saved in PosteriorSampler
 #          			print 'state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index', state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index
           			states_kn[k,n] = state
                                 sigma=[]
                                 for m in range(len(sigma_index)):
-                                        sigma[m].append(self.traj[k]['allowed_sigma'][m][sigma_index[m]])
+                                    sigma.append(self.traj[k]['allowed_sigma'][m][sigma_index[m]])
 #          			sigma_noe = self.traj[k]['allowed_sigma_noe'][sigma_noe_index]
 #          			sigma_J = self.traj[k]['allowed_sigma_J'][sigma_J_index]
 #          			sigma_cs_H = self.traj[k]['allowed_sigma_cs_H'][sigma_cs_H_index]
@@ -147,7 +147,8 @@ class Analysis(object):
 #          			sigma_cs_Ca = self.traj[k]['allowed_sigma_cs_Ca'][sigma_cs_Ca_index]
 #          			sigma_pf = self.traj[k]['allowed_sigma_pf'][sigma_pf_index]
 #          			u_kln[k,l,n] = self.sampler[l].neglogP(0, state, sigma_noe, sigma_J, sigma_cs_H, sigma_cs_Ha, sigma_cs_N, sigma_cs_Ca, sigma_pf, gamma_index)
-                                u_kln[k,l,n] = self.sampler[l].neglogP(0, state, sigma, gamma_index) # is gamma necessary? 
+                                print 'sigma', sigma
+                                u_kln[k,l,n] = self.sampler[l].neglogP(state, sigma, gamma_index) # is gamma necessary? 
                                 if debug:
 					print 'E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n]
 
@@ -243,12 +244,12 @@ class Analysis(object):
     	for i in range(len(pops1)):
         	if (i==0) or (pops1[i] > 0.05):
             		plt.text( pops0[i], pops1[i], str(i), color='g' )
-        if self.scheme.find('gamma') != -1:
+        if 'gamma' in self.scheme:
             for k in range(len(self.scheme)-1):
         	plt.subplot(r,c,k+2)
         	plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
         	plt.hold(True)
-        	plt.xlim(0,5)
+        	plt.xlim(0,max(t0['allowed_sigma'][k]))
         	plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
         	plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
         	if self.scheme[k].find('cs') == -1:
@@ -256,13 +257,13 @@ class Analysis(object):
             		plt.ylabel("$P(\%s)$"%self.scheme[k], fontsize=label_fontsize)
             		plt.yticks([])
         	else:
-            		plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:],fontsize=label_fontsize)
-            		plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:],fontsize=label_fontsize)
-            		plt.yticks([])
-            plt.subplot(r,c,len(self.scheme))
+                        plt.xlabel("$\sigma_{{%s}_{%s}}$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+            		plt.ylabel("$P(\sigma_{{%s}_{%s}})$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+                        plt.yticks([])
+            plt.subplot(r,c,len(self.scheme)+1)
             plt.step(t0['allowed_gamma'][k],t0['sampled_gamma'][k],'b-')
             plt.hold(True)
-            plt.xlim(0,5)
+            plt.xlim(0,max(t0['allowed_gamma'][k]))
             plt.step(t1['allowed_gamma'][k],t1['sampled_gamma'][k], 'r-')
             plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
             plt.xlabel("$\%s$"%self.scheme[k], fontsize=label_fontsize)
@@ -273,7 +274,7 @@ class Analysis(object):
                 plt.subplot(r,c,k+2)
                 plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
                 plt.hold(True)
-                plt.xlim(0,5)
+                plt.xlim(0,max(t0['allowed_sigma'][k]))
                 plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
                 plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
                 if self.scheme[k].find('cs') == -1:
@@ -281,8 +282,8 @@ class Analysis(object):
                         plt.ylabel("$P(\%s)$"%self.scheme[k], fontsize=label_fontsize)
                         plt.yticks([])
                 else:
-                        plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:],fontsize=label_fontsize)
-                        plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:],fontsize=label_fontsize)
+                        plt.xlabel("$\sigma_{{%s}_{%s}}$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+                        plt.ylabel("$P(\sigma_{{%s}_{%s}})$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
                         plt.yticks([])
     	plt.tight_layout()
     	plt.savefig(self.picfile)
