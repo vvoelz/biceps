@@ -38,7 +38,7 @@ class PosteriorSampler(object):
     """
 
     def __init__(self, ensemble, freq_write_traj=1000,
-            freq_print=1000, freq_save_traj=100):
+            freq_print=1000, freq_save_traj=10):
         """Initialize PosteriorSampler Class."""
 
         # Allow the ensemble to pass through the class
@@ -207,7 +207,7 @@ class PosteriorSampler(object):
 #            print(self.Matrix)
 
 
-    def neglogP(self, new_state, new_sigma, new_gamma_index, verbose=True):
+    def neglogP(self, new_state, new_sigma, new_gamma_index, verbose=False):
         """Return -ln P of the current configuration.
         INPUTS
         -------
@@ -223,37 +223,37 @@ class PosteriorSampler(object):
         result = s[0].free_energy + self.logZ
 
         # Use the restraint index to get the corresponding sigma.
-        for rest_index in range(len(s)):
+        for rest in range(len(s)):
 
             # Use with log-spaced sigma values
-            result += (s[rest_index].Ndof)*np.log(new_sigma[rest_index])
+            result += (s[rest].Ndof)*np.log(new_sigma[rest])
 
             # Is gamma a parameter we need to consider?
-            if hasattr(s[rest_index], 'allowed_gamma'):
-                result += s[rest_index].sse[int(new_gamma_index)] / (2.0*new_sigma[rest_index]**2.0)
+            if hasattr(s[rest], 'allowed_gamma'):
+                result += s[rest].sse[int(new_gamma_index)] / (2.0*new_sigma[rest]**2.0)
 
             else:
-                result += s[rest_index].sse / (2.0*new_sigma[rest_index]**2.0)
+                result += s[rest].sse / (2.0*new_sigma[rest]**2.0)
 
-            result += (s[rest_index].Ndof)/2.0*self.ln2pi  # for normalization
+            result += (s[rest].Ndof)/2.0*self.ln2pi  # for normalization
 
             # Which reference potential was used for each restraint?
-            if hasattr(s[rest_index], 'sum_neglog_exp_ref'):
-                result -= s[rest_index].sum_neglog_exp_ref
+            if hasattr(s[rest], 'sum_neglog_exp_ref'):
+                result -= s[rest].sum_neglog_exp_ref
 
-            if hasattr(s[rest_index], 'sum_neglog_gaussian_ref'):
-                result -= s[rest_index].sum_neglog_gaussian_ref
+            if hasattr(s[rest], 'sum_neglog_gaussian_ref'):
+                result -= s[rest].sum_neglog_gaussian_ref
 
             if verbose:
                 print('\nstep = ',int(self.total+1))
-                print('s[%s] = '%(rest_index),s[rest_index])
+                print('s[%s] = '%(rest),s[rest])
                 print('Result =',result)
-                print('state %s, f_sim %s'%(new_state, s[rest_index].free_energy))
-                print('s[%s].sse'%rest_index, s[rest_index].sse, 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
-                if hasattr(s[rest_index], 'sum_neglog_exp_ref'):
-                    print('s[%s].sum_neglog_exp_ref'%rest_index, s[rest_index].sum_neglog_exp_ref)
-                if hasattr(s[rest_index], 'sum_neglog_gaussian_ref'):
-                    print('s[%s].sum_neglog_gaussian_ref'%rest_index, s[rest_index].sum_neglog_gaussian_ref)
+                print('state %s, f_sim %s'%(new_state, s[rest].free_energy))
+                print('s[%s].sse'%rest, s[rest].sse, 's[%s].Ndof'%rest, s[rest].Ndof)
+                if hasattr(s[rest], 'sum_neglog_exp_ref'):
+                    print('s[%s].sum_neglog_exp_ref'%rest, s[rest].sum_neglog_exp_ref)
+                if hasattr(s[rest], 'sum_neglog_gaussian_ref'):
+                    print('s[%s].sum_neglog_gaussian_ref'%rest, s[rest].sum_neglog_gaussian_ref)
         if verbose:
             print('######################################################')
         return result
@@ -298,7 +298,7 @@ class PosteriorSampler(object):
 #                    new_allowed_gamma = Restraint.allowed_gamma
 
         for step in range(nsteps):
-
+  #          print('step', step)
             # Store the randomly generated new restraint index for each step
             new_rest_index =  self.new_rest_index
 
@@ -308,7 +308,7 @@ class PosteriorSampler(object):
             new_sigma_index = self.sigma_index
             new_gamma = self.new_gamma
             new_gamma_index  = self.new_gamma_index
-
+ #           print ("OLD NEW_SIGMA_INDEX", self.sigma_index)
             # Regenerate the Restraint object to update new_allowed_sigma
         #...according to the restraint index
             Restraint = self.ensemble[new_state][new_rest_index]
@@ -350,7 +350,6 @@ class PosteriorSampler(object):
                 # Take a step in sigma space
                     new_sigma_index[new_rest_index] +=  (np.random.randint(3)-1)
                     new_sigma_index[new_rest_index] = new_sigma_index[new_rest_index]%(len(new_allowed_sigma))
-
                 # Replace the old sigma with the new sigma that corresponds to a specific restraint
                     new_sigma[new_rest_index] = new_allowed_sigma[new_sigma_index[new_rest_index]]
 
@@ -376,7 +375,7 @@ class PosteriorSampler(object):
 
             # Compute new "energy"
             new_E = self.neglogP(new_state, new_sigma,
-                    new_gamma_index, verbose=True)
+                    new_gamma_index, verbose=False)
 
             # Accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -408,13 +407,14 @@ class PosteriorSampler(object):
                     print('*****************************************')
                     print('self.E', self.E)
                     print('self.new_state ', self.new_state )
-                    print('self.new_sigma ', self.new_sigma )
+                    print('self.sigma',self.sigma)
                     print('self.sigma_index ', self.sigma_index )
                     print('self.new_rest_index ', self.new_rest_index )
                     print('self.new_gamma ', self.new_gamma )
                     print('self.new_gamma_index ', self.new_gamma_index )
                     print('self.accepted', self.accepted)
-                    print('*****************************************')
+                    print('#######################################')
+#            print ("NEW NEW_SIGMA_INDEX", self.sigma_index)
 
       	    # Store trajectory counts
             self.traj.sampled_sigmas[self.new_rest_index][self.sigma_index[self.new_rest_index]] += 1
@@ -423,11 +423,14 @@ class PosteriorSampler(object):
                 self.traj.sampled_gamma[self.new_gamma_index] += 1
 
             # Store trajectory samples
+#            if step%self.traj_every == 0:
+#                self.traj.trajectory.append( [int(step+1), float(self.E),
+#                    int(accept), int(self.new_rest_index),int(self.new_state),
+#                    self.sigma_index,[i for i in self.sigma_index],int(self.sigma_index[0]),int(self.sigma_index[self.new_rest_index]),self.sigma,float(self.sigma[0]), self.new_gamma_index] )
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step+1), float(self.E),
-                    int(accept), int(self.new_rest_index),int(self.new_state),
-                    self.sigma_index, int(self.sigma_index[self.new_rest_index]),self.new_sigma,
-                    self.new_gamma_index] )
+                    int(accept), int(self.new_state),
+                    list(self.sigma_index), self.new_gamma_index] )
 
             # Randomly generate new restraint index for the next step
             self.new_rest_index = np.random.randint(len(self.ensemble[0]))
@@ -465,8 +468,8 @@ class PosteriorSamplingTrajectory(object):
         self.f_sim = np.array(f_sim)
         self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
 
-        self.trajectory_headers = ['step', 'E', 'accept', 'rest_index','state',
-                'sigma_index', 'new_sigma','gamma_index']
+        self.trajectory_headers = ['step', 'E', 'accept','state',
+                'sigma_index','gamma_index']
 
         self.trajectory = []
 
@@ -481,7 +484,7 @@ class PosteriorSamplingTrajectory(object):
         self.results['trajectory'] = self.trajectory
 
         # Store the nuisance parameter distributions
-        self.results['allowed_sigmas'] = self.allowed_sigmas
+        self.results['allowed_sigma'] = self.allowed_sigmas
         self.results['sampled_sigma'] = self.sampled_sigmas
 
         self.results['allowed_gamma'] = None
