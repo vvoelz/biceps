@@ -89,6 +89,7 @@ class Restraint(object):
             for g in range(len(self.allowed_gamma)):
                 sse = 0.0
                 N = 0.0
+
                 for i in range(self.n):
                     gamma = self.allowed_gamma[g]
                     if self.use_log_normal_noe:
@@ -99,6 +100,13 @@ class Restraint(object):
                     N += self.restraints[i].weight
                     self.sse[g] = sse
                     self.Ndof = N
+
+            if debug:
+                for i in range(self.n):
+                    print '---->', i, '%d'%self.restraints[i].i,
+                    print '      exp', self.restraints[i].exp, 'model', self.restraints[i].model
+
+                print 'self.sse', self.sse
 
         else:
             sse = 0.0
