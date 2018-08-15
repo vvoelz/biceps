@@ -9,7 +9,7 @@ Supported experimental observables include:
  - `J couplings <https://en.wikipedia.org/wiki/J-coupling>`_ (both small molecules and amino acids)
  - `Hydrogen–deuterium exchange (HDX) <https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange>`_.
 
-All source codes and examples are available here:`GitHub Repository for BICePs <https://github.com/vvoelz/biceps/>`_
+All source codes and examples are available here: `GitHub Repository for BICePs <https://github.com/vvoelz/biceps/>`_
 
 ---------------------------------------------
 
@@ -20,7 +20,6 @@ All source codes and examples are available here:`GitHub Repository for BICePs <
    installation
    theory
    workflow
-   Restraint
    examples/index
    versions/index
 
