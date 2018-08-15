@@ -15,7 +15,7 @@ import numpy as np
 class Observable(object):
     """A Parent class of observables """
 
-    def __init__(self, i, model, exp,
+    def __init__(self, i, exp, model,
             model_angle=None, j=None, k=None, l=None,
             equivalency_index=None, ambiguity_index=None):
         """Initialize the parent observable class"""
@@ -48,7 +48,7 @@ class Observable(object):
 class NMR_Chemicalshift(Observable):
     """A data containter class to store a datum for NMR chemical shift information."""
 
-    def __init__(self, i, model, exp):
+    def __init__(self, i, exp, model):
         """Initialize the derived NMR_Chemicalshift class."""
 
         # Atom indices from the Conformation() defining this chemical shift
@@ -69,7 +69,7 @@ class NMR_Chemicalshift(Observable):
 class NMR_Dihedral(Observable):
     """A data containter class to store a datum for NMR dihedral information."""
 
-    def __init__(self, i, j, k, l, model, exp, model_angle,
+    def __init__(self, i, j, k, l, exp, model, model_angle,
             equivalency_index=None, ambiguity_index=None):
         """Initialize NMR_Dihedral container class"""
 
@@ -99,7 +99,7 @@ class NMR_Dihedral(Observable):
 class NMR_Distance(Observable):
     """A class to store NMR noe information."""
 
-    def __init__(self, i, j, model, exp, equivalency_index=None):
+    def __init__(self, i, j, exp, model, equivalency_index=None):
         """Initialize NMR_Distance container class"""
 
         # Atom indices from the Conformation() defining this noe
@@ -122,7 +122,7 @@ class NMR_Distance(Observable):
 class NMR_Protectionfactor(Observable):
     """A class to store NMR protection factor information."""
 
-    def __init__(self, i, model, exp):
+    def __init__(self, i, exp, model):
         """Initialize NMR_Protectionfactor container class"""
 
         # Atom indices from the Conformation() defining this protection factor
