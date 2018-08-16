@@ -197,7 +197,6 @@ class PosteriorSampler(object):
                         ])
 
         self.nuisance_para = nuisance_para
-        # Construct the matrix converting all values to floats for C++
         if verbose == True:
             print(self.nuisance_para)
             print('Number of Restraints = ',len(self.nuisance_para))
