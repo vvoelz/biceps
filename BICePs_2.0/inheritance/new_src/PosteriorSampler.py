@@ -292,7 +292,7 @@ class PosteriorSampler(object):
         # Generate a new parameter index (random)
         self.new_para_index = np.random.randint(
                 len(self.para_indices[self.new_rest_index]) )
-
+        RAND = 1. - 1./(len(self.ensemble[0])+1.)
         for step in range(nsteps):
 
             # Store the randomly generated new restraint index for each step
@@ -312,7 +312,7 @@ class PosteriorSampler(object):
             # Get the index of the parameter to a specific restraint
             new_index = para_indices[new_rest_index][new_para_index]
 
-            if np.random.random() < 0.75:
+            if np.random.random() < RAND:
                 # Shift the index by +1, 0 or -1
                 new_index += (np.random.randint(3)-1)
                 # New index for the specific restraint and specific parameter
