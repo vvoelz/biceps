@@ -437,7 +437,7 @@ class PosteriorSamplingTrajectory(object):
 
         # Generate a header for the trajectory of sampling
         self.trajectory_headers = ['step', 'E', 'accept', 'state',
-                'para_index = [[sigma_index, gamma_index],[sigma_index]]']
+                'sigma_index', 'para_index']
 
         self.trajectory = []
         self.results = {}
@@ -451,7 +451,7 @@ class PosteriorSamplingTrajectory(object):
         self.results['trajectory'] = self.trajectory
 
         # Store the nuisance parameter distributions
-        self.results['allowed_sigmas'] = self.allowed_sigmas
+        self.results['allowed_sigma'] = self.allowed_sigmas
         self.results['sampled_sigma'] = self.sampled_sigmas
 
         self.results['allowed_gamma'] = None
