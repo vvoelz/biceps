@@ -307,7 +307,7 @@ class PosteriorSampler(object):
             parameters = self.parameters
 
             # Get the nuisance parameters from the compiled list
-            nuisance_para = self.nuisance_para[new_rest_index][new_state][new_para_index]
+            nuisance = self.nuisance_para[new_rest_index][new_state][new_para_index]
 
             # Get the index of the parameter to a specific restraint
             new_index = para_indices[new_rest_index][new_para_index]
@@ -316,9 +316,9 @@ class PosteriorSampler(object):
                 # Shift the index by +1, 0 or -1
                 new_index += (np.random.randint(3)-1)
                 # New index for the specific restraint and specific parameter
-                new_index = new_index%(len(nuisance_para))
+                new_index = new_index%(len(nuisance))
                 # Replace the old para with the new para that corresponds to a specific restraint
-                parameters[new_rest_index][new_para_index] = nuisance_para[new_index]
+                parameters[new_rest_index][new_para_index] = nuisance[new_index]
                 # Replace the old index with the new index that corresponds to a specific restraint
                 para_indices[new_rest_index][new_para_index] = new_index
             else:
@@ -333,7 +333,7 @@ class PosteriorSampler(object):
                 print('new_sigma ', parameters[new_rest_index][0] )   # do not need. Only for testing
                 print('new_sigma_index ', para_indices[new_rest_index][0] ) # do not need. Only for testing
                 print('new_index ', new_index)
-                print('new_allowed_sigma ', nuisance_para )
+                print('new_allowed_sigma ', nuisance )
                 print('para_indices ', para_indices )
                 print('parameters ',parameters)
                 print('*****************************************')
