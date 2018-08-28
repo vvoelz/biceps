@@ -1,4 +1,4 @@
-workflow
+Workflow
 =============
 
 A typical BICePs sampling includes four core steps: :class:`Preparation`, :class:`Restraint`, :class:`Posteriorsampler` and :func:`Analysis`.
