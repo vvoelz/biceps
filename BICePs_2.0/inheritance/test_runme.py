@@ -66,7 +66,7 @@ uncern=[[0.05,20.0,1.02],[]]
 #sys.exit()
 for j in lambda_values:
     verbose = True#False
-#    lam = j
+    lam = j
     # We will instantiate a number of Structure() objects to construct the ensemble
     ensemble = []
     for i in range(energies.shape[0]):
@@ -76,7 +76,7 @@ for j in lambda_values:
             File = data[i][k]
            # if verbose:
            #     print File
-            R=init_res('8690.pdb',j,energies[i],ref[k],File,uncern[k])
+            R=init_res('8690.pdb',lam,energies[i],ref[k],File,uncern[k])
             ensemble[-1].append(R)
 # Call on the Restraint that corresponds to File
 #            if File.endswith('cs_H'):
@@ -122,13 +122,13 @@ for j in lambda_values:
 
 #            ensemble[-1].append(R)
     print ensemble
-sys.exit()
+#sys.exit()
     ##########################################
     # Next, let's do some posterior sampling
     ########## Posterior Sampling ############
-if (0):
+#if (0):
     sampler = PosteriorSampler(ensemble)
-    sampler.construct_Matrix()
+    sampler.compile_nuisance_parameters()
 
     sampler.sample(nsteps)  # number of steps
 
