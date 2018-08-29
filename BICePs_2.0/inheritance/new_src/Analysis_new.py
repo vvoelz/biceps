@@ -17,7 +17,7 @@ from Restraint import *
 from PosteriorSampler import *
 import toolbox as d
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy import loadtxt, savetxt
@@ -138,8 +138,12 @@ class Analysis(object):
           			states_kn[k,n] = state
                                 sigma=[ [] for p in range(len(sigma_index)) ]
                                 for m in range(len(sigma_index)):
-                                    for p in range(len(sigma_index[m])):
-                                        sigma[m].append(self.traj[k]['allowed_sigma'][m][sigma_index[m][p]])
+                                    if len(sigma_index[m]) == 1:  #cs,J
+                                        for p in range(len(sigma_index[m])):
+                                            sigma[m].append(self.traj[k]['allowed_sigma'][m][sigma_index[m][p]])
+                                    elif len(sigma_index[m]) == 2: #noe
+                                        sigma[m].append(self.traj[k]['allowed_sigma'][m][sigma_index[m][0]])
+                                        sigma[m].append(self.traj[k]['allowed_gamma'][sigma_index[m][1]])
 #          			sigma_noe = self.traj[k]['allowed_sigma_noe'][sigma_noe_index]
 #          			sigma_J = self.traj[k]['allowed_sigma_J'][sigma_J_index]
 #          			sigma_cs_H = self.traj[k]['allowed_sigma_cs_H'][sigma_cs_H_index]
@@ -254,8 +258,8 @@ class Analysis(object):
         	plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
         	plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
         	if self.scheme[k].find('cs') == -1:
-                        plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:], fontsize=label_fontsize)
-                        plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:], fontsize=label_fontsize)
+            		plt.xlabel("$\%s$"%self.scheme[k], fontsize=label_fontsize)
+            		plt.ylabel("$P(\%s)$"%self.scheme[k], fontsize=label_fontsize)
             		plt.yticks([])
         	else:
                         plt.xlabel("$\sigma_{{%s}_{%s}}$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
