@@ -475,10 +475,10 @@ class Restraint_noe(Restraint):
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, j, exp, model = entry[0], entry[1], entry[4], entry[7], entry[8]
-            ri = self.conf.xyz[0,i,:]
-            rj = self.conf.xyz[0,j,:]
-            dr = rj-ri
-            model = np.dot(dr,dr)**0.5
+#            ri = self.conf.xyz[0,i,:]
+#            rj = self.conf.xyz[0,j,:]
+#            dr = rj-ri
+#            model = np.dot(dr,dr)**0.5
             Obs = NMR_Distance(i, j, exp, model, equivalency_index=restraint_index)
             self.add_restraint(Obs)
             if verbose:
