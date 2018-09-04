@@ -61,7 +61,7 @@ def sort_data(dataFiles):
             elif j.endswith('.pf'):
                 data[6].append(j)
             else:
-                raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
+                raise ValueError("Incompatible file extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
     data = np.array(filter(None, data)) # removing any empty lists
     Data = np.stack(data, axis=-1)
     data = Data.tolist()
@@ -79,3 +79,20 @@ def read_results(filename):
     loaded = np.load(filename)
     print loaded.items()
 
+def convert_pop_to_energy(pop_filename, out_filename=None):
+    """Convert population to energy for each state using U = -np.log(P)"""
+    if pop_filename.endwith('txt') or pop_filename.endwith('dat'):
+        pop = np.loadtxt(pop_filename)
+    elif pop_filename.endwith('npy'):
+        pop = np.load(pop_filename)
+    else:
+        raise ValueError('Incompatible file extention. Use:{.txt,.dat,.npy}')
+    energy=[]
+    # replace NaN in the list with a very small number
+    pop[np.isnan(pop)]=0.001
+    for i in pop:
+        energy.append(-np.log((i/float(sum(pop)))))
+    if out_filename == None:
+        np.savetxt('energy.txt',energy)
+    else:
+        np.savetxt(out_filename,energy)
