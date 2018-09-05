@@ -61,7 +61,7 @@ def sort_data(dataFiles):
             elif j.endswith('.pf'):
                 data[6].append(j)
             else:
-                raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
+                raise ValueError("Incompatible file extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
     data = np.array(filter(None, data)) # removing any empty lists
     Data = np.stack(data, axis=-1)
     data = Data.tolist()
