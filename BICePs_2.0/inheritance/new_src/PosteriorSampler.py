@@ -472,7 +472,7 @@ class PosteriorSamplingTrajectory(object):
         self.results['trajectory'] = self.trajectory
 
         # Store the nuisance parameter distributions
-        self.results['allowed_sigmas'] = self.allowed_sigmas
+        self.results['allowed_sigma'] = self.allowed_sigmas
         self.results['sampled_sigma'] = self.sampled_sigmas
 
         self.results['allowed_gamma'] = None
