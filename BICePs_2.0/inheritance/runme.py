@@ -4,7 +4,7 @@
 
 import sys, os, glob
 from numpy import *
-sys.path.append('src')
+sys.path.append('new_src')
 from Preparation import *
 from PosteriorSampler import *
 from Analysis import *
@@ -122,7 +122,7 @@ for j in lambda_values:
     ########## Posterior Sampling ############
 
     sampler = PosteriorSampler(ensemble)
-    sampler.construct_Matrix()
+    sampler.compile_nuisance_parameters()
 
     sampler.sample(nsteps)  # number of steps
 

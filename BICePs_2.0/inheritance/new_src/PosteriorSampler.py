@@ -213,7 +213,7 @@ class PosteriorSampler(object):
 
 
 
-    def neglogP(self, new_state, parameters, para_indices, verbose=True):
+    def neglogP(self, new_state, parameters, parameter_indices, verbose=True):
         """Return -ln P of the current configuration.
         INPUTS
         -------
@@ -235,7 +235,7 @@ class PosteriorSampler(object):
 
             # Is gamma a parameter we need to consider?
             if 'allowed_gamma' in s[rest_index]._nuisance_parameters:
-                result += s[rest_index].sse[int(para_indices[rest_index][1])] / (2.0*parameters[rest_index][0]**2.0)
+                result += s[rest_index].sse[int(parameter_indices[rest_index][1])] / (2.0*parameters[rest_index][0]**2.0)
 
             else:
                 result += s[rest_index].sse / (2.0*float(parameters[rest_index][0])**2.0)
@@ -275,8 +275,8 @@ class PosteriorSampler(object):
         self.new_state = int(self.state)
 
         # Store a list of parameter indices for each restraint inside a list
-        # para_indices e.g., [[161], [142], ...]
-        self.para_indices = [ ]
+        # parameter_indices e.g., [[161], [142], ...]
+        self.parameter_indices = [ ]
 
         # Store a list of parameters that correspond to the index inside a list
         # parameters e.g., [[1.2122652], [0.832136160], ...]
@@ -284,14 +284,15 @@ class PosteriorSampler(object):
         # Loop through the restraints, and get the parameters and indices
         for rest_index in range(len(self.ensemble[self.new_state])):
             Restraint = self.ensemble[self.new_state][rest_index]
+            self.parameter_indices.append(
+                    [getattr(Restraint, para) for para in Restraint._parameter_indices])
             self.parameters.append(
                     [getattr(Restraint, para) for para in Restraint._parameters])
-            self.para_indices.append(
-                    [getattr(Restraint, para) for para in Restraint._para_indices])
 
-        # The new para index to use in initial step
+
+        # The new parameter index to use in initial step (this is for restraints with more than one nuisance parameters)
         self.new_para_index = np.random.randint(
-                len(self.para_indices[self.new_rest_index]) )
+                len(self.parameter_indices[self.new_rest_index]) )
 
         # RAND = generalized probability of taking a step in restraint space
         #.. given the total number of restraints.
@@ -308,16 +309,16 @@ class PosteriorSampler(object):
             # Store the randomly generated new parameter index for each step
             new_para_index = self.new_para_index
 
-            # para_indices e.g. [[161], [142]]
-            para_indices = self.para_indices
+            # parameter_indices e.g. [[161], [142]]
+            parameter_indices = self.parameter_indices
 
             # parameters e.g. [[1.2122652], [0.832136160]]
             parameters = self.parameters
 
             # Now, select the specific parameter index from the list of
-            #.. parameter indices (para_indices) given the restraint index
+            #.. parameter indices (parameter_indices) given the restraint index
             #.. and the parameter index
-            index = para_indices[new_rest_index][new_para_index]
+            index = parameter_indices[new_rest_index][new_para_index]
 
             # Get the specific nuisance parameter from the compiled list
             # self.nuisance_para = [ [allowed_sigma_cs_H],
@@ -335,7 +336,7 @@ class PosteriorSampler(object):
                 # Replace the old parameter with the new parameter
                 parameters[new_rest_index][new_para_index] = nuisance_para[index]
                 # Replace the old index with the new index
-                para_indices[new_rest_index][new_para_index] = index
+                parameter_indices[new_rest_index][new_para_index] = index
 
             else:
                 ## Take a random step in state space
@@ -347,15 +348,15 @@ class PosteriorSampler(object):
                 print('new_para_index ', new_para_index )
                 print('new_state ', new_state )
                 print('new_sigma ', parameters[new_rest_index][0] )
-                print('new_sigma_index ', para_indices[new_rest_index][0] )
+                print('new_sigma_index ', parameter_indices[new_rest_index][0] )
                 print('index ', index)
                 print('new_allowed_sigma ', nuisance_para )
-                print('para_indices ', para_indices )
+                print('parameter_indices ', parameter_indices )
                 print('parameters ',parameters)
                 print('*****************************************')
 
             # Compute new "energy"
-            new_E = self.neglogP(new_state, parameters, para_indices, verbose=True)
+            new_E = self.neglogP(new_state, parameters, parameter_indices, verbose=True)
 
             # Accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -371,7 +372,7 @@ class PosteriorSampler(object):
             if accept:
                 self.E = new_E
                 self.new_state = new_state
-                self.para_indices = para_indices
+                self.parameter_indices = parameter_indices
                 self.parameters = parameters
                 self.new_rest_index = new_rest_index
                 self.new_para_index = new_para_index
@@ -392,11 +393,11 @@ class PosteriorSampler(object):
             self.traj.state_counts[self.new_state] += 1
 
             # Store the counts of sampled sigma along the trajectory
-            self.traj.sampled_sigmas[self.new_rest_index][self.para_indices[self.new_rest_index][self.new_para_index]] += 1
+            self.traj.sampled_sigmas[self.new_rest_index][self.parameter_indices[self.new_rest_index][self.new_para_index]] += 1
 
             # If we are sampling gamma, then store along the trajectory
             if hasattr(self.ensemble[self.new_state][self.new_rest_index], 'gamma'):
-                self.traj.sampled_gamma[self.para_indices[self.new_rest_index][self.new_para_index]] += 1
+                self.traj.sampled_gamma[self.parameter_indices[self.new_rest_index][self.new_para_index]] += 1
 
             #NOTE: There will need to be additional parameters here for protection factor.
 
@@ -405,14 +406,14 @@ class PosteriorSampler(object):
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step+1), float(self.E),
                     int(accept), int(self.new_state),
-                    list(self.para_indices)] )
+                    list(self.parameter_indices)] )
 
             # Randomly generate new restraint index for the next step
             self.new_rest_index = np.random.randint(len(self.ensemble[0]))
 
             # Randomly generate new para index for the next step
             self.new_para_index = np.random.randint(
-                    len(self.para_indices[self.new_rest_index]) )
+                    len(self.parameter_indices[self.new_rest_index]) )
 
         print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
 
@@ -450,13 +451,13 @@ class PosteriorSamplingTrajectory(object):
         self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
 
         # Generate a list of the names of the parameter indices for the traj header
-        para_indices = []
+        parameter_indices = []
         s = self.ensemble[0]
         for rest_index in range(len(s)):
-            para_indices.append( getattr(s[rest_index], '_para_indices') )
+            parameter_indices.append( getattr(s[rest_index], '_parameter_indices') )
 
         self.trajectory_headers = ["step", "E", "accept", "state",
-                "para_index = %s"%para_indices]
+                "para_index = %s"%parameter_indices]
 
         self.trajectory = []
 

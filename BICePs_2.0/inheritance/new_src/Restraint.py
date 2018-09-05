@@ -193,7 +193,7 @@ class Restraint_cs_Ca(Restraint):
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
-        self._para_indices = ['sigma_index']
+        self._parameter_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -241,7 +241,7 @@ class Restraint_cs_H(Restraint):
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
-        self._para_indices = ['sigma_index']
+        self._parameter_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -289,7 +289,7 @@ class Restraint_cs_Ha(Restraint):
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
-        self._para_indices = ['sigma_index']
+        self._parameter_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -335,7 +335,7 @@ class Restraint_cs_N(Restraint):
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
-        self._para_indices = ['sigma_index']
+        self._parameter_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -383,7 +383,7 @@ class Restraint_J(Restraint):
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
-        self._para_indices = ['sigma_index']
+        self._parameter_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -479,7 +479,7 @@ class Restraint_noe(Restraint):
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma','allowed_gamma']
         self._parameters = ['sigma','gamma']
-        self._para_indices = ['sigma_index','gamma_index']
+        self._parameter_indices = ['sigma_index','gamma_index']
 
 
         # Initialize the experimental uncertainties
@@ -559,7 +559,7 @@ class Restraint_pf(Restraint):
                 'beta_0', 'Nc', 'Nh']
         #FIXME: Need to add the remaining parameters and indices for attributes
         self._parameters = ['sigma']
-        self._para_indices = ['sigma_index']
+        self._parameter_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
