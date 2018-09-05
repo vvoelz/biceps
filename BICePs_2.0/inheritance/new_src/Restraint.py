@@ -187,10 +187,13 @@ class Restraint_cs_Ca(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        self.free_energy = free_energy
+        ##self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
-        self.nuisance_parameters = ['allowed_sigma']
+        # Private variables to store specific restraint attributes in a list
+        self._nuisance_parameters = ['allowed_sigma']
+        self._parameters = ['sigma']
+        self._para_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -232,10 +235,13 @@ class Restraint_cs_H(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        self.free_energy = free_energy
+        #self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
-        self.nuisance_parameters = ['allowed_sigma']
+        # Private variables to store specific restraint attributes in a list
+        self._nuisance_parameters = ['allowed_sigma']
+        self._parameters = ['sigma']
+        self._para_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -276,10 +282,14 @@ class Restraint_cs_Ha(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        self.free_energy = free_energy
+        #self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
-        self.nuisance_parameters = ['allowed_sigma']
+        self._nuisance_parameters = ['allowed_sigma']
+        # Private variables to store specific restraint attributes in a list
+        self._nuisance_parameters = ['allowed_sigma']
+        self._parameters = ['sigma']
+        self._para_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -319,10 +329,13 @@ class Restraint_cs_N(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        self.free_energy = free_energy
+        #self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
-        self.nuisance_parameters = ['allowed_sigma']
+        # Private variables to store specific restraint attributes in a list
+        self._nuisance_parameters = ['allowed_sigma']
+        self._parameters = ['sigma']
+        self._para_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -364,10 +377,13 @@ class Restraint_J(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        self.free_energy = free_energy
+        #self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
-        self.nuisance_parameters = ['allowed_sigma']
+        # Private variables to store specific restraint attributes in a list
+        self._nuisance_parameters = ['allowed_sigma']
+        self._parameters = ['sigma']
+        self._para_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -457,10 +473,14 @@ class Restraint_noe(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        self.free_energy = free_energy
+        #self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
-        self.nuisance_parameters = ['allowed_sigma','allowed_gamma']
+        # Private variables to store specific restraint attributes in a list
+        self._nuisance_parameters = ['allowed_sigma','allowed_gamma']
+        self._parameters = ['sigma','gamma']
+        self._para_indices = ['sigma_index','gamma_index']
+
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -475,10 +495,10 @@ class Restraint_noe(Restraint):
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, j, exp, model = entry[0], entry[1], entry[4], entry[7], entry[8]
-#            ri = self.conf.xyz[0,i,:]
-#            rj = self.conf.xyz[0,j,:]
-#            dr = rj-ri
-#            model = np.dot(dr,dr)**0.5
+            ri = self.conf.xyz[0,i,:]
+            rj = self.conf.xyz[0,j,:]
+            dr = rj-ri
+            model = np.dot(dr,dr)**0.5
             Obs = NMR_Distance(i, j, exp, model, equivalency_index=restraint_index)
             self.add_restraint(Obs)
             if verbose:
@@ -531,11 +551,15 @@ class Restraint_pf(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        self.free_energy = free_energy
+        #self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
-        self.nuisance_parameters = ['allowed_sigma','beta_c', 'beta_h',
+        # Private variables to store specific restraint attributes in a list
+        self._nuisance_parameters = ['allowed_sigma','beta_c', 'beta_h',
                 'beta_0', 'Nc', 'Nh']
+        #FIXME: Need to add the remaining parameters and indices for attributes
+        self._parameters = ['sigma']
+        self._para_indices = ['sigma_index']
 
         # Initialize the experimental uncertainties
         self.exp_uncertainty()
@@ -581,7 +605,7 @@ class Restraint_pf_spec(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        self.free_energy = free_energy
+        #self.free_energy = free_energy
         self.free_energy = lam*free_energy
         self.Ndof = None
 
