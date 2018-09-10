@@ -507,6 +507,8 @@ class Restraint_noe(Restraint):
 
         self.equivalency_groups = {}
 
+        #FIXME: equivalency groups & adjust weights is unfinished and edits need to be made
+
         # Compile equivalency_groups from the list of NMR_Distance() objects
         for i in range(len(self.restraints)):
             if 'NMR_Distance' in self.restraints[i].__str__():
