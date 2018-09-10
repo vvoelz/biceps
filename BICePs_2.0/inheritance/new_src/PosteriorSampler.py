@@ -407,7 +407,7 @@ class PosteriorSampler(object):
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step+1), float(self.E),
                     int(accept), int(self.new_state),
-                    list(self.parameter_indices)] )
+                    [self.parameter_indices[i] for i in range(len(self.parameter_indices))]] )
 
             # Randomly generate new restraint index for the next step
             self.new_rest_index = np.random.randint(len(self.ensemble[0]))
