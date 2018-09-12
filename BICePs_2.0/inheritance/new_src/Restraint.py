@@ -98,8 +98,8 @@ class Restraint(object):
                         err = gamma*self.restraints[i].exp - self.restraints[i].model
                     sse += (self.restraints[i].weight * err**2.0)
                     N += self.restraints[i].weight
-                    self.sse[g] = sse
-                    self.Ndof = N
+                self.sse[g] = sse
+                self.Ndof = N
 
             if debug:
                 for i in range(self.n):
@@ -495,10 +495,10 @@ class Restraint_noe(Restraint):
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, j, exp, model = entry[0], entry[1], entry[4], entry[7], entry[8]
-            ri = self.conf.xyz[0,i,:]
-            rj = self.conf.xyz[0,j,:]
-            dr = rj-ri
-            model = np.dot(dr,dr)**0.5
+           # ri = self.conf.xyz[0,i,:]
+           # rj = self.conf.xyz[0,j,:]
+           # dr = rj-ri
+           # model = np.dot(dr,dr)**0.5
             Obs = NMR_Distance(i, j, exp, model, equivalency_index=restraint_index)
             self.add_restraint(Obs)
             if verbose:
@@ -522,7 +522,7 @@ class Restraint_noe(Restraint):
             print 'self.equivalency_groups', self.equivalency_groups
 
         # adjust the weights of distances and dihedrals to account for equivalencies
-        self.adjust_weights()
+        #self.adjust_weights()
         self.compute_sse(debug=False)
 
     def adjust_weights(self):
