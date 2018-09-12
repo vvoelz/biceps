@@ -255,7 +255,10 @@ class PosteriorSampler(object):
                 print('s[%s] = '%(rest_index),s[rest_index])
                 print('Result =',result)
                 print('state %s, f_sim %s'%(new_state, s[rest_index].free_energy))
-                print('s[%s].sse'%rest_index, s[rest_index].sse, 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
+                if 'allowed_gamma' in s[rest_index]._nuisance_parameters:
+                     print('s[%s].sse[%s]'%(rest_index,int(parameter_indices[rest_index][1])), s[rest_index].sse[int(parameter_indices[rest_index][1])], 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
+                else:
+                     print('s[%s].sse'%rest_index, s[rest_index].sse, 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
                 if hasattr(s[rest_index], 'sum_neglog_exp_ref'):
                     print('s[%s].sum_neglog_exp_ref'%rest_index, s[rest_index].sum_neglog_exp_ref)
                 if hasattr(s[rest_index], 'sum_neglog_gaussian_ref'):
