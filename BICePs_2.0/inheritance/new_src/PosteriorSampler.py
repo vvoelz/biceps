@@ -86,16 +86,17 @@ class PosteriorSampler(object):
                         {%s,%s,%s}'%('uniform','exp','gaussian'))
 
         # Compute ref state logZ for the free energies to normalize.
-        self.logZ()
+        self.compute_logZ()
 
 
-    def logZ(self):
+    def compute_logZ(self):
         """Compute reference state logZ for the free energies to normalize."""
 
         Z = 0.0
-        for rest_index in range(len(self.ensemble[0])):
-            for s in self.ensemble[rest_index]:
-                Z +=  np.exp(-s.free_energy)
+#        for rest_index in range(len(self.ensemble[0])):
+#            for s in self.ensemble[rest_index]:
+        for s in self.ensemble[0]:
+            Z +=  np.exp(-s.free_energy)
         self.logZ = np.log(Z)
         self.ln2pi = np.log(2.0*np.pi)
 
