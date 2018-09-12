@@ -95,7 +95,7 @@ class PosteriorSampler(object):
         Z = 0.0
 #        for rest_index in range(len(self.ensemble[0])):
 #            for s in self.ensemble[rest_index]:
-        for s in self.ensemble[0]:
+        for s in self.ensemble:
             Z +=  np.exp(-s.free_energy)
         self.logZ = np.log(Z)
         self.ln2pi = np.log(2.0*np.pi)
