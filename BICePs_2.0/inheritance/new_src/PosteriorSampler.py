@@ -517,24 +517,24 @@ class PosteriorSamplingTrajectory(object):
         self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
 
         # Estimate the ensemble-averaged restraint values
-        mean = [ np.zeros(len(self.ensemble[0][rest_index].restraints))
-                for rest_index in range(len(self.ensemble[0])) ]
+#        mean = [ np.zeros(len(self.ensemble[0][rest_index].restraints))
+#                for rest_index in range(len(self.ensemble[0])) ]
 
-        Z = [ np.zeros(len(self.ensemble[0][rest_index].restraints))
-                for rest_index in range(len(self.ensemble[0])) ]
+#        Z = [ np.zeros(len(self.ensemble[0][rest_index].restraints))
+#                for rest_index in range(len(self.ensemble[0])) ]
 
-        for rest_index in range(len(self.ensemble[0])):
-            for i in range(len(self.ensemble[0][rest_index].restraints)):
-                pop = self.results['state_pops'][i]
-                weight = self.ensemble[0][rest_index].restraints[i].weight
-                model = self.ensemble[0][rest_index].restraints[i].model
-                mean[rest_index][i] += pop*weight*model
-                Z[rest_index][i] += pop*weight
-        MEAN = []
-        for i in range(len(mean)):
-            mean = (mean[i]/Z[i])**(-1.0/6.0)
-            MEAN.append(mean)
-        self.results['mean'] = MEAN
+#        for rest_index in range(len(self.ensemble[0])):
+#            for i in range(len(self.ensemble[0][rest_index].restraints)):
+#                pop = self.results['state_pops'][i]
+#                weight = self.ensemble[0][rest_index].restraints[i].weight
+#                model = self.ensemble[0][rest_index].restraints[i].model
+#                mean[rest_index][i] += pop*weight*model
+#                Z[rest_index][i] += pop*weight
+#        MEAN = []
+#        for i in range(len(mean)):
+#            mean = (mean[i]/Z[i])**(-1.0/6.0)
+#            MEAN.append(mean)
+#        self.results['mean'] = MEAN
 
 
     def logspaced_array(self, xmin, xmax, nsteps):
