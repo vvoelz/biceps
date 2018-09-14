@@ -17,7 +17,7 @@ import re
 import yaml, io
 from J_coupling import * # MDTraj altered src code
 from KarplusRelation import *
-
+import mdtraj as md
 ##############################################################################
 # Code
 ##############################################################################
@@ -155,7 +155,7 @@ def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None):
 
     return J
 
-def dihedral_angle(self, x0, x1, x2, x3):
+def dihedral_angle(x0, x1, x2, x3):
     """Calculate the signed dihedral angle between 4 positions.  Result is in degrees."""
     #Calculate Bond Vectors b1, b2, b3
     b1=x1-x0
@@ -175,13 +175,13 @@ def dihedral_angle(self, x0, x1, x2, x3):
     phi*=180./np.pi
     return(phi)
 
-def compute_nonaa_Jcoupling(traj, top=None, index, karplus_key)
+def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
 
     if len(karplus_key) != len(index):
         raise ValueError("The number of index must equale the number of karplus_key.")
-    if traj.endwith('.gro'):
+    if traj.endswith('.gro'):
         conf = md.load(traj)
-    elif traj.endwith('.pdb'):
+    elif traj.endswith('.pdb'):
         conf = md.load(traj)
     else:
         if top == None:
