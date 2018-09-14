@@ -16,7 +16,7 @@ def init_res(PDB_filename, lam, energy, ref, data, uncern):
         if not isinstance(energy,float):                
             raise ValueError("energy should be a single number with type of 'float'")        
         if not uncern: # if it is an empty list
-            sigma_min, sigma_max, dsigma=0.05, 20.0, 1.02
+            sigma_min, sigma_max, dsigma=0.05, 20.0, np.log(1.02)
         else:
             if len(uncern) != 3:
                 raise ValueError("uncertainty should be a list of three items: sigma_min, sigma_max, dsigma")
@@ -24,55 +24,40 @@ def init_res(PDB_filename, lam, energy, ref, data, uncern):
                 sigma_min, sigma_max, dsigma = uncern[0], uncern[1], uncern[2]
         if data!= None:
             if data.endswith('cs_H'):
-                R = Restraint_cs_H(PDB_filename,ref=ref)
+                R = Restraint_cs_H(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
                 R.prep_observable(lam=lam, free_energy=energy,
                         filename=data)
-                # Change the experimental Uncertainty after prepping observable
-                R.exp_uncertainty(dlogsigma=dsigma, sigma_min=sigma_min,
-                        sigma_max=sigma_max)
                 
 
             elif data.endswith('cs_CA'):
-                R = Restraint_cs_Ca(PDB_filename,ref=ref)
+                R = Restraint_cs_Ca(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
                 R.prep_observable(lam=lam, free_energy=energy,
                         filename=data)
-                R.exp_uncertainty(dlogsigma=dsigma, sigma_min=sigma_min,
-                        sigma_max=sigma_max)
 
             elif data.endswith('cs_Ha'):
-                R = Restraint_cs_Ha(PDB_filename,ref=ref)
+                R = Restraint_cs_Ha(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
                 R.prep_observable(lam=lam, free_energy=energy,
                         filename=data)
-                R.exp_uncertainty(dlogsigma=dsigma, sigma_min=sigma_min,
-                        sigma_max=sigma_max)
 
             elif data.endswith('cs_N'):
-                R = Restraint_cs_N(PDB_filename,ref=ref)
+                R = Restraint_cs_N(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
                 R.prep_observable(lam=lam, free_energy=energy,
                         filename=data)
-                R.exp_uncertainty(dlogsigma=dsigma, sigma_min=sigma_min,
-                        sigma_max=sigma_max)
 
             elif data.endswith('J'):
-                R = Restraint_J(PDB_filename,ref=ref)  # good ref
+                R = Restraint_J(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)  # good ref
                 R.prep_observable(lam=lam, free_energy=energy,
                         filename=data)
-                R.exp_uncertainty(dlogsigma=dsigma, sigma_min=sigma_min,
-                        sigma_max=sigma_max)
 
             elif data.endswith('noe'):
-                R = Restraint_noe(PDB_filename,ref=ref)   # good ref
+                R = Restraint_noe(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)   # good ref
                 R.prep_observable(lam=lam, free_energy=energy,
                         filename=data)
-                R.exp_uncertainty(dlogsigma=dsigma, sigma_min=sigma_min,
-                        sigma_max=sigma_max)
 
             elif data.endswith('pf'):
-                R = Restraint_pf(PDB_filename,ref=ref)
+                R = Restraint_pf(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
                 R.prep_observable(lam=lam, free_energy=energy,
                         filename=data)
-                R.exp_uncertainty(dlogsigma=dsigma, sigma_min=sigma_min,
-                        sigma_max=sigma_max)
         else:
             raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha, .cs_Ca, .cs_N,.pf}")
         return R
