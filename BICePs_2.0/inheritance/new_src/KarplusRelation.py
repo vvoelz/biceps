@@ -18,7 +18,7 @@ class KarplusRelation(object):
             return self.BothnerBy_HH(angle)
         elif key == 'Allylic':
             return self.Allylic(angle)
-        elif key == 'Karplus antiperiplanar O':
+        elif key == 'Karplus_antiperiplanar_O':
             return self.Karplus_HH_appO(angle)
 
 
