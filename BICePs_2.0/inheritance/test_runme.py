@@ -78,55 +78,10 @@ for j in lambda_values:
            #     print File
             R=init_res('8690.pdb',lam,energies[i],ref[k],File,uncern[k])
             ensemble[-1].append(R)
-# Call on the Restraint that corresponds to File
-#            if File.endswith('cs_H'):
-#                R = Restraint_cs_H('8690.pdb',ref='exp')
-#                R.prep_observable(lam=lam, free_energy=energies[i],
-#                        filename=File)
-                # Change the experimental Uncertainty after prepping observable
-#                R.exp_uncertainty(dlogsigma=np.log(1.02),sigma_min=0.05,
-#                        sigma_max=20.0)
-
-
-#            elif File.endswith('cs_CA'):
-#                R = Restraint_cs_Ca('8690.pdb',ref='gaussian')
-#                R.prep_observable(lam=lam, free_energy=energies[i],
-#                        filename=File)
-
-#            elif File.endswith('cs_Ha'):
-#                R = Restraint_cs_Ha('8690.pdb',ref='exp')
-#                R.prep_observable(lam=lam, free_energy=energies[i],
-#                        filename=File)
-#                R.exp_uncertainty(dlogsigma=np.log(1.02),sigma_min=10.0,
-#                        sigma_max=20.0)
-
-#            elif File.endswith('cs_N'):
-#                R = Restraint_cs_N('8690.pdb',ref='gaussian')
-#                R.prep_observable(lam=lam, free_energy=energies[i],
-#                        filename=File)
-
-#            elif File.endswith('J'):
-#                R = Restraint_J('8690.pdb',ref='uniform')  # good ref
-#                R.prep_observable(lam=lam, free_energy=energies[i],
-#                        filename=File)
-
-#            elif File.endswith('noe'):
-#                R = Restraint_noe('8690.pdb',ref='exp')   # good ref
-#                R.prep_observable(lam=lam, free_energy=energies[i],
-#                        filename=File)
-
-#            elif File.endswith('pf'):
-#                R = Restraint_pf('8690.pdb',ref='gaussian')
-#                R.prep_observable(lam=lam, free_energy=energies[i],
-#                        filename=File)
-
-#            ensemble[-1].append(R)
     print ensemble
-#sys.exit()
     ##########################################
     # Next, let's do some posterior sampling
     ########## Posterior Sampling ############
-#if (0):
     sampler = PosteriorSampler(ensemble)
     sampler.compile_nuisance_parameters()
 
