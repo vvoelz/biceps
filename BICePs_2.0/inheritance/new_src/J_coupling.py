@@ -1,3 +1,4 @@
+# coding=utf-8
 ##############################################################################
 # Authors: Rob Raddi
 # Contributors: Yunhui Ge
