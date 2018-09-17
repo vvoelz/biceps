@@ -69,7 +69,7 @@ class NMR_Chemicalshift(Observable):
 class NMR_Dihedral(Observable):
     """A data containter class to store a datum for NMR dihedral information."""
 
-    def __init__(self, i, j, k, l, exp, model, model_angle,
+    def __init__(self, i, j, k, l, exp, model,
             equivalency_index=None, ambiguity_index=None):
         """Initialize NMR_Dihedral container class"""
 
