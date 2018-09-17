@@ -22,7 +22,8 @@ from prep_pf import *
 class Preparation(object):
     """A parent class to prepare input files for BICePs calculation"""
 
-    def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None, Karplus=None):
+#    def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None, Karplus=None):
+    def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None):
         """ Prepare BICePs input files (converting from raw data)
 	Parameters
            ---------
@@ -39,13 +40,13 @@ class Preparation(object):
         else:
             if states==0.0 or indices == None or exp_data == None or top==None or data_dir==None:
                 raise ValueError("make sure you have actual input for states, indices, exp_data, topology file or data directory ")
-	if scheme == 'J' and Karplus ==None:
-	    raise ValueError("Karplus relation information is missing but it's required for J_coupling constants")
-	elif scheme == 'J' and Karplus is not None:
-	    with open(Karplus) as f:
-		lines=f.readlines()
-	    line=''.join(lines)
-	    self.karplus = line.strip().split('\n')
+#	if scheme == 'J' and Karplus ==None:
+#	    raise ValueError("Karplus relation information is missing but it's required for J_coupling constants")
+#	elif scheme == 'J' and Karplus is not None:
+#	    with open(Karplus) as f:
+#		lines=f.readlines()
+#	    line=''.join(lines)
+#	    self.karplus = line.strip().split('\n')
 #	elif scheme != 'J' and Karplus == None:
 #	    continue
 
@@ -124,8 +125,10 @@ class Preparation(object):
             for i in xrange(self.ind.shape[0]):
 		a1, a2, a3, a4 = int(self.ind[i,0]), int(self.ind[i,1]), int(self.ind[i,2]), int(self.ind[i,3])
     		restraint_index = self.restraint_data[i,0]
-    		J_coupling      = self.restraint_data[i,1]
-    		r.add_line(restraint_index, a1, a2, a3, a4, self.topology, J_coupling, self.karplus)
+    		exp_J_coupling      = self.restraint_data[i,1]
+                model_J_coupling      = model_data[i]
+                r.add_line(restraint_index, a1, a2, a3, a4, self.topology, exp_J_coupling, model_J_coupling)
+#    		r.add_line(restraint_index, a1, a2, a3, a4, self.topology, J_coupling, self.karplus)
 	    r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_pf_input(self):
