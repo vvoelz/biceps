@@ -23,7 +23,7 @@ from Observable import * # Containers for experimental observables
 class Restraint(object):
     """The parent class of all Restraint() objects."""
 
-    def __init__(self, PDB_filename, ref, use_global_ref_sigma=True):
+    def __init__(self, PDB_filename, ref, dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0, use_global_ref_sigma=True):
         """Initialize the Restraint class.
 
         INPUTS
@@ -59,6 +59,16 @@ class Restraint(object):
 
         # Storing the reference potential
         self.ref = ref
+
+        # set sigma range
+        self.dlogsigma = dlogsigma
+        self.sigma_min = sigma_min
+        self.sigma_max = sigma_max
+        self.allowed_sigma = np.exp(np.arange(np.log(self.sigma_min),
+            np.log(self.sigma_max), self.dlogsigma))
+        self.sigma_index = len(self.allowed_sigma)/2
+        self.sigma = self.allowed_sigma[self.sigma_index]
+
 
     def load_data(self, prep, verbose=False):
         """Load in the experimental chemical shift restraints from a known
@@ -148,24 +158,6 @@ class Restraint(object):
                     - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
             self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
 
-    def exp_uncertainty(self, dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0):
-        """Initialize values for Std. deviation of experimental
-        observables, sigma.
-
-        Parameters
-        ----------
-
-        dlogsigma - step size in log(sigma) - i.e. grow/shrink multiplier
-        sigma_min - minimum value of sigma
-        sigma_max - maximum value of sigma """
-
-        self.dlogsigma = dlogsigma
-        self.sigma_min = sigma_min
-        self.sigma_max = sigma_max
-        self.allowed_sigma = np.exp(np.arange(np.log(self.sigma_min),
-            np.log(self.sigma_max), self.dlogsigma))
-        self.sigma_index = len(self.allowed_sigma)/2
-        self.sigma = self.allowed_sigma[self.sigma_index]
 
 
 ###########################################################################
@@ -195,8 +187,6 @@ class Restraint_cs_Ca(Restraint):
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
 
-        # Initialize the experimental uncertainties
-        self.exp_uncertainty()
 
         # Reading the data from loading in filenames
         read = prep_cs(filename=filename)
@@ -243,8 +233,6 @@ class Restraint_cs_H(Restraint):
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
 
-        # Initialize the experimental uncertainties
-        self.exp_uncertainty()
 
         # Reading the data from loading in filenames
         read = prep_cs(filename=filename)
@@ -291,8 +279,6 @@ class Restraint_cs_Ha(Restraint):
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
 
-        # Initialize the experimental uncertainties
-        self.exp_uncertainty()
 
         # Reading the data from loading in filenames
         read = prep_cs(filename=filename)
@@ -337,8 +323,6 @@ class Restraint_cs_N(Restraint):
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
 
-        # Initialize the experimental uncertainties
-        self.exp_uncertainty()
 
         # Reading the data from loading in filenames
         read = prep_cs(filename=filename)
@@ -385,8 +369,6 @@ class Restraint_J(Restraint):
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
 
-        # Initialize the experimental uncertainties
-        self.exp_uncertainty()
 
         # Reading the data from loading in filenames
         read = prep_J(filename=filename)
@@ -397,15 +379,17 @@ class Restraint_J(Restraint):
         # Extract the data corresponding to an observable and add a the restraint
         self.nObs = len(self.data)
         for entry in self.data:
-            restraint_index, i, j, k, l, exp, karplus  = entry[0], entry[1],\
+            restraint_index, i, j, k, l, exp, model  = entry[0], entry[1],\
                     entry[4], entry[7], entry[10], entry[13], entry[14]
 
             # if the modeled Jcoupling value is not specified, compute it from the
             # angle corresponding to the conformation, and the Karplus relation
-            ri, rj, rk, rl = [self.conf.xyz[0,x,:] for x in [i, j, k, l]]
-            model_angle = self.dihedral_angle(ri,rj,rk,rl)
-            model = self.karplus.J(model_angle, "Karplus_HH")
-            Obs = NMR_Dihedral(i,j,k,l,exp,model,model_angle,
+#            ri, rj, rk, rl = [self.conf.xyz[0,x,:] for x in [i, j, k, l]]
+            #model_angle = self.dihedral_angle(ri,rj,rk,rl)
+            #model = self.karplus.J(model_angle, "Karplus_HH")
+            #Obs = NMR_Dihedral(i,j,k,l,exp,model,model_angle,
+            #        equivalency_index=restraint_index)
+            Obs = NMR_Dihedral(i,j,k,l,exp,model,
                     equivalency_index=restraint_index)
             self.add_restraint(Obs)
             if verbose:
@@ -421,7 +405,7 @@ class Restraint_J(Restraint):
                 if d.equivalency_index != None:
                     if not self.equivalency_groups.has_key(d.equivalency_index):
                         self.equivalency_groups[d.equivalency_index] = []
-                        self.equivalency_groups[d.equivalency_index].append(i)
+                    self.equivalency_groups[d.equivalency_index].append(i)
 
         if verbose:
             print 'self.equivalency_groups', self.equivalency_groups
@@ -482,8 +466,6 @@ class Restraint_noe(Restraint):
         self._parameter_indices = ['sigma_index','gamma_index']
 
 
-        # Initialize the experimental uncertainties
-        self.exp_uncertainty()
 
         # Reading the data from loading in filenames
         read = prep_noe(filename=filename)
@@ -516,13 +498,13 @@ class Restraint_noe(Restraint):
                 if d.equivalency_index != None:
                     if not self.equivalency_groups.has_key(d.equivalency_index):
                         self.equivalency_groups[d.equivalency_index] = []
-                        self.equivalency_groups[d.equivalency_index].append(i)
+                    self.equivalency_groups[d.equivalency_index].append(i)
 
         if verbose:
             print 'self.equivalency_groups', self.equivalency_groups
 
         # adjust the weights of distances and dihedrals to account for equivalencies
-        #self.adjust_weights()
+        self.adjust_weights()
         self.compute_sse(debug=False)
 
     def adjust_weights(self):
@@ -563,8 +545,6 @@ class Restraint_pf(Restraint):
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
 
-        # Initialize the experimental uncertainties
-        self.exp_uncertainty()
 
         # Reading the data from loading in filenames
         read = prep_pf(filename=filename)
@@ -611,8 +591,6 @@ class Restraint_pf_spec(Restraint):
         self.free_energy = lam*free_energy
         self.Ndof = None
 
-        # Initialize the experimental uncertainties
-        self.exp_uncertainty()
 
         # Reading the data from loading in filenames
         read = prep_pf(filename=filename)
