@@ -15,7 +15,7 @@ import sys, os, glob
 import numpy as np
 import re
 import yaml, io
-from J_coupling import * # MDTraj altered src code
+#from J_coupling import * # MDTraj altered src code
 from KarplusRelation import *
 import mdtraj as md
 ##############################################################################
@@ -48,20 +48,21 @@ def sort_data(dataFiles):
         convert = lambda txt: int(txt) if txt.isdigit() else txt
         # This convert / sorted glob is a bit fishy... needs many tests
         for j in sorted(glob.glob(dir_list[i]),key=lambda x: [convert(s) for s in re.split("([0-9]+)",x)]):
-            if j.endswith('.noe'):
+            if j.endswith('.cs_H'):
                 data[0].append(j)
-            elif j.endswith('.J'):
-                data[1].append(j)
-            elif j.endswith('.cs_H'):
-                data[2].append(j)
             elif j.endswith('.cs_Ha'):
-                data[3].append(j)
+                data[1].append(j)
             elif j.endswith('.cs_N'):
-                data[4].append(j)
+                data[2].append(j)
             elif j.endswith('.cs_CA'):
-                data[5].append(j)
+                data[3].append(j)
+            elif j.endswith('.J'):
+                data[4].append(j)
             elif j.endswith('.pf'):
+                data[5].append(j)
+            elif j.endswith('.noe'):
                 data[6].append(j)
+
             else:
                 raise ValueError("Incompatible file extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
     data = np.array(filter(None, data)) # removing any empty lists
