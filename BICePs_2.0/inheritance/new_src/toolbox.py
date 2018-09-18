@@ -54,7 +54,7 @@ def sort_data(dataFiles):
                 data[1].append(j)
             elif j.endswith('.cs_N'):
                 data[2].append(j)
-            elif j.endswith('.cs_CA'):
+            elif j.endswith('.cs_Ca'):
                 data[3].append(j)
             elif j.endswith('.J'):
                 data[4].append(j)
