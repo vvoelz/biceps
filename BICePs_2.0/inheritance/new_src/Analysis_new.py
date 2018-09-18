@@ -258,8 +258,8 @@ class Analysis(object):
         	plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
         	plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
         	if self.scheme[k].find('cs') == -1:
-            		plt.xlabel("$\%s$"%self.scheme[k], fontsize=label_fontsize)
-            		plt.ylabel("$P(\%s)$"%self.scheme[k], fontsize=label_fontsize)
+                    plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:], fontsize=label_fontsize)
+                        plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:], fontsize=label_fontsize)
             		plt.yticks([])
         	else:
                         plt.xlabel("$\sigma_{{%s}_{%s}}$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
