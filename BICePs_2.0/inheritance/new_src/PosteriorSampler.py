@@ -372,6 +372,18 @@ class PosteriorSampler(object):
                 if np.random.random() < np.exp( self.E - new_E ):
                     accept = True
 
+
+      	    # Store trajectory state counts
+            self.traj.state_counts[new_state] += 1
+
+            # Store the counts of sampled sigma along the trajectory
+            self.traj.sampled_sigmas[new_rest_index][parameter_indices[new_rest_index][0]] += 1
+
+            # If we are sampling gamma, then store along the trajectory
+            if hasattr(self.ensemble[new_state][new_rest_index], 'gamma'):
+                self.traj.sampled_gamma[parameter_indices[new_rest_index][1]] += 1
+
+
             # Update parameters based upon acceptance (Metroplis criterion)
             if accept:
                 self.E = new_E
@@ -392,17 +404,6 @@ class PosteriorSampler(object):
                     print('self.new_para_index ', new_para_index)
                     print('self.accepted', self.accepted)
                     print('*****************************************')
-
-      	    # Store trajectory state counts
-            self.traj.state_counts[self.new_state] += 1
-
-            # Store the counts of sampled sigma along the trajectory
-            if self.new_para_index == 0:
-                self.traj.sampled_sigmas[self.new_rest_index][self.parameter_indices[self.new_rest_index][self.new_para_index]] += 1
-
-            # If we are sampling gamma, then store along the trajectory
-            if hasattr(self.ensemble[self.new_state][self.new_rest_index], 'gamma'):
-                self.traj.sampled_gamma[self.parameter_indices[self.new_rest_index][1]] += 1
 
             #NOTE: There will need to be additional parameters here for protection factor.
 
