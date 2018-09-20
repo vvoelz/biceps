@@ -493,7 +493,7 @@ class PosteriorSamplingTrajectory(object):
         self.results['sigma_mode'] = [ float(self.allowed_sigmas[i][ np.argmax(
             self.sampled_sigmas[i]) ]) for i in range(len(self.sampled_sigmas)) ]
 
-        if self.results['allowed_gamma'] != None:
+        if self.results['allowed_gamma'] is not None:
             self.results['gamma_mode'] = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
 
         # copy over the purely computational free energies f_i
