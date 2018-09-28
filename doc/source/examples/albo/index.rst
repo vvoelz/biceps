@@ -1,11 +1,10 @@
 Albocycline
 ===========
 
-.. notebook:: new_example.ipynb
+
+.. toctree::
+   :maxdepth: 3
+   new_example.ipynb
    :skip_exceptions:
-
-
-
-
 
 
