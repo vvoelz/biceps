@@ -35,7 +35,7 @@ extensions = [
     #'sphinx.ext.autosummary',    excluding this because of known error
 
 # Execute notebooks before conversion: 'always', 'never', 'auto' (default)
-nbsphinx_execute = 'never'
+#nbsphinx_execute = 'never'
 
 # Use this kernel instead of the one stored in the notebook metadata:
 nbsphinx_kernel_name = 'python2'
@@ -53,7 +53,7 @@ nbsphinx_execute_arguments = ['--InlineBackend.figure_formats={"png", "pdf"}']
 nbsphinx_codecell_lexer = 'ipython2'
 
 # Width of input/output prompts used in CSS:
-nbsphinx_prompt_width = '8ex'
+nbsphinx_prompt_width = '16ex'
 
 # If window is narrower than this, input/output prompts are on separate lines:
 nbsphinx_responsive_width = '700px'
