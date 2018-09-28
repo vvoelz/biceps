@@ -20,8 +20,7 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    installation
    theory
    workflow
-   examples/index
-   examples/albo/index
+   examples
    versions/index
 
 
