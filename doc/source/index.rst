@@ -21,6 +21,7 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    theory
    workflow
    examples/index
+   examples/albo/index
    versions/index
 
 
