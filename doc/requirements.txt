@@ -8,3 +8,5 @@ notebook
 jinja2
 nbconvert
 pyparsing
+yaml
+

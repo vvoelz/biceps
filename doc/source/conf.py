@@ -41,7 +41,7 @@ extensions = [
 nbsphinx_kernel_name = 'python2'
 
 # If True, the build process is continued even if an exception occurs:
-nbsphinx_allow_errors = True
+#nbsphinx_allow_errors = True
 
 # List of arguments to be passed to the kernel that executes the notebooks:
 nbsphinx_execute_arguments = ['--InlineBackend.figure_formats={"png", "pdf"}']
