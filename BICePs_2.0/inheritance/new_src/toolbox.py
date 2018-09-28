@@ -14,7 +14,7 @@
 import sys, os, glob
 import numpy as np
 import re
-import yaml, io
+import io
 #from J_coupling import * # MDTraj altered src code
 from KarplusRelation import *
 import mdtraj as md
