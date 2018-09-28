@@ -20,7 +20,7 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    installation
    theory
    workflow
-   examples
+   examples/*
    versions/index
 
 
