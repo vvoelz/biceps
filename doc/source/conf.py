@@ -41,7 +41,7 @@ nbsphinx_kernel_name = 'python2'
 nbsphinx_allow_errors = True
 
 # List of arguments to be passed to the kernel that executes the notebooks:
-#nbsphinx_execute_arguments = ['--InlineBackend.figure_formats={"png", "pdf"}']
+nbsphinx_execute_arguments = ['--InlineBackend.figure_formats={"png", "pdf"}']
 
 # Controls when a cell will time out (defaults to 30; use -1 for no timeout):
 #nbsphinx_timeout = 60
@@ -50,10 +50,10 @@ nbsphinx_allow_errors = True
 nbsphinx_codecell_lexer = 'ipython2'
 
 # Width of input/output prompts used in CSS:
-#nbsphinx_prompt_width = '8ex'
+nbsphinx_prompt_width = '8ex'
 
 # If window is narrower than this, input/output prompts are on separate lines:
-#nbsphinx_responsive_width = '700px'
+nbsphinx_responsive_width = '700px'
 
 # This is processed by Jinja2 and inserted before each notebook
 nbsphinx_prolog = r"""
