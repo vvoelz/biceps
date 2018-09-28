@@ -14,7 +14,7 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
 ---------------------------------------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :glob:
 
    installation
