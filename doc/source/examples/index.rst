@@ -9,7 +9,6 @@ Albocycline
 --------------
 
 .. toctree::
-   albo/index
    albo/new_example.ipynb
 
 
