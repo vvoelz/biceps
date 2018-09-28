@@ -34,6 +34,13 @@ extensions = [
     #'sphinx.ext.autodoc',
     #'sphinx.ext.autosummary',    excluding this because of known error
 
+# Use this kernel instead of the one stored in the notebook metadata:
+nbsphinx_kernel_name = 'python2'
+
+
+
+
+
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
