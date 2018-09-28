@@ -9,11 +9,13 @@ A series of examples are provided on this page and each of them is based on a pr
 .. toctree::
    :maxdepth: 3
    :glob:
-   albo/index
+   albo
+   index
    test
+   *
 
 
 
-TESTing
+---TESTing
 
 You are welcome to contribute your own examples and please let us know by simply submit a pull request on our `GitHub <https://github.com/vvoelz/biceps>`_!
