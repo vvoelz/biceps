@@ -8,6 +8,4 @@ notebook
 jinja2
 nbconvert
 pyparsing
-numpy
-pymbar>=3.0
 
