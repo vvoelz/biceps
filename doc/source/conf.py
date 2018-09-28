@@ -37,6 +37,9 @@ extensions = [
 # Use this kernel instead of the one stored in the notebook metadata:
 nbsphinx_kernel_name = 'python2'
 
+# If True, the build process is continued even if an exception occurs:
+nbsphinx_allow_errors = True
+
 
 
 
