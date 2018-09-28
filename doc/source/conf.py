@@ -53,7 +53,7 @@ nbsphinx_execute_arguments = ['--InlineBackend.figure_formats={"png", "pdf"}']
 nbsphinx_codecell_lexer = 'ipython2'
 
 # Width of input/output prompts used in CSS:
-nbsphinx_prompt_width = '1080px'
+nbsphinx_prompt_width = '32ex'
 
 # If window is narrower than this, input/output prompts are on separate lines:
 nbsphinx_responsive_width = '1080px'
