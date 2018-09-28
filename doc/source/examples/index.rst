@@ -9,7 +9,6 @@ Albocycline
 --------------
 
 .. toctree::
-   :maxdepth: 2
    albo/new_example.ipynb
 
 
