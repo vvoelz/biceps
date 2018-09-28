@@ -1,10 +1,9 @@
+.. _Albocyline:
+
 Albocycline
 ===========
 
-
-.. toctree::
-   :maxdepth: 3
-   new_example.ipynb
+.. notebook:: ./doc/source/examples/albo/new_example.ipynb
    :skip_exceptions:
 
 
