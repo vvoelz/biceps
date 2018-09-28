@@ -34,6 +34,9 @@ extensions = [
     #'sphinx.ext.autodoc',
     #'sphinx.ext.autosummary',    excluding this because of known error
 
+# Execute notebooks before conversion: 'always', 'never', 'auto' (default)
+nbsphinx_execute = 'never'
+
 # Use this kernel instead of the one stored in the notebook metadata:
 nbsphinx_kernel_name = 'python2'
 
