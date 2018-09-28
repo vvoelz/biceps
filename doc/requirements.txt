@@ -9,10 +9,5 @@ jinja2
 nbconvert
 pyparsing
 numpy
-scikit-learn
-pandas
-numpydoc
-cython
-mdtraj
 pymbar>=3.0
 
