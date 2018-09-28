@@ -8,7 +8,9 @@ A series of examples are provided on this page and each of them is based on a pr
 Albocycline
 --------------
 
-.. notebook:: ./doc/source/examples/albo/new_example.ipynb
+.. toctree::
+   albo/index
+
 
 
 
