@@ -21,7 +21,6 @@ import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy import loadtxt, savetxt
-import yaml
 import cPickle, pprint
 
 from pymbar import MBAR
