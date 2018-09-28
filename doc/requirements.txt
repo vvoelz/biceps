@@ -9,11 +9,7 @@ jinja2
 nbconvert
 pyparsing
 numpy
-runipy
-openmm
-pytables
 scikit-learn
-nose
 pandas
 numpydoc
 cython
