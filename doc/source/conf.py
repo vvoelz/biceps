@@ -26,12 +26,13 @@ sys.path.insert(0,'biceps/')
 # ones.
 extensions = [
     'nbsphinx', # for jupyter notebooks **
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.autosummary',
     'sphinx.ext.mathjax',
 ]
 
+
+    #'sphinx.ext.doctest',
+    #'sphinx.ext.autodoc',
+    #'sphinx.ext.autosummary',    excluding this because of known error
 
 
 # Add any paths that contain templates here, relative to this directory.
