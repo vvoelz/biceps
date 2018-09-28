@@ -1,7 +1,9 @@
 Albocycline
 ===========
 
-.. notebook:: new_example.ipynb
+.. toctree::
+   :glob:
+   new_example.ipynb
    :skip_exceptions:
 
 
