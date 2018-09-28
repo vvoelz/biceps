@@ -1,0 +1,8 @@
+nbsphinx
+numpydoc
+matplotlib
+jupyter
+notebook
+jinja2
+nbconvert
+pyparsing
