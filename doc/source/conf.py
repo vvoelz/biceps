@@ -27,11 +27,11 @@ import os,sys
 extensions = [
     'nbsphinx', # for jupyter notebooks **
     'sphinx.ext.mathjax',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
+    #'sphinx.ext.autodoc',
+    #'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
-    'sphinx.ext.autosummary',
-    'autoapi.extension'
+    #'sphinx.ext.autosummary',
+    #'autoapi.extension'
 ]
 
     #,    excluding this because of known error
