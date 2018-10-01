@@ -36,10 +36,11 @@ extensions = [
 
     #,    excluding this because of known error
 
-# Document Python Code
-autoapi_type = 'python'
-autoapi_root = '../' # Where HTML is generated
-autoapi_dirs = ['../'] # Directory of YAML sources
+## Document Python Code
+#autoapi_type = 'python'
+#autoapi_root = '../' # Where HTML is generated
+#autoapi_dirs = ['../'] # Directory of YAML sources
+
 #autodoc_default_flags = ['members', 'inherited-members']
 #numpydoc_class_members_toctree = False
 
