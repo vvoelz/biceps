@@ -27,12 +27,17 @@ import os,sys
 extensions = [
     'nbsphinx', # for jupyter notebooks **
     'sphinx.ext.mathjax',
+    'autoapi.extension'
 ]
-
 
     #'sphinx.ext.doctest',
     #'sphinx.ext.autodoc',
     #'sphinx.ext.autosummary',    excluding this because of known error
+
+# Document Python Code
+autoapi_type = 'python'
+autoapi_dir = '../BICePs_2.0/inheritance/new_src'
+
 
 # Execute notebooks before conversion: 'always', 'never', 'auto' (default)
 nbsphinx_execute = 'never'
