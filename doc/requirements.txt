@@ -8,4 +8,5 @@ notebook
 jinja2
 nbconvert
 pyparsing
+sphinx-autoapi
 
