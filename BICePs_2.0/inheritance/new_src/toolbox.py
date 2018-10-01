@@ -15,7 +15,7 @@ import sys, os, glob
 import numpy as np
 import re
 import io
-#from J_coupling import * # MDTraj altered src code
+from J_coupling import * # MDTraj altered src code
 from KarplusRelation import *
 import mdtraj as md
 ##############################################################################
@@ -126,7 +126,7 @@ def convert_pop_to_energy(pop_filename, out_filename=None):
     else:
         np.savetxt(out_filename,energy)
 
-def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None):
+def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None, preload_traj = False):
     '''Compute J3_HN_HA for frames in a trajectories.
     Parameters
     ----------
@@ -138,17 +138,34 @@ def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None):
     '''
     J=[]
     if frame is None:
-            t = md.load(traj,top=top)
-            J = compute_J3_HN_HA(t, model = model)
+            if preload_traj:
+                t = traj
+                J = compute_J3_HN_HA(t, model = model)
+	    else:
+                t = md.load(traj,top=top)
+                J = compute_J3_HN_HA(t, model = model)
     if frame is not None:
-            for i in range(len(frame)):
-                t = md.load(traj,top=top)[frame[i]]
-                d = compute_J3_HN_HA(t, model = model)
-                if i == 0:
-                        J.append(d[0])
-                        J.append(d[1])
-                else:
-                        J.append(d[1])
+	    if preload_traj:
+                t1 = traj
+                for i in range(len(frame)):
+                    t = t1[frame[i]]
+                    d = compute_J3_HN_HA(t, model = model)
+                    if i == 0:
+                            J.append(d[0])
+                            J.append(d[1])
+                    else:
+                            J.append(d[1])
+	    else:
+		t1 = md.load(traj,top=top)
+                for i in range(len(frame)):
+                    t = t[frame[i]]
+                    d = compute_J3_HN_HA(t, model = model)
+                    if i == 0:
+                            J.append(d[0])
+                            J.append(d[1])
+                    else:
+                            J.append(d[1])
+
     if outname is not None:
             print('saving output file...')
             np.save(outname, J)
