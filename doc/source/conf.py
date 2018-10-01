@@ -28,17 +28,18 @@ extensions = [
     'nbsphinx', # for jupyter notebooks **
     'sphinx.ext.mathjax',
     'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.autosummary',
     'autoapi.extension'
 ]
 
-    #'sphinx.ext.doctest',
-    #'sphinx.ext.autodoc',
-    #'sphinx.ext.autosummary',    excluding this because of known error
+    #,    excluding this because of known error
 
 # Document Python Code
 autoapi_type = 'python'
 autoapi_root = '../' # Where HTML is generated
-autoapi_dirs = '../' # Directory of YAML sources
+autoapi_dirs = ['../'] # Directory of YAML sources
 
 autodoc_default_flags = ['members', 'inherited-members']
 
