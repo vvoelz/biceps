@@ -38,7 +38,7 @@ extensions = [
 # Document Python Code
 autoapi_type = 'python'
 autoapi_root = '../' # Where HTML is generated
-autoapi_dirs = ['yaml'] # Directory of YAML sources
+autoapi_dirs = ['../'] # Directory of YAML sources
 
 # Execute notebooks before conversion: 'always', 'never', 'auto' (default)
 nbsphinx_execute = 'never'
