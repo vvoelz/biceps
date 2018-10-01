@@ -27,6 +27,7 @@ import os,sys
 extensions = [
     'nbsphinx', # for jupyter notebooks **
     'sphinx.ext.mathjax',
+    'sphinx.ext.autodoc',
     'autoapi.extension'
 ]
 
@@ -36,8 +37,8 @@ extensions = [
 
 # Document Python Code
 autoapi_type = 'python'
-autoapi_dir = '../BICePs_2.0/inheritance/new_src'
-
+autoapi_root = '../' # Where HTML is generated
+autoapi_dirs = ['yaml'] # Directory of YAML sources
 
 # Execute notebooks before conversion: 'always', 'never', 'auto' (default)
 nbsphinx_execute = 'never'
