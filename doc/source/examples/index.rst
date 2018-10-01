@@ -10,9 +10,11 @@ A series of examples are provided on this page and each of them is based on a pr
 
 Albocycline
 -------------
-.. autosummary::
-   :toctree: albo/new_example.ipynb
-
+.. toctree::
+   :maxdepth: 3
+   :glob:
+   albo/new_example.ipynb
+   *
 
 
 
