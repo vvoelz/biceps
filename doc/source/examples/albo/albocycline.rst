@@ -1,5 +1,5 @@
-Albocycline
-===========
+.. _Albocycline:
+
 .. toctree::
    alternative.ipynb
 
