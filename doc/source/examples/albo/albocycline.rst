@@ -1,6 +1,6 @@
 Albocycline
 ===========
 .. toctree::
-   albo/alternative.ipynb
+   alternative.ipynb
 
 
