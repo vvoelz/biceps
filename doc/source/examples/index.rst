@@ -10,10 +10,7 @@ A series of examples are provided on this page and each of them is based on a pr
 Albocycline
 ------------
 .. toctree::
-   :maxdepth: 3
-   :glob:
-   albocycline
-   *
+   albo/albocycline
 
 
 
