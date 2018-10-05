@@ -27,22 +27,22 @@ import os,sys
 extensions = [
     'nbsphinx', # for jupyter notebooks **
     'sphinx.ext.mathjax',
-    #'sphinx.ext.autodoc',
-    #'sphinx.ext.doctest',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
-    #'sphinx.ext.autosummary',
-    #'autoapi.extension'
+    'sphinx.ext.autosummary',
+    'autoapi.extension'
 ]
 
     #,    excluding this because of known error
 
 ## Document Python Code
-#autoapi_type = 'python'
-#autoapi_root = '../' # Where HTML is generated
-#autoapi_dirs = ['../'] # Directory of YAML sources
+autoapi_type = 'python'
+autoapi_root = '../' # Where HTML is generated
+autoapi_dirs = ['../','../biceps/BICePs_2.0/inheritance/new_src'] # Directory of YAML sources
 
-#autodoc_default_flags = ['members', 'inherited-members']
-#numpydoc_class_members_toctree = False
+autodoc_default_flags = ['members', 'inherited-members']
+numpydoc_class_members_toctree = False
 
 # Execute notebooks before conversion: 'always', 'never', 'auto' (default)
 nbsphinx_execute = 'never'
