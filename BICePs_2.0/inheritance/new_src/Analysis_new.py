@@ -22,7 +22,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 from scipy import loadtxt, savetxt
 import cPickle, pprint
-
 from pymbar import MBAR
 import re
 
@@ -123,7 +122,6 @@ class Analysis(object):
     [int(step), float(self.E), int(accept), int(self.state), int(self.sigma_noe_index), int(self.sigma_J_index), int(self.sigma_cs_H_index), int(self.sigma_cs_Ha_index), int(self.sigma_cs_N_index), int(self.sigma_cs_Ca_index), int(self.sigma_pf_index), int(self.gamma_index)]                   """
 
     for n in range(nsnaps):
-
           for k in range(self.K):
                 for l in range(self.K):
                 if debug:
