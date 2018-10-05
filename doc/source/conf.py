@@ -38,8 +38,8 @@ extensions = [
 
 ## Document Python Code
 autoapi_type = 'python'
-autoapi_root = '../' # Where HTML is generated
-autoapi_dirs = ['../','../biceps/BICePs_2.0/inheritance/new_src'] # Directory of YAML sources
+autoapi_root = '../../BICePs_2.0/inheritance/new_src' # Where HTML is generated
+autoapi_dirs = ['../','../../BICePs_2.0/inheritance/new_src'] # Directory of YAML sources
 
 autodoc_default_flags = ['members', 'inherited-members']
 numpydoc_class_members_toctree = False
