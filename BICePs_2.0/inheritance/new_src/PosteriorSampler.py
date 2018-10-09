@@ -377,7 +377,7 @@ class PosteriorSampler(object):
 
             # Store the counts of sampled sigma along the trajectory
             for i in range(len(self.ensemble[self.new_state])):
-                self.traj.sampled_sigmas[new_rest_index][parameter_indices[i][0]] += 1
+                self.traj.sampled_sigmas[i][parameter_indices[i][0]] += 1
             #self.traj.sampled_sigmas[new_rest_index][parameter_indices[new_rest_index][0]] += 1
 
             # If we are sampling gamma, then store along the trajectory
