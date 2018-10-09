@@ -382,7 +382,7 @@ class PosteriorSampler(object):
 
             # If we are sampling gamma, then store along the trajectory
             for i in range(len(self.ensemble[self.new_state])):
-                if hasattr(self.ensemble[new_state][new_rest_index], 'gamma'):
+                if hasattr(self.ensemble[new_state][i], 'gamma'):
                     self.traj.sampled_gamma[parameter_indices[i][1]] += 1
                     #self.traj.sampled_gamma[parameter_indices[new_rest_index][1]] += 1
 
