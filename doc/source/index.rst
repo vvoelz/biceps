@@ -22,6 +22,7 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    workflow
    examples/index
    versions/index
+   reference/index
 
 
 
