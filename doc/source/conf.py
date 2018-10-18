@@ -41,7 +41,7 @@ autoapi_type = 'python'
 #autoapi_root = '../../BICePs_2.0/inheritance/new_src' # Where HTML is generated
 autoapi_root = '../../doc/source/examples/albo/new_src/' # Where HTML is generated
 #autoapi_dirs = ['../','../../BICePs_2.0/inheritance/new_src'] # Directory of YAML sources
-autoapi_dirs = ['../','../../doc/source/examples/albo/new_src/'] # Directory of YAML sources
+autoapi_dirs = ['../../doc/source/examples/albo/new_src/'] # Directory of YAML sources
 
 
 autodoc_default_flags = ['members', 'inherited-members']
