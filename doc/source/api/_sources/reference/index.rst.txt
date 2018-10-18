@@ -9,31 +9,10 @@ Reference
 :class:`BICePs.Restraint` objects
 
 
-Preperation
-------------
+.. toctree::
+   :glob:
 
-.. autosummary::
-    :toctree: ../api/BICePs/
-
-    BICePs.Preperation
-
-
-Restraint
-----------
-
-.. autosummary::
-    :toctree: ../api/BICePs/
-
-    BICePs.Restraint
-
-
-Posterior Sampler
-------------------
-
-.. autosummary::
-    :toctree: ../api/BICePs/
-
-    BICePs.PosteriorSampler
+   ../api/BICePs/*
 
 
 
