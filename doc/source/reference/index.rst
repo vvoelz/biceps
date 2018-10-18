@@ -44,11 +44,9 @@ Restraint
 Posterior Sampler
 -----------------
 
-.. autosummary::
-    :toctree: ../api/BICePs/
+.. toctree::
 
-    BICePs.PosteriorSampler
-
+    api/BICePs/BICePs.PosteriorSampler
 
 
 
