@@ -1,13 +1,19 @@
 .. _reference:
 
+
+.. currentmodule:: biceps
+
 Reference
 =========
 
 This is a test to see if source code can be rendered
 
+.. autoclass:: Restraint
+    :members: load_data, add_restraint
 
 
-.. currentmodule:: biceps
+
+
 .. autosummary::
     :toctree: api/generated/
 
