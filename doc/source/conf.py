@@ -32,7 +32,7 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.autosummary',
     'autoapi.sphinx',
-    'autoapi.extension'
+    #'autoapi.extension'
 ]
 
     #,    excluding this because of known error
