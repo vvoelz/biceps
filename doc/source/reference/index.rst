@@ -8,6 +8,10 @@ Reference
 
 This is a test to see if source code can be rendered
 
+
+Restraint
+----------
+
 .. autoclass:: Restraint
     :members: load_data, add_restraint
 
