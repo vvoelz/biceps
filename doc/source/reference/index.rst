@@ -9,11 +9,17 @@ Reference
 :class:`BICePs.Restraint` objects
 
 
+.. toctree::
+   :glob:
+
+   BICePs/*
+
+
+
 Test
 ----
 
 .. autosummary::
-   :toctree: ../api/api/BICePs
    Restraint
 
 
@@ -21,9 +27,9 @@ Preperation
 -----------
 
 .. autosummary::
-    :toctree: ../api/BICePs/
+    :toctree: ../BICePs/
 
-    BICePs.Preperation
+    BICePs.Preparation
 
 
 Restraint
