@@ -1,7 +1,7 @@
 .. _reference:
 
 
-.. currentmodule:: biceps
+.. currentmodule:: BICePs
 
 Reference
 =========
