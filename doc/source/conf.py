@@ -37,13 +37,13 @@ extensions = [
 
     #,    excluding this because of known error
 
-print('\n\n\n\n\n\n',os.getcwd(),'\n\n\n\n\n\n')
+print('\n\n',os.getcwd(),'\n\n')
 ## Document Python Code
 autoapi_type = 'python'
 #autoapi_root = '../../BICePs_2.0/inheritance/new_src' # Where HTML is generated
-autoapi_root = '../' # Where HTML is generated
+autoapi_root = 'BICePs' # Where HTML is generated
 #autoapi_dirs = ['../','../../BICePs_2.0/inheritance/new_src'] # Directory of YAML sources
-autoapi_dirs = ['../BICePs']#,'examples/albo/new_src/'] # Directory of YAML sources
+autoapi_dirs = ['BICePs','./']#,'examples/albo/new_src/'] # Directory of YAML sources
 
 
 autoapi_modules = {
