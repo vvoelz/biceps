@@ -6,26 +6,37 @@
 Reference
 =========
 
-This is a test to see if source code can be rendered
+:class:`BICePs.Restraint` objects
+
+
+Preperation
+------------
+
+.. autosummary::
+    :toctree: ../api/BICePs/
+
+    BICePs.Preperation
 
 
 Restraint
 ----------
 
-.. autoclass:: Restraint
-    :members: load_data, add_restraint
+.. autosummary::
+    :toctree: ../api/BICePs/
+
+    BICePs.Restraint
 
 
-
+Posterior Sampler
+------------------
 
 .. autosummary::
-    :toctree: api/generated/
+    :toctree: ../api/BICePs/
 
-    Restraint
+    BICePs.PosteriorSampler
 
 
 
-.. autofunction:: load_data
 
 
 

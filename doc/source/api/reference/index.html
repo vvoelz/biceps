@@ -28,7 +28,6 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="BICePs.Restraint" href="api/generated/BICePs.Restraint.html" />
     <link rel="prev" title="&lt;no title&gt;" href="../examples/albo/alternative.html" /> 
 
   
@@ -88,8 +87,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#preperation">Preperation</a><ul class="simple">
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#restraint">Restraint</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/BICePs.Restraint.html">BICePs.Restraint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/BICePs/BICePs.Restraint.html">BICePs.Restraint</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#posterior-sampler">Posterior Sampler</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/BICePs/BICePs.PosteriorSampler.html">BICePs.PosteriorSampler</a></li>
 </ul>
 </li>
 </ul>
@@ -179,60 +185,45 @@
 </style>
 <div class="section" id="reference">
 <span id="id1"></span><h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
-<p>This is a test to see if source code can be rendered</p>
-<div class="section" id="restraint">
-<h2>Restraint<a class="headerlink" href="#restraint" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="BICePs.Restraint">
-<em class="property">class </em><code class="descclassname">BICePs.</code><code class="descname">Restraint</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>The parent class of all Restraint() objects.</p>
-<p>Initialize the Restraint class.</p>
-<p>PDB_filename        A topology file (<a href="#id2"><span class="problematic" id="id3">*</span></a>.pdb)
-data            input data for BICePs (both model and exp)
-ref           Reference potential.</p>
-<dl class="method">
-<dt id="BICePs.Restraint.add_restraint">
-<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.add_restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="BICePs.Restraint.compute_neglog_exp_ref">
-<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the stored beta information (calculated across all structures)
-to calculate -log P_ref(observable[j]) for each observable j.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="BICePs.Restraint.compute_neglog_gaussian_ref">
-<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alternative option for reference potential based on
-Gaussian distribution. (Ignoring constant terms)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="BICePs.Restraint.compute_sse">
-<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.compute_sse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="BICePs.Restraint.load_data">
-<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load in the experimental chemical shift restraints from a known
-file format.</p>
-</dd></dl>
-
-</dd></dl>
-
+<p><a class="reference internal" href="../api/BICePs/BICePs.Restraint.html#BICePs.Restraint" title="BICePs.Restraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">BICePs.Restraint</span></code></a> objects</p>
+<div class="section" id="preperation">
+<h2>Preperation<a class="headerlink" href="#preperation" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#BICePs.Restraint" title="BICePs.Restraint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Restraint</span></code></a>(PDB_filename,&nbsp;ref[,&nbsp;dlogsigma,&nbsp;…])</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">BICePs.Preperation</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="restraint">
+<h2>Restraint<a class="headerlink" href="#restraint" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api/BICePs/BICePs.Restraint.html#BICePs.Restraint" title="BICePs.Restraint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BICePs.Restraint</span></code></a>(PDB_filename,&nbsp;ref[,&nbsp;…])</td>
 <td>The parent class of all Restraint() objects.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="posterior-sampler">
+<h2>Posterior Sampler<a class="headerlink" href="#posterior-sampler" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api/BICePs/BICePs.PosteriorSampler.html#BICePs.PosteriorSampler" title="BICePs.PosteriorSampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BICePs.PosteriorSampler</span></code></a>(ensemble[,&nbsp;…])</td>
+<td>A class to perform posterior sampling of conformational populations</td>
 </tr>
 </tbody>
 </table>
@@ -246,8 +237,6 @@ file format.</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="api/generated/BICePs.Restraint.html" class="btn btn-neutral float-right" title="BICePs.Restraint" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../examples/albo/alternative.html" class="btn btn-neutral" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -48,10 +48,6 @@ autoapi_root = './' # Where HTML is generated
 autoapi_dirs = ['./']#,'examples/albo/new_src/'] # Directory of YAML sources
 
 
-
-
-
-
 autodoc_default_flags = ['members', 'inherited-members']
 numpydoc_class_members_toctree = False
 

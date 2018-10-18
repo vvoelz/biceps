@@ -6,14 +6,14 @@
 Reference
 =========
 
-:class:'BICePs.Restraint' objects
+:class:`BICePs.Restraint` objects
 
 
 Preperation
 ------------
 
 .. autosummary::
-    :toctree: ../BICePs/
+    :toctree: ../api/BICePs/
 
     BICePs.Preperation
 
@@ -22,7 +22,7 @@ Restraint
 ----------
 
 .. autosummary::
-    :toctree: ../BICePs/
+    :toctree: ../api/BICePs/
 
     BICePs.Restraint
 
@@ -31,7 +31,7 @@ Posterior Sampler
 ------------------
 
 .. autosummary::
-    :toctree: ../BICePs/
+    :toctree: ../api/BICePs/
 
     BICePs.PosteriorSampler
 
