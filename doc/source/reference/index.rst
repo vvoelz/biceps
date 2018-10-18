@@ -46,7 +46,7 @@ Posterior Sampler
 
 .. toctree::
 
-    api/BICePs/BICePs.PosteriorSampler
+    ../api/BICePs/BICePs.PosteriorSampler
 
 
 
