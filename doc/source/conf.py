@@ -37,7 +37,7 @@ extensions = [
 
     #,    excluding this because of known error
 
-
+print('\n\n\n\n\n\n',os.getcwd(),'\n\n\n\n\n\n')
 ## Document Python Code
 autoapi_type = 'python'
 #autoapi_root = '../../BICePs_2.0/inheritance/new_src' # Where HTML is generated
