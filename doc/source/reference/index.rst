@@ -11,8 +11,8 @@ Reference
 
 .. toctree::
    :glob:
+   ../BICePs/*
 
-   ../api/BICePs/*
 
 
 
