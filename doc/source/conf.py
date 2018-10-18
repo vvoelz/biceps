@@ -30,7 +30,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
-    'sphinx.ext.autosummary',
+    #'sphinx.ext.autosummary',
     'autoapi.sphinx',
     #'autoapi.extension'
 ]
@@ -41,16 +41,13 @@ extensions = [
 ## Document Python Code
 autoapi_type = 'python'
 #autoapi_root = '../../BICePs_2.0/inheritance/new_src' # Where HTML is generated
-autoapi_root = './' # Where HTML is generated
+autoapi_root = '../' # Where HTML is generated
 #autoapi_dirs = ['../','../../BICePs_2.0/inheritance/new_src'] # Directory of YAML sources
-autoapi_dirs = ['./BICePs']#,'examples/albo/new_src/'] # Directory of YAML sources
+autoapi_dirs = ['../BICePs']#,'examples/albo/new_src/'] # Directory of YAML sources
 
 
 autoapi_modules = {
-        'BICePs': {
-            'override': False,
-            'output': 'auto'
-   }
+        'BICePs': None
 }
 
 
