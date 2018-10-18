@@ -13,23 +13,27 @@ Preperation
 ------------
 
 .. autosummary::
-    :toctree: ../BICePs/BICePs.Preperation.rst
+    :toctree: ../BICePs/
+
+    BICePs.Preperation
 
 
 Restraint
 ----------
 
 .. autosummary::
-    :toctree: ../BICePs/BICePs.Restraint.rst
+    :toctree: ../BICePs/
 
-    Restraint
+    BICePs.Restraint
 
 
 Posterior Sampler
 ------------------
 
 .. autosummary::
-    :toctree: ../BICePs/BICePs.PosteriorSampler.rst
+    :toctree: ../BICePs/
+
+    BICePs.PosteriorSampler
 
 
 
