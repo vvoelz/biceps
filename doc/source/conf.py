@@ -20,7 +20,7 @@
 
 import os,sys
 #sys.path.insert(0, os.path.abspath('sphinxext'))
-#sys.path.insert(0,'biceps/')
+sys.path.insert(0, os.path.abspath('../'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -30,14 +30,16 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
-    #'sphinx.ext.autosummary',
+    'sphinx.ext.autosummary',
     'autoapi.sphinx',
     #'autoapi.extension'
 ]
 
     #,    excluding this because of known error
+autoapi_modules = {
+        'BICePs': None
+}
 
-print('\n\n',os.getcwd(),'\n\n')
 ## Document Python Code
 autoapi_type = 'python'
 #autoapi_root = '../../BICePs_2.0/inheritance/new_src' # Where HTML is generated
@@ -46,11 +48,7 @@ autoapi_root = './' # Where HTML is generated
 autoapi_dirs = ['./']#,'examples/albo/new_src/'] # Directory of YAML sources
 
 
-sys.path.append('BICePs/')
 
-autoapi_modules = {
-        'BICePs': None
-}
 
 
 

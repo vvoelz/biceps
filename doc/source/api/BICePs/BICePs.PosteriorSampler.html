@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>BICePs.PosteriorSampler &mdash; BICePs 2.0-beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0-beta
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">BICePs.PosteriorSampler</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/BICePs/BICePs.PosteriorSampler.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="module-BICePs.PosteriorSampler">
+<span id="biceps-posteriorsampler"></span><h1><code class="docutils literal notranslate"><span class="pre">BICePs.PosteriorSampler</span></code><a class="headerlink" href="#module-BICePs.PosteriorSampler" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="BICePs.PosteriorSampler.PosteriorSampler">
+<em class="property">class </em><code class="descclassname">BICePs.PosteriorSampler.</code><code class="descname">PosteriorSampler</code><span class="sig-paren">(</span><em>ensemble</em>, <em>freq_write_traj=1000</em>, <em>freq_print=1000</em>, <em>freq_save_traj=100</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to perform posterior sampling of conformational populations</p>
+<p>INPUTS</p>
+<blockquote>
+<div>ensemble        - a list of lists of Restraint objects, one list for each conformation.</div></blockquote>
+<p>OPTIONS</p>
+<blockquote>
+<div>freq_write_traj - the frequency (in steps) to write the MCMC trajectory
+freq_print      - the frequency (in steps) to print status
+freq_save_traj  - the frequency (in steps) to store the MCMC trajectory</div></blockquote>
+<p>HISTORY of changes</p>
+<p>Initialize PosteriorSampler Class.</p>
+<dl class="method">
+<dt id="BICePs.PosteriorSampler.PosteriorSampler.build_exp_ref">
+<code class="descname">build_exp_ref</code><span class="sig-paren">(</span><em>rest_index</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSampler.build_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look at all the structures to find the average observables r_j</p>
+<p>&gt;&gt;    beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)</p>
+<p>then store this reference potential info for all Restraints of this type for each structure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.PosteriorSampler.PosteriorSampler.build_gaussian_ref">
+<code class="descname">build_gaussian_ref</code><span class="sig-paren">(</span><em>rest_index</em>, <em>use_global_ref_sigma=False</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSampler.build_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look at all the structures to find the mean (mu) and std (sigma) of  observables r_j
+then store this reference potential info for all Restraints of this type for each structure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.PosteriorSampler.PosteriorSampler.compile_nuisance_parameters">
+<code class="descname">compile_nuisance_parameters</code><span class="sig-paren">(</span><em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSampler.compile_nuisance_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compiles arrays into a list for each nuisance parameter.
+For example,
+[ [allowed_sigma_cs_H], [allowed_sigma_noe, allowed_gamma_noe], …</p>
+<blockquote>
+<div>…  [Nth_restraint] ]</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.PosteriorSampler.PosteriorSampler.compute_logZ">
+<code class="descname">compute_logZ</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSampler.compute_logZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute reference state logZ for the free energies to normalize.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.PosteriorSampler.PosteriorSampler.neglogP">
+<code class="descname">neglogP</code><span class="sig-paren">(</span><em>new_state</em>, <em>parameters</em>, <em>parameter_indices</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSampler.neglogP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return -ln P of the current configuration.
+INPUTS
+——-</p>
+<blockquote>
+<div>new_state    - the new conformational state from Sample()
+parameters   - a list of the new parameters for each of the restraints</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.PosteriorSampler.PosteriorSampler.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>nsteps</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform n number of steps (nsteps) of posterior sampling, where Monte
+Carlo moves are accepted or rejected according to Metroplis criterion.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BICePs.PosteriorSampler.PosteriorSamplingTrajectory">
+<em class="property">class </em><code class="descclassname">BICePs.PosteriorSampler.</code><code class="descname">PosteriorSamplingTrajectory</code><span class="sig-paren">(</span><em>ensemble</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSamplingTrajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>A container class to store and perform operations on the trajectories of
+sampling runs.</p>
+<p>Initialize the PosteriorSamplingTrajectory container class.</p>
+<dl class="method">
+<dt id="BICePs.PosteriorSampler.PosteriorSamplingTrajectory.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSamplingTrajectory.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the trajectory, computing sampling statistics,
+ensemble-average NMR observables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.PosteriorSampler.PosteriorSamplingTrajectory.read_results">
+<code class="descname">read_results</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSamplingTrajectory.read_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a npz file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.PosteriorSampler.PosteriorSamplingTrajectory.write_results">
+<code class="descname">write_results</code><span class="sig-paren">(</span><em>outfilename='traj.npz'</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSamplingTrajectory.write_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a compact file of several arrays into binary format.
+Standardized: Yes ; Binary: Yes; Human Readable: No;</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Temple University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2.0-beta',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
