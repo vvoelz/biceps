@@ -32,10 +32,11 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.autosummary',
     'autoapi.sphinx',
-    #'autoapi.extension'
 ]
 
-    #,    excluding this because of known error
+    # Excluding this because of known error
+    #'autoapi.extension'
+
 autoapi_modules = {
         'BICePs': None
 }
