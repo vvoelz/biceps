@@ -570,12 +570,12 @@ class PosteriorSamplingTrajectory(object):
 
 
 
-__all__ = [
-    'PosteriorSampler',
-    'PosteriorSampler.neglogP',
-    'PosteriorSampler.logspaced_array',
-    'PosteriorSampler.write_results',
-    'PosteriorSampler.read_results',
-    'PosteriorSamplingTrajectory'
-
-]
+#__all__ = [
+#    'PosteriorSampler',
+#    'PosteriorSampler.neglogP',
+#    'PosteriorSampler.logspaced_array',
+#    'PosteriorSampler.write_results',
+#    'PosteriorSampler.read_results',
+#    'PosteriorSamplingTrajectory'
+#
+#]

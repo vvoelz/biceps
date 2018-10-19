@@ -1,4 +1,3 @@
-
 BICePs - Bayesian Inference of Conformational Populations
 ===========================================================
 
@@ -24,24 +23,21 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    reference/index
 
 
-
 Citation |DOI for Citing BICePs|
 --------------------------------
 
 Please apply BICePs in your research and cite it in any scientific publications.
 
 ::
-
-    @article{VAV-2018,
-        title = {Model selection using BICePs: A Bayesian approach to force
-        field validation and parameterization},
-        author = {Yunhui Ge and Vincent A. Voelz},
-        journal = {Journal of Physical Chemistry B},
-        volume = {122},
-        number = {21},
-        pages = {5610 -- 5622},
-        year = {2018},
-        doi = {doi:10.1021/acs.jpcb.7b11871}
+   @article{VAV-2018,
+      title = {Model selection using BICePs: A Bayesian approach to forcefield validation and parameterization},
+      author = {Yunhui Ge and Vincent A. Voelz},
+      journal = {Journal of Physical Chemistry B},
+      volume = {122},
+      number = {21},
+      pages = {5610 -- 5622},
+      year = {2018},
+      doi = {doi:10.1021/acs.jpcb.7b11871}
     }
 
 

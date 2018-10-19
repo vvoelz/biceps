@@ -260,7 +260,7 @@ class Analysis(object):
             plt.savefig(self.picfile)
 
 
-__all__ = [
-    'Analysis',
-]
+#__all__ = [
+#    'Analysis',
+#]
 

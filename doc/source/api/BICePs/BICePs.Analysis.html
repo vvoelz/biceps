@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>BICePs.Analysis &mdash; BICePs 2.0-beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BICePs.J_coupling" href="BICePs.J_coupling.html" />
+    <link rel="prev" title="BICePs" href="BICePs.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0-beta
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/index.html">Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="BICePs.html"><code class="docutils literal notranslate"><span class="pre">BICePs</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="BICePs.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">BICePs.Analysis</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.J_coupling.html"><code class="docutils literal notranslate"><span class="pre">BICePs.J_coupling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.KarplusRelation.html"><code class="docutils literal notranslate"><span class="pre">BICePs.KarplusRelation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Observable.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Observable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.PosteriorSampler.html"><code class="docutils literal notranslate"><span class="pre">BICePs.PosteriorSampler</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Preparation.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Preparation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Restraint.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Restraint</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.init_res.html"><code class="docutils literal notranslate"><span class="pre">BICePs.init_res</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_J.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_J</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_cs.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_cs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_noe.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_noe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_pf.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_pf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.toolbox.html"><code class="docutils literal notranslate"><span class="pre">BICePs.toolbox</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../reference/index.html">Reference</a> &raquo;</li>
+        
+          <li><a href="BICePs.html"><code class="docutils literal notranslate"><span class="pre">BICePs</span></code></a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">BICePs.Analysis</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/BICePs/BICePs.Analysis.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="module-BICePs.Analysis">
+<span id="biceps-analysis"></span><h1><code class="docutils literal notranslate"><span class="pre">BICePs.Analysis</span></code><a class="headerlink" href="#module-BICePs.Analysis" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="BICePs.Analysis.Analysis">
+<em class="property">class </em><code class="descclassname">BICePs.Analysis.</code><code class="descname">Analysis</code><span class="sig-paren">(</span><em>states=0</em>, <em>data=None</em>, <em>resultdir=None</em>, <em>BSdir='BS.dat'</em>, <em>popdir='populations.dat'</em>, <em>picfile='BICePs.pdf'</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Analysis.Analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to perform analysis and plot figures</p>
+<p>Initialization of Analysis class</p>
+<dl class="method">
+<dt id="BICePs.Analysis.Analysis.MBAR_analysis">
+<code class="descname">MBAR_analysis</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Analysis.Analysis.MBAR_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>MBAR analysis for populations and BICePs score</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Analysis.Analysis.list_scheme">
+<code class="descname">list_scheme</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Analysis.Analysis.list_scheme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine what scheme is included in sampling</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Analysis.Analysis.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>debug=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Analysis.Analysis.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>load input data from BICePs sampling (yaml and pkl files)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Analysis.Analysis.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Analysis.Analysis.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot figures for population, nuisance parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Analysis.Analysis.save_MBAR">
+<code class="descname">save_MBAR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Analysis.Analysis.save_MBAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>save results (BICePs score and population) from MBAR analysis</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="BICePs.J_coupling.html" class="btn btn-neutral float-right" title="BICePs.J_coupling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="BICePs.html" class="btn btn-neutral" title="BICePs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Temple University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2.0-beta',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

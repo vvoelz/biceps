@@ -44,7 +44,7 @@ autoapi_modules = {
 ## Document Python Code
 autoapi_type = 'python'
 #autoapi_root = '../../BICePs_2.0/inheritance/new_src' # Where HTML is generated
-autoapi_root = './' # Where HTML is generated
+autoapi_root = './api' # Where HTML is generated
 #autoapi_dirs = ['../','../../BICePs_2.0/inheritance/new_src'] # Directory of YAML sources
 autoapi_dirs = ['./']#,'examples/albo/new_src/'] # Directory of YAML sources
 
