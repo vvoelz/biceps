@@ -27,7 +27,9 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BICePs.PosteriorSampler" href="BICePs.PosteriorSampler.html" />
+    <link rel="prev" title="BICePs.KarplusRelation" href="BICePs.KarplusRelation.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -80,12 +82,33 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/index.html">Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="BICePs.html"><code class="docutils literal notranslate"><span class="pre">BICePs</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="BICePs.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Analysis.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Analysis</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.J_coupling.html"><code class="docutils literal notranslate"><span class="pre">BICePs.J_coupling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.KarplusRelation.html"><code class="docutils literal notranslate"><span class="pre">BICePs.KarplusRelation</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">BICePs.Observable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.PosteriorSampler.html"><code class="docutils literal notranslate"><span class="pre">BICePs.PosteriorSampler</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Preparation.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Preparation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Restraint.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Restraint</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.init_res.html"><code class="docutils literal notranslate"><span class="pre">BICePs.init_res</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_J.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_J</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_cs.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_cs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_noe.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_noe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_pf.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_pf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.toolbox.html"><code class="docutils literal notranslate"><span class="pre">BICePs.toolbox</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             
@@ -131,6 +154,10 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="../reference/index.html">Reference</a> &raquo;</li>
+        
+          <li><a href="BICePs.html"><code class="docutils literal notranslate"><span class="pre">BICePs</span></code></a> &raquo;</li>
+        
       <li><code class="docutils literal notranslate"><span class="pre">BICePs.Observable</span></code></li>
     
     
@@ -171,6 +198,18 @@
 </style>
 <div class="section" id="module-BICePs.Observable">
 <span id="biceps-observable"></span><h1><code class="docutils literal notranslate"><span class="pre">BICePs.Observable</span></code><a class="headerlink" href="#module-BICePs.Observable" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#classes" id="id1">Classes</a></li>
+</ul>
+</div>
+<dl class="class">
+<dt id="BICePs.Observable.Observable">
+<em class="property">class </em><code class="descclassname">BICePs.Observable.</code><code class="descname">Observable</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em>, <em>model_angle=None</em>, <em>j=None</em>, <em>k=None</em>, <em>l=None</em>, <em>equivalency_index=None</em>, <em>ambiguity_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Observable.Observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Parent class of observables</p>
+<p>Initialize the parent observable class</p>
+</dd></dl>
+
 <dl class="class">
 <dt id="BICePs.Observable.NMR_Chemicalshift">
 <em class="property">class </em><code class="descclassname">BICePs.Observable.</code><code class="descname">NMR_Chemicalshift</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Observable.NMR_Chemicalshift" title="Permalink to this definition">¶</a></dt>
@@ -199,13 +238,94 @@
 <p>Initialize NMR_Protectionfactor container class</p>
 </dd></dl>
 
+<div class="section" id="classes">
+<h2><a class="toc-backref" href="#id1">Classes</a><a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#BICePs.Observable.Observable" title="BICePs.Observable.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Observable</span></code></a>:
+A Parent class of observables</li>
+<li><a class="reference internal" href="#BICePs.Observable.NMR_Chemicalshift" title="BICePs.Observable.NMR_Chemicalshift"><code class="xref py py-class docutils literal notranslate"><span class="pre">NMR_Chemicalshift</span></code></a>:
+A data containter class to store a datum for NMR chemical shift information.</li>
+<li><a class="reference internal" href="#BICePs.Observable.NMR_Dihedral" title="BICePs.Observable.NMR_Dihedral"><code class="xref py py-class docutils literal notranslate"><span class="pre">NMR_Dihedral</span></code></a>:
+A data containter class to store a datum for NMR dihedral information.</li>
+<li><a class="reference internal" href="#BICePs.Observable.NMR_Distance" title="BICePs.Observable.NMR_Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">NMR_Distance</span></code></a>:
+A class to store NMR noe information.</li>
+<li><a class="reference internal" href="#BICePs.Observable.NMR_Protectionfactor" title="BICePs.Observable.NMR_Protectionfactor"><code class="xref py py-class docutils literal notranslate"><span class="pre">NMR_Protectionfactor</span></code></a>:
+A class to store NMR protection factor information.</li>
+</ul>
 <dl class="class">
-<dt id="BICePs.Observable.Observable">
-<em class="property">class </em><code class="descclassname">BICePs.Observable.</code><code class="descname">Observable</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em>, <em>model_angle=None</em>, <em>j=None</em>, <em>k=None</em>, <em>l=None</em>, <em>equivalency_index=None</em>, <em>ambiguity_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Observable.Observable" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Observable.</code><code class="descname">Observable</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em>, <em>model_angle=None</em>, <em>j=None</em>, <em>k=None</em>, <em>l=None</em>, <em>equivalency_index=None</em>, <em>ambiguity_index=None</em><span class="sig-paren">)</span></dt>
 <dd><p>A Parent class of observables</p>
 <p>Initialize the parent observable class</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance45e0b798ef {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Observable&quot; [URL=&quot;#BICePs.Observable.Observable&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A Parent class of observables&quot;];
+}
 </dd></dl>
 
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Observable.</code><code class="descname">NMR_Chemicalshift</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em><span class="sig-paren">)</span></dt>
+<dd><p>A data containter class to store a datum for NMR chemical shift information.</p>
+<p>Initialize the derived NMR_Chemicalshift class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance42d4c838bd {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;NMR_Chemicalshift&quot; [URL=&quot;#BICePs.Observable.NMR_Chemicalshift&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A data containter class to store a datum for NMR chemical shift information.&quot;];
+  &quot;Observable&quot; -&gt; &quot;NMR_Chemicalshift&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;Observable&quot; [URL=&quot;#BICePs.Observable.Observable&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A Parent class of observables&quot;];
+}
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Observable.</code><code class="descname">NMR_Dihedral</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em>, <em>l</em>, <em>exp</em>, <em>model</em>, <em>equivalency_index=None</em>, <em>ambiguity_index=None</em><span class="sig-paren">)</span></dt>
+<dd><p>A data containter class to store a datum for NMR dihedral information.</p>
+<p>Initialize NMR_Dihedral container class</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance44360f2ee6 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;NMR_Dihedral&quot; [URL=&quot;#BICePs.Observable.NMR_Dihedral&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A data containter class to store a datum for NMR dihedral information.&quot;];
+  &quot;Observable&quot; -&gt; &quot;NMR_Dihedral&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;Observable&quot; [URL=&quot;#BICePs.Observable.Observable&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A Parent class of observables&quot;];
+}
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Observable.</code><code class="descname">NMR_Distance</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>exp</em>, <em>model</em>, <em>equivalency_index=None</em><span class="sig-paren">)</span></dt>
+<dd><p>A class to store NMR noe information.</p>
+<p>Initialize NMR_Distance container class</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance1781773b46 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;NMR_Distance&quot; [URL=&quot;#BICePs.Observable.NMR_Distance&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A class to store NMR noe information.&quot;];
+  &quot;Observable&quot; -&gt; &quot;NMR_Distance&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;Observable&quot; [URL=&quot;#BICePs.Observable.Observable&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A Parent class of observables&quot;];
+}
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Observable.</code><code class="descname">NMR_Protectionfactor</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em><span class="sig-paren">)</span></dt>
+<dd><p>A class to store NMR protection factor information.</p>
+<p>Initialize NMR_Protectionfactor container class</p>
+<p class="rubric">Inheritance</p>
+digraph inheritancecb82f8b054 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;NMR_Protectionfactor&quot; [URL=&quot;#BICePs.Observable.NMR_Protectionfactor&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A class to store NMR protection factor information.&quot;];
+  &quot;Observable&quot; -&gt; &quot;NMR_Protectionfactor&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;Observable&quot; [URL=&quot;#BICePs.Observable.Observable&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A Parent class of observables&quot;];
+}
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -213,6 +333,15 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="BICePs.PosteriorSampler.html" class="btn btn-neutral float-right" title="BICePs.PosteriorSampler" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="BICePs.KarplusRelation.html" class="btn btn-neutral" title="BICePs.KarplusRelation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

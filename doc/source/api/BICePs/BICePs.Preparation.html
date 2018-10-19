@@ -27,7 +27,9 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BICePs.Restraint" href="BICePs.Restraint.html" />
+    <link rel="prev" title="BICePs.PosteriorSampler" href="BICePs.PosteriorSampler.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -80,12 +82,33 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/index.html">Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="BICePs.html"><code class="docutils literal notranslate"><span class="pre">BICePs</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="BICePs.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Analysis.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Analysis</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.J_coupling.html"><code class="docutils literal notranslate"><span class="pre">BICePs.J_coupling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.KarplusRelation.html"><code class="docutils literal notranslate"><span class="pre">BICePs.KarplusRelation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Observable.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Observable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.PosteriorSampler.html"><code class="docutils literal notranslate"><span class="pre">BICePs.PosteriorSampler</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">BICePs.Preparation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Restraint.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Restraint</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.init_res.html"><code class="docutils literal notranslate"><span class="pre">BICePs.init_res</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_J.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_J</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_cs.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_cs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_noe.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_noe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_pf.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_pf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.toolbox.html"><code class="docutils literal notranslate"><span class="pre">BICePs.toolbox</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             
@@ -131,6 +154,10 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="../reference/index.html">Reference</a> &raquo;</li>
+        
+          <li><a href="BICePs.html"><code class="docutils literal notranslate"><span class="pre">BICePs</span></code></a> &raquo;</li>
+        
       <li><code class="docutils literal notranslate"><span class="pre">BICePs.Preparation</span></code></li>
     
     
@@ -171,29 +198,64 @@
 </style>
 <div class="section" id="module-BICePs.Preparation">
 <span id="biceps-preparation"></span><h1><code class="docutils literal notranslate"><span class="pre">BICePs.Preparation</span></code><a class="headerlink" href="#module-BICePs.Preparation" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#classes" id="id1">Classes</a></li>
+</ul>
+</div>
 <dl class="class">
 <dt id="BICePs.Preparation.Preparation">
 <em class="property">class </em><code class="descclassname">BICePs.Preparation.</code><code class="descname">Preparation</code><span class="sig-paren">(</span><em>scheme=None</em>, <em>states=0.0</em>, <em>indices=None</em>, <em>exp_data=None</em>, <em>top=None</em>, <em>data_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Preparation.Preparation" title="Permalink to this definition">¶</a></dt>
 <dd><p>A parent class to prepare input files for BICePs calculation</p>
-<p>Prepare BICePs input files (converting from raw data)
-Parameters</p>
-<blockquote>
-<div></div></blockquote>
+<p>Prepare BICePs input files (converting from raw data)</p>
 <p>scheme: {‘noe’,’J’,’cs_H’,’cs_Ha’,’cs_N’,’cs_Ca’,’pf’}
 states: number of states
-indices: experimental observable index (<em>.txt file)
-exp_data: experimental measuremnets (</em>.txt file)
-top: topology file (<a href="#id1"><span class="problematic" id="id2">*</span></a>.gro, pdb, etc.)
-data_dir: data directory (should have <a href="#id3"><span class="problematic" id="id4">*</span></a>txt file inside)
+indices: experimental observable index (.txt file)
+exp_data: experimental measuremnets (.txt file)
+top: topology file (.gro, pdb, etc.)
+data_dir: data directory (should have txt file inside)
 Karplus: Karplus relation for J_coupling constants</p>
 <dl class="method">
 <dt id="BICePs.Preparation.Preparation.write">
 <code class="descname">write</code><span class="sig-paren">(</span><em>out_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Preparation.Preparation.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>out_dir: output directory</p>
+<dd><p>Writes prepared files to output directory.</p>
 </dd></dl>
 
 </dd></dl>
 
+<div class="section" id="classes">
+<h2><a class="toc-backref" href="#id1">Classes</a><a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#BICePs.Preparation.Preparation" title="BICePs.Preparation.Preparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Preparation</span></code></a>:
+A parent class to prepare input files for BICePs calculation</li>
+</ul>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Preparation.</code><code class="descname">Preparation</code><span class="sig-paren">(</span><em>scheme=None</em>, <em>states=0.0</em>, <em>indices=None</em>, <em>exp_data=None</em>, <em>top=None</em>, <em>data_dir=None</em><span class="sig-paren">)</span></dt>
+<dd><p>A parent class to prepare input files for BICePs calculation</p>
+<p>Prepare BICePs input files (converting from raw data)</p>
+<p>scheme: {‘noe’,’J’,’cs_H’,’cs_Ha’,’cs_N’,’cs_Ca’,’pf’}
+states: number of states
+indices: experimental observable index (.txt file)
+exp_data: experimental measuremnets (.txt file)
+top: topology file (.gro, pdb, etc.)
+data_dir: data directory (should have txt file inside)
+Karplus: Karplus relation for J_coupling constants</p>
+<p class="rubric">Inheritance</p>
+digraph inheritancea28b3b3db2 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Preparation&quot; [URL=&quot;#BICePs.Preparation.Preparation&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A parent class to prepare input files for BICePs calculation&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">write</code><span class="sig-paren">(</span><em>out_dir=None</em><span class="sig-paren">)</span></dt>
+<dd><p>Writes prepared files to output directory.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -201,6 +263,15 @@ Karplus: Karplus relation for J_coupling constants</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="BICePs.Restraint.html" class="btn btn-neutral float-right" title="BICePs.Restraint" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="BICePs.PosteriorSampler.html" class="btn btn-neutral" title="BICePs.PosteriorSampler" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

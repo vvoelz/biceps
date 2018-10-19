@@ -212,14 +212,17 @@ class PosteriorSampler(object):
 
         Parameters
         ----------
-
-        new_state  - the new conformational state from Sample()
-        parameters - a list of the new parameters for each of the restraints
+        new_state: int
+            the new conformational state from Sample()
+        parameters: list
+            a list of the new parameters for each of the restraints
+        parameter_indices: list
+            a list of the new indices for each of the parameters
 
         Returns
         -------
-
         Energy
+            the energy
         """
 
         # Current Structure being sampled (list of restraint objects):

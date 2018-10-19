@@ -1,18 +1,10 @@
 .. _reference:
 
-
-.. currentmodule:: BICePs
-
 Reference
 =========
 
-:class:`BICePs.Restraint` objects
+.. toctree:: ../BICePs/BICePs.rst
 
-
-.. toctree::
-   :glob:
-
-   ../api/BICePs/*
 
 
 
