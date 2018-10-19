@@ -21,17 +21,28 @@ from Observable import * # Containers for experimental observables
 # Code
 ##############################################################################
 class Restraint(object):
-    """The parent class of all Restraint() objects."""
-
-    def __init__(self, PDB_filename, ref, dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0, use_global_ref_sigma=True):
-        """Initialize the Restraint class.
-
-        INPUTS
-        ------
-        PDB_filename        A topology file (*.pdb)
-        data            input data for BICePs (both model and exp)
-        ref           Reference potential.
+    """The parent class of all Restraint() objects.
+        Parameters
+        ----------
+        PDB_filename: string
+            A topology file (*.pdb)
+        ref: string
+            Reference potential.
+        dlogsigma: float
+            Default = np.log(1.02)
+        sigma_min: float
+            Default = 0.05
+        sigma_max: float
+            Default = 20.0
+        use_global_ref_sigma: bool
+            Default = True
         """
+
+
+    def __init__(self, PDB_filename, ref,
+            dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0,
+            use_global_ref_sigma=True):
+        """Initialize the Restraint class."""
 
         # Store restraint info
         self.restraints = []   # a list of data container objects for each restraint (e.g. NMR_Chemicalshift_Ca())
@@ -170,10 +181,12 @@ class Restraint_cs_Ca(Restraint):
 
         Parameters
         ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
+        filename: string
+            Experimental data file
+        lam: float
+            Lambda value (between 0 and 1)
+        free_energy: float
+            The (reduced) free energy f = beta*F of this conformation"""
 
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -216,11 +229,12 @@ class Restraint_cs_H(Restraint):
 
         Parameters
         ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
-
+        filename: string
+            Experimental data file
+        lam: float
+            Lambda value (between 0 and 1)
+        free_energy: float
+            The (reduced) free energy f = beta*F of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
@@ -261,10 +275,12 @@ class Restraint_cs_Ha(Restraint):
 
         Parameters
         ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
+        filename: string
+            Experimental data file
+        lam: float
+            Lambda value (between 0 and 1)
+        free_energy: float
+            The (reduced) free energy f = beta*F of this conformation"""
 
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -306,10 +322,12 @@ class Restraint_cs_N(Restraint):
 
         Parameters
         ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
+        filename: string
+            Experimental data file
+        lam: float
+            Lambda value (between 0 and 1)
+        free_energy: float
+            The (reduced) free energy f = beta*F of this conformation"""
 
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -352,10 +370,12 @@ class Restraint_J(Restraint):
 
         Parameters
         ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
+        filename: string
+            Experimental data file
+        lam: float
+            Lambda value (between 0 and 1)
+        free_energy: float
+            The (reduced) free energy f = beta*F of this conformation"""
 
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -435,13 +455,19 @@ class Restraint_noe(Restraint):
 
         Parameters
         ----------
+        filename: string
+            Experimental data file
+        lam: float
+            Lambda value (between 0 and 1)
+        free_energy: float
+            The (reduced) free energy f = beta*F of this conformation
+        dloggamma: float
+            Gamma is in log space
+        gamma_min: float
+            Minimum value of gamma
+        gamma_max: float
+            Maximum value of gamma"""
 
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation
-        dloggamma    - Gamma is in log space
-        gamma_min    - Minimum value of gamma
-        gamma_max    - Maximum value of gamma"""
 
         # Store info about gamma^(-1/6) scaling parameter array
         self.dloggamma = dloggamma
@@ -526,10 +552,12 @@ class Restraint_pf(Restraint):
 
         Parameters
         ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
+        filename: string
+            Experimental data file
+        lam: float
+            Lambda value (between 0 and 1)
+        free_energy: float
+            The (reduced) free energy f = beta*F of this conformation"""
 
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -577,11 +605,12 @@ class Restraint_pf_spec(Restraint):
 
         Parameters
         ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
-
+        filename: string
+            Experimental data file
+        lam: float
+            Lambda value (between 0 and 1)
+        free_energy: float
+            The (reduced) free energy f = beta*F of this conformation"""
 
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -715,4 +744,29 @@ class Restraint_pf_spec(Restraint):
 
 __all__ = [
     'Restraint',
+    'Restraint.load_data',
+    'Restraint.add_restraint',
+    'Restraint.compute_sse',
+    'Restraint.compute_neglog_exp_ref',
+    'Restraint.compute_neglog_gaussian_ref',
+    'Restraint_cs_Ca',
+    'Restraint_cs_Ca.prep_observable',
+    'Restraint_cs_H',
+    'Restraint_cs_H.prep_observable',
+    'Restraint_cs_Ha',
+    'Restraint_cs_Ha.prep_observable',
+    'Restraint_cs_N',
+    'Restraint_cs_N.prep_observable',
+    'Restraint_J',
+    'Restraint_J.prep_observable',
+    'Restraint_J.adjust_weights',
+    'Restraint_noe',
+    'Restraint_noe.prep_observabl',
+    'Restraint_noe.adjust_weights',
+    'Restraint_pf',
+    'Restraint_pf.prep_observable',
+
 ]
+
+
+

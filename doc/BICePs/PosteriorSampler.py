@@ -26,10 +26,14 @@ class PosteriorSampler(object):
 
     Parameters
     ----------
-    ensemble - a list of lists of Restraint objects, one list for each conformation.
-    freq_write_traj - the frequency (in steps) to write the MCMC trajectory
-    freq_print      - the frequency (in steps) to print status
-    freq_save_traj  - the frequency (in steps) to store the MCMC trajectory"""
+    ensemble: list
+        a list of lists of Restraint objects, one list for each conformation.
+    freq_write_traj: int
+        the frequency (in steps) to write the MCMC trajectory
+    freq_print: int
+        the frequency (in steps) to print status
+    freq_save_traj: int
+        the frequency (in steps) to store the MCMC trajectory"""
 
     def __init__(self, ensemble, freq_write_traj=1000,
             freq_print=1000, freq_save_traj=100):
@@ -568,4 +572,10 @@ class PosteriorSamplingTrajectory(object):
 
 __all__ = [
     'PosteriorSampler',
+    'PosteriorSampler.neglogP',
+    'PosteriorSampler.logspaced_array',
+    'PosteriorSampler.write_results',
+    'PosteriorSampler.read_results',
+    'PosteriorSamplingTrajectory'
+
 ]
