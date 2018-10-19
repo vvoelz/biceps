@@ -26,14 +26,19 @@ class Restraint(object):
         ----------
         PDB_filename: string
             A topology file (*.pdb)
+
         ref: string
             Reference potential.
+
         dlogsigma: float
             Default = np.log(1.02)
+
         sigma_min: float
             Default = 0.05
+
         sigma_max: float
             Default = 20.0
+
         use_global_ref_sigma: bool
             Default = True
         """
@@ -231,8 +236,10 @@ class Restraint_cs_H(Restraint):
         ----------
         filename: string
             Experimental data file
+
         lam: float
             Lambda value (between 0 and 1)
+
         free_energy: float
             The (reduced) free energy f = beta*F of this conformation"""
 
@@ -277,8 +284,10 @@ class Restraint_cs_Ha(Restraint):
         ----------
         filename: string
             Experimental data file
+
         lam: float
             Lambda value (between 0 and 1)
+
         free_energy: float
             The (reduced) free energy f = beta*F of this conformation"""
 
@@ -324,8 +333,10 @@ class Restraint_cs_N(Restraint):
         ----------
         filename: string
             Experimental data file
+
         lam: float
             Lambda value (between 0 and 1)
+
         free_energy: float
             The (reduced) free energy f = beta*F of this conformation"""
 
@@ -372,8 +383,10 @@ class Restraint_J(Restraint):
         ----------
         filename: string
             Experimental data file
+
         lam: float
             Lambda value (between 0 and 1)
+
         free_energy: float
             The (reduced) free energy f = beta*F of this conformation"""
 
@@ -457,14 +470,19 @@ class Restraint_noe(Restraint):
         ----------
         filename: string
             Experimental data file
+
         lam: float
             Lambda value (between 0 and 1)
+
         free_energy: float
             The (reduced) free energy f = beta*F of this conformation
+
         dloggamma: float
             Gamma is in log space
+
         gamma_min: float
             Minimum value of gamma
+
         gamma_max: float
             Maximum value of gamma"""
 
@@ -554,8 +572,10 @@ class Restraint_pf(Restraint):
         ----------
         filename: string
             Experimental data file
+
         lam: float
             Lambda value (between 0 and 1)
+
         free_energy: float
             The (reduced) free energy f = beta*F of this conformation"""
 
@@ -607,8 +627,10 @@ class Restraint_pf_spec(Restraint):
         ----------
         filename: string
             Experimental data file
+
         lam: float
             Lambda value (between 0 and 1)
+
         free_energy: float
             The (reduced) free energy f = beta*F of this conformation"""
 
@@ -653,6 +675,7 @@ class Restraint_pf_spec(Restraint):
         Parameters
         ----------
         (nres, 2) array with columns <N_c> and <N_h> for each residue,
+
         Returns
         -------
         array of <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
@@ -665,6 +688,7 @@ class Restraint_pf_spec(Restraint):
         Parameters
         ----------
         (nres, 2) array with columns <N_c> and <N_h> for each residue,
+
         Returns
         -------
         array of <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
@@ -742,31 +766,31 @@ class Restraint_pf_spec(Restraint):
 
 
 
-#__all__ = [
-#    'Restraint',
+__all__ = [
+    'Restraint',
 #    'load_data',
 #    'add_restraint',
 #    'compute_sse',
 #    'compute_neglog_exp_ref',
 #    'compute_neglog_gaussian_ref',
-#    'Restraint_cs_Ca',
+    'Restraint_cs_Ca',
 #    'Restraint_cs_Ca.prep_observable',
-#    'Restraint_cs_H',
+    'Restraint_cs_H',
 #    'Restraint_cs_H.prep_observable',
-#    'Restraint_cs_Ha',
+    'Restraint_cs_Ha',
 #    'Restraint_cs_Ha.prep_observable',
-#    'Restraint_cs_N',
+    'Restraint_cs_N',
 #    'Restraint_cs_N.prep_observable',
-#    'Restraint_J',
+    'Restraint_J',
 #    'Restraint_J.prep_observable',
 #    'Restraint_J.adjust_weights',
-#    'Restraint_noe',
+    'Restraint_noe',
 #    'Restraint_noe.prep_observabl',
 #    'Restraint_noe.adjust_weights',
-#    'Restraint_pf',
+    'Restraint_pf',
 #    'Restraint_pf.prep_observable',
-#
-#]
+
+]
 
 
 

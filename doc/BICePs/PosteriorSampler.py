@@ -28,10 +28,13 @@ class PosteriorSampler(object):
     ----------
     ensemble: list
         a list of lists of Restraint objects, one list for each conformation.
+
     freq_write_traj: int
         the frequency (in steps) to write the MCMC trajectory
+
     freq_print: int
         the frequency (in steps) to print status
+
     freq_save_traj: int
         the frequency (in steps) to store the MCMC trajectory"""
 
@@ -218,10 +221,13 @@ class PosteriorSampler(object):
         ----------
         new_state: int
             the new conformational state from Sample()
+
         parameters: list
             a list of the new parameters for each of the restraints
+
         parameter_indices: list
             a list of the new indices for each of the parameters
+
 
         Returns
         -------
@@ -570,12 +576,12 @@ class PosteriorSamplingTrajectory(object):
 
 
 
-#__all__ = [
-#    'PosteriorSampler',
+__all__ = [
+    'PosteriorSampler',
 #    'PosteriorSampler.neglogP',
 #    'PosteriorSampler.logspaced_array',
 #    'PosteriorSampler.write_results',
 #    'PosteriorSampler.read_results',
-#    'PosteriorSamplingTrajectory'
-#
-#]
+    'PosteriorSamplingTrajectory'
+
+]

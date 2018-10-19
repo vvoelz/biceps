@@ -216,14 +216,14 @@ def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
 
 
 __all__ = [
-'sort_data',
-'compute_nonaa_Jcoupling',
-'dihedral_angle',
-'list_res',
-'write_results',
-'read_results',
-'convert_pop_to_energy',
-'get_J3_HN_HA',
+    'sort_data',
+    'compute_nonaa_Jcoupling',
+    'dihedral_angle',
+    'list_res',
+    'write_results',
+    'read_results',
+    'convert_pop_to_energy',
+    'get_J3_HN_HA',
 
 ]
 

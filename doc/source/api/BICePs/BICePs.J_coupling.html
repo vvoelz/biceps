@@ -198,6 +198,11 @@
 </style>
 <div class="section" id="module-BICePs.J_coupling">
 <span id="biceps-j-coupling"></span><h1><code class="docutils literal notranslate"><span class="pre">BICePs.J_coupling</span></code><a class="headerlink" href="#module-BICePs.J_coupling" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#functions" id="id1">Functions</a></li>
+</ul>
+</div>
 <dl class="function">
 <dt id="BICePs.J_coupling.compute_J3_HN_HA">
 <code class="descclassname">BICePs.J_coupling.</code><code class="descname">compute_J3_HN_HA</code><span class="sig-paren">(</span><em>traj</em>, <em>model='Bax2007'</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.J_coupling.compute_J3_HN_HA" title="Permalink to this definition">¶</a></dt>
@@ -223,6 +228,47 @@ atoms <cite>indices[k]</cite></dd>
 <p>The coefficients are taken from the references below–please cite them.</p>
 </dd></dl>
 
+<div class="section" id="functions">
+<h2><a class="toc-backref" href="#id1">Functions</a><a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#BICePs.J_coupling._J3_function" title="BICePs.J_coupling._J3_function"><code class="xref py py-func docutils literal notranslate"><span class="pre">_J3_function()</span></code></a>:
+Return a scalar couplings with a given choice of karplus coefficients.</li>
+<li><a class="reference internal" href="#BICePs.J_coupling.compute_J3_HN_HA" title="BICePs.J_coupling.compute_J3_HN_HA"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_J3_HN_HA()</span></code></a>:
+AutoApi: Unable to determine summary.</li>
+</ul>
+<dl class="function">
+<dt id="BICePs.J_coupling._J3_function">
+<code class="descclassname">BICePs.J_coupling.</code><code class="descname">_J3_function</code><span class="sig-paren">(</span><em>phi</em>, <em>A</em>, <em>B</em>, <em>C</em>, <em>phi0</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.J_coupling._J3_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a scalar couplings with a given choice of karplus coefficients.
+.. warning:: in radians</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">BICePs.J_coupling.</code><code class="descname">compute_J3_HN_HA</code><span class="sig-paren">(</span><em>traj</em>, <em>model='Bax2007'</em><span class="sig-paren">)</span></dt>
+<dd><p>Calculate the scalar coupling between HN and H_alpha.</p>
+<p>This function does not take into account periodic boundary conditions (it
+will give spurious results if the three atoms which make up any angle jump
+across a PBC (are not “wholed”))</p>
+<dl class="docutils">
+<dt>traj <span class="classifier-delimiter">:</span> <span class="classifier">mdtraj.Trajectory</span></dt>
+<dd>Trajectory to compute J3_HN_HA for</dd>
+<dt>model <span class="classifier-delimiter">:</span> <span class="classifier">string, optional, default=”Bax2007”</span></dt>
+<dd>Which scalar coupling model to use.  Must be one of Bax2007, Bax1999,
+or Ruterjans1999</dd>
+</dl>
+<dl class="docutils">
+<dt>indices <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray, shape=(n_phi, 4), dtype=int</span></dt>
+<dd>Atom indices (zero-based) of the phi dihedrals</dd>
+<dt>J <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray, shape=(n_frames, n_phi)</span></dt>
+<dd>Scalar couplings (J3_HN_HA, in [Hz]) of this trajectory.
+<cite>J[k]</cite> corresponds to the phi dihedral associated with
+atoms <cite>indices[k]</cite></dd>
+</dl>
+<p>The coefficients are taken from the references below–please cite them.</p>
+</dd></dl>
+
+</div>
 </div>
 
 

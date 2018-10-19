@@ -198,6 +198,11 @@
 </style>
 <div class="section" id="module-BICePs.PosteriorSampler">
 <span id="biceps-posteriorsampler"></span><h1><code class="docutils literal notranslate"><span class="pre">BICePs.PosteriorSampler</span></code><a class="headerlink" href="#module-BICePs.PosteriorSampler" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#classes" id="id1">Classes</a></li>
+</ul>
+</div>
 <dl class="class">
 <dt id="BICePs.PosteriorSampler.PosteriorSampler">
 <em class="property">class </em><code class="descclassname">BICePs.PosteriorSampler.</code><code class="descname">PosteriorSampler</code><span class="sig-paren">(</span><em>ensemble</em>, <em>freq_write_traj=1000</em>, <em>freq_print=1000</em>, <em>freq_save_traj=100</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.PosteriorSampler.PosteriorSampler" title="Permalink to this definition">¶</a></dt>
@@ -298,6 +303,127 @@ Standardized: Yes ; Binary: Yes; Human Readable: No;</p>
 
 </dd></dl>
 
+<div class="section" id="classes">
+<h2><a class="toc-backref" href="#id1">Classes</a><a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#BICePs.PosteriorSampler.PosteriorSampler" title="BICePs.PosteriorSampler.PosteriorSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">PosteriorSampler</span></code></a>:
+A class to perform posterior sampling of conformational populations</li>
+<li><a class="reference internal" href="#BICePs.PosteriorSampler.PosteriorSamplingTrajectory" title="BICePs.PosteriorSampler.PosteriorSamplingTrajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">PosteriorSamplingTrajectory</span></code></a>:
+A container class to store and perform operations on the trajectories of</li>
+</ul>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.PosteriorSampler.</code><code class="descname">PosteriorSampler</code><span class="sig-paren">(</span><em>ensemble</em>, <em>freq_write_traj=1000</em>, <em>freq_print=1000</em>, <em>freq_save_traj=100</em><span class="sig-paren">)</span></dt>
+<dd><p>A class to perform posterior sampling of conformational populations</p>
+<dl class="docutils">
+<dt>ensemble: list</dt>
+<dd>a list of lists of Restraint objects, one list for each conformation.</dd>
+<dt>freq_write_traj: int</dt>
+<dd>the frequency (in steps) to write the MCMC trajectory</dd>
+<dt>freq_print: int</dt>
+<dd>the frequency (in steps) to print status</dd>
+<dt>freq_save_traj: int</dt>
+<dd>the frequency (in steps) to store the MCMC trajectory</dd>
+</dl>
+<p>Initialize PosteriorSampler Class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritancecf9a2b349f {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;PosteriorSampler&quot; [URL=&quot;#BICePs.PosteriorSampler.PosteriorSampler&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A class to perform posterior sampling of conformational populations&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">build_exp_ref</code><span class="sig-paren">(</span><em>rest_index</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Look at all the structures to find the average observables r_j</p>
+<p>&gt;&gt;  beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)</p>
+<p>then store this reference potential info for all Restraints of this
+type for each structure</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">build_gaussian_ref</code><span class="sig-paren">(</span><em>rest_index</em>, <em>use_global_ref_sigma=False</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Look at all the structures to find the mean (mu) and std (sigma)
+of  observables r_j then store this reference potential info for all
+Restraints of this type for each structure</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compile_nuisance_parameters</code><span class="sig-paren">(</span><em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Compiles arrays into a list for each nuisance parameter.</p>
+<p>[[allowed_sigma_cs_H],[allowed_sigma_noe,allowed_gamma_noe],…,[Nth_restraint]]</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_logZ</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Compute reference state logZ for the free energies to normalize.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">neglogP</code><span class="sig-paren">(</span><em>new_state</em>, <em>parameters</em>, <em>parameter_indices</em>, <em>verbose=True</em><span class="sig-paren">)</span></dt>
+<dd><p>Return -ln P of the current configuration.</p>
+<dl class="docutils">
+<dt>new_state: int</dt>
+<dd>the new conformational state from Sample()</dd>
+<dt>parameters: list</dt>
+<dd>a list of the new parameters for each of the restraints</dd>
+<dt>parameter_indices: list</dt>
+<dd>a list of the new indices for each of the parameters</dd>
+</dl>
+<dl class="docutils">
+<dt>Energy</dt>
+<dd>the energy</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">sample</code><span class="sig-paren">(</span><em>nsteps</em>, <em>verbose=True</em><span class="sig-paren">)</span></dt>
+<dd><p>Perform n number of steps (nsteps) of posterior sampling, where Monte
+Carlo moves are accepted or rejected according to Metroplis criterion.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.PosteriorSampler.</code><code class="descname">PosteriorSamplingTrajectory</code><span class="sig-paren">(</span><em>ensemble</em><span class="sig-paren">)</span></dt>
+<dd><p>A container class to store and perform operations on the trajectories of
+sampling runs.</p>
+<p>Initialize the PosteriorSamplingTrajectory container class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritancedb5176b91b {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;PosteriorSamplingTrajectory&quot; [URL=&quot;#BICePs.PosteriorSampler.PosteriorSamplingTrajectory&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A container class to store and perform operations on the trajectories of&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Process the trajectory, computing sampling statistics,
+ensemble-average NMR observables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">read_results</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span></dt>
+<dd><p>Reads a npz file</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">write_results</code><span class="sig-paren">(</span><em>outfilename='traj.npz'</em><span class="sig-paren">)</span></dt>
+<dd><p>Writes a compact file of several arrays into binary format.
+Standardized: Yes ; Binary: Yes; Human Readable: No;</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 </div>
 
 
