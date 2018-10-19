@@ -1,5 +1,7 @@
-.. _Albocycline:
+Albocycline Example
+===================
 
-.. notebook:: alternative.ipynb
+.. notebook:: albo/alternative.ipynb
+   :skip_exceptions:
 
 
