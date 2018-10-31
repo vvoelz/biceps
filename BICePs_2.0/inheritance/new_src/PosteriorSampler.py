@@ -409,12 +409,25 @@ class PosteriorSampler(object):
 
             #NOTE: There will need to be additional parameters here for protection factor.
 
+            # Store trajectory samples
+            temp=[[] for i in range(len(self.parameter_indices))]
+            for i in range(len(self.parameter_indices)):
+                for j in self.parameter_indices[i]:
+                        temp[i].append(int(j))
+
+
 
             # Store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step+1), float(self.E),
-                    int(accept), int(self.new_state),
-                    np.array([self.parameter_indices[i] for i in range(len(self.parameter_indices))])])
+                    int(accept), int(self.new_state), list(temp)])
+
+
+            # Store trajectory samples
+#            if step%self.traj_every == 0:
+#                self.traj.trajectory.append( [int(step+1), float(self.E),
+#                    int(accept), int(self.new_state),
+#                    np.array([self.parameter_indices[i] for i in range(len(self.parameter_indices))])])
 
             # Randomly generate new restraint index for the next step
             self.new_rest_index = np.random.randint(len(self.ensemble[0]))
