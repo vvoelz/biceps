@@ -420,7 +420,7 @@ class Restraint_J(Restraint):
 
         for group in self.equivalency_groups.values():
             n = float(len(group))
-            for i in range(len(self.restraints)):
+            for i in group:
                 if 'NMR_Dihedral' in self.restraints[i].__str__():
                     self.restraints[i].weight = 1.0/n
 
@@ -513,7 +513,7 @@ class Restraint_noe(Restraint):
 
         for group in self.equivalency_groups.values():
             n = float(len(group))
-            for i in range(len(self.restraints)):
+            for i in group:
                 if 'NMR_Distance' in self.restraints[i].__str__():
                     self.restraints[i].weight = 1.0/n
 
