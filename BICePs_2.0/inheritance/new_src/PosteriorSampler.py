@@ -360,7 +360,7 @@ class PosteriorSampler(object):
                 print('*****************************************')
 
             # Compute new "energy"
-            new_E = self.neglogP(new_state, parameters, parameter_indices, verbose=True)
+            new_E = self.neglogP(new_state, parameters, parameter_indices, verbose=False)
 
             # Accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -377,13 +377,13 @@ class PosteriorSampler(object):
 
             # Store the counts of sampled sigma along the trajectory
             for i in range(len(self.ensemble[self.new_state])):
-                self.traj.sampled_sigmas[i][parameter_indices[i][0]] += 1
+                self.traj.sampled_sigmas[i][self.parameter_indices[i][0]] += 1
             #self.traj.sampled_sigmas[new_rest_index][parameter_indices[new_rest_index][0]] += 1
 
             # If we are sampling gamma, then store along the trajectory
             for i in range(len(self.ensemble[self.new_state])):
-                if hasattr(self.ensemble[new_state][i], 'gamma'):
-                    self.traj.sampled_gamma[parameter_indices[i][1]] += 1
+                if hasattr(self.ensemble[self.new_state][i], 'gamma'):
+                    self.traj.sampled_gamma[self.parameter_indices[i][1]] += 1
                     #self.traj.sampled_gamma[parameter_indices[new_rest_index][1]] += 1
 
             # Update parameters based upon acceptance (Metroplis criterion)
