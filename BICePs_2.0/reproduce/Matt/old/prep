@@ -1,0 +1,38 @@
+# put sequences.npy, populations.dat, xtc.gro, traj.xtc into working directory
+
+# get energy (can be used directly)
+python energy.py > energy.txt
+
+# assign frames (1/assignement file name may need to be modified 2/ number of states may need to be changed)
+python assign.py
+
+# calculate distances (1/ traj and top files may need to be changed 2/ Indices need to be changed 3/ number of states may need to be changed 4/may take several minutes)
+python cal_dis.py
+
+# create atom indices file (Indices need to be changed)
+python make_atom_indices.py > atom_indice_noe.txt
+
+# create experimental distances (right now it's hard coded and restraint index is 0 based)
+vi noe_distance.txt
+
+# create experimental data for BICePs (1/ make sure atom_indice_noe.txt and noe_distance.txt are ready 2/ need pdbfile for topology information 3/ output file name need to be changed as xxx.noe (xxx is your system's name) 4/ this is very important since it will be read by BICePs to get exp data)
+python make_BICePs_restraint_file.py
+
+# set up BICePs calcualtion file (change line 49 "expdata_filename_noe =" your output file from last step)
+vi sample.py
+
+# set up MBAR estimator scripts (change line 59 "nstates" equal to number of states you have)
+vi calc_MBAR_fromresults.py
+
+# set up output plot scripts (shouldn't be changed in this case)
+vi plot_results.py
+
+# before you finally run BICePs make sure you have following files/folders ready:
+# energy.txt (prior distribution)
+# xxx.noe (exp data)
+# NOE/rminus6_whole_state?.txt (model distances)
+# pdb/state_?.pdb (pdb file for each state)
+# make sure src/ is in the same directory as your work directory (source codes for BICePs)
+
+# After checking everything, you are good to go to qsub qsub.sh file
+
