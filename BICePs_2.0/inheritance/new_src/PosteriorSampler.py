@@ -373,7 +373,7 @@ class PosteriorSampler(object):
                     accept = True
 
       	    # Store trajectory state counts
-            self.traj.state_counts[new_state] += 1
+            self.traj.state_counts[self.new_state] += 1
 
             # Store the counts of sampled sigma along the trajectory
             for i in range(len(self.ensemble[self.new_state])):
