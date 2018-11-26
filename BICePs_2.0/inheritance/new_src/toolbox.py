@@ -14,8 +14,8 @@
 import sys, os, glob
 import numpy as np
 import re
-import io
-from J_coupling import * # MDTraj altered src code
+import yaml, io
+#from J_coupling import * # MDTraj altered src code
 from KarplusRelation import *
 import mdtraj as md
 ##############################################################################
@@ -126,7 +126,7 @@ def convert_pop_to_energy(pop_filename, out_filename=None):
     else:
         np.savetxt(out_filename,energy)
 
-def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None, preload_traj = False):
+def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None):
     '''Compute J3_HN_HA for frames in a trajectories.
     Parameters
     ----------
@@ -138,34 +138,17 @@ def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None, preload
     '''
     J=[]
     if frame is None:
-            if preload_traj:
-                t = traj
-                J = compute_J3_HN_HA(t, model = model)
-	    else:
-                t = md.load(traj,top=top)
-                J = compute_J3_HN_HA(t, model = model)
+            t = md.load(traj,top=top)
+            J = compute_J3_HN_HA(t, model = model)
     if frame is not None:
-	    if preload_traj:
-                t1 = traj
-                for i in range(len(frame)):
-                    t = t1[frame[i]]
-                    d = compute_J3_HN_HA(t, model = model)
-                    if i == 0:
-                            J.append(d[0])
-                            J.append(d[1])
-                    else:
-                            J.append(d[1])
-	    else:
-		t1 = md.load(traj,top=top)
-                for i in range(len(frame)):
-                    t = t[frame[i]]
-                    d = compute_J3_HN_HA(t, model = model)
-                    if i == 0:
-                            J.append(d[0])
-                            J.append(d[1])
-                    else:
-                            J.append(d[1])
-
+            for i in range(len(frame)):
+                t = md.load(traj,top=top)[frame[i]]
+                d = compute_J3_HN_HA(t, model = model)
+                if i == 0:
+                        J.append(d[0])
+                        J.append(d[1])
+                else:
+                        J.append(d[1])
     if outname is not None:
             print('saving output file...')
             np.save(outname, J)
@@ -214,4 +197,51 @@ def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
             J[i,j] = karplus.J(model_angle, karplus_key[j])
     return J
 
-
+def plot_ref(resultdir = None, debug = True):
+    from matplotlib import pyplot as plt
+    # Load in yaml trajectories
+    output = os.path.join(resultdir,'traj_lambda0.00.npz') 
+    if debug:
+            print 'Loading %s ...'%output
+    results = np.load( file(output, 'r') )['arr_0'].item() 
+    n_restraints = len(results['ref_potential'])
+    for i in range(n_restraints):
+        if results['ref_potential'][i][0] == 'Nan':
+            pass
+        else:
+            n_model = len(results['ref_potential'][i][0])
+            c,r = 5, int(n_model)/5 + 1
+            x = np.arange(0.0,30.0,0.01)
+            plt.figure(figsize=(4*c,5*r))
+            if len(results['ref_potential'][i]) == 1:   ## exp ##
+                for j in range(n_model):
+                    beta = results['ref_potential'][i][0][j]
+                    model = results['model'][i][j]
+                    ref = np.exp(-x/beta)/beta
+                    counts,bins = np.histogram(model,bins = np.arange(0.0,20.0,0.2))
+                    plt.subplot(r,c,j+1)
+                    plt.step(bins[0:-1],counts,'black',label = '$P^{d_j}$')
+                    plt.plot(x,ref*10.,'blue',label='$P_{ref}(d_j)$')
+                    plt.xlim(0.0,max(model))
+                    plt.yticks([])
+                    plt.legend(loc='upper right',fontsize=8)
+                plt.tight_layout()
+                plt.savefig('ref_distribution.pdf')
+                plt.close()
+            elif len(results['ref_potential'][i]) == 2:   ## gau ##
+                for j in range(n_model):
+                    mean = results['ref_potential'][i][0][j]
+                    sigma = results['ref_potential'][i][1][j]
+                    model = results['model'][i][j]
+                    ref = (1.0/(np.sqrt(2.0*np.pi*sigma**2.0)))*np.exp(-(x-mean)**2.0/(2.0*sigma**2.0))
+                    counts,bins = np.histogram(model,bins = np.arange(0.0,20.0,0.2))
+                    plt.subplot(r,c,j+1)
+                    plt.step(bins[0:-1],counts,'black',label = '$P^{d_j}$')
+                    plt.plot(x,ref*10.,'blue',label='$P_{ref}(d_j)$')
+                    plt.xlim(0.0,max(model))
+                    plt.yticks([])
+                    plt.legend(loc='upper right',fontsize=8)
+                plt.tight_layout()
+                plt.savefig('ref_distribution.pdf')
+                plt.close()
+                

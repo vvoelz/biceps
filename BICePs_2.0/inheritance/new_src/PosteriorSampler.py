@@ -75,12 +75,16 @@ class PosteriorSampler(object):
         for rest_index in range(len(ensemble[0])):
 
             if ref_types[rest_index] == 'uniform':
+                self.traj.ref[rest_index].append('Nan')
                 pass
             elif ref_types[rest_index] == 'exp':
                 self.build_exp_ref(rest_index)
+                self.traj.ref[rest_index].append(self.betas)
             elif ref_types[rest_index] == 'gaussian':
                 self.build_gaussian_ref(rest_index,
                         use_global_ref_sigma=self.ensemble[0][rest_index].use_global_ref_sigma)
+                self.traj.ref[rest_index].append(self.ref_mean)
+                self.traj.ref[rest_index].append(self.ref_sigma)
             else:
                 print('Please choose a reference potential of the following:\n \
                         {%s,%s,%s}'%('uniform','exp','gaussian'))
@@ -127,14 +131,14 @@ class PosteriorSampler(object):
 
         # Find the MLE average (i.e. beta_j) for each noe
         # calculate beta[j] for every observable r_j
-        betas = np.zeros(n_observables)
+        self.betas = np.zeros(n_observables)
         for j in range(n_observables):
             # the maximum likelihood exponential distribution fitting the data
-            betas[j] =  np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
+            self.betas[j] =  np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
 
         # store the beta information in each structure and compute/store the -log P_potential
         for s in self.ensemble:
-            s[rest_index].betas = betas
+            s[rest_index].betas = self.betas
             s[rest_index].compute_neglog_exp_ref()
 
 
@@ -158,28 +162,28 @@ class PosteriorSampler(object):
             print('distributions',distributions)
 
         # Find the MLE mean (ref_mu_j) and std (ref_sigma_j) for each observable
-        ref_mean  = np.zeros(n_observables)
-        ref_sigma = np.zeros(n_observables)
+        self.ref_mean  = np.zeros(n_observables)
+        self.ref_sigma = np.zeros(n_observables)
         for j in range(n_observables):
-            ref_mean[j] =  np.array(distributions[j]).mean()
-            squared_diffs = [ (d - ref_mean[j])**2.0 for d in distributions[j] ]
-            ref_sigma[j] = np.sqrt( np.array(squared_diffs).sum() / (len(distributions[j])+1.0))
-            print(ref_sigma[j])
+            self.ref_mean[j] =  np.array(distributions[j]).mean()
+            squared_diffs = [ (d - self.ref_mean[j])**2.0 for d in distributions[j] ]
+            self.ref_sigma[j] = np.sqrt( np.array(squared_diffs).sum() / (len(distributions[j])+1.0))
+            #print(self.ref_sigma[j])
 
-        print('ref_mean',ref_mean)
-        print('ref_sigma',ref_sigma)
+        #print('ref_mean',self.ref_mean)
+        #print('ref_sigma',self.ref_sigma)
 
         if use_global_ref_sigma == True:
             # Use the variance across all ref_sigma[j] values to calculate a single value of ref_sigma for all observables
-            global_ref_sigma = ( np.array([ref_sigma[j]**(-2.0) for j in range(n_observables)]).mean() )**-0.5
+            global_ref_sigma = ( np.array([self.ref_sigma[j]**(-2.0) for j in range(n_observables)]).mean() )**-0.5
             for j in range(n_observables):
-                ref_sigma[j] = global_ref_sigma
-                print(ref_sigma[j])
+                self.ref_sigma[j] = global_ref_sigma
+                print(self.ref_sigma[j])
 
         # store the ref_mean and ref_sigma information in each structure and compute/store the -log P_potential
         for s in self.ensemble:
-            s[rest_index].ref_mean = ref_mean
-            s[rest_index].ref_sigma = ref_sigma
+            s[rest_index].ref_mean = self.ref_mean
+            s[rest_index].ref_sigma = self.ref_sigma
             s[rest_index].compute_neglog_gaussian_ref()
 
 
@@ -441,6 +445,9 @@ class PosteriorSamplingTrajectory(object):
         # Lists for each restraint inside a list
         self.sampled_sigmas = [ [] for i in range(len(ensemble[0])) ]
         self.allowed_sigmas = [ [] for i in range(len(ensemble[0])) ]
+        self.ref = [ []  for i in range(len(ensemble[0]))]
+        self.model = [ [] for i in range(len(ensemble[0]))]
+
         f_sim = []
         rest_index = 0
         for s in ensemble:
@@ -486,11 +493,24 @@ class PosteriorSamplingTrajectory(object):
 
         self.results['allowed_gamma'] = None
 
+        for rest_index in range(len(self.ensemble[0])):
+            n_observables  = self.ensemble[0][rest_index].nObs
+            for n in range(n_observables):
+                model = []
+                for s in range(len(self.ensemble)):
+                    model.append(self.ensemble[s][rest_index].restraints[n].model)
+                self.model[rest_index].append(model)
+
+        self.results['model'] = self.model
+
         for s in self.ensemble:
             for rest_index in range(len(s)):
                 if hasattr(s[rest_index], 'gamma'):
                     self.results['sampled_gamma'] = self.sampled_gamma
                     self.results['allowed_gamma'] = self.allowed_gamma
+
+        self.results['ref_potential'] = self.ref
+
 
         # Calculate the modes of the nuisance parameter marginal distributions
         self.results['sigma_mode'] = [ float(self.allowed_sigmas[i][ np.argmax(
