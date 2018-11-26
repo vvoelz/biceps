@@ -50,7 +50,7 @@ energies = energies/0.5959   # convert to reduced free energies F = f/kT
 energies -= energies.min()  # set ground state to zero, just in case
 outdir = 'results_ref_normal'
 # Temporarily placing the number of steps here...
-nsteps = 10000000 # 10000000
+nsteps = 10000 # 10000000
 
 # Make a new directory if we have to
 if not os.path.exists(outdir):

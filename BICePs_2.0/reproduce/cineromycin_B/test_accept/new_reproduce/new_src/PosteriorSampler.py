@@ -329,6 +329,14 @@ class PosteriorSampler(object):
         self.new_para_index = np.random.randint(
                 len(_parameter_indices[self.new_rest_index]) )
 
+        n_para = 1
+        for para in _parameters:
+            for in_para in para:
+                n_para += 1
+        sep_accepted = np.zeros(n_para)
+#        print('sep_accepted',sep_accepted)
+
+
         # RAND = generalized probability of taking a step in restraint space
         #.. given the total number of restraints.
         #RAND = 1. - 1./(len(self.ensemble[0]) + 1.)
@@ -378,6 +386,7 @@ class PosteriorSampler(object):
             if np.random.random() < RAND:
                 ## Take a random step in the space of specific parameter
                 # Shift the index by +1, 0 or -1
+                actual_sample_ind = to_sample_ind
                 index += (np.random.randint(3)-1)
 #                index = np.random.randint(len(nuisance_para))
                 # New index for specific parameter that belongs to a specific restraint
@@ -395,7 +404,7 @@ class PosteriorSampler(object):
             else:
                 ## Take a random step in state space
                 new_state = np.random.randint(self.nstates)
-
+                actual_sample_ind = len(temp_parameters)
             if verbose:
                 print('*****************************************')
                 print('new_rest_index ', new_rest_index )
@@ -454,6 +463,7 @@ class PosteriorSampler(object):
                 _parameters = new_parameters
                 #self.new_rest_index = new_rest_index
                 #self.new_para_index = new_para_index
+                sep_accepted[actual_sample_ind] += 1
                 self.accepted += 1.0
             self.total += 1.0
 
@@ -506,6 +516,9 @@ class PosteriorSampler(object):
  #           self.new_para_index = np.random.randint(
  #                   len(_parameter_indices[self.new_rest_index]) )
         print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
+        print('\nAccepted %s %% \n'%(sep_accepted/self.total*100.))
+        self.traj.sep_accept.append(sep_accepted/self.total*100.)
+        self.traj.sep_accept.append(self.accepted/self.total*100.)
 
 
 class PosteriorSamplingTrajectory(object):
@@ -522,6 +535,7 @@ class PosteriorSamplingTrajectory(object):
         # Lists for each restraint inside a list
         self.sampled_sigmas = [ [] for i in range(len(ensemble[0])) ]
         self.allowed_sigmas = [ [] for i in range(len(ensemble[0])) ]
+        self.sep_accept = []
         f_sim = []
         rest_index = 0
         for s in ensemble:
@@ -566,6 +580,7 @@ class PosteriorSamplingTrajectory(object):
         self.results['sampled_sigma'] = self.sampled_sigmas
 
         self.results['allowed_gamma'] = None
+        self.results['accepted'] = self.sep_accept
 
         for s in self.ensemble:
             for rest_index in range(len(s)):
