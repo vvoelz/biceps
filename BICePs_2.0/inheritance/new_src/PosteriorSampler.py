@@ -299,6 +299,15 @@ class PosteriorSampler(object):
         self.new_para_index = np.random.randint(
                 len(_parameter_indices[self.new_rest_index]) )
 
+        # Create separate accepted ratio recorder list
+        n_para = 1
+        for para in _parameters:    # restraint
+            for in_para in para:    # nuisance parameters
+                n_para += 1
+        sep_accepted = np.zeros(n_para)   # all nuisance paramters + state (n_para starts from 1 not 0)
+
+
+
         for step in range(nsteps):
 
             # Redefine based upon acceptance (Metroplis criterion)
@@ -337,6 +346,7 @@ class PosteriorSampler(object):
 
             if np.random.random() < RAND:
                 ## Take a random step in the space of specific parameter
+                actual_sample_ind = to_sample_ind  # actual parameters being sampled
                 # Shift the index by +1, 0 or -1
                 index += (np.random.randint(3)-1)
 #                index = np.random.randint(len(nuisance_para))
@@ -350,7 +360,7 @@ class PosteriorSampler(object):
             else:
                 ## Take a random step in state space
                 new_state = np.random.randint(self.nstates)
-
+                actual_sample_ind = len(temp_parameters)  # actual parameters being sampled, if it's state then it's the last one in the list
             if verbose:
                 print('*****************************************')
                 print('new_rest_index ', new_rest_index )
@@ -389,6 +399,7 @@ class PosteriorSampler(object):
                 self.new_state = new_state
                 _parameter_indices = new_parameter_indices
                 _parameters = new_parameters
+                sep_accepted[actual_sample_ind] += 1  # keep recording accepted step based on which parameters sampled
                 self.accepted += 1.0
             self.total += 1.0
 
@@ -429,6 +440,9 @@ class PosteriorSampler(object):
 
 
         print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
+        print('\nAccepted %s %% \n'%(sep_accepted/self.total*100.))
+        self.traj.sep_accept.append(sep_accepted/self.total*100.)    # separate accepted ratio
+        self.traj.sep_accept.append(self.accepted/self.total*100.)   # the total accepted ratio
 
 
 class PosteriorSamplingTrajectory(object):
@@ -445,8 +459,9 @@ class PosteriorSamplingTrajectory(object):
         # Lists for each restraint inside a list
         self.sampled_sigmas = [ [] for i in range(len(ensemble[0])) ]
         self.allowed_sigmas = [ [] for i in range(len(ensemble[0])) ]
-        self.ref = [ []  for i in range(len(ensemble[0]))]
-        self.model = [ [] for i in range(len(ensemble[0]))]
+        self.ref = [ []  for i in range(len(ensemble[0]))]  # parameters of reference potentials
+        self.model = [ [] for i in range(len(ensemble[0]))]  # restraints model data
+        self.sep_accept = []     # separate accepted ratio
 
         f_sim = []
         rest_index = 0
@@ -486,6 +501,9 @@ class PosteriorSamplingTrajectory(object):
         # Store the trajectory in results
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
+
+        # Store the accepted ratio (separate + total)
+        self.results['accepted'] = self.sep_accept
 
         # Store the nuisance parameter distributions
         self.results['allowed_sigma'] = self.allowed_sigmas
