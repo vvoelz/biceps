@@ -498,6 +498,9 @@ class PosteriorSamplingTrajectory(object):
         """Process the trajectory, computing sampling statistics,
         ensemble-average NMR observables."""
 
+        # Store the name of the restraints in a list corresponding to the correct order
+        self.results['rest_type'] = [ str(i).split(' ')[0].split('.')[-1] for i in self.ensemble[0] ]
+
         # Store the trajectory in results
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
