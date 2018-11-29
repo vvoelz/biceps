@@ -253,7 +253,15 @@ class Analysis(object):
         	plt.subplot(r,c,k+2)
         	plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
         	plt.hold(True)
-        	plt.xlim(0,max(t0['allowed_sigma'][k]))
+                xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][-1]
+                xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
+                xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
+                xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
+                d_x (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
+                xmax = max(xmax0,xmax1) 
+                xmin = min(xmin0, xmin1)
+                plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
+        	#plt.xlim(0,max(t0['allowed_sigma'][k]))
         	plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
         	plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
         	if self.scheme[k].find('cs') == -1:
@@ -267,7 +275,16 @@ class Analysis(object):
             plt.subplot(r,c,len(self.scheme)+1)
             plt.step(t0['allowed_gamma'],t0['sampled_gamma'],'b-')
             plt.hold(True)
-            plt.xlim(0,max(t0['allowed_gamma']))
+            xmax0 = [l for l,e in enumerate(t0['sampled_gamma']) if e != 0.][-1]
+            xmin0 = [l for l,e in enumerate(t0['sampled_gamma']) if e != 0.][0]
+            xmax1 = [l for l,e in enumerate(t1['sampled_gamma']) if e != 0.][-1]
+            xmin1 = [l for l,e in enumerate(t1['sampled_gamma']) if e != 0.][0]
+            d_x (max(t0['allowed_gamma']) - min(t0['allowed_gamma'])/len(t0['allowed_gamma']))
+            xmax = max(xmax0,xmax1)
+            xmin = min(xmin0, xmin1)
+            plt.xlim(t0['allowed_gamma'][xmin] - d_x, t0['allowed_gamma'][xmax] + d_x)
+
+#            plt.xlim(0,max(t0['allowed_gamma']))
             plt.step(t1['allowed_gamma'],t1['sampled_gamma'], 'r-')
             plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
             plt.xlabel("$\%s$"%self.scheme[-1], fontsize=label_fontsize)
@@ -278,7 +295,16 @@ class Analysis(object):
                 plt.subplot(r,c,k+2)
                 plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
                 plt.hold(True)
-                plt.xlim(0,max(t0['allowed_sigma'][k]))
+                xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][-1]
+                xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
+                xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
+                xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
+                d_x (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
+                xmax = max(xmax0,xmax1)
+                xmin = min(xmin0, xmin1)
+                plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
+
+#                plt.xlim(0,max(t0['allowed_sigma'][k]))
                 plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
                 plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
                 if self.scheme[k].find('cs') == -1:
