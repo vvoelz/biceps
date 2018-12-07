@@ -578,10 +578,18 @@ class PosteriorSamplingTrajectory(object):
 
 __all__ = [
     'PosteriorSampler',
-#    'PosteriorSampler.neglogP',
-#    'PosteriorSampler.logspaced_array',
-#    'PosteriorSampler.write_results',
-#    'PosteriorSampler.read_results',
+    'compute_logZ',
+    'build_exp_ref',
+    'build_gaussian_ref',
+    'compile_nuisance_parameters',
+    'sample',
+    'neglogP',
+    'logspaced_array',
+    'write_results',
+    'read_results',
     'PosteriorSamplingTrajectory'
+    'process',
+
 
 ]
+

@@ -767,7 +767,7 @@ class Restraint_pf_spec(Restraint):
 
 
 __all__ = [
-    'Restraint',
+    #'Restraint',
 #    'load_data',
 #    'add_restraint',
 #    'compute_sse',

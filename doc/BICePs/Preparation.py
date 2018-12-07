@@ -140,12 +140,8 @@ class Preparation(object):
 
 
 __all__ = [
-        'Preparation',
+    #'Preparation',
+    #'write',
 ]
-
-
-
-
-
 
 

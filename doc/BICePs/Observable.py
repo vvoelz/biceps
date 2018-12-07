@@ -139,7 +139,7 @@ class NMR_Protectionfactor(Observable):
 
 
 __all__ = [
-    'Observable',
+    #'Observable',
     'NMR_Chemicalshift',
     'NMR_Dihedral',
     'NMR_Distance',

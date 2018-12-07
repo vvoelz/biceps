@@ -261,6 +261,12 @@ class Analysis(object):
 
 
 __all__ = [
-    'Analysis',
+    #'Analysis',
+    'list_scheme',
+    'plot',
+    'load_data',
+    'MBAR_analysis',
+    'save_MBAR',
 ]
+
 
