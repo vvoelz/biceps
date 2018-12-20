@@ -121,12 +121,15 @@ def convert_pop_to_energy(pop_filename, out_filename=None):
     pop[np.isnan(pop)]=0.001
     for i in pop:
         energy.append(-np.log((i/float(sum(pop)))))
+
     if out_filename == None:
         np.savetxt('energy.txt',energy)
     else:
         np.savetxt(out_filename,energy)
 
-def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None):
+    return energy
+
+def get_J3_HN_HA(traj=None, top, frame=None,  model="Habeck", outname = None):
     '''Compute J3_HN_HA for frames in a trajectories.
     Parameters
     ----------
@@ -137,10 +140,11 @@ def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None):
     outname: if not None, the output will be saved and a file name (in the format of string) is required.
     '''
     J=[]
-    if frame is None:
+    if traj is not None:
+        if frame is None:
             t = md.load(traj,top=top)
             J = compute_J3_HN_HA(t, model = model)
-    if frame is not None:
+        elif frame is not None:
             for i in range(len(frame)):
                 t = md.load(traj,top=top)[frame[i]]
                 d = compute_J3_HN_HA(t, model = model)
@@ -149,11 +153,17 @@ def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None):
                         J.append(d[1])
                 else:
                         J.append(d[1])
+    else:
+        t = md.load(top)
+        J = compute_JS_HN_HA(t, model = model)
     if outname is not None:
             print('saving output file...')
             np.save(outname, J)
             print('Done!')
-
+    else:
+        print('saving output file ...')
+        np.save('J3_coupling',J)
+        print('Done!')
     return J
 
 def dihedral_angle(x0, x1, x2, x3):
