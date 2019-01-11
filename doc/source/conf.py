@@ -1,23 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
 # -- General configuration ------------------------------------------------
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
 import os,sys
 #sys.path.insert(0, os.path.abspath('sphinxext'))
-sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('./'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'nbsphinx', # for jupyter notebooks **
-    #'sphinx.ext.mathjax',
-    #'sphinx.ext.autodoc',
+#    'nbsphinx', # for jupyter notebooks **
+    'sphinx.ext.mathjax',
+    'sphinx.ext.autodoc',
     #'sphinx.ext.doctest',
-    #'sphinx.ext.inheritance_diagram',
-    #'sphinx.ext.autosummary',
-    'autoapi.sphinx',
+    'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.autosummary',
+    #'autoapi.sphinx',
 ]
 
     # Excluding this because of known error
