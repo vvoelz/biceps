@@ -12,11 +12,11 @@ sys.path.insert(0, os.path.abspath('../'))
 # ones.
 extensions = [
     'nbsphinx', # for jupyter notebooks **
-    'sphinx.ext.mathjax',
-    'sphinx.ext.autodoc',
+    #'sphinx.ext.mathjax',
+    #'sphinx.ext.autodoc',
     #'sphinx.ext.doctest',
     #'sphinx.ext.inheritance_diagram',
-    'sphinx.ext.autosummary',
+    #'sphinx.ext.autosummary',
     'autoapi.sphinx',
 ]
 
@@ -36,7 +36,7 @@ autoapi_dirs = ['./reference']#,'examples/albo/new_src/'] # Directory of YAML so
 #templates_path = ['_templates']
 autosummary_generate = True
 autodoc_default_flags = ['members', 'inherited-members']
-numpydoc_class_members_toctree = False
+#numpydoc_class_members_toctree = False
 
 # Execute notebooks before conversion: 'always', 'never', 'auto' (default)
 nbsphinx_execute = 'never'
@@ -64,7 +64,7 @@ nbsphinx_responsive_width = '250px'
 
 # concatenate both class and __init__ docstrings when generating autodoc class
 # docs
-autoclass_content = 'both'
+#autoclass_content = 'both'
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
