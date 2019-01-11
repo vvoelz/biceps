@@ -3,7 +3,7 @@
 Reference
 =========
 
-.. toctree:: ../BICePs/BICePs.rst
+.. toctree:: BICePs/BICePs.rst
 
 
 
