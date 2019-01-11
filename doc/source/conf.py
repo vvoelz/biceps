@@ -17,7 +17,7 @@ extensions = [
     #'sphinx.ext.doctest',
     #'sphinx.ext.inheritance_diagram',
     'sphinx.ext.autosummary',
-    'autoapi.sphinx',
+    #'autoapi.sphinx',
 ]
 
     # Excluding this because of known error
