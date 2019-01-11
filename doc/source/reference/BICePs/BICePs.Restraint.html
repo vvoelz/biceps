@@ -1,0 +1,1270 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>BICePs.Restraint &mdash; BICePs 2.0-beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BICePs.init_res" href="BICePs.init_res.html" />
+    <link rel="prev" title="BICePs.Preparation" href="BICePs.Preparation.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0-beta
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference/index.html">Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="BICePs.html"><code class="docutils literal notranslate"><span class="pre">BICePs</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="BICePs.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Analysis.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Analysis</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.J_coupling.html"><code class="docutils literal notranslate"><span class="pre">BICePs.J_coupling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.KarplusRelation.html"><code class="docutils literal notranslate"><span class="pre">BICePs.KarplusRelation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Observable.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Observable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.PosteriorSampler.html"><code class="docutils literal notranslate"><span class="pre">BICePs.PosteriorSampler</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.Preparation.html"><code class="docutils literal notranslate"><span class="pre">BICePs.Preparation</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">BICePs.Restraint</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.init_res.html"><code class="docutils literal notranslate"><span class="pre">BICePs.init_res</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_J.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_J</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_cs.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_cs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_noe.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_noe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.prep_pf.html"><code class="docutils literal notranslate"><span class="pre">BICePs.prep_pf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="BICePs.toolbox.html"><code class="docutils literal notranslate"><span class="pre">BICePs.toolbox</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../reference/index.html">Reference</a> &raquo;</li>
+        
+          <li><a href="BICePs.html"><code class="docutils literal notranslate"><span class="pre">BICePs</span></code></a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">BICePs.Restraint</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/BICePs/BICePs.Restraint.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="module-BICePs.Restraint">
+<span id="biceps-restraint"></span><h1><code class="docutils literal notranslate"><span class="pre">BICePs.Restraint</span></code><a class="headerlink" href="#module-BICePs.Restraint" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#classes" id="id5">Classes</a></li>
+</ul>
+</div>
+<dl class="class">
+<dt id="BICePs.Restraint.Restraint">
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parent class of all Restraint() objects.
+Parameters
+———-
+PDB_filename: string</p>
+<blockquote>
+<div>A topology file (<a href="#id1"><span class="problematic" id="id2">*</span></a>.pdb)</div></blockquote>
+<dl class="docutils">
+<dt>ref: string</dt>
+<dd>Reference potential.</dd>
+<dt>dlogsigma: float</dt>
+<dd>Default = np.log(1.02)</dd>
+<dt>sigma_min: float</dt>
+<dd>Default = 0.05</dd>
+<dt>sigma_max: float</dt>
+<dd>Default = 20.0</dd>
+<dt>use_global_ref_sigma: bool</dt>
+<dd>Default = True</dd>
+</dl>
+<p>Initialize the Restraint class.</p>
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BICePs.Restraint.Restraint_cs_Ca">
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_cs_Ca</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ca" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of RestraintClass() for C_alpha chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ca.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ca.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ca.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ca.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ca.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ca.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ca.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ca.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ca.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ca.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ca.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ca.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in C_alpha restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BICePs.Restraint.Restraint_cs_H">
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_cs_H</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_H" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of RestraintClass() for H chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_H.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_H.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_H.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_H.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_H.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_H.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_H.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_H.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_H.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_H.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_H.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_H.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in cs_H restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BICePs.Restraint.Restraint_cs_Ha">
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_cs_Ha</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ha" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of RestraintClass() for Ha chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ha.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ha.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ha.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ha.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ha.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ha.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ha.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ha.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ha.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ha.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_Ha.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_Ha.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in cs_Ha restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BICePs.Restraint.Restraint_cs_N">
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_cs_N</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_N" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of RestraintClass() for N chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_N.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_N.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_N.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_N.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_N.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_N.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_N.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_N.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_N.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_N.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_cs_N.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_cs_N.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in cs_N restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BICePs.Restraint.Restraint_J">
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_J</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_J" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of RestraintClass() for J coupling constant.</p>
+<p>Initialize the Restraint class.</p>
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_J.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_J.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_J.adjust_weights">
+<code class="descname">adjust_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_J.adjust_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust the weights of distance and dihedral restraints based on
+their equivalency group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_J.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_J.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_J.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_J.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_J.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_J.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_J.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_J.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_J.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_J.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in J coupling restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BICePs.Restraint.Restraint_noe">
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_noe</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_noe" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of Restraint() for noe distance restraints.</p>
+<p>Initialize the Restraint class.</p>
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_noe.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_noe.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_noe.adjust_weights">
+<code class="descname">adjust_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_noe.adjust_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust the weights of distance restraints based on
+their equivalency group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_noe.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_noe.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_noe.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_noe.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_noe.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_noe.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_noe.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_noe.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_noe.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em>, <em>use_log_normal_noe=False</em>, <em>dloggamma=0.009950330853168092</em>, <em>gamma_min=0.2</em>, <em>gamma_max=10.0</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_noe.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in noe distance restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+<dt>dloggamma: float</dt>
+<dd>Gamma is in log space</dd>
+<dt>gamma_min: float</dt>
+<dd>Minimum value of gamma</dd>
+<dt>gamma_max: float</dt>
+<dd>Maximum value of gamma</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="BICePs.Restraint.Restraint_pf">
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_pf</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_pf" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of Restraint() for protection factor restraints.</p>
+<p>Initialize the Restraint class.</p>
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_pf.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_pf.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_pf.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_pf.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_pf.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_pf.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_pf.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_pf.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_pf.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_pf.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="BICePs.Restraint.Restraint_pf.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#BICePs.Restraint.Restraint_pf.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in protection factor restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="classes">
+<h2><a class="toc-backref" href="#id5">Classes</a><a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#BICePs.Restraint.Restraint" title="BICePs.Restraint.Restraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint</span></code></a>:
+The parent class of all Restraint() objects.</li>
+<li><a class="reference internal" href="#BICePs.Restraint.Restraint_cs_Ca" title="BICePs.Restraint.Restraint_cs_Ca"><code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint_cs_Ca</span></code></a>:
+A derived class of RestraintClass() for C_alpha chemical shift restraints.</li>
+<li><a class="reference internal" href="#BICePs.Restraint.Restraint_cs_H" title="BICePs.Restraint.Restraint_cs_H"><code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint_cs_H</span></code></a>:
+A derived class of RestraintClass() for H chemical shift restraints.</li>
+<li><a class="reference internal" href="#BICePs.Restraint.Restraint_cs_Ha" title="BICePs.Restraint.Restraint_cs_Ha"><code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint_cs_Ha</span></code></a>:
+A derived class of RestraintClass() for Ha chemical shift restraints.</li>
+<li><a class="reference internal" href="#BICePs.Restraint.Restraint_cs_N" title="BICePs.Restraint.Restraint_cs_N"><code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint_cs_N</span></code></a>:
+A derived class of RestraintClass() for N chemical shift restraints.</li>
+<li><a class="reference internal" href="#BICePs.Restraint.Restraint_J" title="BICePs.Restraint.Restraint_J"><code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint_J</span></code></a>:
+A derived class of RestraintClass() for J coupling constant.</li>
+<li><a class="reference internal" href="#BICePs.Restraint.Restraint_noe" title="BICePs.Restraint.Restraint_noe"><code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint_noe</span></code></a>:
+A derived class of Restraint() for noe distance restraints.</li>
+<li><a class="reference internal" href="#BICePs.Restraint.Restraint_pf" title="BICePs.Restraint.Restraint_pf"><code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint_pf</span></code></a>:
+A derived class of Restraint() for protection factor restraints.</li>
+</ul>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span></dt>
+<dd><p>The parent class of all Restraint() objects.
+Parameters
+———-
+PDB_filename: string</p>
+<blockquote>
+<div>A topology file (<a href="#id3"><span class="problematic" id="id4">*</span></a>.pdb)</div></blockquote>
+<dl class="docutils">
+<dt>ref: string</dt>
+<dd>Reference potential.</dd>
+<dt>dlogsigma: float</dt>
+<dd>Default = np.log(1.02)</dd>
+<dt>sigma_min: float</dt>
+<dd>Default = 0.05</dd>
+<dt>sigma_max: float</dt>
+<dd>Default = 20.0</dd>
+<dt>use_global_ref_sigma: bool</dt>
+<dd>Default = True</dd>
+</dl>
+<p>Initialize the Restraint class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance6159d9fd3f {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Restraint&quot; [URL=&quot;#BICePs.Restraint.Restraint&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The parent class of all Restraint() objects.&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_cs_Ca</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span></dt>
+<dd><p>A derived class of RestraintClass() for C_alpha chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritancee9ad61ff16 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Restraint&quot; [URL=&quot;#BICePs.Restraint.Restraint&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The parent class of all Restraint() objects.&quot;];
+  &quot;Restraint_cs_Ca&quot; [URL=&quot;#BICePs.Restraint.Restraint_cs_Ca&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A derived class of RestraintClass() for C_alpha chemical shift restraints.&quot;];
+  &quot;Restraint&quot; -&gt; &quot;Restraint_cs_Ca&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Observable is prepped by loading in C_alpha restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_cs_H</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span></dt>
+<dd><p>A derived class of RestraintClass() for H chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritanced54414e5c1 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Restraint&quot; [URL=&quot;#BICePs.Restraint.Restraint&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The parent class of all Restraint() objects.&quot;];
+  &quot;Restraint_cs_H&quot; [URL=&quot;#BICePs.Restraint.Restraint_cs_H&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A derived class of RestraintClass() for H chemical shift restraints.&quot;];
+  &quot;Restraint&quot; -&gt; &quot;Restraint_cs_H&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Observable is prepped by loading in cs_H restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_cs_Ha</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span></dt>
+<dd><p>A derived class of RestraintClass() for Ha chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance956557df57 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Restraint&quot; [URL=&quot;#BICePs.Restraint.Restraint&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The parent class of all Restraint() objects.&quot;];
+  &quot;Restraint_cs_Ha&quot; [URL=&quot;#BICePs.Restraint.Restraint_cs_Ha&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A derived class of RestraintClass() for Ha chemical shift restraints.&quot;];
+  &quot;Restraint&quot; -&gt; &quot;Restraint_cs_Ha&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Observable is prepped by loading in cs_Ha restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_cs_N</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span></dt>
+<dd><p>A derived class of RestraintClass() for N chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance9b450efcf4 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Restraint&quot; [URL=&quot;#BICePs.Restraint.Restraint&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The parent class of all Restraint() objects.&quot;];
+  &quot;Restraint_cs_N&quot; [URL=&quot;#BICePs.Restraint.Restraint_cs_N&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A derived class of RestraintClass() for N chemical shift restraints.&quot;];
+  &quot;Restraint&quot; -&gt; &quot;Restraint_cs_N&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Observable is prepped by loading in cs_N restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_J</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span></dt>
+<dd><p>A derived class of RestraintClass() for J coupling constant.</p>
+<p>Initialize the Restraint class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance90d3ce15bd {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Restraint&quot; [URL=&quot;#BICePs.Restraint.Restraint&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The parent class of all Restraint() objects.&quot;];
+  &quot;Restraint_J&quot; [URL=&quot;#BICePs.Restraint.Restraint_J&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A derived class of RestraintClass() for J coupling constant.&quot;];
+  &quot;Restraint&quot; -&gt; &quot;Restraint_J&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">adjust_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Adjust the weights of distance and dihedral restraints based on
+their equivalency group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Observable is prepped by loading in J coupling restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_noe</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span></dt>
+<dd><p>A derived class of Restraint() for noe distance restraints.</p>
+<p>Initialize the Restraint class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance462cfd35c4 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Restraint&quot; [URL=&quot;#BICePs.Restraint.Restraint&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The parent class of all Restraint() objects.&quot;];
+  &quot;Restraint_noe&quot; [URL=&quot;#BICePs.Restraint.Restraint_noe&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A derived class of Restraint() for noe distance restraints.&quot;];
+  &quot;Restraint&quot; -&gt; &quot;Restraint_noe&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">adjust_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Adjust the weights of distance restraints based on
+their equivalency group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em>, <em>use_log_normal_noe=False</em>, <em>dloggamma=0.009950330853168092</em>, <em>gamma_min=0.2</em>, <em>gamma_max=10.0</em><span class="sig-paren">)</span></dt>
+<dd><p>Observable is prepped by loading in noe distance restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+<dt>dloggamma: float</dt>
+<dd>Gamma is in log space</dd>
+<dt>gamma_min: float</dt>
+<dd>Minimum value of gamma</dd>
+<dt>gamma_max: float</dt>
+<dd>Maximum value of gamma</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">BICePs.Restraint.</code><code class="descname">Restraint_pf</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span></dt>
+<dd><p>A derived class of Restraint() for protection factor restraints.</p>
+<p>Initialize the Restraint class.</p>
+<p class="rubric">Inheritance</p>
+digraph inheritance0f2c032bf9 {
+rankdir=LR;
+size=&quot;8.0, 12.0&quot;;
+  &quot;Restraint&quot; [URL=&quot;#BICePs.Restraint.Restraint&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;The parent class of all Restraint() objects.&quot;];
+  &quot;Restraint_pf&quot; [URL=&quot;#BICePs.Restraint.Restraint_pf&quot;,fontname=&quot;Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans&quot;,fontsize=10,height=0.25,shape=box,style=&quot;setlinewidth(0.5)&quot;,target=&quot;_top&quot;,tooltip=&quot;A derived class of Restraint() for protection factor restraints.&quot;];
+  &quot;Restraint&quot; -&gt; &quot;Restraint_pf&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+<dl class="method">
+<dt>
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span></dt>
+<dd><p>Observable is prepped by loading in protection factor restraints.</p>
+<dl class="docutils">
+<dt>filename: string</dt>
+<dd>Experimental data file</dd>
+<dt>lam: float</dt>
+<dd>Lambda value (between 0 and 1)</dd>
+<dt>free_energy: float</dt>
+<dd>The (reduced) free energy f = beta*F of this conformation</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="BICePs.init_res.html" class="btn btn-neutral float-right" title="BICePs.init_res" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="BICePs.Preparation.html" class="btn btn-neutral" title="BICePs.Preparation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Temple University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2.0-beta',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
