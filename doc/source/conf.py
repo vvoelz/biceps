@@ -5,8 +5,8 @@
 #needs_sphinx = '1.0'
 
 import os,sys
-sys.path.insert(0, os.path.abspath('sphinxext'))
-#sys.path.insert(0, os.path.abspath('../'))
+#sys.path.insert(0, os.path.abspath('sphinxext'))
+sys.path.insert(0, os.path.abspath('../'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -29,10 +29,8 @@ autoapi_modules = {
 
 ## Document Python Code
 autoapi_type = 'python'
-#autoapi_root = '../../BICePs_2.0/inheritance/new_src' # Where HTML is generated
 autoapi_root = './reference' # Where HTML is generated
-#autoapi_dirs = ['../','../../BICePs_2.0/inheritance/new_src'] # Directory of YAML sources
-autoapi_dirs = ['./']#,'examples/albo/new_src/'] # Directory of YAML sources
+autoapi_dirs = ['./reference']#,'examples/albo/new_src/'] # Directory of YAML sources
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
