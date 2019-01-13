@@ -37,14 +37,12 @@ extensions = [
     # Excluding this because of known error
     #'autoapi.extension'
 
-autoapi_modules = {
-        'BICePs': None
-}
+autoapi_modules = 'BICePs'
 
 ## Document Python Code
 autoapi_type = 'python'
 autoapi_root = './api' # Where HTML is generated
-autoapi_dirs = ['./']#,'examples/albo/new_src/'] # Directory of YAML sources
+autoapi_dirs = ['../BICePs']#,'examples/albo/new_src/'] # Directory of Source Code
 
 
 autodoc_default_flags = ['members', 'inherited-members']
