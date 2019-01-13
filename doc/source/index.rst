@@ -21,6 +21,7 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    workflow
    examples/index
    reference/index
+   BICePs/BICePs
 
 
 Citation |DOI for Citing BICePs|
