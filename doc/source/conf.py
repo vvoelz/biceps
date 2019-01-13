@@ -45,7 +45,7 @@ autoapi_modules = {'BICePs': None,
 autoapi_type = 'python'
 autoapi_dirs = ['../BICePs'] # Directory of Source Code
 
-#autodoc_default_flags = ['members', 'inherited-members']
+autodoc_default_flags = ['members', 'inherited-members']
 numpydoc_class_members_toctree = False
 
 # Execute notebooks before conversion: 'always', 'never', 'auto' (default)
