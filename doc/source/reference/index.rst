@@ -3,7 +3,10 @@
 Reference
 =========
 
-.. toctree:: ../BICePs/BICePs.rst
+.. toctree::
+   :maxdepth: 3
+   :glob:
+   ../BICePs/
 
 
 
