@@ -26,6 +26,8 @@ sys.path.insert(0, os.path.abspath('../'))
 # ones.
 extensions = [
     #'nbsphinx', # for jupyter notebooks **
+    'sphinx.ext.viewcode',
+    'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
@@ -147,7 +149,7 @@ release = u'2.0-beta'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -161,6 +163,46 @@ exclude_patterns = [
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
+
+# -- Options for HTMLHelp output ---------------------------------------------
+
+# Output file base name for HTML help builder.
+htmlhelp_basename = 'BICePsdoc'
+
+# Grouping the document tree into LaTeX files. List of tuples
+# (source start file, target name, title,
+#  author, documentclass [howto, manual, or own class]).
+latex_documents = [
+            (master_doc, 'BICePs.tex', 'BICePs Documentation',
+                     'Author', 'manual'),
+            ]
+
+
+# -- Options for manual page output ------------------------------------------
+
+# One entry per manual page. List of tuples
+# (source start file, name, description, authors, manual section).
+man_pages = [
+            (master_doc, 'biceps', 'BICePs Documentation',
+                     [author], 1)
+            ]
+
+
+# -- Options for Texinfo output ----------------------------------------------
+
+# Grouping the document tree into Texinfo files. List of tuples
+# (source start file, target name, title, author,
+#  dir menu entry, description, category)
+texinfo_documents = [
+            (master_doc, 'BICePs', 'BICePs Documentation',
+                     author, 'BICePs', 'One line description of project.',
+                          'Miscellaneous'),
+            ]
+
+
+
+
+
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
