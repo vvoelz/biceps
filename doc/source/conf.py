@@ -43,7 +43,6 @@ autoapi_modules = {'BICePs': None,
 
 ## Document Python Code
 autoapi_type = 'python'
-autoapi_root = './api' # Where HTML is generated
 autoapi_dirs = ['../BICePs'] # Directory of Source Code
 
 #autodoc_default_flags = ['members', 'inherited-members']
