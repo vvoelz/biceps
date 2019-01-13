@@ -248,7 +248,7 @@ html_logo = ''
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'BICePs'
+htmlhelp_basename = 'api'#'BICePs'
 
 
 # -- Options for LaTeX output ---------------------------------------------
