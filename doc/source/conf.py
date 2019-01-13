@@ -42,10 +42,9 @@ autoapi_modules = 'BICePs'
 ## Document Python Code
 autoapi_type = 'python'
 autoapi_root = './api' # Where HTML is generated
-autoapi_dirs = ['../BICePs']#,'examples/albo/new_src/'] # Directory of Source Code
+autoapi_dirs = ['../BICePs'] # Directory of Source Code
 
-
-autodoc_default_flags = ['members', 'inherited-members']
+#autodoc_default_flags = ['members', 'inherited-members']
 numpydoc_class_members_toctree = False
 
 # Execute notebooks before conversion: 'always', 'never', 'auto' (default)
@@ -110,11 +109,6 @@ nbsphinx_epilog = r"""
     \vfil\penalty-1\vfilneg
 """
 
-
-
-
-
-
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
 
@@ -130,7 +124,6 @@ autoclass_content = 'both'
 # You can specify multiple suffix as a list of string:
 #
 source_suffix = ['.rst', '.md']
-#source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
