@@ -22,6 +22,7 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    examples/index
    reference/index
    BICePs/BICePs
+   api/
 
 
 Citation |DOI for Citing BICePs|
