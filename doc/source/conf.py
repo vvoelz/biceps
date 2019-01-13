@@ -26,8 +26,6 @@ sys.path.insert(0, os.path.abspath('../'))
 # ones.
 extensions = [
     #'nbsphinx', # for jupyter notebooks **
-    'sphinx.ext.viewcode',
-    'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
@@ -39,13 +37,9 @@ extensions = [
     # Excluding this because of known error
     #'autoapi.extension'
 
-autoapi_modules = {'BICePs': None}
-autoapi_modules = {
-   'mymodule': {
-      'override': False,
-      'output': 'auto'
-   }
-}
+autoapi_modules = {'BICePs': None,
+              'output': 'auto'
+              }
 
 ## Document Python Code
 autoapi_type = 'python'
@@ -249,12 +243,6 @@ html_logo = ''
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 #html_static_path = ['']
-
-
-# -- Options for HTMLHelp output ------------------------------------------
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = 'api'#'BICePs'
 
 
 # -- Options for LaTeX output ---------------------------------------------
