@@ -191,22 +191,6 @@ man_pages = [
             ]
 
 
-# -- Options for Texinfo output ----------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-            (master_doc, 'BICePs', 'BICePs Documentation',
-                     author, 'BICePs', 'One line description of project.',
-                          'Miscellaneous'),
-            ]
-
-
-
-
-
-
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
