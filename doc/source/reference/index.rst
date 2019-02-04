@@ -6,8 +6,12 @@ Reference
 .. toctree::
    :maxdepth: 3
    :glob:
-   ../BICePs/BICePs
 
+
+
+
+../BICePs/BICePs
+=================
 
 
 

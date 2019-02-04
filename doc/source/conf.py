@@ -25,11 +25,11 @@ sys.path.insert(0, os.path.abspath('../'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    #'nbsphinx', # for jupyter notebooks **
+    'nbsphinx', # for jupyter notebooks **
     'sphinx.ext.mathjax',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    'sphinx.ext.inheritance_diagram',
+    #'sphinx.ext.inheritance_diagram',
     'sphinx.ext.autosummary',
     'autoapi.sphinx',
 ]
@@ -129,7 +129,7 @@ autoclass_content = 'both'
 source_suffix = ['.rst', '.md']
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'BI'
 
 # General information about the project.
 project = u'BICePs'
