@@ -173,10 +173,12 @@ htmlhelp_basename = 'BICePsdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-            (master_doc, 'BICePs.tex', 'BICePs Documentation',
-                     'Author', 'manual'),
-            ]
+#NOTE: commented out the latex docs.
+#FIXME: Not working at the moment.
+#latex_documents = [
+#            (master_doc, 'BICePs.tex', 'BICePs Documentation',
+#                     'Author', 'manual'),
+#            ]
 
 
 # -- Options for manual page output ------------------------------------------
