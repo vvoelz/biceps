@@ -37,9 +37,11 @@ extensions = [
     # Excluding this because of known error
     #'autoapi.extension'
 
-autoapi_modules = {'BICePs': None,
+autoapi_modules = {'BICePs': {
+              #'override': False;
               'output': 'auto'
-              }
+    }
+}
 
 ## Document Python Code
 autoapi_type = 'python'
