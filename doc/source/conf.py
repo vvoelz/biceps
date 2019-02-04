@@ -129,7 +129,7 @@ autoclass_content = 'both'
 source_suffix = ['.rst', '.md']
 
 # The master toctree document.
-master_doc = 'BI'
+master_doc = 'index'
 
 # General information about the project.
 project = u'BICePs'
