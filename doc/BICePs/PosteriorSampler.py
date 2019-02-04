@@ -22,25 +22,21 @@ from toolbox import *
 ##############################################################################
 
 class PosteriorSampler(object):
-    """A class to perform posterior sampling of conformational populations
+    """
+    A class to perform posterior sampling of conformational populations.
 
-    Parameters
-    ----------
-    ensemble: list
-        a list of lists of Restraint objects, one list for each conformation.
+    :param list ensemble: a list of lists of Restraint objects, one list for each conformation.
 
-    freq_write_traj: int
-        the frequency (in steps) to write the MCMC trajectory
+    :param int freq_write_traj: the frequency (in steps) to write the MCMC trajectory
 
-    freq_print: int
-        the frequency (in steps) to print status
+    :param int freq_print: the frequency (in steps) to print status
 
-    freq_save_traj: int
-        the frequency (in steps) to store the MCMC trajectory"""
+    :param int freq_save_traj: the frequency (in steps) to store the MCMC trajectory"""
 
     def __init__(self, ensemble, freq_write_traj=1000,
             freq_print=1000, freq_save_traj=100):
-        """Initialize PosteriorSampler Class."""
+        """Initialize PosteriorSampler Class.
+        """
 
         # Allow the ensemble to pass through the class
         self.ensemble = ensemble
@@ -217,22 +213,16 @@ class PosteriorSampler(object):
     def neglogP(self, new_state, parameters, parameter_indices, verbose=True):
         """Return -ln P of the current configuration.
 
-        Parameters
-        ----------
-        new_state: int
+        :param int new_state:
             the new conformational state from Sample()
 
-        parameters: list
+        :param list parameters:
             a list of the new parameters for each of the restraints
 
-        parameter_indices: list
+        :param list parameter_indices:
             a list of the new indices for each of the parameters
 
-
-        Returns
-        -------
-        Energy
-            the energy
+        :return: The Energy
         """
 
         # Current Structure being sampled (list of restraint objects):
