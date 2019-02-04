@@ -10,3 +10,5 @@ nbconvert
 pyparsing
 sphinx-autoapi
 autoapi
+mdtraj
+pymbar
