@@ -10,7 +10,3 @@ nbconvert
 pyparsing
 sphinx-autoapi
 autoapi
-numpy>=0.19
-cython>=0.19
-mdtraj
-pymbar
