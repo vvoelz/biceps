@@ -5,7 +5,7 @@ setup(
     version="2.0",
     install_requires=[
         "numpy",
-        "cython".
+        "cython",
         "mdtraj>=1.9",
         "pymbar"
     ],
