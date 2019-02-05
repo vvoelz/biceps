@@ -17,7 +17,7 @@ setup(
         #author='',
         #author_email='',
         license='MIT',
-        packages=['BIcePs'],
+        #packages=['BIcePs'],
         install_requires=["numpy","cython","mdtraj","pymbar"],
         include_package_data=True,
         zip_safe=False)
