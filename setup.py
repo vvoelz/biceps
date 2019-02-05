@@ -29,7 +29,9 @@ setup(
         license='MIT',
         #packages=['BIcePs'],
         packages=find_packages(),
-        install_requires=reqs,#["numpy","cython","mdtraj","pymbar"],
-        dependency_links=req_links,
+        #install_requires=reqs,#["numpy","cython","mdtraj","pymbar"],
+        install_requires=["cython","numpy","sphinx>=1.4","ipykernel","nbsphinx","numpydoc","matplotlib","jupyter","notebook","jinja2","nbconvert","pyparsing","sphinx-autoapi","autoapi","mdtraj","pymbar"]
+        #dependency_links=req_links,
         include_package_data=True,
         zip_safe=False)
+
