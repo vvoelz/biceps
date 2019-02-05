@@ -1,16 +1,23 @@
+#!/usr/bin/env python
+
 from setuptools import setup
 
 setup(
-    name="BICePs",
-    version="2.0",
-    install_requires=[
-        "numpy",
-        "cython",
-        "mdtraj>=1.9",
-        "pymbar"
-    ],
-    #dependency_links = [
-    #    "https://github.com/mdtraj/mdtraj/archive/master.zip",
-    #    "https://github.com/choderalab/pymbar/archive/master.zip"
-    #    ]
-)
+        name="BICePs",
+        version="2.0",
+        description='BICePs',
+        long_description='This is BICePs',
+        classifiers=[
+        #'Development Status :: 3 - Alpha',
+        #'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Science :: Engineering'],
+        #keywords='',
+        #url='http://github.com/',
+        #author='',
+        #author_email='',
+        license='MIT',
+        packages=['BIcePs'],
+        install_requires=["numpy","cython","mdtraj","pymbar"],
+        include_package_data=True,
+        zip_safe=False)
