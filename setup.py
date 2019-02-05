@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
         name="BICePs",
@@ -18,6 +18,7 @@ setup(
         #author_email='',
         license='MIT',
         #packages=['BIcePs'],
+        packages=find_packages(),
         install_requires=["numpy","cython","mdtraj","pymbar"],
         include_package_data=True,
         zip_safe=False)
