@@ -5,7 +5,7 @@ setup(
     version="2.0",
     install_requires=[
         "mdtraj>=1.9",
-        "pymbar>=3",
+        "pymbar"
     ],
     #dependency_links = [
     #    "https://github.com/mdtraj/mdtraj/archive/master.zip",
