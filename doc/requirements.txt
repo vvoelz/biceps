@@ -10,4 +10,3 @@ nbconvert
 pyparsing
 sphinx-autoapi
 autoapi
-biceps
