@@ -9,6 +9,8 @@ install_reqs = parse_requirements('./doc/source/requirements.txt')
 # reqs is a list of requirement
 # e.g. ['django==1.5.1', 'mezzanine==1.4.6']
 reqs = [str(ir.req) for ir in install_reqs]
+req_links = [str(ir.url) for ir in install_reqs]
+
 
 setup(
         name="BICePs",
@@ -28,5 +30,6 @@ setup(
         #packages=['BIcePs'],
         packages=find_packages(),
         install_requires=reqs,#["numpy","cython","mdtraj","pymbar"],
+        dependency_links=req_links,
         include_package_data=True,
         zip_safe=False)
