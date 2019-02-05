@@ -4,6 +4,8 @@ setup(
     name="BICePs",
     version="2.0",
     install_requires=[
+        "numpy",
+        "cython".
         "mdtraj>=1.9",
         "pymbar"
     ],
