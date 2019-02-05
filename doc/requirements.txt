@@ -1,3 +1,5 @@
+numpy
+cython
 mdtraj
 pymbar
 sphinx>=1.4
