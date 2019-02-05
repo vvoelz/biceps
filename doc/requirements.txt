@@ -1,3 +1,5 @@
+mdtraj
+pymbar
 sphinx>=1.4
 ipykernel
 nbsphinx
@@ -10,5 +12,4 @@ nbconvert
 pyparsing
 sphinx-autoapi
 autoapi
-mdtraj
-pymbar
+
