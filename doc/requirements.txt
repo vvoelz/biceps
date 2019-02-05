@@ -1,16 +1,3 @@
-sphinx>=1.4
-ipykernel
-nbsphinx
-numpydoc
-matplotlib
-jupyter
-notebook
-jinja2
-nbconvert
-pyparsing
-sphinx-autoapi
-autoapi
-numpy
+pymbar
 cython
 mdtraj
-pymbar
