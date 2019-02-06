@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 from setuptools import setup, find_packages
 from pip.req import parse_requirements
 
@@ -11,6 +12,18 @@ install_reqs = parse_requirements('./doc/source/requirements.txt')
 reqs = [str(ir.req) for ir in install_reqs]
 req_links = [str(ir.url) for ir in install_reqs]
 
+
+if any(cmd in sys.argv for cmd in ('install', 'build', 'develop')):
+    check_dependencies((
+        ('numpy',),
+        ('scipy',),
+        ('pandas',),
+        ('six',),
+        ('mdtraj',),
+        ('sklearn', 'scikit-learn'),
+        ('numpydoc',),
+        ('tables', 'pytables'),
+    ))
 
 setup(
         name="BICePs",
@@ -33,4 +46,6 @@ setup(
         dependency_links=req_links,
         include_package_data=True,
         zip_safe=False)
+
+
 
