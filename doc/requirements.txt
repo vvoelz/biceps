@@ -1,9 +1,7 @@
 cython==0.19
 numpy
-sphinx>=1.4
 ipykernel
 nbsphinx
-numpydoc
 matplotlib
 jupyter
 notebook
@@ -14,9 +12,6 @@ sphinx-autoapi
 autoapi
 sphinx
 sphinx_rtd_theme
-matplotlib
-jupyter
-jinja2
 runipy
 openmm
 pytables
