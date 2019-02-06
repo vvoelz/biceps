@@ -2,7 +2,8 @@
 
 from setuptools import setup, find_packages
 #from pip.req import parse_requirements
-
+from basesetup import write_version_py, CompilerDetection, \
+        check_dependencies
 import sys
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
