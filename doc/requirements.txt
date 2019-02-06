@@ -12,5 +12,17 @@ nbconvert
 pyparsing
 sphinx-autoapi
 autoapi
+sphinx
+sphinx_rtd_theme
+matplotlib
+jupyter
+jinja2
+runipy
+openmm
+pytables
+scikit-learn
+pytest
+pandas
+numpydoc
 pymbar
 mdtraj==1.8.0
