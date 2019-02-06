@@ -1,0 +1,13 @@
+#restraint_index atom_index1 res1 atom_name1 atom_index2 res2 atom_name2 atom_index3 res3 atom_name3 atom_index4 res4 atom_name4 exp_J_coupling(Hz) model_J_coupling(Hz)
+0            45       UNK1     H25          3        UNK1     C2           4        UNK1     C3           44       UNK1     H24           15.5000      11.5962
+1            21       UNK1     H5           20       UNK1     C14          19       UNK1     C13          22       UNK1     H6            16.1000      11.5950
+2            22       UNK1     H6           19       UNK1     C13          13       UNK1     C11          23       UNK1     H7             6.1000      11.4324
+3            28       UNK1     H11          11       UNK1     C9           10       UNK1     C8           29       UNK1     H12            6.3000       3.7664
+4            28       UNK1     H11          11       UNK1     C9           10       UNK1     C8           30       UNK1     H13            6.3000      11.5155
+5            37       UNK1     H19          8        UNK1     C6           7        UNK1     C5           42       UNK1     H23            2.0000       0.4976
+6            42       UNK1     H23          7        UNK1     C5           38       UNK1     C17          40       UNK1     H21            6.4000       3.0116
+6            42       UNK1     H23          7        UNK1     C5           38       UNK1     C17          39       UNK1     H20            6.4000       1.1957
+6            42       UNK1     H23          7        UNK1     C5           38       UNK1     C17          41       UNK1     H22            6.4000      10.7914
+7            37       UNK1     H19          8        UNK1     C6           33       UNK1     C16          34       UNK1     H16            6.9000       1.6651
+7            37       UNK1     H19          8        UNK1     C6           33       UNK1     C16          35       UNK1     H17            6.9000      10.9561
+7            37       UNK1     H19          8        UNK1     C6           33       UNK1     C16          36       UNK1     H18            6.9000       2.4289

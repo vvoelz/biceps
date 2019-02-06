@@ -1,0 +1,4 @@
+#python sample.py 0.0  results_ref_normal 1000000 
+#python sample.py 1.0  results_ref_normal 1000000 
+python calc_MBAR_fromresults.py results_ref_normal BF_ref_normal.dat populations_ref_normal.dat
+python plot_results.py results_ref_normal populations_ref_normal.dat biceps3.pdf
