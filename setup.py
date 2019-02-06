@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-import sys
 from setuptools import setup, find_packages
 from pip.req import parse_requirements
+
+import sys
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
 install_reqs = parse_requirements('./doc/source/requirements.txt')
