@@ -13,4 +13,4 @@ pyparsing
 sphinx-autoapi
 autoapi
 pymbar
-mdtraj
+mdtraj==1.8.0
