@@ -27,7 +27,10 @@ The `Posteriorsampler` class is closely working with the `Restraint` class. A Ma
 Analysis
 --------
 
-The `Analysis` is consist of two parts: 1/ using [MBAR](https://pymbar.readthedocs.io/en/master/index.html) algorithm to compute populations and `BICePs scores <theory>` and 2/ plot the figures to show population and `nuisance parameters <theory>`{.interpreted-text role="ref"}
+The `Analysis` is consist of two parts: 1/ using [MBAR](https://pymbar.readthedocs.io/en/master/index.html) algorithm to compute populations and `BICePs scores <theory>` and 2/ plot the figures to show population and `nuisance parameters <theory>`
+
+
+To get started check this [tutorial](https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/tutorials/BICePs_example/BICePs_example.ipynb) first.
 
 
 
