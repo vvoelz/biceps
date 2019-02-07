@@ -2,11 +2,13 @@
 
 ## Bayesian inference
 
-Bayesian inference approaches for modeling conformational ensembles generally seek to model a *posterior* distribution $P(X|D)$ of conformational states $X$, given some experimental data $D$. According to Bayes' theorem, the posterior distribution is proportional to a product of (1) a *likelihood* function $Q(D|X)$ of observing the experimental data given a conformational state $X$, and (2) a *prior* distribution $P(X)$ representing any prior knowledge aboutconformational states. 
+Bayesian inference approaches for modeling conformational ensembles generally seek to model a *posterior* distribution $`P(X|D)`$ of conformational states $`X`$, given some experimental data $`D`$. According to Bayes' theorem, the posterior distribution is proportional to a product of (1) a *likelihood* function $`Q(D|X)`$ of observing the experimental data given a conformational state $`X`$, and (2) a *prior* distribution $`P(X)`$ representing any prior knowledge aboutconformational states. 
 
-$$P(X|D) \propto Q(D|X) P(X)\tag{1}$$
+```math
+ P(X|D) \propto Q(D|X) P(X) \tag{1} 
+```
 
-Here, the prior $P(X)$ comes from theoretical modeling, while the likelihood $Q(D|X)$ corresponds to experimental restraints, typically in the form of some error model reflecting how well a given conformation $X$ agrees with experimental measurements. One can think of $Q(D|X)$ as a reweighting factor for the population of each state $X$, and the BICePs algorithm can be thought of as a way to reweight conformationalpopulations to agree with experimental knowledge. 
+Here, the prior $`P(X)`$ comes from theoretical modeling, while the likelihood $`Q(D|X)`$ corresponds to experimental restraints, typically in the form of some error model reflecting how well a given conformation $`X`$ agrees with experimental measurements. One can think of $`Q(D|X)`$ as a reweighting factor for the population of each state $`X`$, and the BICePs algorithm can be thought of as a way to reweight conformationalpopulations to agree with experimental knowledge. 
 
 In BICePs, the error model reflects both uncertainty in the experimental measurements and heterogeneity in the conformational ensemble, (i.e. how likely are the observables for conformation $X$ to be away from the ensemble-average measurement, either due to experimental noise or conformational heterogeneity). These uncertainties are usually not known *a priori*, and must be treated as nuisance parameters $\sigma$ whichcan be modeled using some prior model $P(\sigma)$: 
 
