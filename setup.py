@@ -1,31 +1,17 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-#from pip.req import parse_requirements
-from basesetup import write_version_py, CompilerDetection, \
-        check_dependencies
+from pip.req import parse_requirements
 import sys
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
-#install_reqs = parse_requirements('./doc/source/requirements.txt')
+install_reqs = parse_requirements('./doc/source/requirements.txt')
 
 # reqs is a list of requirement
 # e.g. ['django==1.5.1', 'mezzanine==1.4.6']
-#reqs = [str(ir.req) for ir in install_reqs]
-#req_links = [str(ir.url) for ir in install_reqs]
+reqs = [str(ir.req) for ir in install_reqs]
+req_links = [str(ir.url) for ir in install_reqs]
 
-
-if any(cmd in sys.argv for cmd in ('install', 'build', 'develop')):
-    check_dependencies((
-        ('numpy',),
-        ('scipy',),
-        ('pandas',),
-        ('six',),
-        ('mdtraj',),
-        ('sklearn', 'scikit-learn'),
-        ('numpydoc',),
-        ('tables', 'pytables'),
-    ))
 
 setup(
         name="BICePs",
@@ -44,8 +30,8 @@ setup(
         license='MIT',
         #packages=['BIcePs'],
         packages=find_packages(),
-        #install_requires=reqs,
-        #dependency_links=req_links,
+        install_requires=reqs,
+        dependency_links=req_links,
         include_package_data=True,
         zip_safe=False)
 
