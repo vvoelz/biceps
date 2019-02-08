@@ -83,7 +83,7 @@ nbsphinx_responsive_width = '250px'
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = ['.rst', '.md']
+source_suffix = ['.rst', '.md', '.html']
 
 # The master toctree document.
 master_doc = 'index'
