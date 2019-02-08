@@ -20,7 +20,7 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    theory
    workflow
    examples/index
-   api/index
+   api/
 
 
 Citation |DOI for Citing BICePs|

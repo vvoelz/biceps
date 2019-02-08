@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.abspath('../'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    #'nbsphinx', # for jupyter notebooks **
+    'nbsphinx', # for jupyter notebooks **
     'sphinx.ext.mathjax',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
