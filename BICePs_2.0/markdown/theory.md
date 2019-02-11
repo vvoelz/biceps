@@ -13,6 +13,8 @@ conformational states.
 
 \[P(X|D) \propto Q(D|X) P(X)\]
 
+$$P(X|D) \propto Q(D|X) P(X)$$
+
 Here, the prior \(P(X)\) comes from theoretical modeling, while the
 likelihood \(Q(D|X)\) corresponds to experimental restraints, typically
 in the form of some error model reflecting how well a given conformation
