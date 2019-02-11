@@ -1,0 +1,487 @@
+
+% Default to the notebook output style
+
+    
+
+
+% Inherit from the specified cell style.
+
+
+
+
+    
+\documentclass[11pt]{article}
+
+    
+    
+    \usepackage[T1]{fontenc}
+    % Nicer default font (+ math font) than Computer Modern for most use cases
+    \usepackage{mathpazo}
+
+    % Basic figure setup, for now with no caption control since it's done
+    % automatically by Pandoc (which extracts ![](path) syntax from Markdown).
+    \usepackage{graphicx}
+    % We will generate all images so they have a width \maxwidth. This means
+    % that they will get their normal width if they fit onto the page, but
+    % are scaled down if they would overflow the margins.
+    \makeatletter
+    \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth
+    \else\Gin@nat@width\fi}
+    \makeatother
+    \let\Oldincludegraphics\includegraphics
+    % Set max figure width to be 80% of text width, for now hardcoded.
+    \renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=.8\maxwidth]{#1}}
+    % Ensure that by default, figures have no caption (until we provide a
+    % proper Figure object with a Caption API and a way to capture that
+    % in the conversion process - todo).
+    \usepackage{caption}
+    \DeclareCaptionLabelFormat{nolabel}{}
+    \captionsetup{labelformat=nolabel}
+
+    \usepackage{adjustbox} % Used to constrain images to a maximum size 
+    \usepackage{xcolor} % Allow colors to be defined
+    \usepackage{enumerate} % Needed for markdown enumerations to work
+    \usepackage{geometry} % Used to adjust the document margins
+    \usepackage{amsmath} % Equations
+    \usepackage{amssymb} % Equations
+    \usepackage{textcomp} % defines textquotesingle
+    % Hack from http://tex.stackexchange.com/a/47451/13684:
+    \AtBeginDocument{%
+        \def\PYZsq{\textquotesingle}% Upright quotes in Pygmentized code
+    }
+    \usepackage{upquote} % Upright quotes for verbatim code
+    \usepackage{eurosym} % defines \euro
+    \usepackage[mathletters]{ucs} % Extended unicode (utf-8) support
+    \usepackage[utf8x]{inputenc} % Allow utf-8 characters in the tex document
+    \usepackage{fancyvrb} % verbatim replacement that allows latex
+    \usepackage{grffile} % extends the file name processing of package graphics 
+                         % to support a larger range 
+    % The hyperref package gives us a pdf with properly built
+    % internal navigation ('pdf bookmarks' for the table of contents,
+    % internal cross-reference links, web links for URLs, etc.)
+    \usepackage{hyperref}
+    \usepackage{longtable} % longtable support required by pandoc >1.10
+    \usepackage{booktabs}  % table support for pandoc > 1.12.2
+    \usepackage[inline]{enumitem} % IRkernel/repr support (it uses the enumerate* environment)
+    \usepackage[normalem]{ulem} % ulem is needed to support strikethroughs (\sout)
+                                % normalem makes italics be italics, not underlines
+    
+
+    
+    
+    % Colors for the hyperref package
+    \definecolor{urlcolor}{rgb}{0,.145,.698}
+    \definecolor{linkcolor}{rgb}{.71,0.21,0.01}
+    \definecolor{citecolor}{rgb}{.12,.54,.11}
+
+    % ANSI colors
+    \definecolor{ansi-black}{HTML}{3E424D}
+    \definecolor{ansi-black-intense}{HTML}{282C36}
+    \definecolor{ansi-red}{HTML}{E75C58}
+    \definecolor{ansi-red-intense}{HTML}{B22B31}
+    \definecolor{ansi-green}{HTML}{00A250}
+    \definecolor{ansi-green-intense}{HTML}{007427}
+    \definecolor{ansi-yellow}{HTML}{DDB62B}
+    \definecolor{ansi-yellow-intense}{HTML}{B27D12}
+    \definecolor{ansi-blue}{HTML}{208FFB}
+    \definecolor{ansi-blue-intense}{HTML}{0065CA}
+    \definecolor{ansi-magenta}{HTML}{D160C4}
+    \definecolor{ansi-magenta-intense}{HTML}{A03196}
+    \definecolor{ansi-cyan}{HTML}{60C6C8}
+    \definecolor{ansi-cyan-intense}{HTML}{258F8F}
+    \definecolor{ansi-white}{HTML}{C5C1B4}
+    \definecolor{ansi-white-intense}{HTML}{A1A6B2}
+
+    % commands and environments needed by pandoc snippets
+    % extracted from the output of `pandoc -s`
+    \providecommand{\tightlist}{%
+      \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \newenvironment{Shaded}{}{}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+    \newcommand{\RegionMarkerTok}[1]{{#1}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\NormalTok}[1]{{#1}}
+    
+    % Additional commands for more recent versions of Pandoc
+    \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
+    \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{{#1}}}
+    \newcommand{\ImportTok}[1]{{#1}}
+    \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{{#1}}}}
+    \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{{#1}}}
+    \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{{#1}}}
+    \newcommand{\BuiltInTok}[1]{{#1}}
+    \newcommand{\ExtensionTok}[1]{{#1}}
+    \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{{#1}}}
+    \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
+    \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    
+    
+    % Define a nice break command that doesn't care if a line doesn't already
+    % exist.
+    \def\br{\hspace*{\fill} \\* }
+    % Math Jax compatability definitions
+    \def\gt{>}
+    \def\lt{<}
+    % Document parameters
+    \title{Theory}
+    
+    
+    
+
+    % Pygments definitions
+    
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\expandafter\def\csname PY@tok@gd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gu\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\expandafter\def\csname PY@tok@gs\endcsname{\let\PY@bf=\textbf}
+\expandafter\def\csname PY@tok@gr\endcsname{\def\PY@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@cm\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@vg\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vm\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@mh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@cs\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@ge\endcsname{\let\PY@it=\textit}
+\expandafter\def\csname PY@tok@vc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@il\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@go\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.53,0.53}{##1}}}
+\expandafter\def\csname PY@tok@cp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.74,0.48,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gh\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@ni\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.60,0.60,0.60}{##1}}}
+\expandafter\def\csname PY@tok@nl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@no\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@na\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.49,0.56,0.16}{##1}}}
+\expandafter\def\csname PY@tok@nb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@ne\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.82,0.25,0.23}{##1}}}
+\expandafter\def\csname PY@tok@nf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@si\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@s2\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@nt\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nv\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@s1\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@dl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@ch\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@m\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@gp\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@sh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@ow\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@sx\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@bp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@c1\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@fm\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@o\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@kc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@c\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@mf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@err\endcsname{\def\PY@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
+\expandafter\def\csname PY@tok@mb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@ss\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@sr\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@mo\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@kd\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@mi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@kn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@cpf\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@kr\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@s\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@kp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@w\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PY@tok@kt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.69,0.00,0.25}{##1}}}
+\expandafter\def\csname PY@tok@sc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sa\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@k\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@se\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sd\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+    % Exact colors from NB
+    \definecolor{incolor}{rgb}{0.0, 0.0, 0.5}
+    \definecolor{outcolor}{rgb}{0.545, 0.0, 0.0}
+
+
+
+    
+    % Prevent overflowing lines due to hard-to-break entities
+    \sloppy 
+    % Setup hyperref package
+    \hypersetup{
+      breaklinks=true,  % so long urls are correctly broken across lines
+      colorlinks=true,
+      urlcolor=urlcolor,
+      linkcolor=linkcolor,
+      citecolor=citecolor,
+      }
+    % Slightly bigger margins than the latex defaults
+    
+    \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+    
+    
+
+    \begin{document}
+    
+    
+    \maketitle
+    
+    
+
+    
+    \hypertarget{theory}{%
+\section{Theory}\label{theory}}
+
+\hypertarget{bayesian-inference}{%
+\subsection{Bayesian inference}\label{bayesian-inference}}
+
+Bayesian inference approaches for modeling conformational ensembles
+generally seek to model a \emph{posterior} distribution \(P(X|D)\) of
+conformational states \(X\), given some experimental data \(D\).
+According to Bayes' theorem, the posterior distribution is proportional
+to a product of (1) a \emph{likelihood} function \(Q(D|X)\) of observing
+the experimental data given a conformational state \(X\), and (2) a
+\emph{prior} distribution \(P(X)\) representing any prior knowledge
+about conformational states.
+
+\[P(X|D) \propto Q(D|X) P(X) \tag{1} \]
+
+Here, the prior \(P(X)\) comes from theoretical modeling, while the
+likelihood \(Q(D|X)\) corresponds to experimental restraints, typically
+in the form of some error model reflecting how well a given conformation
+\(X\) agrees with experimental measurements. One can think of \(Q(D|X)\)
+as a reweighting factor for the population of each state \(X\), and the
+BICePs algorithm can be thought of as a way to reweight conformational
+populations to agree with experimental knowledge.
+
+In BICePs, the error model reflects both uncertainty in the experimental
+measurements and heterogeneity in the conformational ensemble, (i.e.~how
+likely are the observables for conformation \(X\) to be away from the
+ensemble-average measurement, either due to experimental noise or
+conformational heterogeneity). These uncertainties are usually not known
+\emph{a priori}, and must be treated as nuisance parameters \(\sigma\)
+which can be modeled using some prior model \(P(\sigma)\):
+
+\[P(X,\sigma | D) \propto Q(D|X,\sigma) P(X) P(\sigma)\tag{2}\]
+
+Posterior sampling over \(X\) and \(\sigma\) using Markov Chain Monte
+Carlo (MCMC) can then be used to determine the conformational
+populations given the experimental restraints as
+\(P(X|D) = \int P(X,\sigma | D) d\sigma\). Similarly, the posterior
+distribution of the experimental uncertainty
+\(P(\sigma | D) = \int P(X,\sigma | D) dX\) gives information about how
+well the posterior conformational distribution agrees with the
+experimental restraints.
+
+\hypertarget{reference-potentials}{%
+\subsection{Reference potentials}\label{reference-potentials}}
+
+The correct implementation of reference potentials is an importance
+advantage of the BICePs algorithm. The experimental data used to
+construct the likelihood function comes from some set of
+ensemble-averaged experimental observables
+\(\mathbf{r} = (r_1, r_2, ..., r_N)\). Such observables are
+low-dimensional projections of some high-dimensional state space \(X\),
+and therefore these restraints in the space of observables need to be
+treated as \emph{potentials of mean force}.\footnote{Olsson, S.;
+  Frellsen, J.; Boomsma, W.; Mardia, K. V.; Hamelryck, T.
+  \href{http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0079439}{Inference
+  of Structure Ensembles of Flexible Biomolecules from Sparse, Averaged
+  Data.} PLoS One 2013, 8, e79439}\footnote{Olsson, S.; Boomsma, W.;
+  Frellsen, J.; Bottaro, S.; Harder, T.; Ferkinghoff-Borg, J.;
+  Hamelryck, T.
+  \href{https://www.sciencedirect.com/science/article/pii/S1090780711003090?via\%3Dihub}{Generative
+  Probabilistic Models Extend the Scope of Inferential Structure
+  Determination.} J. Magn. Reson. 2011, 213, 182−186.}\footnote{Hamelryck,
+  T.; Borg, M.; Paluszewski, M.; Paulsen, J.; Frellsen, J.; Andreetta,
+  C.; Boomsma, W.; Bottaro, S.; Ferkinghoff-Borg, J.
+  \href{http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0013714}{Potentials
+  of Mean Force for Protein Structure Prediction Vindicated, Formalized
+  and Generalized.} PLoS One 2010, 5, e13714.}
+
+\[P(X | D) \propto \bigg[ \frac{Q(\mathbf{r}(X)|D)}{Q_{\text{ref}}(\mathbf{r}(X))} \bigg] P(X)\tag{3}\]
+
+The bracketed weighting function is now a ratio, with the numerator
+\(Q(\mathbf{r}|D)\) being a likelihood function enforcing experimental
+restraints in the space of observables, while the denominator
+\(Q_{\text{ref}}(\mathbf{r})\) reflects some reference distribution for
+possible values of the observables \(\mathbf{r}\) in the absence of any
+experimental restraint information, such that
+\(-\ln [Q(\mathbf{r}|D)/Q_{\text{ref}}(\mathbf{r})]\) is a potential of
+mean force. Without reference potentials, a great deal of unnecessary
+bias is introduced when many non-informative restraints are used.
+
+As an example to illustrate the importance of reference potentials,
+consider an experimental distance restraint applied to two residues of a
+polypeptide chain (Figure 1). In the absence of any experimental
+information, we assume a reference potential
+\(Q_{\text{ref}}(\mathbf{r})\) corresponding to the end-to-end distance
+of a random-coil polymer with a chain length equal to that of the
+intervening residues. For residues near each other along the chain, a
+short-distance restraint may have
+\([Q(\mathbf{r}|D)/Q_{\text{ref}}(\mathbf{r})] \sim 1\), contributing
+little or no information to refine the conformational ensemble. If the
+residues are far apart along the chain, however, a short-distance
+restraint can be highly informative, with
+\([Q(\mathbf{r}|D)/Q_{\text{ref}}(\mathbf{r})]\) greatly rewarding small
+distances where the reference potential \(Q_{\text{ref}}(\mathbf{r})\)
+is small.
+
+\hypertarget{biceps-scores-for-quantitative-model-selection}{%
+\subsection{BICePs scores for quantitative model
+selection}\label{biceps-scores-for-quantitative-model-selection}}
+
+Another key advantage of the BICePs algorithm is its the ability to use
+the sampled posterior probability function to perform quantitative model
+selection. This is done through a quantity we will call the *BICePs
+score*.
+
+Consider \(K\) different theoretical models \(P^{(k)}(X)\),
+\(k=1,...,K\), that we may wish to use as our prior distribution.
+Perhaps these models come from simulations using different potential
+energy functions. Or perhaps we want to compare a model shaped only
+experimental restraints, to a model using both simulation and
+experimental information. Which model is more consistent with the
+experimental data? To determine this, we compute the posterior
+likelihood of the model, \(Z^{(k)}\), by integrating the \(k^{th}\)
+posterior distribution across all conformations\(X\) and values of
+\(\sigma\):
+
+\[\begin{aligned}
+Z^{(k)} = \hspace{0.5cm}\int P^{(k)}(X,\sigma | D)  dX d\sigma  &\hspace{0.5cm}=& \int P^{(k)}(X) Q(X) dX\\
+ \text{total evidence for model } P^{(k)} && \text{overlap integral}
+\end{aligned}\tag{4}\]
+
+The quantity \(Z^{(k)}\) can be interpreted as the total evidence in
+favor of a given model. Equivalently, we can think of this term as an
+overlap integral between the prior \(P^{(k)}(X)\) and a likelihood
+function
+\(Q(X) = \int [Q(\mathbf{r}(X)|D,\sigma)/Q_{\text{ref}}(\mathbf{r}(X)) ] P(\sigma) d\sigma\).
+The overlap integral quantifies how well the theoretical modeling agrees
+with the experimental data (Figure 2); i.e.~the value of \(Z^{(k)}\) is
+maximal when \(P^{(k)}(X)\) most closely matches the likelihood
+distribution \(Q(X)\) specified by the experimental restraints.
+
+In Bayesian statistics, the so-called Bayes factor, \(Z^{(1)}/Z^{(2)}\)
+is a likelihood ratio that can be used to choose between competing
+models (1) and (2), similar to a likelihood-ratio test in classical
+statistics. In order to assign each model a unique score, we define a
+freeenergy-like quantity,
+
+\[f^{(k)} = -\ln \frac{Z^{(k)}}{Z_0}\tag{5}\]
+
+to compare model \(P^{(k)}(X,\sigma|D)\) against some reference model
+\(Z_0\). In practice, we choose the reference model to be the posterior
+for a uniform prior \(P(X)\), i.e.~no information from theoretical
+modeling. We call \(f^{(k)}\) the BICePs score. The BICePs score
+provides an unequivocal measure of model quality, to be used for
+objective model selection. The lower the BICePs score, the better the
+model (Figure 2). This useful property means that the BICePs score can
+be used a metric for force field validation and parameterization. In
+addition, the BICePs score has a useful physical interpretation: it
+reflects the improvement (or disimprovement) of the posterior
+distribution when going from a conformation ensemble shaped only
+experimental constraints, to a new distribution additionally shaped by a
+theoretical model.
+
+\hypertarget{summary-of-the-key-advantages-of-biceps.}{%
+\subsection{Summary of the key advantages of
+BICePs.}\label{summary-of-the-key-advantages-of-biceps.}}
+
+To put the BICePs algorithm in a larger context, we summarize the its
+key advantages as follows:
+
+\begin{itemize}
+\item
+  BICePs can be used with molecular dynamics (MD) or quantum mechanics
+  (QM) methods. Conformational states can be individual conformations
+  (like single-point QM minima) or collections of conformations (
+  e.g.~from clustering of trajectory data), as long as experimental
+  observables can be attached to each conformational state.
+\item
+  BICePs performs reweighting of conformational states derived from
+  modeling; it is currently a post-processing algorithm (MCMC) with no
+  additional MD or QM required.
+\item
+  Bayesian inference offers a rigorous statistical framework for
+  achieving the correct balance of theoretical modeling and experimental
+  data.
+\item
+  BICePs correctly uses reference potentials, which is essential to
+  proper weighing of experimental restraints
+\item
+  With proper reference potentials, BICePs scores can be used for
+  unambiguous, objective model selection.
+\end{itemize}
+
+For more details about theory beneath BICePs, please check these
+work.\footnote{Voelz, V. A.; Zhou, G.
+  \href{https://onlinelibrary.wiley.com/doi/abs/10.1002/jcc.23738}{Bayesian
+  Inference of Conformational State Populations from Computational
+  Models and Sparse Exper- imental Observables.} J. Comput. Chem. 2014,
+  35, 2215−2224.}\footnote{Yunhui Ge and Vincent A. Voelz,
+  \href{https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871}{Model
+  selection using BICePs: A Bayesian approach to force field validation
+  and parameterization} Journal of Physical Chemistry B (2018) 122 (21):
+  5610--5622}
+
+\hypertarget{references}{%
+\subsection{References}\label{references}}
+
+
+    % Add a bibliography block to the postdoc
+    
+    
+    
+    \end{document}
