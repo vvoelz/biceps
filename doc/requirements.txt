@@ -1,6 +1,6 @@
 cython==0.19
 numpy
-mdtraj
+mdtraj==1.9.2
 ipykernel
 nbsphinx
 matplotlib
