@@ -1,5 +1,6 @@
 cython==0.19
 numpy
+mdtraj
 ipykernel
 nbsphinx
 matplotlib
@@ -14,5 +15,4 @@ sphinx
 sphinx_rtd_theme
 scikit-learn
 numpydoc
-mdtraj
 pymbar
