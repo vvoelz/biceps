@@ -22,6 +22,7 @@ Citation [![DOI for Citing BICePs](https://img.shields.io/badge/DOI-10.1021.acs.
 
 Installation (in progress)
 ==========================
+
 <!--
 We recommend that you install `BICePs` with `conda`. :
 
@@ -62,14 +63,13 @@ Dependencies of BICePs
 -------------------------------------------
 
 
-### To learn more about the workflow of BICePs, please check out [this page](./BICePs_2.0/markdown/workflow.md) to learn more.
+### To view the workflow of BICePs, please see [this page](./BICePs_2.0/markdown/workflow.md).
 
 
-# Please apply BICePs in your research and cite it in any scientific publications.
+## Please apply BICePs in your research and cite it in any scientific publications.
 
 
-
-# See [BICePs_2.0](https://github.com/vvoelz/biceps/tree/master/BICePs_2.0) for the latest version of BICePs.
+## See [BICePs_2.0](https://github.com/vvoelz/biceps/tree/master/BICePs_2.0) for the latest version of BICePs.
 
 
 
