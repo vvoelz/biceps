@@ -1,5 +1,5 @@
-cython>=0.28.0
-numpy>=1.6.0
+cython==0.28.0
+numpy==1.14.4
 mdtraj==1.9.1
 ipykernel
 nbsphinx
