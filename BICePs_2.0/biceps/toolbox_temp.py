@@ -326,6 +326,7 @@ def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
                 for i in range(len(t)):
                     for j in range(len(rest_type)):
                         sampled_parameters[j].append(allowed_parameters[j][t[i][4:][0][j][0]])
+            #ac_parameters=[[] for i in range(len(rest_type))]
 	    ac_parameters=[]
             for i in range(len(rest_type)):
                 ac_parameters.append(autocorr_valid(np.array(sampled_parameters[i]),tau))
@@ -356,7 +357,7 @@ def plot_ac(ac_paramters,rest_type):
     plt.savefig('autocorrelation.pdf')
     
                 
-def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters,parameters_counts):
+def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters):
     '''Compute JSD for a given part of trajectory.
     Parameters
     ----------
@@ -367,21 +368,21 @@ def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters,parameters_counts):
     all_JSD = np.zeros(len(restraints))
     if 'gamma' in rest_type:
         for i in range(len(restraints)):
-            r1,r2,r_total = parameters_counts[i],parameters_counts[i],parameters_counts[i]
+            r1,r2,r_total = np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i]))
             if i == len(rest_type) - 1:    # means it is gamma
                 for j in T1:
-                    r1[j[4:][0][i-1][1]]+=1
+                    r1[j[4][i-1][1]]+=1
                 for j in T2:
-                    r2[j[4:][0][i-1][1]]+=1
+                    r2[j[4][i-1][1]]+=1
                 for j in T_total:
-                    r_total[j[4:][0][i-1][1]]+=1
+                    r_total[j[4][i-1][1]]+=1
             else:
                 for j in T1:
-                    r1[j[4:][0][i][0]]+=1
+                    r1[j[4][i][0]]+=1
                 for j in T2:
-                    r2[j[4:][0][i][0]]+=1
+                    r2[j[4][i][0]]+=1
                 for j in T_total:
-                    r_total[j[4:][0][i][0]]+=1
+                    r_total[j[4][i][0]]+=1
             N1=sum(r1)
             N2=sum(r2)
             N_total = sum(r_total)
@@ -395,8 +396,8 @@ def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters,parameters_counts):
             all_JSD[i] = JSD
     else:
         for i in range(len(restraints)):
-            r1,r2,r_total = parameters_counts[i],parameters_counts[i],parameters_counts[i]
-            for j in T1:
+	    r1,r2,r_total = np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i]))
+	    for j in T1:
                 r1[j[4:][0][i][0]]+=1
             for j in T2:
                 r2[j[4:][0][i][0]]+=1
