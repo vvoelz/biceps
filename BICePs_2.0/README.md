@@ -11,7 +11,7 @@ data to BICePs readable format. It asks for experimental data as well as
 correspondingly precomputed experimental observables from simulation. We
 recommend users to use [MDTraj](http://mdtraj.org) to compute all
 necessary experimental quantities from simulation or use our prepared
-functions in the `toolbox`. A tutorial jupyter notebook is availabel [here](https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/tutorials/Preparation/Preparation.ipynb)
+functions in the `toolbox`. A tutorial jupyter notebook is availabel [here](https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/tutorials/Preparation/Preparation.ipynb).
 
 Restraint
 ---------
