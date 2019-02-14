@@ -18,6 +18,9 @@ import yaml, io
 #from J_coupling import * # MDTraj altered src code
 from KarplusRelation import *
 import mdtraj as md
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 ##############################################################################
 # Code
 ##############################################################################
@@ -110,9 +113,9 @@ def read_results(filename):
 
 def convert_pop_to_energy(pop_filename, out_filename=None):
     """Convert population to energy for each state using U = -np.log(P)"""
-    if pop_filename.endwith('txt') or pop_filename.endwith('dat'):
+    if pop_filename.endswith('txt') or pop_filename.endswith('dat'):
         pop = np.loadtxt(pop_filename)
-    elif pop_filename.endwith('npy'):
+    elif pop_filename.endswith('npy'):
         pop = np.load(pop_filename)
     else:
         raise ValueError('Incompatible file extention. Use:{.txt,.dat,.npy}')
@@ -129,7 +132,7 @@ def convert_pop_to_energy(pop_filename, out_filename=None):
 
     return energy
 
-def get_J3_HN_HA(traj=None, top, frame=None,  model="Habeck", outname = None):
+def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
     '''Compute J3_HN_HA for frames in a trajectories.
     Parameters
     ----------
@@ -259,7 +262,7 @@ def plot_ref(resultdir = None, debug = True):
 
 def get_rest_type(traj):
     rest_type=[]
-    if traj.endwith != 'npz':
+    if not traj.endswith('.npz'):
         raise TypeError("trajectory file should be in the format of '*npz'")
     else:
         t = np.load(traj)['arr_0'].item()
@@ -274,12 +277,12 @@ def get_rest_type(traj):
 
 
 def get_allowed_parameters(traj,rest_type=None):
-    if traj.endwith != 'npz':
+    if not traj.endswith('.npz'):
         raise TypeError("trajectory file should be in the format of '*npz'")
     else:
         t = np.load(traj)['arr_0'].item()
         parameters = []
-        if rest_type = None:
+        if rest_type == None:
             rest_type = get_rest_type(traj)
         if 'gamma' in rest_type:
             for i in range(len(rest_type)):
@@ -301,13 +304,13 @@ def autocorr_valid(x,tau):
 
 
 def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
-    if traj.endwith != 'npz':
+    if not traj.endswith('.npz'):
         raise TypeError("trajectory file should be in the format of '*npz'")
     else:
         if rest_type == None:
             rest_type = get_rest_type(traj)
         elif allowed_parameters == None:
-            allowed_parameters = get_allowed_parameters(traj,rest_type=rest_type): 
+            allowed_parameters = get_allowed_parameters(traj,rest_type=rest_type) 
         else:
             sampled_parameters = [[] for i in range(len(rest_type))]
             t = np.load(traj)['arr_0'].item()['trajectory']
@@ -324,9 +327,9 @@ def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
                         sampled_parameters.append(t[i][4:][0][j][0])
             ac_parameters=[[] for i in range(len(rest_type))]
             for i in range(len(rest_type)):
-                ac_parameters[i].append(autocorr_valid(np.array(sampled_parameters[i])))
+                ac_parameters[i].append(autocorr_valid(np.array(sampled_parameters[i]),tau))
     n_rest = len(rest_type)
-    time_in_steps = np.arange(1,n_rest+1,1)
+    time_in_steps = np.arange(1,len(ac_parameters[0])+1,1)
     colors = ['red','blue','green','black','magenta','gold','navy']
     plt.figure(figsize=(10,n_rest*5))
     for i in range(n_rest):
@@ -420,7 +423,7 @@ def plot_conv(all_JSD,all_JSDs,rest_type):
     for i in range(len(all_JSD)):
         for j in range(n_rest):
             new_JSD[j].append(all_JSD[i][j])
-    JSD_dis = [[] for i in range(n_rest)]
+    JSD_dist = [[] for i in range(n_rest)]
     JSD_std = [[] for i in range(n_rest)]
     for rest in range(n_rest):
         for f in range(fold):
