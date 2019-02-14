@@ -210,10 +210,11 @@ def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
             J[i,j] = karplus.J(model_angle, karplus_key[j])
     return J
 
-def plot_ref(resultdir = None, debug = True):
-    from matplotlib import pyplot as plt
+def plot_ref(traj, debug = True):
+    #from matplotlib import pyplot as plt
     # Load in yaml trajectories
-    output = os.path.join(resultdir,'traj_lambda0.00.npz') 
+    #output = os.path.join(resultdir,'traj_lambda0.00.npz') 
+    output = 'traj_lambda0.00.npz'
     if debug:
             print 'Loading %s ...'%output
     results = np.load( file(output, 'r') )['arr_0'].item() 
@@ -318,16 +319,16 @@ def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
                 for i in range(len(t)):
                     for j in range(len(rest_type)):
                         if j == len(rest_type)-1:   # means it is gamma
-                            sampled_parameters.append(t[i][4:][0][j-1][1])
+                            sampled_parameters[j].append(allowed_parameters[j][t[i][4:][0][j-1][1]])
                         else:
-                            sampled_parameters.append(t[i][4:][0][j][0])
+                            sampled_parameters[j].append(allowed_parameters[j][t[i][4:][0][j][0]])
             else:
                 for i in range(len(t)):
                     for j in range(len(rest_type)):
-                        sampled_parameters.append(t[i][4:][0][j][0])
-            ac_parameters=[[] for i in range(len(rest_type))]
+                        sampled_parameters[j].append(allowed_parameters[j][t[i][4:][0][j][0]])
+	    ac_parameters=[]
             for i in range(len(rest_type)):
-                ac_parameters[i].append(autocorr_valid(np.array(sampled_parameters[i]),tau))
+                ac_parameters.append(autocorr_valid(np.array(sampled_parameters[i]),tau))
     n_rest = len(rest_type)
     time_in_steps = np.arange(1,len(ac_parameters[0])+1,1)
     colors = ['red','blue','green','black','magenta','gold','navy']
