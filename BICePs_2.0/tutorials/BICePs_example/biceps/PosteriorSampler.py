@@ -597,7 +597,7 @@ class PosteriorSamplingTrajectory(object):
         """Reads a npz file"""
 
         loaded = np.load(filename)
-        print( loaded.items())
+        #print( loaded.items())
 
 
 
