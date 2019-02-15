@@ -129,7 +129,7 @@ class Analysis(object):
 				if debug:
       					print 'step', self.traj[k]['trajectory'][n][0],
       				if k==l:
-          				print 'E%d evaluated in model %d'%(k,k), self.traj[k]['trajectory'][n][1],
+          				#print 'E%d evaluated in model %d'%(k,k), self.traj[k]['trajectory'][n][1],
           				u_kln[k,k,n] = self.traj[k]['trajectory'][n][1]
                                 state, sigma_index = self.traj[k]['trajectory'][n][3:]
 #          			state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index = self.traj[k]['trajectory'][n][3:] 	# IMPORTANT: make sure the order of these parameters is the same as the way they are saved in PosteriorSampler
@@ -151,7 +151,7 @@ class Analysis(object):
 #          			sigma_cs_Ca = self.traj[k]['allowed_sigma_cs_Ca'][sigma_cs_Ca_index]
 #          			sigma_pf = self.traj[k]['allowed_sigma_pf'][sigma_pf_index]
 #          			u_kln[k,l,n] = self.sampler[l].neglogP(0, state, sigma_noe, sigma_J, sigma_cs_H, sigma_cs_Ha, sigma_cs_N, sigma_cs_Ca, sigma_pf, gamma_index)
-                                print 'sigma', sigma
+                                #print 'sigma', sigma
                                 u_kln[k,l,n] = self.sampler[l].neglogP(state, sigma, sigma_index) # is gamma necessary? 
                                 if debug:
 					print 'E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n]
@@ -187,10 +187,10 @@ class Analysis(object):
         	(p_i, dp_i) = mbar.computeExpectations(A_kn, uncertainty_method='approximate')
         	self.P_dP[i,0:self.K] = p_i
         	self.P_dP[i,self.K:2*self.K] = dp_i
-		print i
-        	for p in p_i: print p,
-        	for dp in dp_i: print dp,
-		print
+		#print i
+        	#for p in p_i: print p,
+        	#for dp in dp_i: print dp,
+#		print
 	pops, dpops = self.P_dP[:,0:self.K], self.P_dP[:,self.K:2*self.K]
 
 	# save results
@@ -257,7 +257,7 @@ class Analysis(object):
                 xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
                 xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
                 xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
-                d_x (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
+                d_x = (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
                 xmax = max(xmax0,xmax1) 
                 xmin = min(xmin0, xmin1)
                 plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
@@ -279,7 +279,7 @@ class Analysis(object):
             xmin0 = [l for l,e in enumerate(t0['sampled_gamma']) if e != 0.][0]
             xmax1 = [l for l,e in enumerate(t1['sampled_gamma']) if e != 0.][-1]
             xmin1 = [l for l,e in enumerate(t1['sampled_gamma']) if e != 0.][0]
-            d_x (max(t0['allowed_gamma']) - min(t0['allowed_gamma'])/len(t0['allowed_gamma']))
+            d_x =  (max(t0['allowed_gamma']) - min(t0['allowed_gamma'])/len(t0['allowed_gamma']))
             xmax = max(xmax0,xmax1)
             xmin = min(xmin0, xmin1)
             plt.xlim(t0['allowed_gamma'][xmin] - d_x, t0['allowed_gamma'][xmax] + d_x)
@@ -299,7 +299,7 @@ class Analysis(object):
                 xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
                 xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
                 xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
-                d_x (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
+                d_x = (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
                 xmax = max(xmax0,xmax1)
                 xmin = min(xmin0, xmin1)
                 plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)

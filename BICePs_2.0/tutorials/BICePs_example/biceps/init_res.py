@@ -21,11 +21,11 @@ def init_res(PDB_filename, lam, energy, ref, data, uncern, gamma):
             if len(uncern) != 3:
                 raise ValueError("uncertainty should be a list of three items: sigma_min, sigma_max, dsigma")
             else:
-                sigma_min, sigma_max, dsigma = uncern[0], uncern[1], uncern[2]
+                sigma_min, sigma_max, dsigma = uncern[0], uncern[1], np.log(uncern[2])
         if not gamma: # if it is an empty list
             gamma_min, gamma_max, dgamma = 0.05, 20.0, np.log(1.02)
         else:
-            gamma_min, gamma_max, dgamma = gamma[0], gamma[1], gamma[2]
+            gamma_min, gamma_max, dgamma = gamma[0], gamma[1], np.log(gamma[2])
 
         if data!= None:
             if data.endswith('cs_H'):
