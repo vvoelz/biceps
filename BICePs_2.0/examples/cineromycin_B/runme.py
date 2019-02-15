@@ -9,7 +9,7 @@ from Preparation import *
 from PosteriorSampler import *
 from Analysis import *
 from Restraint import *
-
+from init_res import *
 #########################################
 # Lets' create input files for BICePs
 ############ Preparation ################
