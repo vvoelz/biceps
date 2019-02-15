@@ -94,7 +94,7 @@ def list_res(input_data):
                 scheme.append('pf')
             elif i.endswith('.noe'):
                 scheme.append('noe')
-                scheme.append('gamma')
+#                scheme.append('gamma')
             else:
                 raise ValueError("Incompatible File extension. Use:{*.noe, *.J, *.cs_H, *.cs_Ha, *.cs_N, *.cs_Ca, *.pf}")
 
