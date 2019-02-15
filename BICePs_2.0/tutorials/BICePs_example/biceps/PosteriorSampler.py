@@ -12,7 +12,7 @@ import numpy as np
 #cimport numpy as np
 #import cython
 from scipy  import loadtxt, savetxt
-from matplotlib import pylab as plt
+#from matplotlib import pylab as plt
 from KarplusRelation import *     # Returns J-coupling values from dihedral angles
 from Restraint import *
 from toolbox import *
@@ -113,11 +113,11 @@ class PosteriorSampler(object):
         then store this reference potential info for all Restraints of this type for each structure"""
 
 
-        print( 'Computing parameters for exponential reference potentials...')
+        #print( 'Computing parameters for exponential reference potentials...')
 
         # collect distributions of observables r_j across all structures
         n_observables  = self.ensemble[0][rest_index].nObs  # the number of (model,exp) data values in this restraint
-        print('n_observables = ',n_observables)
+        #print('n_observables = ',n_observables)
 
         distributions = [[] for j in range(n_observables)]
         for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
@@ -127,7 +127,7 @@ class PosteriorSampler(object):
                 distributions[j].append( s[rest_index].restraints[j].model )
         if verbose == True:
             print('distributions',distributions)
-        print('distributions ,',distributions,np.array(distributions).shape)
+        #print('distributions ,',distributions,np.array(distributions).shape)
 
         # Find the MLE average (i.e. beta_j) for each noe
         # calculate beta[j] for every observable r_j
@@ -146,11 +146,11 @@ class PosteriorSampler(object):
         """Look at all the structures to find the mean (mu) and std (sigma) of  observables r_j
         then store this reference potential info for all Restraints of this type for each structure"""
 
-        print( 'Computing parameters for Gaussian reference potentials...')
+        #print( 'Computing parameters for Gaussian reference potentials...')
 
         # collect distributions of observables r_j across all structures
         n_observables  = self.ensemble[0][rest_index].nObs  # the number of (model,exp) data values in this restraint
-        print('n_observables = ',n_observables)
+        #print('n_observables = ',n_observables)
 
         distributions = [[] for j in range(n_observables)]
         for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
@@ -178,7 +178,7 @@ class PosteriorSampler(object):
             global_ref_sigma = ( np.array([self.ref_sigma[j]**(-2.0) for j in range(n_observables)]).mean() )**-0.5
             for j in range(n_observables):
                 self.ref_sigma[j] = global_ref_sigma
-                print(self.ref_sigma[j])
+                #print(self.ref_sigma[j])
 
         # store the ref_mean and ref_sigma information in each structure and compute/store the -log P_potential
         for s in self.ensemble:
@@ -212,8 +212,8 @@ class PosteriorSampler(object):
             print(self.nuisance_para)
             print('Number of Restraints = ',len(self.nuisance_para))
             print('Number of nuisance parameters for each:\n ')
-            for i in range(len(nuisance_para)):
-                print(len(self.nuisance_para[i]))
+        #    for i in range(len(nuisance_para)):
+                #print(len(self.nuisance_para[i]))
         np.save('compiled_nuisance_parameters.npy',self.nuisance_para)
 
 
@@ -382,7 +382,7 @@ class PosteriorSampler(object):
 
 
             # Compute new "energy"
-            new_E = self.neglogP(new_state, new_parameters, new_parameter_indices, verbose=True)
+            new_E = self.neglogP(new_state, new_parameters, new_parameter_indices, verbose=False)
 
             # Accept or reject the MC move according to Metroplis criterion
             accept = False
@@ -392,7 +392,7 @@ class PosteriorSampler(object):
 
             else:
                 if np.random.random() < np.exp( self.E - new_E ):
-
+                    accept = True
             # Update parameters based upon acceptance (Metroplis criterion)
             if accept:
                 self.E = new_E

@@ -116,7 +116,7 @@ class Restraint(object):
                     print '---->', i, '%d'%self.restraints[i].i,
                     print '      exp', self.restraints[i].exp, 'model', self.restraints[i].model
 
-                print 'self.sse', self.sse
+                #/print 'self.sse', self.sse
 
         else:
             sse = 0.0
@@ -206,7 +206,7 @@ class Restraint_cs_Ca(Restraint):
             if verbose:
                 print entry
             self.n += 1
-        self.compute_sse(debug=True)
+        self.compute_sse(debug=False)
 
 
 class Restraint_cs_H(Restraint):
@@ -297,7 +297,7 @@ class Restraint_cs_Ha(Restraint):
             if verbose:
                 print entry
             self.n += 1
-        self.compute_sse(debug=True)
+        self.compute_sse(debug=False)
 
 class Restraint_cs_N(Restraint):
     """A derived class of RestraintClass() for N chemical shift restraints."""
@@ -341,7 +341,7 @@ class Restraint_cs_N(Restraint):
             if verbose:
                 print entry
             self.n += 1
-        self.compute_sse(debug=True)
+        self.compute_sse(debug=False)
 
 
 
@@ -411,7 +411,7 @@ class Restraint_J(Restraint):
             print 'self.equivalency_groups', self.equivalency_groups
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
-        self.compute_sse(debug=True)
+        self.compute_sse(debug=False)
 
 
     def adjust_weights(self):
@@ -565,7 +565,7 @@ class Restraint_pf(Restraint):
                 print entry
             self.n += 1
 
-        self.compute_sse(debug=True)
+        self.compute_sse(debug=False)
 
 
 
@@ -609,14 +609,14 @@ class Restraint_pf_spec(Restraint):
 #       equivalency_indices = [entry[0] for entry in data]
         # add the chemical shift restraints
             restraint_index, i, exp, model  = entry[0], entry[0], entry[3]
-            model = self.compute_PF_multi(self.Ncs[:,:,i], self.Nhs[:,:,i], debug=True)
+            model = self.compute_PF_multi(self.Ncs[:,:,i], self.Nhs[:,:,i], debug=False)
             Obs = NMR_Protectionfactor(i, exp, model)
             self.add_restraint(Obs)
             if verbose:
                 print entry
             self.n += 1
 
-        self.compute_sse(debug=True)
+        self.compute_sse(debug=False)
 
 
 
