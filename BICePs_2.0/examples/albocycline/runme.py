@@ -4,12 +4,12 @@
 
 import sys, os, glob
 from numpy import *
-sys.path.append('new_src')
+sys.path.append('biceps')
 from Preparation import *
 from PosteriorSampler import *
-from Analysis_new import *
+from Analysis import *
 from Restraint import *
-
+from init_res import *
 #########################################
 # Lets' create input files for BICePs
 ############ Preparation ################
@@ -56,62 +56,36 @@ nsteps = 10000000 # 10000000
 if not os.path.exists(outdir):
     os.mkdir(outdir)
 
+ref=['uniform','exp']
+
+uncern=[[0.05,20.0,1.02],[0.05,5.0,1.02]]
+gamma = [0.2,5.0,1.01]
+
+
 ######################
 # Main:
 ######################
 
 lambda_values = [0.0,0.5,1.0]
+
 for j in lambda_values:
-    verbose = False#False
+    print 'lambda', j
+    verbose = False #False
     lam = j
-    # We will instantiate a number of Structure() objects to construct the ensemble
+    # We will instantiate a number of Restraint() objects to construct the ensemble
+    # experimental data and pre-computed model data are compiled for each state
     ensemble = []
-    for i in range(energies.shape[0]):
-        print '\n#### STRUCTURE %d ####'%i
+    for i in range(energies.shape[0]):   # number of states
+        if verbose:
+            print '\n#### STRUCTURE %d ####'%i
         ensemble.append([])
-        for k in range(len(data[0])):
+        for k in range(len(data[0])):   # number of experimental observables
             File = data[i][k]
             if verbose:
                 print File
-
-            # Call on the Restraint that corresponds to File
-            if File.endswith('cs_H'):
-                R = Restraint_cs_H('8690.pdb',ref='exp')
-                R.prep_observable(lam=lam, free_energy=energies[i],
-                        filename=File)
-
-
-            elif File.endswith('cs_CA'):
-                R = Restraint_cs_Ca('8690.pdb',ref='gaussian')
-                R.prep_observable(lam=lam, free_energy=energies[i],
-                        filename=File)
-
-            elif File.endswith('cs_Ha'):
-                R = Restraint_cs_Ha('8690.pdb',ref='exp')
-                R.prep_observable(lam=lam, free_energy=energies[i],
-                        filename=File)
-
-            elif File.endswith('cs_N'):
-                R = Restraint_cs_N('8690.pdb',ref='gaussian')
-                R.prep_observable(lam=lam, free_energy=energies[i],
-                        filename=File)
-
-            elif File.endswith('J'):
-                R = Restraint_J('pdbs_guangfeng/%d.pdb'%i,ref='uniform', dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0)  # good ref
-                R.prep_observable(lam=lam, free_energy=energies[i],
-                        filename=File)
-
-            elif File.endswith('noe'):
-                R = Restraint_noe('pdbs_guangfeng/%d.pdb'%i,ref='exp',dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=5.0)   # good ref
-                R.prep_observable(lam=lam, free_energy=energies[i],
-                        filename=File, dloggamma=np.log(1.01),gamma_min=0.2,gamma_max=5.0)
-
-            elif File.endswith('pf'):
-                R = Restraint_pf('8690.pdb',ref='gaussian')
-                R.prep_observable(lam=lam, free_energy=energies[i],
-                        filename=File)
-
+            R=init_res('top/%d.fixed.pdb'%i,lam,energies[i],ref[k],File,uncern[k],gamma)
             ensemble[-1].append(R)
+
 #    print ensemble
 
     ##########################################
@@ -143,7 +117,6 @@ for j in lambda_values:
     print '...Done.'
 
 
-#sys.exit(1)
 
 #########################################
 # Let's do analysis using MBAR and plot figures
