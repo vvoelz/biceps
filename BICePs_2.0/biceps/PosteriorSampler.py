@@ -12,7 +12,7 @@ import numpy as np
 #cimport numpy as np
 #import cython
 from scipy  import loadtxt, savetxt
-from matplotlib import pylab as plt
+#from matplotlib import pylab as plt
 from KarplusRelation import *     # Returns J-coupling values from dihedral angles
 from Restraint import *
 from toolbox import *
@@ -392,7 +392,7 @@ class PosteriorSampler(object):
 
             else:
                 if np.random.random() < np.exp( self.E - new_E ):
-
+                    accept = True
             # Update parameters based upon acceptance (Metroplis criterion)
             if accept:
                 self.E = new_E
