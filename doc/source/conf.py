@@ -19,39 +19,44 @@
 #needs_sphinx = '1.0'
 
 import os,sys
-sys.path.insert(0, os.path.abspath('../'))
+#sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('./'))
+sys.path.insert(0, os.path.abspath('../../BICePs_2.0/'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    #'nbsphinx', # for jupyter notebooks **
+    'nbsphinx', # for jupyter notebooks **
     'sphinx.ext.mathjax',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    #'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.inheritance_diagram',
     'sphinx.ext.autosummary',
     'autoapi.sphinx',
 ]
 
-autoapi_modules = {'BICePs': {
-              #'override': False;
-              'output': 'auto'
-    }
-}
-
 ## Document Python Code
 autoapi_type = 'python'
-autoapi_dirs = ['../BICePs'] # Directory of Source Code
+#autoapi_dirs = ['../BICePs'] # Directory of Source Code   (directory for test code)
+autoapi_dirs = ['../../BICePs_2.0/biceps'] # Directory of Source Code    (directory of source code)
+autoapi_root = './biceps'
 
 autodoc_default_flags = ['members', 'inherited-members']
+#autodoc_default_flags = ['members']
+
+autoapi_modules = {'biceps': None#{
+              #'override': False,
+    #}
+}
 
 autosummary_generate = True
-autodoc_default_flags = ['members', 'inherited-members']
-#numpydoc_class_members_toctree = False
+
+numpydoc_class_members_toctree = False
 
 # concatenate both class and __init__ docstrings when generating autodoc class
 # docs
 autoclass_content = 'both'
+#autoclass_content = 'class'
 
 # Execute notebooks before conversion: 'always', 'never', 'auto' (default)
 nbsphinx_execute = 'never'
@@ -92,6 +97,8 @@ master_doc = 'index'
 project = u'BICePs'
 copyright = u'2018, Temple University'
 author = u'Yunhui Ge, Robert M. Raddi, Vincent A. Voelz'
+
+#import biceps
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -185,7 +192,7 @@ html_theme_options = {
     'logo_only': False,
     'display_version': True,
     'prev_next_buttons_location': 'bottom',
-    'style_external_links': False,
+    'style_external_links': True, #False,
     #'vcs_pageview_mode': '',
     # Toc options
     'collapse_navigation': True,

@@ -1,0 +1,1541 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API Reference &mdash; BICePs 2.0-beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Examples" href="examples/index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0-beta
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#preparation">Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#observables">Observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#restraint">Restraint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#posteriorsampler">PosteriorSampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#analysis">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id37">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#toolbox">toolbox</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>API Reference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="api-reference">
+<span id="api"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="preparation">
+<h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="biceps.Preparation">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">Preparation</code><span class="sig-paren">(</span><em>scheme=None</em>, <em>states=0.0</em>, <em>indices=None</em>, <em>exp_data=None</em>, <em>top=None</em>, <em>data_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Preparation" title="Permalink to this definition">¶</a></dt>
+<dd><p>A parent class to prepare input files for BICePs calculation</p>
+<p>Prepare BICePs input files (converting from raw data)
+Parameters
+———
+scheme: {‘noe’,’J’,’cs_H’,’cs_Ha’,’cs_N’,’cs_Ca’,’pf’}
+states: number of states
+indices: experimental observable index (<em>.txt file)
+exp_data: experimental measuremnets (</em>.txt file)
+top: topology file (<a href="#id1"><span class="problematic" id="id2">*</span></a>.gro, pdb, etc.)
+data_dir: data directory (should have <a href="#id3"><span class="problematic" id="id4">*</span></a>txt file inside)
+Karplus: Karplus relation for J_coupling constants</p>
+<dl class="method">
+<dt id="biceps.Preparation.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>scheme=None</em>, <em>states=0.0</em>, <em>indices=None</em>, <em>exp_data=None</em>, <em>top=None</em>, <em>data_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Preparation.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare BICePs input files (converting from raw data)
+Parameters
+———
+scheme: {‘noe’,’J’,’cs_H’,’cs_Ha’,’cs_N’,’cs_Ca’,’pf’}
+states: number of states
+indices: experimental observable index (<em>.txt file)
+exp_data: experimental measuremnets (</em>.txt file)
+top: topology file (<a href="#id5"><span class="problematic" id="id6">*</span></a>.gro, pdb, etc.)
+data_dir: data directory (should have <a href="#id7"><span class="problematic" id="id8">*</span></a>txt file inside)
+Karplus: Karplus relation for J_coupling constants</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([scheme,&nbsp;states,&nbsp;indices,&nbsp;…])</td>
+<td>Prepare BICePs input files (converting from raw data) Parameters ——— scheme: {‘noe’,’J’,’cs_H’,’cs_Ha’,’cs_N’,’cs_Ca’,’pf’} states: number of states indices: experimental observable index (<em>.txt file) exp_data: experimental measuremnets (</em>.txt file) top: topology file (<a href="#id9"><span class="problematic" id="id10">*</span></a>.gro, pdb, etc.) data_dir: data directory (should have <a href="#id11"><span class="problematic" id="id12">*</span></a>txt file inside) Karplus: Karplus relation for J_coupling constants</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>([out_dir])</td>
+<td>out_dir: output directory</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Preparation.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>out_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Preparation.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>out_dir: output directory</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="observables">
+<h2>Observables<a class="headerlink" href="#observables" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="biceps.Observable">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">Observable</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em>, <em>model_angle=None</em>, <em>j=None</em>, <em>k=None</em>, <em>l=None</em>, <em>equivalency_index=None</em>, <em>ambiguity_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Parent class of observables</p>
+<p>Initialize the parent observable class that acts as a container class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>i</strong><strong>,</strong><strong>j</strong><strong>,</strong><strong>k</strong><strong>,</strong><strong>l</strong> (<em>int</em>) – </p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exp</strong> – </li>
+<li><strong>model_angle</strong> – </li>
+<li><strong>model</strong> – </li>
+<li><strong>equivalency_index</strong> – </li>
+<li><strong>ambiguity_index</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Observable.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em>, <em>model_angle=None</em>, <em>j=None</em>, <em>k=None</em>, <em>l=None</em>, <em>equivalency_index=None</em>, <em>ambiguity_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Observable.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the parent observable class that acts as a container class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>i</strong><strong>,</strong><strong>j</strong><strong>,</strong><strong>k</strong><strong>,</strong><strong>l</strong> (<em>int</em>) – </p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exp</strong> – </li>
+<li><strong>model_angle</strong> – </li>
+<li><strong>model</strong> – </li>
+<li><strong>equivalency_index</strong> – </li>
+<li><strong>ambiguity_index</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(i,&nbsp;exp,&nbsp;model[,&nbsp;model_angle,&nbsp;j,&nbsp;k,&nbsp;…])</td>
+<td>Initialize the parent observable class that acts as a container class.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.NMR_Chemicalshift">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">NMR_Chemicalshift</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.NMR_Chemicalshift" title="Permalink to this definition">¶</a></dt>
+<dd><p>A data containter class to store a datum for NMR chemical shift information.</p>
+<p>Initialize the derived NMR_Chemicalshift class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>i</strong> (<em>int</em>) – </p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exp</strong> – </li>
+<li><strong>model</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.NMR_Chemicalshift.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>i</em>, <em>exp</em>, <em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.NMR_Chemicalshift.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the derived NMR_Chemicalshift class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>i</strong> (<em>int</em>) – </p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exp</strong> – </li>
+<li><strong>model</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#biceps.NMR_Chemicalshift.__init__" title="biceps.NMR_Chemicalshift.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(i,&nbsp;exp,&nbsp;model)</td>
+<td>Initialize the derived NMR_Chemicalshift class.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.NMR_Dihedral">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">NMR_Dihedral</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em>, <em>l</em>, <em>exp</em>, <em>model</em>, <em>equivalency_index=None</em>, <em>ambiguity_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.NMR_Dihedral" title="Permalink to this definition">¶</a></dt>
+<dd><p>A data containter class to store a datum for NMR dihedral information.</p>
+<p>Initialize NMR_Dihedral container class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>i</strong><strong>,</strong><strong>j</strong><strong>,</strong><strong>k</strong><strong>,</strong><strong>l</strong> (<em>int</em>) – </p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exp</strong> – </li>
+<li><strong>model_angle</strong> – </li>
+<li><strong>model</strong> – </li>
+<li><strong>equivalency_index</strong> – </li>
+<li><strong>ambiguity_index</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.NMR_Dihedral.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em>, <em>l</em>, <em>exp</em>, <em>model</em>, <em>equivalency_index=None</em>, <em>ambiguity_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.NMR_Dihedral.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize NMR_Dihedral container class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>i</strong><strong>,</strong><strong>j</strong><strong>,</strong><strong>k</strong><strong>,</strong><strong>l</strong> (<em>int</em>) – </p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exp</strong> – </li>
+<li><strong>model_angle</strong> – </li>
+<li><strong>model</strong> – </li>
+<li><strong>equivalency_index</strong> – </li>
+<li><strong>ambiguity_index</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#biceps.NMR_Dihedral.__init__" title="biceps.NMR_Dihedral.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(i,&nbsp;j,&nbsp;k,&nbsp;l,&nbsp;exp,&nbsp;model[,&nbsp;…])</td>
+<td>Initialize NMR_Dihedral container class</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(i,&nbsp;j,&nbsp;exp,&nbsp;model[,&nbsp;equivalency_index])</td>
+<td>Initialize NMR_Distance container class</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(i,&nbsp;exp,&nbsp;model)</td>
+<td>Initialize NMR_Protectionfactor container class</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="restraint">
+<h2>Restraint<a class="headerlink" href="#restraint" title="Permalink to this headline">¶</a></h2>
+<dl class="attribute">
+<dt id="biceps.Restraint">
+<code class="descclassname">biceps.</code><code class="descname">Restraint</code><a class="headerlink" href="#biceps.Restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#biceps.Restraint" title="biceps.Restraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Restraint</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.Restraint_cs_Ca">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">Restraint_cs_Ca</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ca" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of RestraintClass() for C_alpha chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id13"><span class="problematic" id="id14">*</span></a>.pdb)</li>
+<li><strong>ref</strong> (<em>str</em>) – Reference potential.</li>
+<li><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </li>
+<li><strong>sigma_min</strong> (<em>float</em>) – default = 0.05</li>
+<li><strong>sigma_max</strong> (<em>float</em>) – default = 20.0</li>
+<li><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ca.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ca.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the Restraint class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id15"><span class="problematic" id="id16">*</span></a>.pdb)</li>
+<li><strong>ref</strong> (<em>str</em>) – Reference potential.</li>
+<li><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </li>
+<li><strong>sigma_min</strong> (<em>float</em>) – default = 0.05</li>
+<li><strong>sigma_max</strong> (<em>float</em>) – default = 20.0</li>
+<li><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#biceps.Restraint_cs_Ca.__init__" title="biceps.Restraint_cs_Ca.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(PDB_filename,&nbsp;ref[,&nbsp;dlogsigma,&nbsp;…])</td>
+<td>Initialize the Restraint class.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#biceps.Restraint_cs_Ca.prep_observable" title="biceps.Restraint_cs_Ca.prep_observable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_observable</span></code></a>(filename,&nbsp;free_energy,&nbsp;lam)</td>
+<td>Observable is prepped by loading in C_alpha restraints.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ca.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ca.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>restraint</strong> (<em>list</em>) – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ca.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ca.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ca.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ca.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ca.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ca.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ca.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ca.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prep</strong> (<em>file</em>) – prep the input data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ca.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ca.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in C_alpha restraints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) – Experimental data file</li>
+<li><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</li>
+<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
+<span class="go">of this conformation</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.Restraint_cs_H">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">Restraint_cs_H</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_H" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of RestraintClass() for H chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id17"><span class="problematic" id="id18">*</span></a>.pdb)</li>
+<li><strong>ref</strong> (<em>str</em>) – Reference potential.</li>
+<li><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </li>
+<li><strong>sigma_min</strong> (<em>float</em>) – default = 0.05</li>
+<li><strong>sigma_max</strong> (<em>float</em>) – default = 20.0</li>
+<li><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Restraint_cs_H.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_H.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the Restraint class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id19"><span class="problematic" id="id20">*</span></a>.pdb)</li>
+<li><strong>ref</strong> (<em>str</em>) – Reference potential.</li>
+<li><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </li>
+<li><strong>sigma_min</strong> (<em>float</em>) – default = 0.05</li>
+<li><strong>sigma_max</strong> (<em>float</em>) – default = 20.0</li>
+<li><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#biceps.Restraint_cs_H.__init__" title="biceps.Restraint_cs_H.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(PDB_filename,&nbsp;ref[,&nbsp;dlogsigma,&nbsp;…])</td>
+<td>Initialize the Restraint class.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#biceps.Restraint_cs_H.prep_observable" title="biceps.Restraint_cs_H.prep_observable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_observable</span></code></a>(filename,&nbsp;free_energy,&nbsp;lam)</td>
+<td>Observable is prepped by loading in cs_H restraints.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Restraint_cs_H.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_H.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>restraint</strong> (<em>list</em>) – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_H.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_H.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_H.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_H.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_H.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_H.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_H.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_H.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prep</strong> (<em>file</em>) – prep the input data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_H.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_H.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in cs_H restraints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) – Experimental data file</li>
+<li><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</li>
+<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
+<span class="go">of this conformation</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.Restraint_cs_Ha">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">Restraint_cs_Ha</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ha" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of RestraintClass() for Ha chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id21"><span class="problematic" id="id22">*</span></a>.pdb)</li>
+<li><strong>ref</strong> (<em>str</em>) – Reference potential.</li>
+<li><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </li>
+<li><strong>sigma_min</strong> (<em>float</em>) – default = 0.05</li>
+<li><strong>sigma_max</strong> (<em>float</em>) – default = 20.0</li>
+<li><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ha.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ha.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the Restraint class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id23"><span class="problematic" id="id24">*</span></a>.pdb)</li>
+<li><strong>ref</strong> (<em>str</em>) – Reference potential.</li>
+<li><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </li>
+<li><strong>sigma_min</strong> (<em>float</em>) – default = 0.05</li>
+<li><strong>sigma_max</strong> (<em>float</em>) – default = 20.0</li>
+<li><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#biceps.Restraint_cs_Ha.__init__" title="biceps.Restraint_cs_Ha.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(PDB_filename,&nbsp;ref[,&nbsp;dlogsigma,&nbsp;…])</td>
+<td>Initialize the Restraint class.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#biceps.Restraint_cs_Ha.prep_observable" title="biceps.Restraint_cs_Ha.prep_observable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_observable</span></code></a>(filename,&nbsp;free_energy,&nbsp;lam)</td>
+<td>Observable is prepped by loading in cs_Ha restraints.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ha.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ha.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>restraint</strong> (<em>list</em>) – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ha.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ha.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ha.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ha.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ha.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ha.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ha.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ha.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prep</strong> (<em>file</em>) – prep the input data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_Ha.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_Ha.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in cs_Ha restraints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) – Experimental data file</li>
+<li><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</li>
+<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
+<span class="go">of this conformation</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.Restraint_cs_N">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">Restraint_cs_N</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_N" title="Permalink to this definition">¶</a></dt>
+<dd><p>A derived class of RestraintClass() for N chemical shift restraints.</p>
+<p>Initialize the Restraint class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id25"><span class="problematic" id="id26">*</span></a>.pdb)</li>
+<li><strong>ref</strong> (<em>str</em>) – Reference potential.</li>
+<li><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </li>
+<li><strong>sigma_min</strong> (<em>float</em>) – default = 0.05</li>
+<li><strong>sigma_max</strong> (<em>float</em>) – default = 20.0</li>
+<li><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Restraint_cs_N.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>PDB_filename</em>, <em>ref</em>, <em>dlogsigma=0.01980262729617973</em>, <em>sigma_min=0.05</em>, <em>sigma_max=20.0</em>, <em>use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_N.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the Restraint class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id27"><span class="problematic" id="id28">*</span></a>.pdb)</li>
+<li><strong>ref</strong> (<em>str</em>) – Reference potential.</li>
+<li><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </li>
+<li><strong>sigma_min</strong> (<em>float</em>) – default = 0.05</li>
+<li><strong>sigma_max</strong> (<em>float</em>) – default = 20.0</li>
+<li><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#biceps.Restraint_cs_N.__init__" title="biceps.Restraint_cs_N.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(PDB_filename,&nbsp;ref[,&nbsp;dlogsigma,&nbsp;…])</td>
+<td>Initialize the Restraint class.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#biceps.Restraint_cs_N.prep_observable" title="biceps.Restraint_cs_N.prep_observable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_observable</span></code></a>(filename,&nbsp;free_energy,&nbsp;lam)</td>
+<td>Observable is prepped by loading in cs_N restraints.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Restraint_cs_N.add_restraint">
+<code class="descname">add_restraint</code><span class="sig-paren">(</span><em>restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_N.add_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>restraint</strong> (<em>list</em>) – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_N.compute_neglog_exp_ref">
+<code class="descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_N.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the stored beta information (calculated across all structures)
+to calculate -log P_ref(observable[j]) for each observable j.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_N.compute_neglog_gaussian_ref">
+<code class="descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_N.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alternative option for reference potential based on
+Gaussian distribution. (Ignoring constant terms)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_N.compute_sse">
+<code class="descname">compute_sse</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_N.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_N.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>prep</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_N.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the experimental chemical shift restraints from a known
+file format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prep</strong> (<em>file</em>) – prep the input data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint_cs_N.prep_observable">
+<code class="descname">prep_observable</code><span class="sig-paren">(</span><em>filename</em>, <em>free_energy</em>, <em>lam</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint_cs_N.prep_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Observable is prepped by loading in cs_N restraints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) – Experimental data file</li>
+<li><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</li>
+<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
+<span class="go">of this conformation</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="posteriorsampler">
+<h2>PosteriorSampler<a class="headerlink" href="#posteriorsampler" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="biceps.PosteriorSampler">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">PosteriorSampler</code><span class="sig-paren">(</span><em>ensemble</em>, <em>freq_write_traj=100.0</em>, <em>freq_print=100.0</em>, <em>freq_save_traj=100.0</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to perform posterior sampling of conformational populations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ensemble</strong> (<em>list</em>) – a list of lists of Restraint objects, one list for each conformation.</li>
+<li><strong>freq_write_traj</strong> (<em>int</em>) – the frequency (in steps) to write the MCMC trajectory</li>
+<li><strong>freq_print</strong> (<em>int</em>) – the frequency (in steps) to print status</li>
+<li><strong>freq_save_traj</strong> (<em>int</em>) – the frequency (in steps) to store the MCMC trajectory</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Initialize PosteriorSampler Class.</p>
+<dl class="method">
+<dt id="biceps.PosteriorSampler.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>ensemble</em>, <em>freq_write_traj=100.0</em>, <em>freq_print=100.0</em>, <em>freq_save_traj=100.0</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize PosteriorSampler Class.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(ensemble[,&nbsp;freq_write_traj,&nbsp;…])</td>
+<td>Initialize PosteriorSampler Class.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_logZ</span></code>()</td>
+<td>Compute reference state logZ for the free energies to normalize.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_exp_ref</span></code>(rest_index[,&nbsp;verbose])</td>
+<td>Look at all the structures to find the average observables r_j</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_gaussian_ref</span></code>(rest_index[,&nbsp;…])</td>
+<td>Look at all the structures to find the mean (mu) and std (sigma) of observables r_j then store this reference potential info for all restraints of this type for each structure.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_nuisance_parameters</span></code>([verbose])</td>
+<td>Compiles arrays into a list for each nuisance parameter.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code>(nsteps[,&nbsp;verbose])</td>
+<td>Perform n number of steps (nsteps) of posterior sampling, where Monte Carlo moves are accepted or rejected according to Metroplis criterion.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">neglogP</span></code>(new_state,&nbsp;parameters,&nbsp;parameter_indices)</td>
+<td>Return -ln P of the current configuration.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">PosteriorSampler.logspaced_array</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_results</span></code>(self,&nbsp;outfilename)</td>
+<td>Writes a compact file of several arrays into binary format.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_results</span></code>(self,&nbsp;filename)</td>
+<td>Reads a numpy compressed filetype (npz) file</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.PosteriorSampler.build_exp_ref">
+<code class="descname">build_exp_ref</code><span class="sig-paren">(</span><em>rest_index</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.build_exp_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look at all the structures to find the average observables r_j</p>
+<p>&gt;&gt;    beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)</p>
+<p>then store this reference potential info for all Restraints of this type for each structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rest_index</strong> (<em>int</em>) – index of the restraint</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.PosteriorSampler.build_gaussian_ref">
+<code class="descname">build_gaussian_ref</code><span class="sig-paren">(</span><em>rest_index</em>, <em>use_global_ref_sigma=False</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.build_gaussian_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look at all the structures to find the mean (mu) and std (sigma) of
+observables r_j then store this reference potential info for all
+restraints of this type for each structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rest_index</strong> (<em>int</em>) – index of the restraint</li>
+<li><strong>default=False use_global_ref_sigma</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.PosteriorSampler.compile_nuisance_parameters">
+<code class="descname">compile_nuisance_parameters</code><span class="sig-paren">(</span><em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.compile_nuisance_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compiles arrays into a list for each nuisance parameter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Return np.array:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">numpy array with shape(n_restraint,n_para)
+[[allowed_sigma_cs_H],[allowed_sigma_noe,allowed_gamma_noe],…,[Nth_restraint]]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.PosteriorSampler.compute_logZ">
+<code class="descname">compute_logZ</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.compute_logZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute reference state logZ for the free energies to normalize.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.PosteriorSampler.neglogP">
+<code class="descname">neglogP</code><span class="sig-paren">(</span><em>new_state</em>, <em>parameters</em>, <em>parameter_indices</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.neglogP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return -ln P of the current configuration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>new_state</strong> (<em>int</em>) – the new conformational state from Sample()</li>
+<li><strong>parameters</strong> (<em>list</em>) – a list of the new parameters for each of the restraints</li>
+<li><strong>parameter_indices</strong> (<em>list</em>) – parameter indices that correspond to each restraint</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.PosteriorSampler.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>nsteps</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform n number of steps (nsteps) of posterior sampling, where Monte
+Carlo moves are accepted or rejected according to Metroplis criterion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nsteps</strong> (<em>int</em>) – number of steps of sampling.</td>
+</tr>
+</tbody>
+</table>
+<p>See <a class="reference internal" href="#biceps.PosteriorSampler.neglogP" title="biceps.PosteriorSampler.neglogP"><code class="xref py py-class docutils literal notranslate"><span class="pre">neglogP</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="analysis">
+<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="biceps.Analysis">
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">Analysis</code><span class="sig-paren">(</span><em>states=0</em>, <em>data=None</em>, <em>resultdir=None</em>, <em>BSdir='BS.dat'</em>, <em>popdir='populations.dat'</em>, <em>picfile='BICePs.pdf'</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to perform analysis and plot figures</p>
+<dl class="method">
+<dt id="biceps.Analysis.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>states=0</em>, <em>data=None</em>, <em>resultdir=None</em>, <em>BSdir='BS.dat'</em>, <em>popdir='populations.dat'</em>, <em>picfile='BICePs.pdf'</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Analysis.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([states,&nbsp;data,&nbsp;resultdir,&nbsp;BSdir,&nbsp;…])</td>
+<td>x.__init__(…) initializes x; see help(type(x)) for signature</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_scheme</span></code>()</td>
+<td>Determine what scheme is included in sampling</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code>([debug])</td>
+<td>plot figures for population, nuisance parameters</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data</span></code>([debug])</td>
+<td>load input data from BICePs sampling (<a href="#id29"><span class="problematic" id="id30">*</span></a>yaml and <a href="#id31"><span class="problematic" id="id32">*</span></a>pkl files)</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">MBAR_analysis</span></code>([debug])</td>
+<td>MBAR analysis for populations and BICePs score</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_MBAR</span></code>()</td>
+<td>save results (BICePs score and population) from MBAR analysis</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="biceps.Analysis.MBAR_analysis">
+<code class="descname">MBAR_analysis</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Analysis.MBAR_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>MBAR analysis for populations and BICePs score</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Analysis.list_scheme">
+<code class="descname">list_scheme</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Analysis.list_scheme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine what scheme is included in sampling</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Analysis.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>debug=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Analysis.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>load input data from BICePs sampling (<a href="#id33"><span class="problematic" id="id34">*</span></a>yaml and <a href="#id35"><span class="problematic" id="id36">*</span></a>pkl files)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Analysis.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Analysis.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot figures for population, nuisance parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Analysis.save_MBAR">
+<code class="descname">save_MBAR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Analysis.save_MBAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>save results (BICePs score and population) from MBAR analysis</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="id37">
+<h2>Analysis<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">Analysis</code><span class="sig-paren">(</span><em>states=0</em>, <em>data=None</em>, <em>resultdir=None</em>, <em>BSdir='BS.dat'</em>, <em>popdir='populations.dat'</em>, <em>picfile='BICePs.pdf'</em><span class="sig-paren">)</span></dt>
+<dd><p>A class to perform analysis and plot figures</p>
+<dl class="method">
+<dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>states=0</em>, <em>data=None</em>, <em>resultdir=None</em>, <em>BSdir='BS.dat'</em>, <em>popdir='populations.dat'</em>, <em>picfile='BICePs.pdf'</em><span class="sig-paren">)</span></dt>
+<dd><p>x.__init__(…) initializes x; see help(type(x)) for signature</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([states,&nbsp;data,&nbsp;resultdir,&nbsp;BSdir,&nbsp;…])</td>
+<td>x.__init__(…) initializes x; see help(type(x)) for signature</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_scheme</span></code>()</td>
+<td>Determine what scheme is included in sampling</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code>([debug])</td>
+<td>plot figures for population, nuisance parameters</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data</span></code>([debug])</td>
+<td>load input data from BICePs sampling (<a href="#id38"><span class="problematic" id="id39">*</span></a>yaml and <a href="#id40"><span class="problematic" id="id41">*</span></a>pkl files)</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">MBAR_analysis</span></code>([debug])</td>
+<td>MBAR analysis for populations and BICePs score</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_MBAR</span></code>()</td>
+<td>save results (BICePs score and population) from MBAR analysis</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt>
+<code class="descname">MBAR_analysis</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>MBAR analysis for populations and BICePs score</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">list_scheme</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Determine what scheme is included in sampling</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">load_data</code><span class="sig-paren">(</span><em>debug=True</em><span class="sig-paren">)</span></dt>
+<dd><p>load input data from BICePs sampling (<a href="#id42"><span class="problematic" id="id43">*</span></a>yaml and <a href="#id44"><span class="problematic" id="id45">*</span></a>pkl files)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>debug=False</em><span class="sig-paren">)</span></dt>
+<dd><p>plot figures for population, nuisance parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">save_MBAR</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>save results (BICePs score and population) from MBAR analysis</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="toolbox">
+<h2>toolbox<a class="headerlink" href="#toolbox" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="biceps.sort_data">
+<code class="descclassname">biceps.</code><code class="descname">sort_data</code><span class="sig-paren">(</span><em>dataFiles</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.sort_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorting the data by extension into lists. Data can be located in various
+directories.  Provide a list of paths where the data can be found.
+Some examples of fileextensions: {.noe,.J,.cs_H,.cs_Ha}.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dataFiles</strong> (<em>list</em>) – list of strings where the data can be found</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> – if the data directory does not exist</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.list_res">
+<code class="descclassname">biceps.</code><code class="descname">list_res</code><span class="sig-paren">(</span><em>input_data</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.list_res" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine what scheme is included in sampling</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.write_results">
+<code class="descclassname">biceps.</code><code class="descname">write_results</code><span class="sig-paren">(</span><em>self</em>, <em>outfilename</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.write_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a compact file of several arrays into binary format.
+Standardized: Yes ; Binary: Yes; Human Readable: No;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>outfilename</strong> (<em>str</em>) – name of the output file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">numpy compressed filetype</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.read_results">
+<code class="descclassname">biceps.</code><code class="descname">read_results</code><span class="sig-paren">(</span><em>self</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.read_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a numpy compressed filetype
+(npz) file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.convert_pop_to_energy">
+<code class="descclassname">biceps.</code><code class="descname">convert_pop_to_energy</code><span class="sig-paren">(</span><em>pop_filename</em>, <em>out_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.convert_pop_to_energy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Convert population to energy for each state using</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">U</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pop_filename</strong> (<em>str</em>) – name of file for populations</li>
+<li><strong>out_filename</strong> (<em>str</em>) – output file name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.get_J3_HN_HA">
+<code class="descclassname">biceps.</code><code class="descname">get_J3_HN_HA</code><span class="sig-paren">(</span><em>top</em>, <em>traj=None</em>, <em>frame=None</em>, <em>model='Habeck'</em>, <em>outname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.get_J3_HN_HA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute J3_HN_HA for frames in a trajectories.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>traj</strong> (<em>mdtraj.Trajectory</em>) – Trajectory</li>
+<li><strong>top</strong> (<em>mdtraj.Topology</em>) – topology file</li>
+<li><strong>frame</strong> (<em>list</em>) – specific frame for computing</li>
+<li><strong>model</strong> (<em>str</em>) – Karplus coefficient models
+[“Ruterjans1999”,”Bax2007”,”Bax1997”,”Habeck” ,”Vuister”,”Pardi”]</li>
+<li><strong>outname</strong> (<em>str</em>) – if not None, the output will be saved and a
+file name (in the format of string) is required.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.dihedral_angle">
+<code class="descclassname">biceps.</code><code class="descname">dihedral_angle</code><span class="sig-paren">(</span><em>x0</em>, <em>x1</em>, <em>x2</em>, <em>x3</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.dihedral_angle" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Calculate the signed dihedral angle between 4 positions.  Result is</dt>
+<dd>in degrees.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x0</strong> (<em>float</em>) – </li>
+<li><strong>x1</strong> (<em>float</em>) – </li>
+<li><strong>x2</strong> (<em>float</em>) – </li>
+<li><strong>x3</strong> (<em>float</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Return float phi:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first last">dihedral angle in degrees</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.compute_nonaa_Jcoupling">
+<code class="descclassname">biceps.</code><code class="descname">compute_nonaa_Jcoupling</code><span class="sig-paren">(</span><em>traj</em>, <em>index</em>, <em>karplus_key</em>, <em>top=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.compute_nonaa_Jcoupling" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>traj</strong> (<em>mdtraj.Trajectory</em>) – Trajectory</li>
+<li><strong>index</strong> (<em>int</em>) – </li>
+<li><strong>top</strong> (<em>mdtraj.Topology</em>) – topology file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><strong>karplus_key</strong> – </p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.plot_ref">
+<code class="descclassname">biceps.</code><code class="descname">plot_ref</code><span class="sig-paren">(</span><em>traj</em>, <em>debug=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.plot_ref" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="biceps.get_rest_type">
+<code class="descclassname">biceps.</code><code class="descname">get_rest_type</code><span class="sig-paren">(</span><em>traj</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.get_rest_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="biceps.get_allowed_parameters">
+<code class="descclassname">biceps.</code><code class="descname">get_allowed_parameters</code><span class="sig-paren">(</span><em>traj</em>, <em>rest_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.get_allowed_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="biceps.autocorr_valid">
+<code class="descclassname">biceps.</code><code class="descname">autocorr_valid</code><span class="sig-paren">(</span><em>x</em>, <em>tau</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.autocorr_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="biceps.compute_ac">
+<code class="descclassname">biceps.</code><code class="descname">compute_ac</code><span class="sig-paren">(</span><em>traj</em>, <em>tau</em>, <em>rest_type=None</em>, <em>allowed_parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.compute_ac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="biceps.plot_ac">
+<code class="descclassname">biceps.</code><code class="descname">plot_ac</code><span class="sig-paren">(</span><em>ac_paramters</em>, <em>rest_type</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.plot_ac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="biceps.compute_JSD">
+<code class="descclassname">biceps.</code><code class="descname">compute_JSD</code><span class="sig-paren">(</span><em>T1</em>, <em>T2</em>, <em>T_total</em>, <em>rest_type</em>, <em>allowed_parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.compute_JSD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute JSD for a given part of trajectory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><strong>T2</strong><strong>, </strong><strong>T_total</strong> (<em>T1</em><em>,</em>) – part 1, part2 and total (part1 + part2)</li>
+<li><strong>rest_type</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>allowed_parameters</strong> (<em>list</em>) – </li>
+<li><strong>traj</strong> (<em>mdtraj.Trajectory</em>) – trajectory from BICePs sampling</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.plot_conv">
+<code class="descclassname">biceps.</code><code class="descname">plot_conv</code><span class="sig-paren">(</span><em>all_JSD</em>, <em>all_JSDs</em>, <em>rest_type</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.plot_conv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="examples/index.html" class="btn btn-neutral" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Temple University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"processClass": "math|output_area", "processEscapes": true, "ignoreClass": "document", "inlineMath": [["$", "$"], ["\\(", "\\)"]]}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

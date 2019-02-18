@@ -1,0 +1,7 @@
+init\_res module
+================
+
+.. automodule:: init_res
+    :members:
+    :undoc-members:
+    :show-inheritance:

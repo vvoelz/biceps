@@ -1,0 +1,1172 @@
+class Analysis(object):
+    # -*- coding: utf-8 -*-
+    """A class to perform analysis and plot figures"""
+
+    def __init__(self, states = 0, data = None, resultdir = None,
+            BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
+        """Initialization of Analysis class"""
+
+        self.states = states
+        self.data = data
+        self.resultdir = resultdir
+        self.BSdir = BSdir
+        self.popdir = popdir
+        self.picfile = picfile
+        self.scheme = None
+--
+    def list_scheme(self):
+        """Determine what scheme is included in sampling"""
+
+        input_data = d.sort_data(self.data)
+        d_l=[]
+        for i in input_data[0]:
+            if i.endswith('.noe'):
+                d_l.append('sigma_noe')
+                d_l.append('gamma')
+--
+    def load_data(self, debug = True):
+        """load input data from BICePs sampling (yaml and pkl files)"""
+
+        # Load in yaml trajectories
+        exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.yaml') )
+        exp_files.sort()
+        for filename in exp_files:
+            if debug:
+                print 'Loading %s ...'%filename
+--
+    def MBAR_analysis(self, debug = False):
+        """MBAR analysis for populations and BICePs score"""
+
+        # load necessary data first
+        self.load_data()
+
+        # Suppose the energies sampled from each simulation are u_kln, where u_kln[k,l,n] is the reduced potential energy
+        #   of snapshot n \in 1,...,N_k of simulation k \in 1,...,K evaluated at reduced potential for state l.
+        self.K = self.nlambda   # number of thermodynamic ensembles
+--
+    def save_MBAR(self):
+        """save results (BICePs score and population) from MBAR analysis"""
+
+        print 'Writing %s...'%self.BSdir
+        savetxt(self.BSdir, self.f_df)
+        print '...Done.'
+
+        print 'Writing %s...'%self.popdir
+        savetxt(self.popdir, self.P_dP)
+--
+    def plot(self, debug = False):
+        """plot figures for population, nuisance parameters"""
+
+        # first figure out what scheme is used
+        self.list_scheme()
+
+        # next get MABR sampling done
+        self.MBAR_analysis()
+
+--
+class Analysis(object):
+    """A class to perform analysis and plot figures"""
+    def __init__(self, states = 0, data = None, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
+	self.states = states
+	self.data = data
+	self.resultdir = resultdir
+	self.BSdir = BSdir
+	self.popdir = popdir
+	self.picfile = picfile
+	self.scheme = None
+	self.traj = []
+--
+    def list_scheme(self):
+	"""Determine what scheme is included in sampling"""
+
+	input_data = d.sort_data(self.data)
+	d_l=[]
+	for i in input_data[0]:
+                if i.endswith('.cs_H'):
+                    d_l.append('sigma_cs_H')
+                elif i.endswith('.cs_Ha'):
+--
+    def load_data(self, debug = True):
+	"""load input data from BICePs sampling (*yaml and *pkl files)"""
+	# Load in yaml trajectories
+	exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.npz') )
+	exp_files.sort()
+	for filename in exp_files:
+		if debug:
+   			print 'Loading %s ...'%filename
+    		self.traj.append( np.load( file(filename, 'r') )['arr_0'].item() )
+--
+    def MBAR_analysis(self, debug = False):
+	"""MBAR analysis for populations and BICePs score"""
+	# load necessary data first
+	self.load_data()
+
+	# Suppose the energies sampled from each simulation are u_kln, where u_kln[k,l,n] is the reduced potential energy
+	#   of snapshot n \in 1,...,N_k of simulation k \in 1,...,K evaluated at reduced potential for state l.
+	self.K = self.nlambda   # number of thermodynamic ensembles
+	# N_k[k] will denote the number of correlated snapshots from state k
+--
+    def save_MBAR(self):
+	"""save results (BICePs score and population) from MBAR analysis"""
+	print 'Writing %s...'%self.BSdir
+	savetxt(self.BSdir, self.f_df)
+	print '...Done.'
+
+	print 'Writing %s...'%self.popdir
+	savetxt(self.popdir, self.P_dP)
+	print '...Done.'
+--
+    def plot(self, debug = False):
+	"""plot figures for population, nuisance parameters"""
+	# first figure out what scheme is used
+	self.list_scheme()
+
+	# next get MABR sampling done
+	self.MBAR_analysis()
+
+	# load in precomputed P and dP from MBAR analysis
+--
+def _J3_function(phi, A, B, C, phi0):
+    # -*- coding: utf-8 -*-
+    """Return a scalar couplings with a given choice of karplus coefficients.
+    .. warning:: in radians"""
+
+    return A * np.cos(phi + phi0) ** 2. + B * np.cos(phi + phi0) + C
+
+
+def compute_J3_HN_HA(traj, model="Bax2007"):
+    # -*- coding: utf-8 -*-
+    """Calculate the scalar coupling between HN and H_alpha.
+
+    This function does not take into account periodic boundary conditions (it
+    will give spurious results if the three atoms which make up any angle jump
+    across a PBC (are not "wholed"))
+
+    Parameters
+--
+    model : string, optional, default="Bax2007"
+        Which scalar coupling model to use.  Must be one of Bax2007, Bax1999,
+        or Ruterjans1999
+
+    Returns
+    -------
+    indices : np.ndarray, shape=(n_phi, 4), dtype=int
+        Atom indices (zero-based) of the phi dihedrals
+    J : np.ndarray, shape=(n_frames, n_phi)
+--
+class KarplusRelation(object):
+    """ A class containing formulae giving J-coupling values from dihedral angle."""
+
+    def __init__(self):
+        """Initialize the KarplusRelation class.""" 
+        pass
+
+    def J(self, angle, key):
+        """Returns the predicted J-coupling constant given an angle in degrees, and a key 'Karplus_HH', e.g.>"""
+
+        if key == 'Karplus_HH':
+            return self.Karplus_HH(angle)
+        elif key == 'BothnerBy_HH':
+            return self.BothnerBy_HH(angle)
+        elif key == 'Allylic':
+            return self.Allylic(angle)
+--
+    def Karplus_HH(self, angle):
+        """Returns predicted J-coupling constant given an angle in degrees."""
+
+        if np.abs(angle) < 90.0:
+            J0 = 10.0
+        else:
+            J0 = 14.0
+        # Convert to radians
+        theta = angle*np.pi/180.0
+--
+    def Karplus_HH_appO(self, angle):
+        """Returns predicted J-coupling constant given an angle in degrees,
+        for sp3-single bond HH where there is an antiperiplanar Oxygen"""
+
+        if np.abs(angle) < 90.0:
+            J0 = 8.0
+        else:
+            J0 = 11.0
+        # Convert to radians
+--
+    def Allylic(self, angle):
+        """Returns predicted J-coupling constant given an angle in degrees,
+        for an allylic sp3-sp2 bond"""
+
+        if np.abs(angle) < 90.0:
+            J0 = 6.6 
+        else:
+            J0 = 11.6
+        # Convert to radians
+--
+    def BothnerBy_HH(self, angle):
+        """Returns predicted J-coupling constant given an angle in degrees.
+        NOTES: good for cycloalkanes.  Bothner-By, 1965 (14)"""
+
+        # Convert to radians
+        theta = angle*np.pi/180.0
+
+        return  7.0 - np.cos(theta) + 5.0*np.cos(2.0*theta)
+
+--
+    def Altona_HH(self, angle):
+        """
+        NOTES: From: http://janocchio.sourceforge.net/janocchio.docbook/ch04s03.html
+        Altona is good if the protons are attached to two sp3 carbons. This equation
+        takes into account the electronegativity of all adjacent atoms. 
+
+        Haasnoot, C., de Leeuw, FA, Altona, C (1980). Tetrahedron 36(19), 2783-2792
+        """ 
+
+--
+    def Karplus2_HH(self, angle):
+        """Returns predicted J-coupling constant given an angle in degrees.
+        NOTES: A simple Karplus relation from the Janocchio documentation.
+
+        Magnetic Resonance in Chemistry, 45(7), 595-600. doi:10.1002/mrc/2016 """
+
+        if np.abs(angle) < 90.0:
+            J0 = 8.5
+        else:
+--
+    def Wasylichen_HC(self, angle):
+        """Returns predicted J-coupling constant given an angle in degrees.
+        NOTES: Recommended for general use (Can J Chem (1973) 51 961.)
+        See also Janocchio paper"""
+
+        # Convert to radians
+        theta = angle*np.pi/180.0
+
+        return  3.56*np.cos(2.0*theta) - np.cos(theta) + 4.26
+--
+    def Tvaroska_HC(self, angle):
+        """Returns predicted J-coupling constant given an angle in degrees.
+        NOTES: Adv. Carbohydrate Chem. Biochem. (1995) 51, 15-61
+        See also Janocchio paper"""
+
+        # Convert to radians
+        theta = angle*np.pi/180.0
+
+        return  4.5 - 0.87*np.cos(theta) + np.cos(2.0*theta)
+--
+    def Aydin_HC(self, angle):
+        """Returns predicted J-coupling constant given an angle in degrees.
+        NOTES: Mag. Res. Chem. (1990) 28, 448-457
+        See also Janocchio paper"""
+
+        # Convert to radians
+        theta = angle*np.pi/180.0
+
+        return 5.8*(np.cos(theta))**2 -1.6*np.cos(theta) + 0.28*np.sin(2.0*theta) + 0.52
+--
+# This file stores experimental observables with derived container classes.
+##############################################################################
+
+##############################################################################
+# Imports
+##############################################################################
+import os, sys
+import numpy as np
+
+--
+class Observable(object):
+    """A Parent class of observables """
+
+    def __init__(self, i, exp, model,
+            model_angle=None, j=None, k=None, l=None,
+            equivalency_index=None, ambiguity_index=None):
+        """Initialize the parent observable class"""
+
+        # Atom indices from the Conformation() defining this dihedral
+        self.i = i
+        self.j = j
+        self.k = k
+        self.l = l
+
+        # the model distance in this structure (in Angstroms)
+        self.model = model
+        self.model_angle = model_angle
+--
+        self.weight = 1.0  # default is N=1
+
+        # the index of the ambiguity group (i.e. some groups distances have
+        # distant values, but ambiguous assignments.  We can do posterior sampling over these)
+        self.ambiguity_index = ambiguity_index
+
+
+
+class NMR_Chemicalshift(Observable):
+    """A data containter class to store a datum for NMR chemical shift information."""
+
+    def __init__(self, i, exp, model):
+        """Initialize the derived NMR_Chemicalshift class."""
+
+        # Atom indices from the Conformation() defining this chemical shift
+        self.i = i
+
+        # the model chemical shift in this structure (in ppm)
+        self.model = model
+
+        # the experimental chemical shift
+        self.exp = exp
+
+--
+        self.weight = 1.0 # default is N=1
+
+
+
+class NMR_Dihedral(Observable):
+    """A data containter class to store a datum for NMR dihedral information."""
+
+    def __init__(self, i, j, k, l, exp, model,
+            equivalency_index=None, ambiguity_index=None):
+        """Initialize NMR_Dihedral container class"""
+
+        # Atom indices from the Conformation() defining this dihedral
+        self.i = i
+        self.j = j
+        self.k = k
+        self.l = l
+
+        # the model distance in this structure (in Angstroms)
+        self.model = model
+
+--
+        self.weight = 1.0  # default is N=1
+
+        # the index of the ambiguity group (i.e. some groups distances have
+        # distant values, but ambiguous assignments.  We can do posterior sampling over these)
+        self.ambiguity_index = ambiguity_index
+
+
+class NMR_Distance(Observable):
+    """A class to store NMR noe information."""
+
+    def __init__(self, i, j, exp, model, equivalency_index=None):
+        """Initialize NMR_Distance container class"""
+
+        # Atom indices from the Conformation() defining this noe
+        self.i = i
+        self.j = j
+
+        # the model noe in this structure (in Angstroms)
+        self.model = model
+
+        # the experimental NOE noe (in Angstroms)
+        self.exp = exp
+--
+        self.weight = 1.0  # default is N=1
+
+
+class NMR_Protectionfactor(Observable):
+    """A class to store NMR protection factor information."""
+
+    def __init__(self, i, exp, model):
+        """Initialize NMR_Protectionfactor container class"""
+
+        # Atom indices from the Conformation() defining this protection factor
+        self.i = i
+
+        # the model protection factor in this structure (in ???)
+        self.model = model
+
+        # the experimental protection factor
+        self.exp = exp
+
+--
+        self.weight = 1.0 # default is N=1
+
+
+__all__ = [
+    #'Observable',
+    'NMR_Chemicalshift',
+    'NMR_Dihedral',
+    'NMR_Distance',
+    'NMR_Protectionfactor',
+--
+class PosteriorSampler(object):
+    """
+    A class to perform posterior sampling of conformational populations.
+
+    :param list ensemble: a list of lists of Restraint objects, one list for each conformation.
+
+    :param int freq_write_traj: the frequency (in steps) to write the MCMC trajectory
+
+    :param int freq_print: the frequency (in steps) to print status
+
+    :param int freq_save_traj: the frequency (in steps) to store the MCMC trajectory"""
+--
+    def __init__(self, ensemble, freq_write_traj=1000,
+            freq_print=1000, freq_save_traj=100):
+        """Initialize PosteriorSampler Class.
+        """
+
+        # Allow the ensemble to pass through the class
+        self.ensemble = ensemble
+
+        # Step frequencies to write trajectory info
+        self.write_traj = freq_write_traj
+
+        # Frequency of printing to the screen
+        self.print_every = freq_print # debug
+
+--
+    def compute_logZ(self):
+        """Compute reference state logZ for the free energies to normalize."""
+
+        Z = 0.0
+#        for rest_index in range(len(self.ensemble[0])):
+#            for s in self.ensemble[rest_index]:
+        for s in self.ensemble:
+            Z +=  np.exp(-s[0].free_energy)
+        self.logZ = np.log(Z)
+--
+    def build_exp_ref(self, rest_index, verbose=False):
+        """Look at all the structures to find the average observables r_j
+
+        >>  beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
+
+        then store this reference potential info for all Restraints of this
+        type for each structure"""
+
+        print( 'Computing parameters for exponential reference potentials...')
+--
+    def build_gaussian_ref(self, rest_index, use_global_ref_sigma=False, verbose=False):
+        """Look at all the structures to find the mean (mu) and std (sigma)
+        of  observables r_j then store this reference potential info for all
+        Restraints of this type for each structure"""
+
+        print( 'Computing parameters for Gaussian reference potentials...')
+
+        # collect distributions of observables r_j across all structures
+        n_observables  = self.ensemble[0][rest_index].nObs  # the number of (model,exp) data values in this restraint
+--
+    def compile_nuisance_parameters(self, verbose=False):
+        """Compiles arrays into a list for each nuisance parameter.
+
+        Returns
+        -------
+
+        [[allowed_sigma_cs_H],[allowed_sigma_noe,allowed_gamma_noe],...,[Nth_restraint]]"""
+
+        # Generate empty lists for each restraint to fill with nuisance parameters
+--
+    def neglogP(self, new_state, parameters, parameter_indices, verbose=True):
+        """Return -ln P of the current configuration.
+
+        :param int new_state:
+            the new conformational state from Sample()
+
+        :param list parameters:
+            a list of the new parameters for each of the restraints
+
+--
+    def sample(self, nsteps, verbose=True):
+        """Perform n number of steps (nsteps) of posterior sampling, where Monte
+        Carlo moves are accepted or rejected according to Metroplis criterion."""
+
+        # Generate random restraint index to initialize the sigma and gamma parameters
+        self.new_rest_index = np.random.randint(len(self.ensemble[0]))
+
+        # Initialize the state
+        self.new_state = int(self.state)
+--
+            # Redefine based upon acceptance (Metroplis criterion)
+            new_state = self.new_state
+
+            # Store the randomly generated new restraint index for each step
+            new_rest_index =  self.new_rest_index
+
+            # Store the randomly generated new parameter index for each step
+            new_para_index = self.new_para_index
+
+--
+class PosteriorSamplingTrajectory(object):
+    """A container class to store and perform operations on the trajectories of
+    sampling runs."""
+
+    def __init__(self, ensemble):
+        """Initialize the PosteriorSamplingTrajectory container class."""
+
+        self.ensemble = ensemble
+        self.nstates = len(self.ensemble)
+        self.state_counts = np.ones(self.nstates)  # add a pseudo-count to avoid log(0) errors
+
+        # Lists for each restraint inside a list
+        self.sampled_sigmas = [ [] for i in range(len(ensemble[0])) ]
+        self.allowed_sigmas = [ [] for i in range(len(ensemble[0])) ]
+--
+    def process(self):
+        """Process the trajectory, computing sampling statistics,
+        ensemble-average NMR observables."""
+
+        # Store the trajectory in results
+        self.results['trajectory_headers'] = self.trajectory_headers
+        self.results['trajectory'] = self.trajectory
+
+        # Store the nuisance parameter distributions
+--
+    def logspaced_array(self, xmin, xmax, nsteps):
+        ymin, ymax = np.log(xmin), np.log(xmax)
+        dy = (ymax-ymin)/nsteps
+        return np.exp(np.arange(ymin, ymax, dy))
+
+    def write_results(self, outfilename='traj.npz'):
+        """Writes a compact file of several arrays into binary format.
+        Standardized: Yes ; Binary: Yes; Human Readable: No;"""
+
+        np.savez_compressed(outfilename, self.results)
+
+    def read_results(self,filename):
+        """Reads a npz file"""
+
+        loaded = np.load(filename)
+        print( loaded.items())
+
+
+
+
+--
+class Preparation(object):
+    """A parent class to prepare input files for BICePs calculation"""
+
+#    def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None, Karplus=None):
+    def __init__(self,scheme=None,states=0.0,indices=None,
+            exp_data=None, top=None, data_dir=None):
+        """ Prepare BICePs input files (converting from raw data)
+
+        Parameters
+        ----------
+
+        scheme: {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
+        states: number of states
+--
+    def write(self,out_dir=None):
+        """Writes prepared files to output directory."""
+
+        if out_dir == None:
+            self.out = 'BICePs_'+self.scheme
+        else:
+            self.out = out_dir
+        if not os.path.exists(self.out):
+            os.mkdir(self.out)
+--
+    def write_cs_input(self):
+        for j in xrange(len(self.data)):
+            model_data = np.loadtxt(self.data[j])
+            r = prep_cs()
+            all_atom_indices = [atom.index for atom in self.topology.atoms]
+            all_atom_residues = [atom.residue for atom in self.topology.atoms]
+            all_atom_names = [atom.name for atom in self.topology.atoms]
+            for i in xrange(self.ind.shape[0]):
+                a1 = int(self.ind[i])
+--
+    def write_noe_input(self):
+        for j in xrange(len(self.data)):
+            model_data = np.loadtxt(self.data[j])
+            r = prep_noe()
+            all_atom_indices = [atom.index for atom in self.topology.atoms]
+            all_atom_residues = [atom.residue for atom in self.topology.atoms]
+            all_atom_names = [atom.name for atom in self.topology.atoms]
+            for i in xrange(self.ind.shape[0]):
+                a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
+--
+    def write_J_input(self):
+        for j in xrange(len(self.data)):
+            model_data = np.loadtxt(self.data[j])
+            r = prep_J()
+            all_atom_indices = [atom.index for atom in self.topology.atoms]
+            all_atom_residues = [atom.residue for atom in self.topology.atoms]
+            all_atom_names = [atom.name for atom in self.topology.atoms]
+            for i in xrange(self.ind.shape[0]):
+                a1, a2, a3, a4 = int(self.ind[i,0]), int(self.ind[i,1]), int(self.ind[i,2]), int(self.ind[i,3])
+--
+    def write_pf_input(self):
+        for j in xrange(len(self.data)):
+            model_data = np.loadtxt(self.data[j])
+            r = prep_pf()
+            all_atom_indices = [atom.index for atom in self.topology.atoms]
+            all_atom_residues = [atom.residue for atom in self.topology.atoms]
+            all_atom_names = [atom.name for atom in self.topology.atoms]
+            for i in xrange(self.ind.shape[0]):
+                a1 = int(self.ind[i])
+--
+class Restraint(object):
+    """The parent class of all Restraint() objects.
+        Parameters
+        ----------
+        PDB_filename: string
+            A topology file (*.pdb)
+
+        ref: string
+            Reference potential.
+
+--
+    def __init__(self, PDB_filename, ref,
+            dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0,
+            use_global_ref_sigma=True):
+        """Initialize the Restraint class."""
+
+        # Store restraint info
+        self.restraints = []   # a list of data container objects for each restraint (e.g. NMR_Chemicalshift_Ca())
+
+        # Conformational Information
+        self.PDB_filename = PDB_filename
+        self.conf = mdtraj.load_pdb(PDB_filename)
+
+--
+    def load_data(self, prep, verbose=False):
+        """Load in the experimental chemical shift restraints from a known
+        file format."""
+
+        # Read in the lines of the cs data file
+        read = prep
+        if verbose:
+            print read.lines
+        data = []
+--
+    def add_restraint(self, restraint):
+        """Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list."""
+
+        self.restraints.append(restraint)
+
+
+    def compute_sse(self, debug=False):
+        """Returns the (weighted) sum of squared errors for chemical shift values"""
+
+        # Does the restraint child class contain any gamma information?
+        if hasattr(self, 'allowed_gamma'):
+            self.sse = np.array([0.0 for gamma in self.allowed_gamma])
+            for g in range(len(self.allowed_gamma)):
+                sse = 0.0
+                N = 0.0
+
+                for i in range(self.n):
+                    gamma = self.allowed_gamma[g]
+--
+    def compute_neglog_exp_ref(self):
+        """Uses the stored beta information (calculated across all structures)
+        to calculate -log P_ref(observable[j]) for each observable j."""
+
+        self.neglog_exp_ref = np.zeros(self.n)
+        self.sum_neglog_exp_ref = 0.0
+        for j in range(self.n):
+            self.neglog_exp_ref[j] = np.log(self.betas[j])\
+                    + self.restraints[j].model/self.betas[j]
+--
+    def compute_neglog_gaussian_ref(self):
+        """An alternative option for reference potential based on
+        Gaussian distribution. (Ignoring constant terms) """
+
+        self.neglog_gaussian_ref = np.zeros(self.n)
+        self.sum_neglog_gaussian_ref = 0.0
+        for j in range(self.n):
+            self.neglog_gaussian_ref[j] = np.log(np.sqrt(2.0*np.pi))\
+                    + np.log(self.ref_sigma[j]) + (self.restraints[j].model \
+--
+class Restraint_cs_Ca(Restraint):
+    """A derived class of RestraintClass() for C_alpha chemical shift restraints."""
+
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
+        """Observable is prepped by loading in C_alpha restraints.
+
+        Parameters
+        ----------
+        filename: string
+            Experimental data file
+        lam: float
+            Lambda value (between 0 and 1)
+--
+class Restraint_cs_H(Restraint):
+    """A derived class of RestraintClass() for H chemical shift restraints."""
+
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
+        """Observable is prepped by loading in cs_H restraints.
+
+        Parameters
+        ----------
+        filename: string
+            Experimental data file
+
+        lam: float
+--
+class Restraint_cs_Ha(Restraint):
+    """A derived class of RestraintClass() for Ha chemical shift restraints."""
+
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
+        """Observable is prepped by loading in cs_Ha restraints.
+
+        Parameters
+        ----------
+        filename: string
+            Experimental data file
+
+        lam: float
+--
+class Restraint_cs_N(Restraint):
+    """A derived class of RestraintClass() for N chemical shift restraints."""
+
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
+        """Observable is prepped by loading in cs_N restraints.
+
+        Parameters
+        ----------
+        filename: string
+            Experimental data file
+
+        lam: float
+--
+class Restraint_J(Restraint):
+    """A derived class of RestraintClass() for J coupling constant."""
+
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
+        """Observable is prepped by loading in J coupling restraints.
+
+        Parameters
+        ----------
+        filename: string
+            Experimental data file
+
+        lam: float
+--
+    def adjust_weights(self):
+        """Adjust the weights of distance and dihedral restraints based on
+        their equivalency group."""
+
+        for group in self.equivalency_groups.values():
+            n = float(len(group))
+            for i in range(len(self.restraints)):
+                if 'NMR_Dihedral' in self.restraints[i].__str__():
+                    self.restraints[i].weight = 1.0/n
+--
+class Restraint_noe(Restraint):
+    """A derived class of Restraint() for noe distance restraints."""
+
+    def prep_observable(self,filename,free_energy,lam,verbose=False,
+            use_log_normal_noe=False,dloggamma=np.log(1.01),
+            gamma_min=0.2,gamma_max=10.0):
+        """Observable is prepped by loading in noe distance restraints.
+
+        Parameters
+        ----------
+        filename: string
+            Experimental data file
+--
+    def adjust_weights(self):
+        """Adjust the weights of distance restraints based on
+        their equivalency group."""
+
+        for group in self.equivalency_groups.values():
+            n = float(len(group))
+            for i in range(len(self.restraints)):
+                if 'NMR_Distance' in self.restraints[i].__str__():
+                    self.restraints[i].weight = 1.0/n
+--
+class Restraint_pf(Restraint):
+    """A derived class of Restraint() for protection factor restraints."""
+
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
+        """Observable is prepped by loading in protection factor restraints.
+
+        Parameters
+        ----------
+        filename: string
+            Experimental data file
+
+        lam: float
+--
+class Restraint_pf_spec(Restraint):
+    """A derived class of Restraint() for protection factor spec restraints."""
+
+    def prep_observable(self,filename,free_energy,lam,verbose=False):
+        """Observable is prepped by loading in protection factor spec. restraints.
+
+        Parameters
+        ----------
+        filename: string
+            Experimental data file
+
+        lam: float
+--
+    def compute_PF(self, beta_c, beta_h, beta_0, Nc, Nh):
+        """Calculate predicted (ln PF)
+        Parameters
+        ----------
+        (nres, 2) array with columns <N_c> and <N_h> for each residue,
+
+        Returns
+        -------
+        array of <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
+--
+    def compute_PF_multi(self, Ncs_i, Nhs_i, debug=False):
+        """Calculate predicted (ln PF)
+        Parameters
+        ----------
+        (nres, 2) array with columns <N_c> and <N_h> for each residue,
+
+        Returns
+        -------
+        array of <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
+--
+    def tile_multiaxis(self, p, shape, axis=None):
+        """Returns a multi-dimensional array of shape (tuple), with the 1D vector p along the specified axis,
+           and tiled in all other dimensions.
+
+        Parameters
+        ----------
+        p - a 1D array to tile
+        shape - a tuple describing the shape of the returned array
+        axis - the specified axis for p .  NOTE: len(p) must be equal to shape[axis]
+--
+    def tile_2D_multiaxis(self, q, shape, axes=None):
+        """Returns a multi-dimensional array of shape (tuple), with the 2D vector p along the specified axis
+           and tiled in all other dimensions.
+
+        Parameters
+        ----------
+        q       a 2D array to tile
+        shape   a tuple describing the shape of the returned array
+        axes    a list of two specified axes   NOTE: q.shape must be equal to (shape[axes[0]],shape[axes[1]])
+--
+def init_res(PDB_filename, lam, energy, ref, data, uncern, gamma):
+#        Restraint.__init__(self, PDB_filename, ref, use_global_ref_sigma=True)
+        if not isinstance(ref, basestring):
+            raise ValueError("reference potential type must be a 'str'")
+        if not isinstance(lam,float):
+            raise ValueError("lambda should be a single number with type of 'float'")
+        if not isinstance(energy,float):
+            raise ValueError("energy should be a single number with type of 'float'")
+        if not uncern: # if it is an empty list
+--
+def biceps_restraint_line_J(restraint_index, i, j, k, l, topology, exp_J_coupling, model_J_coupling):
+    """Returns a formatted string for a line in Jcoupling restraint file.
+
+    0             restraint_index
+    1             atom index 1
+    2             residue 1
+    3             atom name 1
+    4             atom index 2
+    5             residue 2
+--
+def biceps_restraint_line_J_header():
+    """Returns a header string the the Jcoupling restraint file."""
+
+    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3', 'atom_index4', 'res4', 'atom_name4', 'exp_J_coupling(Hz)', 'model_J_coupling(Hz)'], ' ')
+
+
+class prep_J(object):
+    """A class containing input/output methods for writing Jcoupling Restaint Files."""
+
+    def __init__(self, filename=None):
+        """Initialize the RestraintFile_J class."""
+
+        self.header = biceps_restraint_line_J_header()
+        self.comments = []
+        self.lines  = []
+
+        if filename != None:
+            self.read(filename)
+
+--
+    def read(self, filename):
+        """Read a Jcoupling restraint file."""
+
+        # read in the lines of from the input file
+        fin = open(filename, 'r')
+        lines = fin.readlines()
+        fin.close()
+
+        # parse the header
+--
+    def write(self, filename, verbose=True):
+        """Write stored Jcoupling restraint information to file."""
+
+        fout = open(filename, 'w')
+        fout.write(self.header+'\n')
+        for line in self.comments:
+            fout.write(line+'\n')
+        for line in self.lines:
+            fout.write(line+'\n')
+--
+    def add_line(self, restraint_index, i, j, k, l, topology, exp_J_coupling, model_J_coupling):
+        """Add a line to the Jcoupling file."""
+
+        self.lines.append(biceps_restraint_line_J(restraint_index, i, j, k, l, topology, exp_J_coupling, model_J_coupling))
+
+    def parse_line(self, line):
+        """Parse a Jcoupling data line and return the values
+
+        RETURNS
+        restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, exp_J_coupling(Hz), model_J_coupling(Hz)
+        """
+
+
+
+--
+def biceps_restraint_line_cs(restraint_index, i, topology, exp_chemical_shift, model_chemical_shift):
+    """Returns a formatted string for a line in chemicalshift restraint file.
+
+    0             restraint_index
+    1             atom index 1
+    2             residue 1
+    3             atom name 1
+    4             exp_chemical_shift (in ppm)
+    5		  model_chemical_shift (in ppm)
+--
+def biceps_restraint_line_cs_header():
+    """Returns a header string the the chemicalshift restraint file."""
+
+    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'exp_chemical_shift(ppm)', 'model_chemical_shift(ppm)'], ' ')
+
+
+class prep_cs(object):
+    """A class containing input/output methods for writing chemicalshift Restaint Files."""
+
+    def __init__(self, filename=None):
+        """Initialize the RestraintFile_cs class."""
+
+        self.header = biceps_restraint_line_cs_header()
+        self.comments = []
+        self.lines  = []
+
+        if filename != None:
+            self.read(filename)
+
+--
+    def read(self, filename):
+        """Read a chemicalshift restraint file."""
+
+        # read in the lines of from the input file
+        fin = open(filename, 'r')
+        lines = fin.readlines()
+        fin.close()
+
+        # parse the header
+--
+    def write(self, filename, verbose=True):
+        """Write stored chemicalshift restraint information to file."""
+
+        fout = open(filename, 'w')
+        fout.write(self.header+'\n')
+        for line in self.comments:
+            fout.write(line+'\n')
+        for line in self.lines:
+            fout.write(line+'\n')
+--
+    def add_line(self, restraint_index, i,  topology, exp_chemical_shift, model_chemical_shift):
+        """Add a line to the chemicalshift file."""
+
+        self.lines.append(biceps_restraint_line_cs(restraint_index, i,  topology, exp_chemical_shift, model_chemical_shift))
+
+    def parse_line(self, line):
+        """Parse a chemicalshift data line and return the values
+
+        RETURNS
+        restraint_index, atom_index1, res1, atom_name1, exp_chemical_shift(ppm), model_chemical_shift(ppm)
+        """
+
+        fields = line.strip().split()
+        if len(fields) != 6:
+--
+def biceps_restraint_line_noe(restraint_index, i, j, topology, exp_noe, model_noe):
+    """Returns a formatted string for a line in NOE restraint file.
+
+    0             restraint_index
+    1             atom index 1
+    2             residue 1
+    3             atom name 1
+    4             atom index 2
+    5             residue 2
+--
+def biceps_restraint_line_noe_header():
+    """Returns a header string the the NOE restraint file."""
+
+    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'atom_index2', 'res2', 'atom_name2', 'exp_noe(A)', 'model_noe(A)'], ' ')
+
+
+class prep_noe(object):
+    """A class containing input/output methods for writing NOE Restaint Files."""
+
+    def __init__(self, filename=None):
+        """Initialize the RestraintFile_noe class."""
+      
+        self.header = biceps_restraint_line_noe_header()
+        self.comments = []
+        self.lines  = []
+
+        if filename != None:
+            self.read(filename)
+      
+--
+    def read(self, filename):
+        """Read a NOE restraint file."""
+
+        # read in the lines of from the input file
+        fin = open(filename, 'r')
+        lines = fin.readlines()
+        fin.close()
+
+        # parse the header
+--
+    def write(self, filename, verbose=True):
+        """Write stored NOE restraint information to file."""
+
+        fout = open(filename, 'w')
+        fout.write(self.header+'\n')
+        for line in self.comments:
+            fout.write(line+'\n')
+        for line in self.lines:
+            fout.write(line+'\n')
+--
+    def add_line(self, restraint_index, i, j, topology, exp_noe, model_noe):
+        """Add a line to the NOE file."""
+
+        self.lines.append(biceps_restraint_line_noe(restraint_index, i, j, topology, exp_noe, model_noe))
+
+    def parse_line(self, line):
+        """Parse a NOE data line and return the values
+
+        RETURNS
+        restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, exp_noe(A), model_noe(A) 
+        """
+
+        fields = line.strip().split()
+        if len(fields) != 9:
+--
+def biceps_restraint_line_pf(restraint_index, i, topology, protection_factor):
+    """Returns a formatted string for a line in protectionfactor restraint file.
+
+    0             restraint_index
+    1             atom index 1
+    2             residue 1
+    3             protection factor
+    """
+
+--
+def biceps_restraint_line_pf_header():
+    """Returns a header string the the protectionfactor restraint file."""
+
+    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'protection_factor'], ' ')
+
+
+class prep_pf(object):
+    """A class containing input/output methods for writing protectionfactor Restaint Files."""
+
+    def __init__(self, filename=None):
+        """Initialize the RestraintFile_cs class."""
+
+        self.header = biceps_restraint_line_pf_header()
+        self.comments = []
+        self.lines  = []
+
+        if filename != None:
+            self.read(filename)
+
+--
+    def read(self, filename):
+        """Read a protectionfactor restraint file."""
+
+        # read in the lines of from the input file
+        fin = open(filename, 'r')
+        lines = fin.readlines()
+        fin.close()
+
+        # parse the header
+--
+    def write(self, filename, verbose=True):
+        """Write stored protectionfactor restraint information to file."""
+
+        fout = open(filename, 'w')
+        fout.write(self.header+'\n')
+        for line in self.comments:
+            fout.write(line+'\n')
+        for line in self.lines:
+            fout.write(line+'\n')
+--
+    def add_line(self, restraint_index, i,  topology, protection_factor):
+        """Add a line to the protection_factor file."""
+
+        self.lines.append(biceps_restraint_line_pf(restraint_index, i,  topology, protection_factor))
+
+    def parse_line(self, line):
+        """Parse a protectionfactor data line and return the values
+
+        RETURNS
+        restraint_index, atom_index1, res1, protectionfactor 
+        """
+
+        fields = line.strip().split()
+        if len(fields) != 4:
+--
+def sort_data(dataFiles):
+    """Sorting the data by extension into lists. Data can be located in various
+    directories.  Provide a list of paths where the data can be found.
+    Some examples of fileextensions: {.noe,.J,.cs_H,.cs_Ha}.
+    """
+
+    dir_list=[]
+    if not os.path.exists(dataFiles):
+                raise ValueError("data directory doesn't exist")
+--
+def list_res(input_data):
+    """Determine what scheme is included in sampling"""
+
+#    input_data = sort_data(data)
+    scheme=[]
+    for i in input_data[0]:
+            if i.endswith('.cs_H'):
+                scheme.append('cs_H')
+            elif i.endswith('.cs_Ha'):
+--
+def write_results(self, outfilename):
+    """Writes a compact file of several arrays into binary format."""
+
+    np.savez_compressed(outfilename, self.results)
+
+def read_results(filename):
+    """Reads a npz file"""
+
+    loaded = np.load(filename)
+    print loaded.items()
+
+def convert_pop_to_energy(pop_filename, out_filename=None):
+    """Convert population to energy for each state using U = -np.log(P)"""
+    if pop_filename.endwith('txt') or pop_filename.endwith('dat'):
+        pop = np.loadtxt(pop_filename)
+    elif pop_filename.endwith('npy'):
+        pop = np.load(pop_filename)
+    else:
+        raise ValueError('Incompatible file extention. Use:{.txt,.dat,.npy}')
+    energy=[]
+--
+def get_J3_HN_HA(traj, top, frame=None,  model="Habeck", outname = None, preload_traj = False):
+    '''Compute J3_HN_HA for frames in a trajectories.
+    Parameters
+    ----------
+    traj: trajectory file
+    top: topology file
+    frame: specific frame for computing
+    model: Karplus coefficient models ["Ruterjans1999","Bax2007","Bax1997","Habeck" ,"Vuister","Pardi"]
+    outname: if not None, the output will be saved and a file name (in the format of string) is required.
+--
+def dihedral_angle(x0, x1, x2, x3):
+    """Calculate the signed dihedral angle between 4 positions.  Result is in degrees."""
+    #Calculate Bond Vectors b1, b2, b3
+    b1=x1-x0
+    b2=x2-x1
+    b3=x3-x2
+
+    #Calculate Normal Vectors c1,c2.  This numbering scheme is idiotic, so care.
+    c1=np.cross(b2,b3)
+--
+def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
+
+    if len(karplus_key) != len(index):
+        raise ValueError("The number of index must equale the number of karplus_key.")
+    if traj.endswith('.gro'):
+        conf = md.load(traj)
+    elif traj.endswith('.pdb'):
+        conf = md.load(traj)
+    else:

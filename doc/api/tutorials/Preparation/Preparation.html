@@ -1,0 +1,1152 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Conlusion &mdash; BICePs 2.0-beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0-beta
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Conlusion</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/tutorials/Preparation/Preparation.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 250px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 5ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 250px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 250px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="admonition note">
+This page was generated from <a class="reference external" href="https://github.com/spatialaudio/nbsphinx/blob/2.0-beta/doc/tutorials/Preparation/Preparation.ipynb">doc/tutorials/Preparation/Preparation.ipynb</a>.
+Interactive online version:
+<span class="raw-html"><a href="https://mybinder.org/v2/gh/spatialaudio/nbsphinx/2.0-beta?filepath=doc/tutorials/Preparation/Preparation.ipynb"><img alt="Binder badge" src="https://mybinder.org/badge.svg" style="vertical-align:text-bottom"></a></span></div>
+<p>This totrial shows how to use functions in Preparation class to prepare input files for BICePs sampling. You are welcome to take it as a template and make modification to prepare your own scripts. The example used here is the data set in this <a class="reference external" href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738">work</a>.</p>
+<p>–Yunhui Ge 02/2019</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># import source code</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">glob</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;biceps&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">Preparation</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">toolbox</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</div>
+<p>In this tutorial, we have two experimental observables: (1) <a class="reference external" href="https://en.wikipedia.org/wiki/J-coupling">J couplings</a> for small molecules and (2) <a class="reference external" href="https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect">NMR nuclear Overhauser effect (NOE)</a> (pairwise distances). First we need to perform conformational clustering on our MD simulations data. In this case, 100 metastable states are clustered. Now we need to prepare prior knowledge we learned from computational simulations. Normally, we used
+potential energy for each metastable state. In the <a class="reference external" href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738">original work</a>, Zhou et al did Quantum Mechanical (QM) calculations to refine each state and B3LYP energy was used as priors in BICePs calculation. Instructions of QM calculations are beyond the scope of this tutorial. Alternatively, we can estimate the potential energy using U = -ln(P) where P is the normalized population for each state. We also have built-in functions in
+<code class="docutils literal notranslate"><span class="pre">toolbox.py</span></code> to conduct this conversion. You can find tutorials using functions in <code class="docutils literal notranslate"><span class="pre">toolbox.py</span></code> <a class="reference external" href="https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/tutorials/Tools/toolbox.ipynb">here</a>.</p>
+<p>Next, we need to compute pairwise distances and J coupling constants for each clustered state. To compute pairwise distances, we recommend to use <a class="reference external" href="http://mdtraj.org">MDTraj</a> which is free to download. To compare simulated conformational ensembles to experimetnal NOE measurements, we normally computed &lt;r:sup:<cite>-6&gt;</cite>-1/6. For convenience in this tutorial, we assume the cluster center of each state is representitive enough and simply compute pairwise distances for the cluster center conformation.
+In practice, we still recommend users to compute ensemble-averaged distance.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">mdtraj</span> <span class="kn">as</span> <span class="nn">md</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c1"># atom indices of pairwise distances</span>
+<span class="n">ind</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;atom_indice_noe.txt&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="s2">&quot;indices&quot;</span><span class="p">,</span> <span class="n">ind</span>
+
+<span class="c1"># make a new folder of computed distances for later</span>
+<span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;mkdir NOE&#39;</span><span class="p">)</span>
+
+<span class="c1"># compute pairwise distances using MDTraj</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>    <span class="c1"># 100 clustered states</span>
+    <span class="k">print</span> <span class="s1">&#39;state&#39;</span><span class="p">,</span> <span class="n">i</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">md</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;cineromycinB_pdbs/</span><span class="si">%d</span><span class="s1">.fixed.pdb&#39;</span><span class="o">%</span><span class="k">i</span>)
+    <span class="n">d</span><span class="o">=</span><span class="n">md</span><span class="o">.</span><span class="n">compute_distances</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">ind</span><span class="p">)</span><span class="o">*</span><span class="mf">10.</span>     <span class="c1"># convert nm to Å</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s1">&#39;NOE/</span><span class="si">%d</span><span class="s1">.txt&#39;</span><span class="o">%</span><span class="k">i</span>,d)
+<span class="k">print</span> <span class="s2">&quot;Done!&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+indices [[ 23.  25.]
+ [ 23.  27.]
+ [ 25.  27.]
+ [ 24.  26.]
+ [ 25.  26.]
+ [ 26.  27.]
+ [ 27.  32.]
+ [ 27.  30.]
+ [ 27.  31.]
+ [ 28.  38.]
+ [ 28.  39.]
+ [ 28.  40.]
+ [ 29.  38.]
+ [ 29.  39.]
+ [ 29.  40.]
+ [ 25.  41.]
+ [ 25.  42.]
+ [ 25.  43.]
+ [ 26.  44.]
+ [ 26.  45.]
+ [ 26.  46.]
+ [ 33.  38.]
+ [ 33.  39.]
+ [ 33.  40.]
+ [ 35.  38.]
+ [ 35.  39.]
+ [ 35.  40.]
+ [ 36.  38.]
+ [ 36.  39.]
+ [ 36.  40.]
+ [ 37.  38.]
+ [ 37.  39.]
+ [ 37.  40.]]
+state 0
+state 1
+state 2
+state 3
+state 4
+state 5
+state 6
+state 7
+state 8
+state 9
+state 10
+state 11
+state 12
+state 13
+state 14
+state 15
+state 16
+state 17
+state 18
+state 19
+state 20
+state 21
+state 22
+state 23
+state 24
+state 25
+state 26
+state 27
+state 28
+state 29
+state 30
+state 31
+state 32
+state 33
+state 34
+state 35
+state 36
+state 37
+state 38
+state 39
+state 40
+state 41
+state 42
+state 43
+state 44
+state 45
+state 46
+state 47
+state 48
+state 49
+state 50
+state 51
+state 52
+state 53
+state 54
+state 55
+state 56
+state 57
+state 58
+state 59
+state 60
+state 61
+state 62
+state 63
+state 64
+state 65
+state 66
+state 67
+state 68
+state 69
+state 70
+state 71
+state 72
+state 73
+state 74
+state 75
+state 76
+state 77
+state 78
+state 79
+state 80
+state 81
+state 82
+state 83
+state 84
+state 85
+state 86
+state 87
+state 88
+state 89
+state 90
+state 91
+state 92
+state 93
+state 94
+state 95
+state 96
+state 97
+state 98
+state 99
+Done!
+</pre></div></div>
+</div>
+<p>Next, we need to convert computed distance to BICePs readable format.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#########################################</span>
+<span class="c1"># Lets&#39; create input files for BICePs</span>
+<span class="c1">############ Preparation ################</span>
+<span class="c1"># Specify necessary argument values</span>
+
+<span class="c1"># REQUIRED: raw data of pre-comuted chemical shifts</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;NOE/*txt&#39;</span>
+
+<span class="c1"># REQUIRED: number of states</span>
+<span class="n">states</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="c1"># REQUIRED: atom indices of pairwise distances</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="s1">&#39;atom_indice_noe.txt&#39;</span>
+
+<span class="c1"># REQUIRED: experimental data</span>
+<span class="n">exp_data</span> <span class="o">=</span> <span class="s1">&#39;noe_distance.txt&#39;</span>
+
+<span class="c1"># REQUIRED: topology file (as it only supports topology information, so it doesn&#39;t matter which state is used)</span>
+<span class="n">top</span> <span class="o">=</span> <span class="s1">&#39;cineromycinB_pdbs/0.fixed.pdb&#39;</span>
+
+<span class="c1"># OPTIONAL: output directory of generated files</span>
+<span class="n">out_dir</span> <span class="o">=</span> <span class="s1">&#39;noe_J&#39;</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Preparation</span><span class="p">(</span><span class="s1">&#39;noe&#39;</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span><span class="n">exp_data</span><span class="o">=</span><span class="n">exp_data</span><span class="p">,</span><span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">,</span><span class="n">data_dir</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>   <span class="c1"># &#39;noe&#39; scheme is selected</span>
+<span class="n">p</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">)</span>
+<span class="c1"># This will convert pairwise distances files for each state to a BICePs readable format and saved the new files in &quot;noe_J&quot; folder.</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Wrote noe_J/0.noe
+Wrote noe_J/1.noe
+Wrote noe_J/2.noe
+Wrote noe_J/3.noe
+Wrote noe_J/4.noe
+Wrote noe_J/5.noe
+Wrote noe_J/6.noe
+Wrote noe_J/7.noe
+Wrote noe_J/8.noe
+Wrote noe_J/9.noe
+Wrote noe_J/10.noe
+Wrote noe_J/11.noe
+Wrote noe_J/12.noe
+Wrote noe_J/13.noe
+Wrote noe_J/14.noe
+Wrote noe_J/15.noe
+Wrote noe_J/16.noe
+Wrote noe_J/17.noe
+Wrote noe_J/18.noe
+Wrote noe_J/19.noe
+Wrote noe_J/20.noe
+Wrote noe_J/21.noe
+Wrote noe_J/22.noe
+Wrote noe_J/23.noe
+Wrote noe_J/24.noe
+Wrote noe_J/25.noe
+Wrote noe_J/26.noe
+Wrote noe_J/27.noe
+Wrote noe_J/28.noe
+Wrote noe_J/29.noe
+Wrote noe_J/30.noe
+Wrote noe_J/31.noe
+Wrote noe_J/32.noe
+Wrote noe_J/33.noe
+Wrote noe_J/34.noe
+Wrote noe_J/35.noe
+Wrote noe_J/36.noe
+Wrote noe_J/37.noe
+Wrote noe_J/38.noe
+Wrote noe_J/39.noe
+Wrote noe_J/40.noe
+Wrote noe_J/41.noe
+Wrote noe_J/42.noe
+Wrote noe_J/43.noe
+Wrote noe_J/44.noe
+Wrote noe_J/45.noe
+Wrote noe_J/46.noe
+Wrote noe_J/47.noe
+Wrote noe_J/48.noe
+Wrote noe_J/49.noe
+Wrote noe_J/50.noe
+Wrote noe_J/51.noe
+Wrote noe_J/52.noe
+Wrote noe_J/53.noe
+Wrote noe_J/54.noe
+Wrote noe_J/55.noe
+Wrote noe_J/56.noe
+Wrote noe_J/57.noe
+Wrote noe_J/58.noe
+Wrote noe_J/59.noe
+Wrote noe_J/60.noe
+Wrote noe_J/61.noe
+Wrote noe_J/62.noe
+Wrote noe_J/63.noe
+Wrote noe_J/64.noe
+Wrote noe_J/65.noe
+Wrote noe_J/66.noe
+Wrote noe_J/67.noe
+Wrote noe_J/68.noe
+Wrote noe_J/69.noe
+Wrote noe_J/70.noe
+Wrote noe_J/71.noe
+Wrote noe_J/72.noe
+Wrote noe_J/73.noe
+Wrote noe_J/74.noe
+Wrote noe_J/75.noe
+Wrote noe_J/76.noe
+Wrote noe_J/77.noe
+Wrote noe_J/78.noe
+Wrote noe_J/79.noe
+Wrote noe_J/80.noe
+Wrote noe_J/81.noe
+Wrote noe_J/82.noe
+Wrote noe_J/83.noe
+Wrote noe_J/84.noe
+Wrote noe_J/85.noe
+Wrote noe_J/86.noe
+Wrote noe_J/87.noe
+Wrote noe_J/88.noe
+Wrote noe_J/89.noe
+Wrote noe_J/90.noe
+Wrote noe_J/91.noe
+Wrote noe_J/92.noe
+Wrote noe_J/93.noe
+Wrote noe_J/94.noe
+Wrote noe_J/95.noe
+Wrote noe_J/96.noe
+Wrote noe_J/97.noe
+Wrote noe_J/98.noe
+Wrote noe_J/99.noe
+</pre></div></div>
+</div>
+<p>Now, let’s take a look at what’s inside the newly generated files.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">fin</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;noe_J/0.noe&#39;</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">text</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+#restraint_index atom_index1 res1 atom_name1 atom_index2 res2 atom_name2 exp_noe(A) model_noe(A)
+1            23       UNK1     H3           25       UNK1     H5             2.5000      2.8649
+2            23       UNK1     H3           27       UNK1     H7             2.5000      4.4001
+3            25       UNK1     H5           27       UNK1     H7             2.5000      4.0458
+4            24       UNK1     H4           26       UNK1     H6             2.5000      3.4810
+5            25       UNK1     H5           26       UNK1     H6             2.5000      2.5667
+6            26       UNK1     H6           27       UNK1     H7             2.5000      3.5607
+7            27       UNK1     H7           32       UNK1     H12            2.5000      2.7369
+8            27       UNK1     H7           30       UNK1     H10            2.5000      3.7437
+9            27       UNK1     H7           31       UNK1     H11            2.5000      2.5552
+10           28       UNK1     H8           38       UNK1     H18            2.5000      4.4032
+10           28       UNK1     H8           39       UNK1     H19            2.5000      3.9031
+10           28       UNK1     H8           40       UNK1     H20            2.5000      5.1823
+10           29       UNK1     H9           38       UNK1     H18            2.5000      3.3004
+10           29       UNK1     H9           39       UNK1     H19            2.5000      2.3858
+10           29       UNK1     H9           40       UNK1     H20            2.5000      3.9439
+11           25       UNK1     H5           41       UNK1     H21            2.5000      3.8079
+11           25       UNK1     H5           42       UNK1     H22            2.5000      3.0456
+11           25       UNK1     H5           43       UNK1     H23            2.5000      2.2792
+12           26       UNK1     H6           44       UNK1     H24            2.5000      2.4803
+12           26       UNK1     H6           45       UNK1     H25            2.5000      2.8136
+12           26       UNK1     H6           46       UNK1     H26            2.5000      3.6660
+13           33       UNK1     H13          38       UNK1     H18            2.5000      3.8122
+13           33       UNK1     H13          39       UNK1     H19            2.5000      4.2980
+13           33       UNK1     H13          40       UNK1     H20            2.5000      3.7745
+14           35       UNK1     H15          38       UNK1     H18            2.5000      3.9208
+14           35       UNK1     H15          39       UNK1     H19            2.5000      5.1190
+14           35       UNK1     H15          40       UNK1     H20            2.5000      4.0111
+14           36       UNK1     H16          38       UNK1     H18            2.5000      2.4961
+14           36       UNK1     H16          39       UNK1     H19            2.5000      3.8373
+14           36       UNK1     H16          40       UNK1     H20            2.5000      2.6016
+14           37       UNK1     H17          38       UNK1     H18            2.5000      2.8101
+14           37       UNK1     H17          39       UNK1     H19            2.5000      4.2235
+14           37       UNK1     H17          40       UNK1     H20            2.5000      3.6344
+
+</pre></div></div>
+</div>
+<p>Now let’s move on to J couplings. Model predictions of coupling constants from dihedral angles θ were obtained from Karplus relations chosen depending on the relevant stereochemistry.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># atom indices of J coupling constants</span>
+<span class="n">ind</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;ind.npy&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">ind</span>
+
+<span class="c1"># Karplus relations for each dihedral angles</span>
+<span class="n">karplus_key</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;Karplus.npy&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="s1">&#39;Karplus relations&#39;</span><span class="p">,</span> <span class="n">karplus_key</span>
+
+<span class="c1"># compute J coupling constants using our built-in funtion (compute_nonaa_Jcoupling) in toolbox.py</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>    <span class="c1"># 100 clustered states</span>
+    <span class="k">print</span> <span class="n">i</span>
+    <span class="n">J</span> <span class="o">=</span> <span class="n">compute_nonaa_Jcoupling</span><span class="p">(</span><span class="s1">&#39;cineromycinB_pdbs/</span><span class="si">%d</span><span class="s1">.fixed.pdb&#39;</span><span class="o">%</span><span class="k">i</span>, index=ind, karplus_key=karplus_key)
+    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s1">&#39;J_coupling/</span><span class="si">%d</span><span class="s1">.txt&#39;</span><span class="o">%</span><span class="k">i</span>,J)
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+index [[25  9 10 26]
+ [30 14 15 32]
+ [31 14 15 32]
+ [32 15 20 38]
+ [32 15 20 39]
+ [32 15 20 40]
+ [32 15 16 33]
+ [33 16 21 35]
+ [33 16 21 36]
+ [33 16 21 37]]
+Karplus relations [&#39;Allylic&#39; &#39;Karplus_HH&#39; &#39;Karplus_HH&#39; &#39;Karplus_HH&#39; &#39;Karplus_HH&#39; &#39;Karplus_HH&#39;
+ &#39;Karplus_antiperiplanar_O&#39; &#39;Karplus_antiperiplanar_O&#39;
+ &#39;Karplus_antiperiplanar_O&#39; &#39;Karplus_antiperiplanar_O&#39;]
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+</pre></div></div>
+</div>
+<p>Again, we need to convert computed J coupling constants to BICePs supported format.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#########################################</span>
+<span class="c1"># Lets&#39; create input files for BICePs</span>
+<span class="c1">############ Preparation ################</span>
+<span class="c1"># Specify necessary argument values</span>
+
+<span class="c1"># REQUIRED: raw data of pre-comuted chemical shifts</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;J_coupling/*txt&#39;</span>
+
+<span class="c1"># REQUIRED: number of states</span>
+<span class="n">states</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="c1"># REQUIRED: atom indices of pairwise distances</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="s1">&#39;atom_indice_J.txt&#39;</span>
+
+<span class="c1"># REQUIRED: experimental data</span>
+<span class="n">exp_data</span> <span class="o">=</span> <span class="s1">&#39;exp_Jcoupling.txt&#39;</span>
+
+<span class="c1"># REQUIRED: topology file (as it only supports topology information, so it doesn&#39;t matter which state is used)</span>
+<span class="n">top</span> <span class="o">=</span> <span class="s1">&#39;cineromycinB_pdbs/0.fixed.pdb&#39;</span>
+
+<span class="c1"># OPTIONAL: output directory of generated files</span>
+<span class="n">out_dir</span> <span class="o">=</span> <span class="s1">&#39;noe_J&#39;</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Preparation</span><span class="p">(</span><span class="s1">&#39;J&#39;</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span><span class="n">exp_data</span><span class="o">=</span><span class="n">exp_data</span><span class="p">,</span><span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">,</span><span class="n">data_dir</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>   <span class="c1"># &#39;J&#39; scheme is selected</span>
+<span class="n">p</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">)</span>
+<span class="c1"># This will convert J coupling constants files for each state to a BICePs readable format and saved the new files in &quot;noe_J&quot; folder.</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Wrote noe_J/0.J
+Wrote noe_J/1.J
+Wrote noe_J/2.J
+Wrote noe_J/3.J
+Wrote noe_J/4.J
+Wrote noe_J/5.J
+Wrote noe_J/6.J
+Wrote noe_J/7.J
+Wrote noe_J/8.J
+Wrote noe_J/9.J
+Wrote noe_J/10.J
+Wrote noe_J/11.J
+Wrote noe_J/12.J
+Wrote noe_J/13.J
+Wrote noe_J/14.J
+Wrote noe_J/15.J
+Wrote noe_J/16.J
+Wrote noe_J/17.J
+Wrote noe_J/18.J
+Wrote noe_J/19.J
+Wrote noe_J/20.J
+Wrote noe_J/21.J
+Wrote noe_J/22.J
+Wrote noe_J/23.J
+Wrote noe_J/24.J
+Wrote noe_J/25.J
+Wrote noe_J/26.J
+Wrote noe_J/27.J
+Wrote noe_J/28.J
+Wrote noe_J/29.J
+Wrote noe_J/30.J
+Wrote noe_J/31.J
+Wrote noe_J/32.J
+Wrote noe_J/33.J
+Wrote noe_J/34.J
+Wrote noe_J/35.J
+Wrote noe_J/36.J
+Wrote noe_J/37.J
+Wrote noe_J/38.J
+Wrote noe_J/39.J
+Wrote noe_J/40.J
+Wrote noe_J/41.J
+Wrote noe_J/42.J
+Wrote noe_J/43.J
+Wrote noe_J/44.J
+Wrote noe_J/45.J
+Wrote noe_J/46.J
+Wrote noe_J/47.J
+Wrote noe_J/48.J
+Wrote noe_J/49.J
+Wrote noe_J/50.J
+Wrote noe_J/51.J
+Wrote noe_J/52.J
+Wrote noe_J/53.J
+Wrote noe_J/54.J
+Wrote noe_J/55.J
+Wrote noe_J/56.J
+Wrote noe_J/57.J
+Wrote noe_J/58.J
+Wrote noe_J/59.J
+Wrote noe_J/60.J
+Wrote noe_J/61.J
+Wrote noe_J/62.J
+Wrote noe_J/63.J
+Wrote noe_J/64.J
+Wrote noe_J/65.J
+Wrote noe_J/66.J
+Wrote noe_J/67.J
+Wrote noe_J/68.J
+Wrote noe_J/69.J
+Wrote noe_J/70.J
+Wrote noe_J/71.J
+Wrote noe_J/72.J
+Wrote noe_J/73.J
+Wrote noe_J/74.J
+Wrote noe_J/75.J
+Wrote noe_J/76.J
+Wrote noe_J/77.J
+Wrote noe_J/78.J
+Wrote noe_J/79.J
+Wrote noe_J/80.J
+Wrote noe_J/81.J
+Wrote noe_J/82.J
+Wrote noe_J/83.J
+Wrote noe_J/84.J
+Wrote noe_J/85.J
+Wrote noe_J/86.J
+Wrote noe_J/87.J
+Wrote noe_J/88.J
+Wrote noe_J/89.J
+Wrote noe_J/90.J
+Wrote noe_J/91.J
+Wrote noe_J/92.J
+Wrote noe_J/93.J
+Wrote noe_J/94.J
+Wrote noe_J/95.J
+Wrote noe_J/96.J
+Wrote noe_J/97.J
+Wrote noe_J/98.J
+Wrote noe_J/99.J
+</pre></div></div>
+</div>
+<p>Now, let’s take a look at what’s inside the newly generated files.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">fin</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;noe_J/0.J&#39;</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">text</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+#restraint_index atom_index1 res1 atom_name1 atom_index2 res2 atom_name2 atom_index3 res3 atom_name3 atom_index4 res4 atom_name4 exp_J_coupling(Hz) model_J_coupling(Hz)
+1            25       UNK1     H5           9        UNK1     C6           10       UNK1     C7           26       UNK1     H6             5.0000       3.2791
+2            30       UNK1     H10          14       UNK1     C11          15       UNK1     C12          32       UNK1     H12            1.5000      13.3369
+3            31       UNK1     H11          14       UNK1     C11          15       UNK1     C12          32       UNK1     H12            1.5000       0.6008
+4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          38       UNK1     H18            6.0000      13.8777
+4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          39       UNK1     H19            6.0000       3.3394
+4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          40       UNK1     H20            6.0000       1.8288
+5            32       UNK1     H12          15       UNK1     C12          16       UNK1     C13          33       UNK1     H13            1.5000       0.4647
+6            33       UNK1     H13          16       UNK1     C13          21       UNK1     C17          35       UNK1     H15            7.0000       2.9567
+6            33       UNK1     H13          16       UNK1     C13          21       UNK1     C17          36       UNK1     H16            7.0000      10.8056
+6            33       UNK1     H13          16       UNK1     C13          21       UNK1     C17          37       UNK1     H17            7.0000       1.2322
+
+</pre></div></div>
+</div>
+<div class="section" id="Conlusion">
+<h1>Conlusion<a class="headerlink" href="#Conlusion" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial, we breifly showed how to use <code class="docutils literal notranslate"><span class="pre">Preparation</span></code> class to prepare input files for BICePs using precomputed experimental observables. So far, BICePs support observables: NOE, J couplings, Chemical Shifts, Protection Factors.</p>
+<p>In the example above, we showed how to deal with NOE and J couplings (non-natural amino acids).</p>
+<p>For J couplings for natural amino acids, please check this tutorial.</p>
+<p>Checmial shifts can be computed using different algorithm. We recommend to use <a class="reference external" href="http://www.shiftx2.ca">Shiftx2</a> which is also availabe in MDTraj libaray.</p>
+<p>Protection factors is a special observables which asks for extra work. This tutorial (under construction) shows how to include protection factors in BICePs sampling.</p>
+<p>After the input files are ready, now we are moving on to <a class="reference external" href="https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/tutorials/BICePs_example/BICePs_example.ipynb">how to set up BICePs sampling</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Temple University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"processClass": "math|output_area", "processEscapes": true, "ignoreClass": "document", "inlineMath": [["$", "$"], ["\\(", "\\)"]]}})</script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

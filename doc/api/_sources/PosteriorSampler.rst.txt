@@ -1,0 +1,7 @@
+PosteriorSampler module
+=======================
+
+.. automodule:: PosteriorSampler
+    :members:
+    :undoc-members:
+    :show-inheritance:
