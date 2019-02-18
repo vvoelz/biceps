@@ -8,6 +8,8 @@
 ```python
 #!/usr/bin/env python
 
+"""BICePs - Bayesian Inference of Conformational Populations, Version 2.0"""
+
 from Analysis import *
 from J_coupling import *
 from KarplusRelation import *
