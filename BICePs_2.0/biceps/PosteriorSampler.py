@@ -32,7 +32,7 @@ class PosteriorSampler(object):
     :param int freq_print: the frequency (in steps) to print status
 
     :param int freq_save_traj: the frequency (in steps) to store the MCMC trajectory"""
--
+
     def __init__(self, ensemble, freq_write_traj=100.,
             freq_print=100., freq_save_traj=100.):
         """Initialize PosteriorSampler Class."""
@@ -619,17 +619,17 @@ class PosteriorSamplingTrajectory(object):
 
 __all__ = [
     'PosteriorSampler',
-    'compute_logZ',
-    'build_exp_ref',
-    'build_gaussian_ref',
-    'compile_nuisance_parameters',
-    'sample',
-    'neglogP',
-    'logspaced_array',
-    'write_results',
-    'read_results',
-    'PosteriorSamplingTrajectory'
-    'process',
+    #'compute_logZ',
+    #'build_exp_ref',
+    #'build_gaussian_ref',
+    #'compile_nuisance_parameters',
+    #'sample',
+    #'neglogP',
+    #'logspaced_array',
+    #'write_results',
+    #'read_results',
+    #'PosteriorSamplingTrajectory'
+    #'process',
 
 
 ]
