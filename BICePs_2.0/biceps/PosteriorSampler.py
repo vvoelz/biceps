@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##############################################################################
 # Authors: Vincent Voelz, Yunhui Ge, Rob Raddi
 # This file is used to do posterior sampling of BICePs calculation.
@@ -21,22 +22,17 @@ from toolbox import *
 # Main
 ##############################################################################
 class PosteriorSampler(object):
-    """A class to perform posterior sampling of conformational populations
-
-    INPUTS
-
-        ensemble        - a list of lists of Restraint objects, one list for each conformation.
-
-    OPTIONS
-
-        freq_write_traj - the frequency (in steps) to write the MCMC trajectory
-        freq_print      - the frequency (in steps) to print status
-        freq_save_traj  - the frequency (in steps) to store the MCMC trajectory
-
-    HISTORY of changes
-
     """
+    A class to perform posterior sampling of conformational populations.
 
+    :param list ensemble: a list of lists of Restraint objects, one list for each conformation.
+
+    :param int freq_write_traj: the frequency (in steps) to write the MCMC trajectory
+
+    :param int freq_print: the frequency (in steps) to print status
+
+    :param int freq_save_traj: the frequency (in steps) to store the MCMC trajectory"""
+-
     def __init__(self, ensemble, freq_write_traj=100.,
             freq_print=100., freq_save_traj=100.):
         """Initialize PosteriorSampler Class."""
@@ -110,7 +106,9 @@ class PosteriorSampler(object):
 
         >>    beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
 
-        then store this reference potential info for all Restraints of this type for each structure"""
+        then store this reference potential info for all Restraints of this type for each structure
+
+        :param int rest_index: index of the restraint"""
 
 
         #print( 'Computing parameters for exponential reference potentials...')
@@ -143,8 +141,13 @@ class PosteriorSampler(object):
 
 
     def build_gaussian_ref(self, rest_index, use_global_ref_sigma=False, verbose=False):
-        """Look at all the structures to find the mean (mu) and std (sigma) of  observables r_j
-        then store this reference potential info for all Restraints of this type for each structure"""
+        """Look at all the structures to find the mean (mu) and std (sigma) of
+        observables r_j then store this reference potential info for all
+        restraints of this type for each structure.
+
+        :param int rest_index: index of the restraint
+        :param bool default=False use_global_ref_sigma:
+        """
 
         #print( 'Computing parameters for Gaussian reference potentials...')
 
@@ -190,10 +193,8 @@ class PosteriorSampler(object):
     def compile_nuisance_parameters(self, verbose=False):
         """Compiles arrays into a list for each nuisance parameter.
 
-        Returns
-        -------
-
-        [[allowed_sigma_cs_H],[allowed_sigma_noe,allowed_gamma_noe],...,[Nth_restraint]]"""
+        :return np.array: numpy array with shape(n_restraint,n_para)
+          [[allowed_sigma_cs_H],[allowed_sigma_noe,allowed_gamma_noe],...,[Nth_restraint]]"""
 
         # Generate empty lists for each restraint to fill with nuisance parameters
         nuisance_para = [ ]
@@ -217,14 +218,16 @@ class PosteriorSampler(object):
         np.save('compiled_nuisance_parameters.npy',self.nuisance_para)
 
 
-
-
     def neglogP(self, new_state, parameters, parameter_indices, verbose=False):
         """Return -ln P of the current configuration.
-        INPUTS
-        -------
-            new_state    - the new conformational state from Sample()
-            parameters   - a list of the new parameters for each of the restraints
+
+        :param int new_state:
+            the new conformational state from Sample()
+
+        :param list parameters:
+            a list of the new parameters for each of the restraints
+
+        :param list parameter_indices: parameter indices that correspond to each restraint
         """
 
         # Current Structure being sampled (list of restraint objects):
@@ -272,7 +275,12 @@ class PosteriorSampler(object):
 
     def sample(self, nsteps, verbose=False):
         """Perform n number of steps (nsteps) of posterior sampling, where Monte
-        Carlo moves are accepted or rejected according to Metroplis criterion."""
+        Carlo moves are accepted or rejected according to Metroplis criterion.
+
+        :param int nsteps: number of steps of sampling.
+        See :class:`neglogP`."""
+
+
         # Generate random restraint index to initialize the sigma and gamma parameters
         self.new_rest_index = np.random.randint(len(self.ensemble[0]))
 
@@ -282,7 +290,7 @@ class PosteriorSampler(object):
         # Store a list of parameter indices for each restraint inside a list
         # parameter_indices e.g., [[161], [142], ...]
         _parameter_indices = [ ]
-    
+
         # Store a list of parameters that correspond to the index inside a list
         # parameters e.g., [[1.2122652], [0.832136160], ...]
         _parameters = [ ]
@@ -317,7 +325,7 @@ class PosteriorSampler(object):
 
             # parameter_indices e.g. [[161], [142]]
             parameter_indices = _parameter_indices
-            
+
             # make a temporary list of indices
             temp_parameter_indices = []
             original_index =[]   # keep tracking the original index of the parameters
@@ -325,7 +333,7 @@ class PosteriorSampler(object):
                 for in_ind in parameter_indices[ind]:
                     temp_parameter_indices.append(in_ind)
                     original_index.append(ind)
-            
+
 
             # parameters e.g. [[1.2122652], [0.832136160]]
             parameters = _parameters
@@ -450,7 +458,9 @@ class PosteriorSamplingTrajectory(object):
     sampling runs."""
 
     def __init__(self, ensemble):
-        """Initialize the PosteriorSamplingTrajectory container class."""
+        """Initialize the PosteriorSamplingTrajectory container class.
+
+        :param list ensemble: """
 
         self.ensemble = ensemble
         self.nstates = len(self.ensemble)
@@ -589,19 +599,39 @@ class PosteriorSamplingTrajectory(object):
 
     def write_results(self, outfilename='traj.npz'):
         """Writes a compact file of several arrays into binary format.
-        Standardized: Yes ; Binary: Yes; Human Readable: No;"""
+        Standardized: Yes ; Binary: Yes; Human Readable: No;
+
+        :param str outfilename: name of the output file
+        :return: numpy compressed filetype
+        """
 
         np.savez_compressed(outfilename, self.results)
 
     def read_results(self,filename):
-        """Reads a npz file"""
+        """Reads a numpy compressed filetype
+         (npz) file"""
 
         loaded = np.load(filename)
-        #print( loaded.items())
+        print(loaded.items())
 
 
 
 
+__all__ = [
+    'PosteriorSampler',
+    'compute_logZ',
+    'build_exp_ref',
+    'build_gaussian_ref',
+    'compile_nuisance_parameters',
+    'sample',
+    'neglogP',
+    'logspaced_array',
+    'write_results',
+    'read_results',
+    'PosteriorSamplingTrajectory'
+    'process',
 
+
+]
 
 

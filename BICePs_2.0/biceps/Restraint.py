@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##############################################################################
 # Authors: Vincent Voelz, Yunhui Ge, Rob Raddi
 # This file is used to initialize variables fir BICePs calculations.
@@ -21,18 +22,26 @@ from Observable import * # Containers for experimental observables
 # Code
 ##############################################################################
 class Restraint(object):
-    """The parent class of all Restraint() objects."""
+    """The parent class of all Restraint() objects.
 
-    def __init__(self, PDB_filename, ref, dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0, use_global_ref_sigma=True):
+    :param str PDB_filename: A topology file (*.pdb)
+    :param str ref: Reference potential.
+    :param float default=np.log(1.02) dlogsigma:
+    :param float sigma_min: default = 0.05
+    :param float sigma_max: default = 20.0
+    :param bool default=True use_global_ref_sigma: """
+
+    def __init__(self, PDB_filename, ref, dlogsigma=np.log(1.02),
+            sigma_min=0.05, sigma_max=20.0, use_global_ref_sigma=True):
         """Initialize the Restraint class.
 
-        INPUTS
-        ------
+        :param str PDB_filename: A topology file (*.pdb)
+        :param str ref: Reference potential.
+        :param float default=np.log(1.02) dlogsigma:
+        :param float sigma_min: default = 0.05
+        :param float sigma_max: default = 20.0
+        :param bool default=True use_global_ref_sigma: """
 
-        PDB_filename        A topology file (*.pdb)
-        data            input data for BICePs (both model and exp)
-        ref           Reference potential.
-        """
 
         # Store restraint info
         self.restraints = []   # a list of data container objects for each restraint (e.g. NMR_Chemicalshift_Ca())
@@ -72,7 +81,10 @@ class Restraint(object):
 
     def load_data(self, prep, verbose=False):
         """Load in the experimental chemical shift restraints from a known
-        file format."""
+        file format.
+
+        :param file prep: prep the input data
+        """
 
         # Read in the lines of the cs data file
         read = prep
@@ -85,7 +97,10 @@ class Restraint(object):
 
 
     def add_restraint(self, restraint):
-        """Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list."""
+        """Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.
+
+        :param list restraint:
+        """
 
         self.restraints.append(restraint)
 
@@ -169,13 +184,11 @@ class Restraint_cs_Ca(Restraint):
     def prep_observable(self,filename,free_energy,lam,verbose=False):
         """Observable is prepped by loading in C_alpha restraints.
 
-        Parameters
-        ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
-
+        :param str filename: Experimental data file
+        :param float lam: Lambda value (between 0 and 1)
+        :param float free_energy: The (reduced) free energy
+        >>> f = beta*F
+        of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
@@ -215,12 +228,11 @@ class Restraint_cs_H(Restraint):
     def prep_observable(self,filename,free_energy,lam,verbose=False):
         """Observable is prepped by loading in cs_H restraints.
 
-        Parameters
-        ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
+        :param str filename: Experimental data file
+        :param float lam: Lambda value (between 0 and 1)
+        :param float free_energy: The (reduced) free energy
+        >>> f = beta*F
+        of this conformation"""
 
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -260,12 +272,11 @@ class Restraint_cs_Ha(Restraint):
     def prep_observable(self,filename,free_energy,lam,verbose=False):
         """Observable is prepped by loading in cs_Ha restraints.
 
-        Parameters
-        ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
+        :param str filename: Experimental data file
+        :param float lam: Lambda value (between 0 and 1)
+        :param float free_energy: The (reduced) free energy
+        >>> f = beta*F
+        of this conformation"""
 
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -305,13 +316,11 @@ class Restraint_cs_N(Restraint):
     def prep_observable(self,filename,free_energy,lam,verbose=False):
         """Observable is prepped by loading in cs_N restraints.
 
-        Parameters
-        ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
-
+        :param str filename: Experimental data file
+        :param float lam: Lambda value (between 0 and 1)
+        :param float free_energy: The (reduced) free energy
+        >>> f = beta*F
+        of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
@@ -351,13 +360,11 @@ class Restraint_J(Restraint):
     def prep_observable(self,filename,free_energy,lam,verbose=False):
         """Observable is prepped by loading in J coupling restraints.
 
-        Parameters
-        ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
-
+        :param str filename: Experimental data file
+        :param float lam: Lambda value (between 0 and 1)
+        :param float free_energy: The (reduced) free energy
+        >>> f = beta*F
+        of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
@@ -434,15 +441,12 @@ class Restraint_noe(Restraint):
             gamma_min=0.2,gamma_max=10.0):
         """Observable is prepped by loading in noe distance restraints.
 
-        Parameters
-        ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation
-        dloggamma    - Gamma is in log space
-        gamma_min    - Minimum value of gamma
-        gamma_max    - Maximum value of gamma"""
+        :param str filename: Experimental data file
+        :param float lam: Lambda value (between 0 and 1)
+        :param float free_energy: The (reduced) free energy f = beta*F of this conformation
+        :param float dloggamma: Gamma is in log space
+        :param float gamma_min: Minimum value of gamma
+        :param float gamma_max: Maximum value of gamma"""
 
         # Store info about gamma^(-1/6) scaling parameter array
         self.dloggamma = dloggamma
@@ -525,13 +529,10 @@ class Restraint_pf(Restraint):
     def prep_observable(self,filename,free_energy,lam,verbose=False):
         """Observable is prepped by loading in protection factor restraints.
 
-        Parameters
-        ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
-
+        :param str filename: Experimental data file
+        :param float lam: Lambda value (between 0 and 1)
+        :param float free_energy: The (reduced) free energy f = beta*F of this conformation
+        """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
@@ -576,14 +577,10 @@ class Restraint_pf_spec(Restraint):
     def prep_observable(self,filename,free_energy,lam,verbose=False):
         """Observable is prepped by loading in protection factor spec. restraints.
 
-        Parameters
-        ----------
-
-        filename     - Experimental data file
-        lam          - Lambda value (between 0 and 1)
-        free_energy  - The (reduced) free energy f = beta*F of this conformation"""
-
-
+        :param str filename: Experimental data file
+        :param float lam: Lambda value (between 0 and 1)
+        :param float free_energy: The (reduced) free energy f = beta*F of this conformation
+        """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
@@ -619,18 +616,26 @@ class Restraint_pf_spec(Restraint):
         self.compute_sse(debug=False)
 
 
-
     def compute_PF(self, beta_c, beta_h, beta_0, Nc, Nh):
         """Calculate predicted (ln PF)
-        INPUT    (nres, 2) array with columns <N_c> and <N_h> for each residue,
-        OUTPUT   array of <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
+
+        :param np.array beta_c,beta_h,Nc,Nh: shape(nres, 2)
+          array with columns <N_c> and <N_h> for each residue
+        :return:   array of
+          >>> <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
         """
         return beta_c * Nc + beta_h * Nh + beta_0  #GYH: new equation for PF calculation 03/2017 '''
 
+
     def compute_PF_multi(self, Ncs_i, Nhs_i, debug=False):
         """Calculate predicted (ln PF)
-        INPUT    (nres, 2) array with columns <N_c> and <N_h> for each residue,
-        OUTPUT   array of <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
+
+        .. tip:: A near future application...
+
+        :param np.array Ncs_i,Nhs_i:
+          array with columns <N_c> and <N_h> for each residue
+        :return:   array of
+          >>> <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
         """
 
         N_beta_c = len(self.allowed_beta_c)
@@ -662,12 +667,12 @@ class Restraint_pf_spec(Restraint):
         """Returns a multi-dimensional array of shape (tuple), with the 1D vector p along the specified axis,
            and tiled in all other dimensions.
 
-        INPUT
-        p       a 1D array to tile
-        shape   a tuple describing the shape of the returned array
-        axis    the specified axis for p .  NOTE: len(p) must be equal to shape[axis]
-        """
 
+        .. tip:: A near future application...
+        :param np.array p: a 1D array to tile
+        :param tuple shape: a tuple describing the shape of the returned array
+        :var axis: the specified axis for p .  NOTE: len(p) must be equal to shape[axis]
+        """
 
         print 'shape', shape , 'axis', axis, 'p.shape', p.shape
         assert shape[axis] == len(p), "len(p) must be equal to shape[axis]!"
@@ -685,10 +690,10 @@ class Restraint_pf_spec(Restraint):
         """Returns a multi-dimensional array of shape (tuple), with the 2D vector p along the specified axis
            and tiled in all other dimensions.
 
-        INPUT
-        q       a 2D array to tile
-        shape   a tuple describing the shape of the returned array
-        axes    a list of two specified axes   NOTE: q.shape must be equal to (shape[axes[0]],shape[axes[1]])
+        .. tip:: A near future application...
+        :param np.array p: a 1D array to tile
+        :param tuple shape: a tuple describing the shape of the returned array
+        :var axis: the specified axis for p .  NOTE: len(p) must be equal to shape[axis]
         """
 
         print 'shape', shape , 'axes', axes, 'q.shape', q.shape
@@ -700,6 +705,33 @@ class Restraint_pf_spec(Restraint):
         next_last_axis = len(result.shape)-2
         result2 = np.rollaxis(result, next_last_axis, axes[0])
         return np.rollaxis( result2, last_axis, axes[1])
+
+
+__all__ = [
+    #'Restraint',
+#    'load_data',
+#    'add_restraint',
+#    'compute_sse',
+#    'compute_neglog_exp_ref',
+#    'compute_neglog_gaussian_ref',
+    'Restraint_cs_Ca',
+#    'Restraint_cs_Ca.prep_observable',
+    'Restraint_cs_H',
+#    'Restraint_cs_H.prep_observable',
+    'Restraint_cs_Ha',
+#    'Restraint_cs_Ha.prep_observable',
+    'Restraint_cs_N',
+#    'Restraint_cs_N.prep_observable',
+    'Restraint_J',
+#    'Restraint_J.prep_observable',
+#    'Restraint_J.adjust_weights',
+    'Restraint_noe',
+#    'Restraint_noe.prep_observabl',
+#    'Restraint_noe.adjust_weights',
+    'Restraint_pf',
+#    'Restraint_pf.prep_observable',
+
+]
 
 
 

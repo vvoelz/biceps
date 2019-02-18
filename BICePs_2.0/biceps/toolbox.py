@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##############################################################################
 # Authors: Yunhui Ge, Rob Raddi
 # This file includes functions not part of the source code but will be useful
@@ -8,8 +9,6 @@
 ##############################################################################
 # Imports
 ##############################################################################
-
-
 
 import sys, os, glob
 import numpy as np
@@ -26,6 +25,14 @@ from matplotlib import pyplot as plt
 ##############################################################################
 
 def sort_data(dataFiles):
+    """Sorting the data by extension into lists. Data can be located in various
+    directories.  Provide a list of paths where the data can be found.
+    Some examples of fileextensions: {.noe,.J,.cs_H,.cs_Ha}.
+
+    :param list dataFiles: list of strings where the data can be found
+    :raises ValueError: if the data directory does not exist
+    """
+
     dir_list=[]
     if not os.path.exists(dataFiles):
                 raise ValueError("data directory doesn't exist")
@@ -101,18 +108,29 @@ def list_res(input_data):
     return scheme
 
 def write_results(self, outfilename):
-    """Writes a compact file of several arrays into binary format."""
+    """Writes a compact file of several arrays into binary format.
+    Standardized: Yes ; Binary: Yes; Human Readable: No;
+
+    :param str outfilename: name of the output file
+    :return: numpy compressed filetype
+    """
 
     np.savez_compressed(outfilename, self.results)
 
-def read_results(filename):
-    """Reads a npz file"""
+def read_results(self,filename):
+    """Reads a numpy compressed filetype
+     (npz) file"""
 
     loaded = np.load(filename)
-    print loaded.items()
+    print(loaded.items())
 
 def convert_pop_to_energy(pop_filename, out_filename=None):
-    """Convert population to energy for each state using U = -np.log(P)"""
+    """Convert population to energy for each state using
+      >>> U = -np.log(P)
+
+    :param str pop_filename: name of file for populations
+    :param str out_filename: output file name"""
+
     if pop_filename.endswith('txt') or pop_filename.endswith('dat'):
         pop = np.loadtxt(pop_filename)
     elif pop_filename.endswith('npy'):
@@ -134,14 +152,15 @@ def convert_pop_to_energy(pop_filename, out_filename=None):
 
 def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
     '''Compute J3_HN_HA for frames in a trajectories.
-    Parameters
-    ----------
-    traj: trajectory file
-    top: topology file
-    frame: specific frame for computing
-    model: Karplus coefficient models ["Ruterjans1999","Bax2007","Bax1997","Habeck" ,"Vuister","Pardi"]
-    outname: if not None, the output will be saved and a file name (in the format of string) is required.
-    '''
+
+    :param mdtraj.Trajectory traj: Trajectory
+    :param mdtraj.Topology top: topology file
+    :param list frame: specific frame for computing
+    :param str model: Karplus coefficient models
+      ["Ruterjans1999","Bax2007","Bax1997","Habeck" ,"Vuister","Pardi"]
+    :param str outname: if not None, the output will be saved and a
+      file name (in the format of string) is required.'''
+
     J=[]
     if traj is not None:
         if frame is None:
@@ -170,7 +189,14 @@ def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
     return J
 
 def dihedral_angle(x0, x1, x2, x3):
-    """Calculate the signed dihedral angle between 4 positions.  Result is in degrees."""
+    """Calculate the signed dihedral angle between 4 positions.  Result is
+      in degrees.
+    :param float x0:
+    :param float x1:
+    :param float x2:
+    :param float x3:
+    :return float phi: dihedral angle in degrees
+    """
     #Calculate Bond Vectors b1, b2, b3
     b1=x1-x0
     b2=x2-x1
@@ -190,6 +216,12 @@ def dihedral_angle(x0, x1, x2, x3):
     return(phi)
 
 def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
+    """
+    :param mdtraj.Trajectory traj: Trajectory
+    :param int index:
+    :var karplus_key:
+    :param mdtraj.Topology top: topology file"""
+
 
     if len(karplus_key) != len(index):
         raise ValueError("The number of index must equale the number of karplus_key.")
@@ -213,11 +245,11 @@ def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
 def plot_ref(traj, debug = True):
     #from matplotlib import pyplot as plt
     # Load in yaml trajectories
-    #output = os.path.join(resultdir,'traj_lambda0.00.npz') 
+    #output = os.path.join(resultdir,'traj_lambda0.00.npz')
     #output = traj
     if debug:
             print 'Loading %s ...'%traj
-    results = np.load(output)['arr_0'].item() 
+    results = np.load(output)['arr_0'].item()
     n_restraints = len(results['ref_potential'])
     for i in range(n_restraints):
         if results['ref_potential'][i][0] == 'Nan':
@@ -296,10 +328,10 @@ def get_allowed_parameters(traj,rest_type=None):
         else:
             parameters.append(t['allowed_sigma'])[i]
     return parameters
-            
+
 
 def autocorr_valid(x,tau):
-    t = tau 
+    t = tau
     y = x[:np.size(x)-t]
     g = np.correlate(x, y, mode='valid')
     n = np.array([np.size(x)-t]*len(g))
@@ -313,7 +345,7 @@ def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
         if rest_type == None:
             rest_type = get_rest_type(traj)
         elif allowed_parameters == None:
-            allowed_parameters = get_allowed_parameters(traj,rest_type=rest_type) 
+            allowed_parameters = get_allowed_parameters(traj,rest_type=rest_type)
         else:
             sampled_parameters = [[] for i in range(len(rest_type))]
             t = np.load(traj)['arr_0'].item()['trajectory']
@@ -357,15 +389,17 @@ def plot_ac(ac_paramters,rest_type):
     plt.legend(loc='best')
     plt.tight_layout()
     plt.savefig('autocorrelation.pdf')
-    
-                
+
+
 def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters):
     '''Compute JSD for a given part of trajectory.
-    Parameters
-    ----------
-    T1, T2, T_total: part 1, part2 and total (part1 + part2)
-    traj: trajectory from BICePs sampling
+
+    :var T1, T2, T_total: part 1, part2 and total (part1 + part2)
+    :var rest_type:
+    :param list allowed_parameters:
+    :param mdtraj.Trajectory traj: trajectory from BICePs sampling
     '''
+
     restraints = rest_type
     all_JSD = np.zeros(len(restraints))
     if 'gamma' in rest_type:
@@ -448,4 +482,24 @@ def plot_conv(all_JSD,all_JSDs,rest_type):
         plt.legend(loc='best')
     plt.tight_layout()
     plt.savefig('convergence.pdf')
+
+
+
+__all__ = [
+    'sort_data',
+    'list_res',
+    'write_results',
+    'read_results',
+    'convert_pop_to_energy',
+    'get_J3_HN_HA',
+    'dihedral_angle',
+    'compute_nonaa_Jcoupling',
+    'plot_ref',
+    'get_rest_type',
+    'get_allowed_parameters',
+    'autocorr_valid',
+    'compute_ac',
+    'plot_ac',
+    'compute_JSD',
+    'plot_conv']
 

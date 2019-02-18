@@ -1,9 +1,9 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 ##############################################################################
 # Authors: Rob Raddi
 # Contributors: Yunhui Ge
 # This file includes functions of computing J3 couplings and is modified based
-# on the source code from MDTraj. Cite the original MDTraj paper to use this 
+# on the source code from MDTraj. Cite the original MDTraj paper to use this
 # function.
 ##############################################################################
 
@@ -44,30 +44,33 @@ J3_HN_HA_uncertainties = {
 ##############################################################################
 
 def _J3_function(phi, A, B, C, phi0):
-    """Return a scalar couplings with a given choice of karplus coefficients.  USES RADIANS!"""
+    """Return a scalar couplings with a given choice of karplus coefficients.
+
+    :param float phi:
+    :param float A:
+    :param float B:
+    :param float C:
+    :param float phi0:
+
+    .. warning:: in radians"""
+
+
     return A * np.cos(phi + phi0) ** 2. + B * np.cos(phi + phi0) + C
 
 
 def compute_J3_HN_HA(traj, model="Bax2007"):
     """Calculate the scalar coupling between HN and H_alpha.
-
     This function does not take into account periodic boundary conditions (it
     will give spurious results if the three atoms which make up any angle jump
     across a PBC (are not "wholed"))
 
-    Parameters
-    ----------
-    traj : mdtraj.Trajectory
-        Trajectory to compute J3_HN_HA for
-    model : string, optional, default="Bax2007"
-        Which scalar coupling model to use.  Must be one of Bax2007, Bax1999,
-        or Ruterjans1999
+    :param  mdtraj.Trajectory traj: Trajectory to compute J3_HN_HA for
+    :param  string, optional, default="Bax2007" model :
+      Which scalar coupling model to use.  Must be one of Bax2007, Bax1999, or Ruterjans1999
 
-    Returns
-    -------
-    indices : np.ndarray, shape=(n_phi, 4), dtype=int
+    :return np.ndarray, shape=(n_phi, 4), dtype=int indices :
         Atom indices (zero-based) of the phi dihedrals
-    J : np.ndarray, shape=(n_frames, n_phi)
+    :return  np.ndarray, shape=(n_frames, n_phi) J:
         Scalar couplings (J3_HN_HA, in [Hz]) of this trajectory.
         `J[k]` corresponds to the phi dihedral associated with
         atoms `indices[k]`
@@ -118,4 +121,8 @@ def compute_J3_HN_HA(traj, model="Bax2007"):
     return indices, J
 
 
+
+__all__ = [
+   '_J3_function',
+   'compute_J3_HN_HA']
 

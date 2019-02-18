@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##############################################################################
 # Authors: Vincent Voelz, Yunhui Ge, Rob Raddi
 # This file stores experimental observables with derived container classes.
@@ -18,7 +19,15 @@ class Observable(object):
     def __init__(self, i, exp, model,
             model_angle=None, j=None, k=None, l=None,
             equivalency_index=None, ambiguity_index=None):
-        """Initialize the parent observable class"""
+        """Initialize the parent observable class that acts as a container class.
+
+        :param int i,j,k,l:
+        :var exp:
+        :var model_angle:
+        :var model:
+        :var equivalency_index:
+        :var ambiguity_index:
+        """
 
         # Atom indices from the Conformation() defining this dihedral
         self.i = i
@@ -49,7 +58,13 @@ class NMR_Chemicalshift(Observable):
     """A data containter class to store a datum for NMR chemical shift information."""
 
     def __init__(self, i, exp, model):
-        """Initialize the derived NMR_Chemicalshift class."""
+        """Initialize the derived NMR_Chemicalshift class.
+
+        :param int i:
+        :var exp:
+        :var model:
+        """
+
 
         # Atom indices from the Conformation() defining this chemical shift
         self.i = i
@@ -71,7 +86,16 @@ class NMR_Dihedral(Observable):
 
     def __init__(self, i, j, k, l, exp, model,
             equivalency_index=None, ambiguity_index=None):
-        """Initialize NMR_Dihedral container class"""
+        """Initialize NMR_Dihedral container class
+
+        :param int i,j,k,l:
+        :var exp:
+        :var model_angle:
+        :var model:
+        :var equivalency_index:
+        :var ambiguity_index:
+        """
+
 
         # Atom indices from the Conformation() defining this dihedral
         self.i = i
@@ -100,7 +124,13 @@ class NMR_Distance(Observable):
     """A class to store NMR noe information."""
 
     def __init__(self, i, j, exp, model, equivalency_index=None):
-        """Initialize NMR_Distance container class"""
+        """Initialize NMR_Distance container class
+
+        :param int i,j:
+        :var exp:
+        :var model:
+        :var equivalency_index:
+        """
 
         # Atom indices from the Conformation() defining this noe
         self.i = i
@@ -123,7 +153,12 @@ class NMR_Protectionfactor(Observable):
     """A class to store NMR protection factor information."""
 
     def __init__(self, i, exp, model):
-        """Initialize NMR_Protectionfactor container class"""
+        """Initialize NMR_Protectionfactor container class
+
+        :param int i:
+        :var exp:
+        :var model:
+        """
 
         # Atom indices from the Conformation() defining this protection factor
         self.i = i
@@ -138,3 +173,11 @@ class NMR_Protectionfactor(Observable):
         self.weight = 1.0 # default is N=1
 
 
+__all__ = [
+    #'Observable',
+    'NMR_Chemicalshift',
+    'NMR_Dihedral',
+    'NMR_Distance',
+    'NMR_Protectionfactor',
+
+]

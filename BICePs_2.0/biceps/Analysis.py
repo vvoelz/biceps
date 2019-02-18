@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##############################################################################
 # Authors: Yunhui Ge, Vincent Voelz
 # Contributors: Rob Raddi
@@ -152,7 +153,7 @@ class Analysis(object):
 #          			sigma_pf = self.traj[k]['allowed_sigma_pf'][sigma_pf_index]
 #          			u_kln[k,l,n] = self.sampler[l].neglogP(0, state, sigma_noe, sigma_J, sigma_cs_H, sigma_cs_Ha, sigma_cs_N, sigma_cs_Ca, sigma_pf, gamma_index)
                                 #print 'sigma', sigma
-                                u_kln[k,l,n] = self.sampler[l].neglogP(state, sigma, sigma_index) # is gamma necessary? 
+                                u_kln[k,l,n] = self.sampler[l].neglogP(state, sigma, sigma_index) # is gamma necessary?
                                 if debug:
 					print 'E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n]
 
@@ -258,7 +259,7 @@ class Analysis(object):
                 xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
                 xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
                 d_x = (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
-                xmax = max(xmax0,xmax1) 
+                xmax = max(xmax0,xmax1)
                 xmin = min(xmin0, xmin1)
                 plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
         	#plt.xlim(0,max(t0['allowed_sigma'][k]))
@@ -320,4 +321,11 @@ class Analysis(object):
 
 
 
-
+__all__ = [
+    #'Analysis',
+    'list_scheme',
+    'plot',
+    'load_data',
+    'MBAR_analysis',
+    'save_MBAR',
+]
