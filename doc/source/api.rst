@@ -10,10 +10,6 @@ Preparation
 
 .. autoclass:: Preparation
 
-
-   .. automethod:: __init__
-
-
    .. rubric:: Methods
 
    .. autosummary::
@@ -27,8 +23,6 @@ Observables
 
 .. autoclass:: Observable
 
-   .. automethod:: __init__
-
    .. rubric:: Methods
 
    .. autosummary::
@@ -36,8 +30,6 @@ Observables
        ~Observable.__init__
 
 .. autoclass:: NMR_Chemicalshift
-
-   .. automethod:: __init__
 
    .. rubric:: Methods
 
@@ -47,12 +39,9 @@ Observables
 
 .. autoclass:: NMR_Dihedral
 
-   .. automethod:: __init__
-
    .. rubric:: Methods
 
    .. autosummary::
-
 
        ~NMR_Dihedral.__init__
        ~NMR_Distance.__init__
@@ -66,7 +55,6 @@ Restraint
 
 .. autoclass:: Restraint
 
-   .. automethod:: __init__
 
    .. rubric:: Methods
 
@@ -81,8 +69,6 @@ Restraint
 
 .. autoclass:: Restraint_cs_Ca
 
-   .. automethod:: __init__
-
    .. rubric:: Methods
 
    .. autosummary::
@@ -91,8 +77,6 @@ Restraint
        ~Restraint_cs_Ca.prep_observable
 
 .. autoclass:: Restraint_cs_H
-
-   .. automethod:: __init__
 
    .. rubric:: Methods
 
@@ -103,8 +87,6 @@ Restraint
 
 .. autoclass:: Restraint_cs_Ha
 
-   .. automethod:: __init__
-
    .. rubric:: Methods
 
    .. autosummary::
@@ -114,7 +96,6 @@ Restraint
 
 .. autoclass:: Restraint_cs_N
 
-   .. automethod:: __init__
 
    .. rubric:: Methods
 
@@ -125,7 +106,6 @@ Restraint
 
 .. autoclass:: Restraint_cs_J
 
-   .. automethod:: __init__
 
    .. rubric:: Methods
 
@@ -137,7 +117,6 @@ Restraint
 
 .. autoclass:: Restraint_cs_noe
 
-   .. automethod:: __init__
 
    .. rubric:: Methods
 
@@ -149,7 +128,6 @@ Restraint
 
 .. autoclass:: Restraint_cs_pf
 
-   .. automethod:: __init__
 
    .. rubric:: Methods
 
@@ -165,8 +143,6 @@ PosteriorSampler
 .. currentmodule:: biceps
 
 .. autoclass:: PosteriorSampler
-
-   .. automethod:: __init__
 
    .. rubric:: Methods
 
@@ -186,8 +162,6 @@ PosteriorSampler
 
 .. autoclass:: PosteriorSamplingTrajectory
 
-   .. automethod:: __init__
-
    .. rubric:: Methods
 
    .. autosummary::
@@ -200,28 +174,6 @@ Analysis
 .. currentmodule:: biceps
 
 .. autoclass:: Analysis
-
-   .. automethod:: __init__
-
-   .. rubric:: Methods
-
-   .. autosummary::
-
-       ~Analysis.__init__
-       ~Analysis.list_scheme
-       ~Analysis.plot
-       ~Analysis.load_data
-       ~Analysis.MBAR_analysis
-       ~Analysis.save_MBAR
-
-
-Analysis
---------
-.. currentmodule:: biceps
-
-.. autoclass:: Analysis
-
-   .. automethod:: __init__
 
    .. rubric:: Methods
 
@@ -255,35 +207,5 @@ toolbox
 .. autofunction:: plot_ac
 .. autofunction:: compute_JSD
 .. autofunction:: plot_conv
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
