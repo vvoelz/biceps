@@ -124,7 +124,8 @@ def read_results(self,filename):
     print(loaded.items())
 
 def convert_pop_to_energy(pop_filename, out_filename=None):
-    """Convert population to energy for each state using
+    """Convert population to energy for each state using the following:
+
       >>> U = -np.log(P)
 
     :param str pop_filename: name of file for populations
@@ -190,8 +191,8 @@ def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
     return J
 
 def dihedral_angle(x0, x1, x2, x3):
-    """Calculate the signed dihedral angle between 4 positions.  Result is
-      in degrees.
+    """Calculate the signed dihedral angle between 4 positions. Result is in degrees.
+
     :param float x0:
     :param float x1:
     :param float x2:
@@ -221,7 +222,7 @@ def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
     """Compute J couplings for small molecules.
 
     :param mdtraj.Trajectory traj: Trajectory or *.pdb/*.gro files
-    :param index: index file for atoms 
+    :param index: index file for atoms
     :param karplus_key: karplus relation for each J coupling
     :param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)"""
 
@@ -418,7 +419,7 @@ def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
 def plot_ac(ac_paramters,rest_type):
     """Plot auto-correlation results.
 
-    :var ac_parameters: computed auto-correlation results 
+    :var ac_parameters: computed auto-correlation results
     :var rest_type: experimental restraint type
     :return figure: A figure of auto-correlation results for all nuisance parameters
     """
