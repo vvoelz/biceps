@@ -156,4 +156,6 @@ class prep_noe(object):
 
         return restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, exp_noe, model_noe
 
-
+__all__ = [
+    'biceps_restraint_line_noe',
+] 

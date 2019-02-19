@@ -180,3 +180,6 @@ class prep_J(object):
         model_J_coupling      = float(fields[14])
         return restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, exp_J_coupling, model_J_coupling
 
+__all__ = [
+    'biceps_restraint_line_J',
+]

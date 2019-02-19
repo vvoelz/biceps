@@ -129,7 +129,9 @@ def convert_pop_to_energy(pop_filename, out_filename=None):
       >>> U = -np.log(P)
 
     :param str pop_filename: name of file for populations
-    :param str out_filename: output file name"""
+    :param str out_filename: output file name
+    :return list: A list of converted energy for each conformational state
+    """
 
     if pop_filename.endswith('txt') or pop_filename.endswith('dat'):
         pop = np.loadtxt(pop_filename)
@@ -217,10 +219,11 @@ def dihedral_angle(x0, x1, x2, x3):
 
 def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
     """
-    :param mdtraj.Trajectory traj: Trajectory
-    :param int index:
-    :var karplus_key:
-    :param mdtraj.Topology top: topology file"""
+    Compute J couplings for small molecules
+    :param mdtraj.Trajectory traj: Trajectory or *.pdb/*.gro files
+    :param index: index file for atoms 
+    :param karplus_key: karplus relation for each J coupling
+    :param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)"""
 
 
     if len(karplus_key) != len(index):
@@ -247,6 +250,11 @@ def plot_ref(traj, debug = True):
     # Load in yaml trajectories
     #output = os.path.join(resultdir,'traj_lambda0.00.npz')
     #output = traj
+    """
+    Plot reference potential for each observables
+    :param traj: output trajectory from BICePs sampling
+    :return figure: A figure of reference potential and distribution of model observables
+    """
     if debug:
             print 'Loading %s ...'%traj
     results = np.load(output)['arr_0'].item()
@@ -296,6 +304,11 @@ def plot_ref(traj, debug = True):
 
 
 def get_rest_type(traj):
+    """
+    Get types of experimental restraints
+    :param traj: output trajectory from BICePs sampling
+    :return list: A list of types of experimental restraints
+    """
     rest_type=[]
     if not traj.endswith('.npz'):
         raise TypeError("trajectory file should be in the format of '*npz'")
@@ -312,6 +325,12 @@ def get_rest_type(traj):
 
 
 def get_allowed_parameters(traj,rest_type=None):
+    """
+    Get nuisance parameters range
+    :param traj: output trajectory from BICePs sampling
+    :var default=None rest_type: experimental restraint type
+    :return list: A list of all nuisance parameters range
+    """
     if not traj.endswith('.npz'):
         raise TypeError("trajectory file should be in the format of '*npz'")
     else:
@@ -331,6 +350,11 @@ def get_allowed_parameters(traj,rest_type=None):
 
 
 def autocorr_valid(x,tau):
+    """
+    Cross-correlation of two 1-dimensional sequences.
+    :var x: 1-dimensional sequence
+    :var tau: lagtime
+    """
     t = tau
     y = x[:np.size(x)-t]
     g = np.correlate(x, y, mode='valid')
@@ -339,6 +363,15 @@ def autocorr_valid(x,tau):
 
 
 def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
+    """
+    Compute auto-correlation time for sampled trajectory of nuisance parameters.
+    :param traj: output trajectory from BICePs sampling
+    :var tau: lagtime
+    :var default=None rest_type: experimental restraint type
+    :var default=None allowed_parameters: nuisacne parameters range
+    :return list: a list of auto-correlation results for all nuisacne parameters
+    :return figure: A figure of auto-correlation results for all nuisance parameters
+    """
     if not traj.endswith('.npz'):
         raise TypeError("trajectory file should be in the format of '*npz'")
     else:
@@ -378,6 +411,12 @@ def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
     return ac_parameters
 
 def plot_ac(ac_paramters,rest_type):
+    """
+    Plot auto-correlation results.
+    :var ac_parameters: computed auto-correlation results 
+    :var rest_type: experimental restraint type
+    :return figure: A figure of auto-correlation results for all nuisance parameters
+    """
     n_rest = len(rest_type)
     time_in_steps = np.arange(1,n_rest+1,1)
     colors = ['red','blue','green','black','magenta','gold','navy']
@@ -392,13 +431,13 @@ def plot_ac(ac_paramters,rest_type):
 
 
 def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters):
-    '''Compute JSD for a given part of trajectory.
+    """Compute JSD for a given part of trajectory.
 
     :var T1, T2, T_total: part 1, part2 and total (part1 + part2)
-    :var rest_type:
-    :param list allowed_parameters:
-    :param mdtraj.Trajectory traj: trajectory from BICePs sampling
-    '''
+    :var rest_type: experimental restraint type
+    :var allowed_parameters: nuisacne parameters range
+    :return float: Jensen–Shannon divergence
+    """
 
     restraints = rest_type
     all_JSD = np.zeros(len(restraints))
@@ -454,6 +493,13 @@ def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters):
 
 
 def plot_conv(all_JSD,all_JSDs,rest_type):
+    """
+    Plot Jensen–Shannon divergence (JSD) distribution for convergence check.
+    :var all_JSD: JSDs for different amount of total dataset
+    :var all_JSDs: JSDs for different amount of total dataset from bootstrapping
+    :var rest_type: experimental restraint type
+    :return figure: A figure of JSD and JSDs distribution
+    """
     fold = len(all_JSD)
     rounds = len(all_JSDs[0])
     n_rest = len(rest_type)

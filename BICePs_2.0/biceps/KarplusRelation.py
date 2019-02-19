@@ -134,6 +134,10 @@ class KarplusRelation(object):
 
         return 5.8*(np.cos(theta))**2 -1.6*np.cos(theta) + 0.28*np.sin(2.0*theta) + 0.52
 
+__all__ = [
+    'KarplusRelation',
+]
+
 
 if __name__ == '__main__':
 

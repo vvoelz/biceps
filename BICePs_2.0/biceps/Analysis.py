@@ -32,7 +32,20 @@ import re
 ##############################################################################
 
 class Analysis(object):
-    """A class to perform analysis and plot figures"""
+    """A class to perform analysis and plot figures.
+
+    :param int default=0 states: number of conformational states
+
+    :param str default=None data: BICePs input data directory converted from precomputed observables
+
+    :param str default=None resultdir: output files directory
+
+    :param str default='BS.dat' BSdir: output BICePs score file name
+    
+    :param str default='populations.dat' popdir: output BICePs reweighted populations file name
+
+    :param str default='BICePs.pdf' picfile: output figure name
+    """
     def __init__(self, states = 0, data = None, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
 	self.states = states
 	self.data = data
@@ -79,8 +92,8 @@ class Analysis(object):
 	self.scheme = d_l
 
     def load_data(self, debug = True):
-	"""load input data from BICePs sampling (*yaml and *pkl files)"""
-	# Load in yaml trajectories
+	"""load input data from BICePs sampling (*npz and *pkl files)"""
+	# Load in npz trajectories
 	exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.npz') )
 	exp_files.sort()
 	for filename in exp_files:
@@ -120,9 +133,8 @@ class Analysis(object):
 	states_kn = np.zeros( (self.K, nsnaps) )
 
 	# Get snapshot energies rescored in the different ensembles
-	"""['step', 'E', 'accept', 'state', 'sigma_noe', 'sigma_J', 'sigma_cs', 'sigma_pf''gamma']
-	[int(step), float(self.E), int(accept), int(self.state), int(self.sigma_noe_index), int(self.sigma_J_index), int(self.sigma_cs_H_index), int(self.sigma_cs_Ha_index), int(self.sigma_cs_N_index), int(self.sigma_cs_Ca_index), int(self.sigma_pf_index), int(self.gamma_index)]               	"""
-
+	"""['step', 'E', 'accept', 'state', [nuisance parameters]]"""
+        
 	for n in range(nsnaps):
 
   		for k in range(self.K):
@@ -133,8 +145,6 @@ class Analysis(object):
           				#print 'E%d evaluated in model %d'%(k,k), self.traj[k]['trajectory'][n][1],
           				u_kln[k,k,n] = self.traj[k]['trajectory'][n][1]
                                 state, sigma_index = self.traj[k]['trajectory'][n][3:]
-#          			state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index = self.traj[k]['trajectory'][n][3:] 	# IMPORTANT: make sure the order of these parameters is the same as the way they are saved in PosteriorSampler
-#          			print 'state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index', state, sigma_noe_index, sigma_J_index, sigma_cs_H_index, sigma_cs_Ha_index, sigma_cs_N_index, sigma_cs_Ca_index, sigma_pf_index, gamma_index
           			states_kn[k,n] = state
                                 sigma=[ [] for p in range(len(sigma_index)) ]
                                 for m in range(len(sigma_index)):
@@ -144,16 +154,7 @@ class Analysis(object):
                                     elif len(sigma_index[m]) == 2: #noe
                                         sigma[m].append(self.traj[k]['allowed_sigma'][m][sigma_index[m][0]])
                                         sigma[m].append(self.traj[k]['allowed_gamma'][sigma_index[m][1]])
-#          			sigma_noe = self.traj[k]['allowed_sigma_noe'][sigma_noe_index]
-#          			sigma_J = self.traj[k]['allowed_sigma_J'][sigma_J_index]
-#          			sigma_cs_H = self.traj[k]['allowed_sigma_cs_H'][sigma_cs_H_index]
-#          			sigma_cs_Ha = self.traj[k]['allowed_sigma_cs_Ha'][sigma_cs_Ha_index]
-#          			sigma_cs_N = self.traj[k]['allowed_sigma_cs_N'][sigma_cs_N_index]
-#          			sigma_cs_Ca = self.traj[k]['allowed_sigma_cs_Ca'][sigma_cs_Ca_index]
-#          			sigma_pf = self.traj[k]['allowed_sigma_pf'][sigma_pf_index]
-#          			u_kln[k,l,n] = self.sampler[l].neglogP(0, state, sigma_noe, sigma_J, sigma_cs_H, sigma_cs_Ha, sigma_cs_N, sigma_cs_Ca, sigma_pf, gamma_index)
-                                #print 'sigma', sigma
-                                u_kln[k,l,n] = self.sampler[l].neglogP(state, sigma, sigma_index) # is gamma necessary?
+                                u_kln[k,l,n] = self.sampler[l].neglogP(state, sigma, sigma_index)
                                 if debug:
 					print 'E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n]
 
@@ -198,7 +199,7 @@ class Analysis(object):
 	self.save_MBAR()
 
     def save_MBAR(self):
-	"""save results (BICePs score and population) from MBAR analysis"""
+	"""save results (BICePs score and populations) from MBAR analysis"""
 	print 'Writing %s...'%self.BSdir
 	savetxt(self.BSdir, self.f_df)
 	print '...Done.'

@@ -131,3 +131,6 @@ class prep_pf(object):
         protection_factor      = float(fields[3])
         return restraint_index, atom_index1, res1, protection_factor
 
+__all__ = [
+    'biceps_restraint_line_pf',
+]

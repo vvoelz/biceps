@@ -20,21 +20,23 @@ from prep_pf import *
 ##############################################################################
 
 class Preparation(object):
-    """A parent class to prepare input files for BICePs calculation"""
+    """A parent class to prepare input files for BICePs calculation
+
+    :param str scheme: type of experimental observables {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
+
+    :param int default=0 state: number of states
+
+    :param str default=None indices: experimental observable index (*.txt file)
+
+    :param str default=None exp_data: experimental measuremnets (*.txt file)
+
+    :param str default=None top: topology file (*.pdb)
+
+    :param str default=None data_dir: precomputed data directory (should have *txt file inside)
+    """
 
 #    def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None, Karplus=None):
-    def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None):
-        """ Prepare BICePs input files (converting from raw data)
-        Parameters
-        ---------
-        scheme: {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
-        states: number of states
-        indices: experimental observable index (*.txt file)
-        exp_data: experimental measuremnets (*.txt file)
-        top: topology file (*.gro, pdb, etc.)
-        data_dir: data directory (should have *txt file inside)
-        Karplus: Karplus relation for J_coupling constants
-        """
+    def __init__(self,scheme=None,states=0,indices=None, exp_data=None, top=None, data_dir=None):
 
         if scheme not in ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']:
             raise ValueError("scheme must be one of ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']")
@@ -65,7 +67,8 @@ class Preparation(object):
 
     def write(self,out_dir=None):
         """
-        out_dir: output directory
+        write BICePs format input files 
+        :param str default=None out_dir: output directory
         """
         if out_dir == None:
             self.out = 'BICePs_'+self.scheme
@@ -147,11 +150,8 @@ class Preparation(object):
             r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
 
+__all__ = [
+    'Preparation'
 
-
-
-
-
-
-
+]
 
