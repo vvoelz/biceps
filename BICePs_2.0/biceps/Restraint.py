@@ -186,9 +186,10 @@ class Restraint_cs_Ca(Restraint):
 
         :param str filename: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy
-        >>> f = beta*F
-        of this conformation"""
+        :param float free_energy: The (reduced) free energy of this conformation
+
+          >>> f = beta*F
+        """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
@@ -230,9 +231,8 @@ class Restraint_cs_H(Restraint):
 
         :param str filename: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy
-        >>> f = beta*F
-        of this conformation"""
+        :param float free_energy: The (reduced) free energy of this conformation
+        """
 
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -274,10 +274,8 @@ class Restraint_cs_Ha(Restraint):
 
         :param str filename: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy
-        >>> f = beta*F
-        of this conformation"""
-
+        :param float free_energy: The (reduced) free energy of this conformation
+        """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
@@ -318,9 +316,7 @@ class Restraint_cs_N(Restraint):
 
         :param str filename: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy
-        >>> f = beta*F
-        of this conformation"""
+        :param float free_energy: The (reduced) free energy of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
@@ -362,9 +358,7 @@ class Restraint_J(Restraint):
 
         :param str filename: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy
-        >>> f = beta*F
-        of this conformation"""
+        :param float free_energy: The (reduced) free energy of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
