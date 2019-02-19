@@ -10,9 +10,6 @@ Preparation
 
 .. autoclass:: Preparation
 
-
-
-
    .. rubric:: Methods
 
    .. autosummary::
@@ -26,7 +23,6 @@ Observables
 
 .. autoclass:: Observable
 
-
    .. rubric:: Methods
 
    .. autosummary::
@@ -34,7 +30,6 @@ Observables
        ~Observable.__init__
 
 .. autoclass:: NMR_Chemicalshift
-
 
    .. rubric:: Methods
 
@@ -44,11 +39,9 @@ Observables
 
 .. autoclass:: NMR_Dihedral
 
-
    .. rubric:: Methods
 
    .. autosummary::
-
 
        ~NMR_Dihedral.__init__
        ~NMR_Distance.__init__
@@ -76,7 +69,6 @@ Restraint
 
 .. autoclass:: Restraint_cs_Ca
 
-
    .. rubric:: Methods
 
    .. autosummary::
@@ -86,7 +78,6 @@ Restraint
 
 .. autoclass:: Restraint_cs_H
 
-
    .. rubric:: Methods
 
    .. autosummary::
@@ -95,7 +86,6 @@ Restraint
        ~Restraint_cs_H.prep_observable
 
 .. autoclass:: Restraint_cs_Ha
-
 
    .. rubric:: Methods
 

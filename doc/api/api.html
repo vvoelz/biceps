@@ -192,7 +192,7 @@
 <dl class="class">
 <dt id="biceps.Preparation">
 <em class="property">class </em><code class="descclassname">biceps.</code><code class="descname">Preparation</code><span class="sig-paren">(</span><em>scheme=None</em>, <em>states=0</em>, <em>indices=None</em>, <em>exp_data=None</em>, <em>top=None</em>, <em>data_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Preparation" title="Permalink to this definition">¶</a></dt>
-<dd><p>A parent class to prepare input files for BICePs calculation</p>
+<dd><p>A parent class to prepare input files for BICePs calculation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -220,15 +220,22 @@
 <td>x.__init__(…) initializes x; see help(type(x)) for signature</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>([out_dir])</td>
-<td>write BICePs format input files  :param str default=None out_dir: output directory</td>
+<td>write BICePs format input files.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="biceps.Preparation.write">
 <code class="descname">write</code><span class="sig-paren">(</span><em>out_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Preparation.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>write BICePs format input files 
-:param str default=None out_dir: output directory</p>
+<dd><p>write BICePs format input files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>default=None out_dir</strong> (<em>str</em>) – output directory</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -455,16 +462,16 @@ file format.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>filename</strong> (<em>str</em>) – Experimental data file</li>
 <li><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</li>
-<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy</li>
+<li><strong>free_energy</strong> (<em>float</em>) – <p>The (reduced) free energy of this conformation</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
+</pre></div>
+</div>
+</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
-<span class="go">of this conformation</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </dd></dl>
@@ -565,16 +572,12 @@ file format.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>filename</strong> (<em>str</em>) – Experimental data file</li>
 <li><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</li>
-<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy</li>
+<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy of this conformation</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
-<span class="go">of this conformation</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </dd></dl>
@@ -675,16 +678,12 @@ file format.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>filename</strong> (<em>str</em>) – Experimental data file</li>
 <li><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</li>
-<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy</li>
+<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy of this conformation</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
-<span class="go">of this conformation</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </dd></dl>
@@ -785,16 +784,12 @@ file format.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>filename</strong> (<em>str</em>) – Experimental data file</li>
 <li><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</li>
-<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy</li>
+<li><strong>free_energy</strong> (<em>float</em>) – The (reduced) free energy of this conformation</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
-<span class="go">of this conformation</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </dd></dl>
@@ -856,7 +851,7 @@ file format.</p>
 <td>Writes a compact file of several arrays into binary format.</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_results</span></code>(self,&nbsp;filename)</td>
-<td>Reads a numpy compressed filetype (npz) file</td>
+<td>Reads a numpy compressed filetype(<a href="#id17"><span class="problematic" id="id18">*</span></a>.npz) file</td>
 </tr>
 </tbody>
 </table>
@@ -995,7 +990,7 @@ Carlo moves are accepted or rejected according to Metroplis criterion.</p>
 <td>plot figures for population, nuisance parameters</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data</span></code>([debug])</td>
-<td>load input data from BICePs sampling (<a href="#id17"><span class="problematic" id="id18">*</span></a>npz and <a href="#id19"><span class="problematic" id="id20">*</span></a>pkl files)</td>
+<td>load input data from BICePs sampling (<a href="#id19"><span class="problematic" id="id20">*</span></a>npz and <a href="#id21"><span class="problematic" id="id22">*</span></a>pkl files)</td>
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">MBAR_analysis</span></code>([debug])</td>
 <td>MBAR analysis for populations and BICePs score</td>
@@ -1020,7 +1015,7 @@ Carlo moves are accepted or rejected according to Metroplis criterion.</p>
 <dl class="method">
 <dt id="biceps.Analysis.load_data">
 <code class="descname">load_data</code><span class="sig-paren">(</span><em>debug=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Analysis.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>load input data from BICePs sampling (<a href="#id21"><span class="problematic" id="id22">*</span></a>npz and <a href="#id23"><span class="problematic" id="id24">*</span></a>pkl files)</p>
+<dd><p>load input data from BICePs sampling (<a href="#id23"><span class="problematic" id="id24">*</span></a>npz and <a href="#id25"><span class="problematic" id="id26">*</span></a>pkl files)</p>
 </dd></dl>
 
 <dl class="method">
@@ -1084,20 +1079,16 @@ Standardized: Yes ; Binary: Yes; Human Readable: No;</p>
 <dl class="function">
 <dt id="biceps.read_results">
 <code class="descclassname">biceps.</code><code class="descname">read_results</code><span class="sig-paren">(</span><em>self</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.read_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads a numpy compressed filetype
-(npz) file</p>
+<dd><p>Reads a numpy compressed filetype(<a href="#id27"><span class="problematic" id="id28">*</span></a>.npz) file</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="biceps.convert_pop_to_energy">
 <code class="descclassname">biceps.</code><code class="descname">convert_pop_to_energy</code><span class="sig-paren">(</span><em>pop_filename</em>, <em>out_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.convert_pop_to_energy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Convert population to energy for each state using</dt>
-<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">U</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+<dd><p>Convert population to energy for each state using the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">U</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
 </pre></div>
 </div>
-</dd>
-</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1141,10 +1132,7 @@ file name (in the format of string) is required.</li>
 <dl class="function">
 <dt id="biceps.dihedral_angle">
 <code class="descclassname">biceps.</code><code class="descname">dihedral_angle</code><span class="sig-paren">(</span><em>x0</em>, <em>x1</em>, <em>x2</em>, <em>x3</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.dihedral_angle" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Calculate the signed dihedral angle between 4 positions.  Result is</dt>
-<dd>in degrees.</dd>
-</dl>
+<dd><p>Calculate the signed dihedral angle between 4 positions. Result is in degrees.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1168,65 +1156,138 @@ file name (in the format of string) is required.</li>
 <dl class="function">
 <dt id="biceps.compute_nonaa_Jcoupling">
 <code class="descclassname">biceps.</code><code class="descname">compute_nonaa_Jcoupling</code><span class="sig-paren">(</span><em>traj</em>, <em>index</em>, <em>karplus_key</em>, <em>top=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.compute_nonaa_Jcoupling" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute J couplings for small molecules
-:param mdtraj.Trajectory traj: Trajectory or <em>.pdb/</em>.gro files
-:param index: index file for atoms 
-:param karplus_key: karplus relation for each J coupling
-:param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)</p>
+<dd><p>Compute J couplings for small molecules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>traj</strong> (<em>mdtraj.Trajectory</em>) – Trajectory or <em>.pdb/</em>.gro files</li>
+<li><strong>index</strong> – index file for atoms</li>
+<li><strong>karplus_key</strong> – karplus relation for each J coupling</li>
+<li><strong>default=None top</strong> (<em>mdtraj.Topology</em>) – topology file (only required if a trajectory is loaded)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="biceps.plot_ref">
 <code class="descclassname">biceps.</code><code class="descname">plot_ref</code><span class="sig-paren">(</span><em>traj</em>, <em>debug=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.plot_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot reference potential for each observables
-:param traj: output trajectory from BICePs sampling
-:return figure: A figure of reference potential and distribution of model observables</p>
+<dd><p>Plot reference potential for each observables.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>traj</strong> – output trajectory from BICePs sampling</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return figure:</th><td class="field-body">A figure of reference potential and distribution of model observables</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="biceps.get_rest_type">
 <code class="descclassname">biceps.</code><code class="descname">get_rest_type</code><span class="sig-paren">(</span><em>traj</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.get_rest_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get types of experimental restraints
-:param traj: output trajectory from BICePs sampling
-:return list: A list of types of experimental restraints</p>
+<dd><p>Get types of experimental restraints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>traj</strong> – output trajectory from BICePs sampling</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return list:</th><td class="field-body">A list of types of experimental restraints</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="biceps.get_allowed_parameters">
 <code class="descclassname">biceps.</code><code class="descname">get_allowed_parameters</code><span class="sig-paren">(</span><em>traj</em>, <em>rest_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.get_allowed_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get nuisance parameters range
-:param traj: output trajectory from BICePs sampling
-:var default=None rest_type: experimental restraint type
-:return list: A list of all nuisance parameters range</p>
+<dd><p>Get nuisance parameters range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>traj</strong> – output trajectory from BICePs sampling</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><strong>rest_type</strong> (<em>default=None</em>) – experimental restraint type</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return list:</th><td class="field-body">A list of all nuisance parameters range</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="biceps.autocorr_valid">
 <code class="descclassname">biceps.</code><code class="descname">autocorr_valid</code><span class="sig-paren">(</span><em>x</em>, <em>tau</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.autocorr_valid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cross-correlation of two 1-dimensional sequences.
-:var x: 1-dimensional sequence
-:var tau: lagtime</p>
+<dd><p>Cross-correlation of two 1-dimensional sequences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> – 1-dimensional sequence</li>
+<li><strong>tau</strong> – lagtime</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="biceps.compute_ac">
 <code class="descclassname">biceps.</code><code class="descname">compute_ac</code><span class="sig-paren">(</span><em>traj</em>, <em>tau</em>, <em>rest_type=None</em>, <em>allowed_parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.compute_ac" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute auto-correlation time for sampled trajectory of nuisance parameters.
-:param traj: output trajectory from BICePs sampling
-:var tau: lagtime
-:var default=None rest_type: experimental restraint type
-:var default=None allowed_parameters: nuisacne parameters range
-:return list: a list of auto-correlation results for all nuisacne parameters
-:return figure: A figure of auto-correlation results for all nuisance parameters</p>
+<dd><p>Compute auto-correlation time for sampled trajectory of nuisance parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>traj</strong> – output trajectory from BICePs sampling</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><strong>tau</strong> – lagtime</li>
+<li><strong>rest_type</strong> (<em>default=None</em>) – experimental restraint type</li>
+<li><strong>allowed_parameters</strong> (<em>default=None</em>) – nuisacne parameters range</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return list:</th><td class="field-body"><p class="first">a list of auto-correlation results for all nuisacne parameters</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return figure:</th><td class="field-body"><p class="first last">A figure of auto-correlation results for all nuisance parameters</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="biceps.plot_ac">
 <code class="descclassname">biceps.</code><code class="descname">plot_ac</code><span class="sig-paren">(</span><em>ac_paramters</em>, <em>rest_type</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.plot_ac" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot auto-correlation results.
-:var ac_parameters: computed auto-correlation results 
-:var rest_type: experimental restraint type
-:return figure: A figure of auto-correlation results for all nuisance parameters</p>
+<dd><p>Plot auto-correlation results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><strong>ac_parameters</strong> – computed auto-correlation results</li>
+<li><strong>rest_type</strong> – experimental restraint type</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return figure:</th><td class="field-body"><p class="first last">A figure of auto-correlation results for all nuisance parameters</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -1254,11 +1315,23 @@ file name (in the format of string) is required.</li>
 <dl class="function">
 <dt id="biceps.plot_conv">
 <code class="descclassname">biceps.</code><code class="descname">plot_conv</code><span class="sig-paren">(</span><em>all_JSD</em>, <em>all_JSDs</em>, <em>rest_type</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.plot_conv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot Jensen–Shannon divergence (JSD) distribution for convergence check.
-:var all_JSD: JSDs for different amount of total dataset
-:var all_JSDs: JSDs for different amount of total dataset from bootstrapping
-:var rest_type: experimental restraint type
-:return figure: A figure of JSD and JSDs distribution</p>
+<dd><p>Plot Jensen–Shannon divergence (JSD) distribution for convergence check.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><strong>all_JSD</strong> – JSDs for different amount of total dataset</li>
+<li><strong>all_JSDs</strong> – JSDs for different amount of total dataset from bootstrapping</li>
+<li><strong>rest_type</strong> – experimental restraint type</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return figure:</th><td class="field-body"><p class="first last">A figure of JSD and JSDs distribution</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
