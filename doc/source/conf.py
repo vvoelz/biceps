@@ -39,17 +39,19 @@ extensions = [
 autoapi_type = 'python'
 #autoapi_dirs = ['../BICePs'] # Directory of Source Code   (directory for test code)
 autoapi_dirs = ['../../BICePs_2.0/biceps'] # Directory of Source Code    (directory of source code)
-autoapi_root = './biceps'
+autoapi_root = '../api'
 
 autodoc_default_flags = ['members', 'inherited-members']
 #autodoc_default_flags = ['members']
 
-autoapi_modules = {'biceps': None#{
-              #'override': False,
-    #}
+autosummary_generate = True
+
+autoapi_modules = {
+        'biceps': {
+            'override': False,
+    }
 }
 
-autosummary_generate = True
 
 numpydoc_class_members_toctree = False
 
