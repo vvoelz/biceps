@@ -20,7 +20,7 @@ from prep_pf import *
 ##############################################################################
 
 class Preparation(object):
-    """A parent class to prepare input files for BICePs calculation
+    """A parent class to prepare input files for BICePs calculation.
 
     :param str scheme: type of experimental observables {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
 
@@ -66,8 +66,8 @@ class Preparation(object):
                 raise ValueError("number of states doesn't equal to file numbers")
 
     def write(self,out_dir=None):
-        """
-        write BICePs format input files 
+        """write BICePs format input files.
+
         :param str default=None out_dir: output directory
         """
 

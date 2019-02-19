@@ -8,8 +8,7 @@ from Restraint import *
 
 
 def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None):
-    """
-    Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
+    """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
 
     :param str PDB_filename: topology file name ('*.pdb')
 
@@ -23,8 +22,7 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None)
 
     :param list default=None uncern: nuisance parameters range (if default, will use our suggested broad range (may increase sampling requirement for convergence))
 
-    :param list default=None gamma: only for NOE, range of gamma (if default, will use our suggested broad range (may increase sampling requirement for convergence))
-    """
+    :param list default=None gamma: only for NOE, range of gamma (if default, will use our suggested broad range (may increase sampling requirement for convergence))"""
 
 #        Restraint.__init__(self, PDB_filename, ref, use_global_ref_sigma=True)
     if not isinstance(ref, basestring):

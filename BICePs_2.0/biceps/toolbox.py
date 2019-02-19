@@ -118,8 +118,7 @@ def write_results(self, outfilename):
     np.savez_compressed(outfilename, self.results)
 
 def read_results(self,filename):
-    """Reads a numpy compressed filetype
-     (npz) file"""
+    """Reads a numpy compressed filetype(*.npz) file"""
 
     loaded = np.load(filename)
     print(loaded.items())
@@ -219,8 +218,8 @@ def dihedral_angle(x0, x1, x2, x3):
     return(phi)
 
 def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
-    """
-    Compute J couplings for small molecules
+    """Compute J couplings for small molecules.
+
     :param mdtraj.Trajectory traj: Trajectory or *.pdb/*.gro files
     :param index: index file for atoms 
     :param karplus_key: karplus relation for each J coupling
@@ -251,8 +250,8 @@ def plot_ref(traj, debug = True):
     # Load in yaml trajectories
     #output = os.path.join(resultdir,'traj_lambda0.00.npz')
     #output = traj
-    """
-    Plot reference potential for each observables
+    """Plot reference potential for each observables.
+
     :param traj: output trajectory from BICePs sampling
     :return figure: A figure of reference potential and distribution of model observables
     """
@@ -306,8 +305,8 @@ def plot_ref(traj, debug = True):
 
 
 def get_rest_type(traj):
-    """
-    Get types of experimental restraints
+    """Get types of experimental restraints.
+
     :param traj: output trajectory from BICePs sampling
     :return list: A list of types of experimental restraints
     """
@@ -328,8 +327,8 @@ def get_rest_type(traj):
 
 
 def get_allowed_parameters(traj,rest_type=None):
-    """
-    Get nuisance parameters range
+    """Get nuisance parameters range.
+
     :param traj: output trajectory from BICePs sampling
     :var default=None rest_type: experimental restraint type
     :return list: A list of all nuisance parameters range
@@ -354,8 +353,8 @@ def get_allowed_parameters(traj,rest_type=None):
 
 
 def autocorr_valid(x,tau):
-    """
-    Cross-correlation of two 1-dimensional sequences.
+    """Cross-correlation of two 1-dimensional sequences.
+
     :var x: 1-dimensional sequence
     :var tau: lagtime
     """
@@ -368,8 +367,8 @@ def autocorr_valid(x,tau):
 
 
 def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
-    """
-    Compute auto-correlation time for sampled trajectory of nuisance parameters.
+    """Compute auto-correlation time for sampled trajectory of nuisance parameters.
+
     :param traj: output trajectory from BICePs sampling
     :var tau: lagtime
     :var default=None rest_type: experimental restraint type
@@ -417,8 +416,8 @@ def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
     return ac_parameters
 
 def plot_ac(ac_paramters,rest_type):
-    """
-    Plot auto-correlation results.
+    """Plot auto-correlation results.
+
     :var ac_parameters: computed auto-correlation results 
     :var rest_type: experimental restraint type
     :return figure: A figure of auto-correlation results for all nuisance parameters
@@ -500,8 +499,8 @@ def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters):
 
 
 def plot_conv(all_JSD,all_JSDs,rest_type):
-    """
-    Plot Jensen–Shannon divergence (JSD) distribution for convergence check.
+    """Plot Jensen–Shannon divergence (JSD) distribution for convergence check.
+
     :var all_JSD: JSDs for different amount of total dataset
     :var all_JSDs: JSDs for different amount of total dataset from bootstrapping
     :var rest_type: experimental restraint type
