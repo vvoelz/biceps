@@ -7,6 +7,7 @@ class KarplusRelation(object):
 
     def __init__(self):
         """Initialize the KarplusRelation class.""" 
+
         pass
 
     def J(self, angle, key):

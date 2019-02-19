@@ -46,6 +46,7 @@ class Analysis(object):
 
     :param str default='BICePs.pdf' picfile: output figure name
     """
+
     def __init__(self, states = 0, data = None, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
 	self.states = states
 	self.data = data
@@ -118,7 +119,8 @@ class Analysis(object):
 
     def MBAR_analysis(self, debug = False):
 	"""MBAR analysis for populations and BICePs score"""
-	# load necessary data first
+
+        # load necessary data first
 	self.load_data()
 
 	# Suppose the energies sampled from each simulation are u_kln, where u_kln[k,l,n] is the reduced potential energy
@@ -200,7 +202,8 @@ class Analysis(object):
 
     def save_MBAR(self):
 	"""save results (BICePs score and populations) from MBAR analysis"""
-	print 'Writing %s...'%self.BSdir
+
+        print 'Writing %s...'%self.BSdir
 	savetxt(self.BSdir, self.f_df)
 	print '...Done.'
 
@@ -210,7 +213,8 @@ class Analysis(object):
 
     def plot(self, debug = False):
 	"""plot figures for population, nuisance parameters"""
-	# first figure out what scheme is used
+
+        # first figure out what scheme is used
 	self.list_scheme()
 
 	# next get MABR sampling done

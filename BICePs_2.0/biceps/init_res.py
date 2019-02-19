@@ -25,6 +25,7 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None)
 
     :param list default=None gamma: only for NOE, range of gamma (if default, will use our suggested broad range (may increase sampling requirement for convergence))
     """
+
 #        Restraint.__init__(self, PDB_filename, ref, use_global_ref_sigma=True)
     if not isinstance(ref, basestring):
         raise ValueError("reference potential type must be a 'str'")

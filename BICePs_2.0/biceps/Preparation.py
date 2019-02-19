@@ -70,6 +70,7 @@ class Preparation(object):
         write BICePs format input files 
         :param str default=None out_dir: output directory
         """
+
         if out_dir == None:
             self.out = 'BICePs_'+self.scheme
         else:

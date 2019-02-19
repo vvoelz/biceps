@@ -199,6 +199,7 @@ def dihedral_angle(x0, x1, x2, x3):
     :param float x3:
     :return float phi: dihedral angle in degrees
     """
+
     #Calculate Bond Vectors b1, b2, b3
     b1=x1-x0
     b2=x2-x1
@@ -255,6 +256,7 @@ def plot_ref(traj, debug = True):
     :param traj: output trajectory from BICePs sampling
     :return figure: A figure of reference potential and distribution of model observables
     """
+
     if debug:
             print 'Loading %s ...'%traj
     results = np.load(output)['arr_0'].item()
@@ -309,6 +311,7 @@ def get_rest_type(traj):
     :param traj: output trajectory from BICePs sampling
     :return list: A list of types of experimental restraints
     """
+
     rest_type=[]
     if not traj.endswith('.npz'):
         raise TypeError("trajectory file should be in the format of '*npz'")
@@ -331,6 +334,7 @@ def get_allowed_parameters(traj,rest_type=None):
     :var default=None rest_type: experimental restraint type
     :return list: A list of all nuisance parameters range
     """
+
     if not traj.endswith('.npz'):
         raise TypeError("trajectory file should be in the format of '*npz'")
     else:
@@ -355,6 +359,7 @@ def autocorr_valid(x,tau):
     :var x: 1-dimensional sequence
     :var tau: lagtime
     """
+
     t = tau
     y = x[:np.size(x)-t]
     g = np.correlate(x, y, mode='valid')
@@ -372,6 +377,7 @@ def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
     :return list: a list of auto-correlation results for all nuisacne parameters
     :return figure: A figure of auto-correlation results for all nuisance parameters
     """
+
     if not traj.endswith('.npz'):
         raise TypeError("trajectory file should be in the format of '*npz'")
     else:
@@ -417,6 +423,7 @@ def plot_ac(ac_paramters,rest_type):
     :var rest_type: experimental restraint type
     :return figure: A figure of auto-correlation results for all nuisance parameters
     """
+
     n_rest = len(rest_type)
     time_in_steps = np.arange(1,n_rest+1,1)
     colors = ['red','blue','green','black','magenta','gold','navy']
@@ -500,6 +507,7 @@ def plot_conv(all_JSD,all_JSDs,rest_type):
     :var rest_type: experimental restraint type
     :return figure: A figure of JSD and JSDs distribution
     """
+
     fold = len(all_JSD)
     rounds = len(all_JSDs[0])
     n_rest = len(rest_type)
