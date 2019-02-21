@@ -3,6 +3,15 @@ Workflow
 
 A typical BICePs sampling includes four core steps:`Preparation`,`Restraint`,`Posteriorsampler` and`Analysis`.
 
+# Overview of a BICePs calculation
+
+A BICePs calculation involves the following steps:
+1. Creating a set up input files with the `Preparation` object.
+2. Instantiating one or more `Restraint` classes that describe experimental and model observables.
+3. Bundling these restraints to create a `Posteriorsampler` object.
+4. Using the `Posteriorsampler` methods to perform MCMC sampling.
+5. Analyzing the results using the methods of `Analysis` class. 
+
 Preparation
 -----------
 
