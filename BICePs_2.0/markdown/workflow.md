@@ -1,7 +1,9 @@
 Workflow
 ========
 
-A typical BICePs sampling includes four core steps: `Preparation`, `Restraint`, `Posteriorsampler` and `Analysis`.
+A typical BICePs sampling includes four core python objects: `Preparation`, `Restraint`, `Posteriorsampler` and `Analysis`.
+
+# Objects
 
 Preparation
 -----------
@@ -29,3 +31,14 @@ Analysis
 The `Analysis` is consist of two parts:
 1. Using [MBAR](https://pymbar.readthedocs.io/en/master/index.html) algorithm to compute populations and `BICePs scores <theory>`.
 2. plot the figures to show population and `nuisance parameters <theory>`.
+
+# Overview of a BICePs calculation
+
+A BICePs calculation involves the following steps:
+1. creating a set up input files with the `Preparation` object
+2. instantianting one or more `Restraint` classes that describe experimental and model observables
+3. Bundling these restraints to create a `Posteriorsampler` object
+4. Using the `Posteriorsampler` methods to perform MCMC sampling
+5. Analzing the results using the methods of `Analysis` class. 
+
+
