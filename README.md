@@ -67,7 +67,7 @@ Dependencies of BICePs
 
 ### BICePs is research software. If you make use of BICePs in scientific publications, please cite it.
 
-## See [BICePs_2.0](https://github.com/vvoelz/biceps/tree/master/BICePs_2.0) for the latest version of BICePs.
+## To get start, see [BICePs_2.0](https://github.com/vvoelz/biceps/tree/master/BICePs_2.0) for the latest version of BICePs.
 
 
 
