@@ -57,7 +57,7 @@ Dependencies of BICePs
 
 > -   Pymbar \--\> 3.0 or later
 > -   MDTraj \--\> 1.9 or later
-> -   Matplotlib \--\> 2.1.2 or later
+> -   Matplotlib \--\> 1.5.1 or later
 > -   Numpy \--\> 1.14.0 or later
 
 -------------------------------------------
