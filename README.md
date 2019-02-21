@@ -63,11 +63,11 @@ Dependencies of BICePs
 -------------------------------------------
 
 
-### To view the workflow of BICePs, please see [this page](./BICePs_2.0/markdown/workflow.md).
+### View [the workflow of BICePs](./BICePs_2.0/markdown/workflow.md).
 
 ### BICePs is research software. If you make use of BICePs in scientific publications, please cite it.
 
-## To get start, see [BICePs_2.0](https://github.com/vvoelz/biceps/tree/master/BICePs_2.0) for the latest version of BICePs.
+# To get started, see [BICePs_2.0](https://github.com/vvoelz/biceps/tree/master/BICePs_2.0) for the latest version of BICePs.
 
 
 
