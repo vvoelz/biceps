@@ -137,6 +137,3 @@ class prep_cs(object):
 	model_chemical_shift	= float(fields[5])
         return restraint_index, atom_index1, res1, atom_name1,  exp_chemical_shift, model_chemical_shift
 
-__all__ = [
-    'biceps_restraint_line_cs',
-]
