@@ -82,7 +82,7 @@ class PosteriorSampler(object):
                 self.traj.ref[rest_index].append(self.ref_mean)
                 self.traj.ref[rest_index].append(self.ref_sigma)
             else:
-                print('Please choose a reference potential of the following:\n \
+                raise ValueError('Please choose a reference potential of the following:\n \
                         {%s,%s,%s}'%('uniform','exp','gaussian'))
 
         # Compute ref state logZ for the free energies to normalize.
