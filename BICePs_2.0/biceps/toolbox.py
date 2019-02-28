@@ -259,7 +259,7 @@ def plot_ref(traj, debug = True):
 
     if debug:
             print 'Loading %s ...'%traj
-    results = np.load(output)['arr_0'].item()
+    results = np.load(traj)['arr_0'].item()
     n_restraints = len(results['ref_potential'])
     for i in range(n_restraints):
         if results['ref_potential'][i][0] == 'Nan':
