@@ -40,7 +40,7 @@ setup(
         license='MIT',
         #packages=['BIcePs'],
         packages=find_packages(),
-        install_requires=[reqs1,req2],
+        install_requires=[reqs1,reqs2],
         dependency_links=[req_links1,req_links2],
         include_package_data=True,
         zip_safe=False)
