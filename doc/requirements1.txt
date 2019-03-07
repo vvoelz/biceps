@@ -8,7 +8,7 @@ prompt_toolkit==1.0.4
 
 nbsphinx
 matplotlib
-jupyter
+#jupyter
 notebook
 jinja2
 nbconvert
