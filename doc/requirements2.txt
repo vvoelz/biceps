@@ -1,17 +1,3 @@
-pip==19.0.3
 #-e git://github.com/mdtraj/mdtraj#egg=mdtraj
 mdtraj==1.9.1
-nbsphinx
-matplotlib
-jupyter
-notebook
-jinja2
-nbconvert
-pyparsing
-sphinx-autoapi
-autoapi
-sphinx
-sphinx_rtd_theme
-scikit-learn
-numpydoc
-pymbar
+

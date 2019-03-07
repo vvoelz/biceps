@@ -1,7 +1,22 @@
+pip==19.0.3
 cython>=0.28
 numpy>=1.7.0
 
 prompt_toolkit==1.0.4
-ipython==5.0
 #ipykernel==4.8.0
 #ipykernel
+
+nbsphinx
+matplotlib
+jupyter
+notebook
+jinja2
+nbconvert
+pyparsing
+sphinx-autoapi
+autoapi
+sphinx
+sphinx_rtd_theme
+scikit-learn
+numpydoc
+pymbar
