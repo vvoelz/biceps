@@ -1,5 +1,6 @@
 cython>=0.28
 numpy>=1.7.0
-ipykernel
-#ipykernel python2
-prompt_toolkit==1.0.5
+
+prompt_toolkit==1.0.4
+ipykernel python2
+#ipykernel
