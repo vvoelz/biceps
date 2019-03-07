@@ -1,7 +1,5 @@
-cython>=0.28
-numpy>=1.7.0
--e git://github.com/mdtraj/mdtraj#egg=mdtraj
-#mdtraj==1.9.1
+#-e git://github.com/mdtraj/mdtraj#egg=mdtraj
+mdtraj>=1.9.1
 ipykernel
 nbsphinx
 matplotlib
@@ -16,4 +14,4 @@ sphinx
 sphinx_rtd_theme
 scikit-learn
 numpydoc
-#pymbar
+pymbar
