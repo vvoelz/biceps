@@ -2,5 +2,5 @@ cython>=0.28
 numpy>=1.7.0
 
 prompt_toolkit==1.0.4
-ipykernel python2
+ipykernel==4.8.0
 #ipykernel
