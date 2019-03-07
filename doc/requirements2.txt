@@ -1,5 +1,6 @@
+pip==19.0.3
 #-e git://github.com/mdtraj/mdtraj#egg=mdtraj
-mdtraj>=1.9.1
+mdtraj==1.9.1
 #ipykernel
 nbsphinx
 matplotlib
