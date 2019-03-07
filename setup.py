@@ -9,9 +9,9 @@ import sys
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
 # We need two seperate requirement files due to the failure to install all at once.
-install_reqs1 = parse_requirements('./doc/source/requirements1.txt', session=False)
+install_reqs1 = parse_requirements('./doc/requirements1.txt', session=False)
 
-install_reqs2 = parse_requirements('./doc/source/requirements2.txt', session=False)
+install_reqs2 = parse_requirements('./doc/requirements2.txt', session=False)
 
 # reqs is a list of requirement
 # e.g. ['django==1.5.1', 'mezzanine==1.4.6']
