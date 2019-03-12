@@ -378,9 +378,9 @@ div.rendered_html tbody tr:hover {
 This page was generated from <a class="reference external" href="https://github.com/spatialaudio/nbsphinx/blob/2.0-beta/doc/tutorials/BICePs_example/BICePs_example.ipynb">doc/tutorials/BICePs_example/BICePs_example.ipynb</a>.
 Interactive online version:
 <span class="raw-html"><a href="https://mybinder.org/v2/gh/spatialaudio/nbsphinx/2.0-beta?filepath=doc/tutorials/BICePs_example/BICePs_example.ipynb"><img alt="Binder badge" src="https://mybinder.org/badge.svg" style="vertical-align:text-bottom"></a></span></div>
-<p>In this tutorial, we are going to show how to set up a “master” script to set up BICePs samplings. You are welcome to take this as a template for you and make necessary modification to get it work for you. All input files used in this tutorial are prepared from <a class="reference external" href="https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/tutorials/Preparation/Preparation.ipynb">this tutorial</a>.</p>
+<p>In this tutorial, we are going to show how to set up a “master” script to set up BICePs samplings. You are welcome to take this as a template for you and make necessary modification to get it work for you. All input files used in this tutorial are prepared from <a class="reference external" href="https://biceps.readthedocs.io/en/latest/tutorials/Preparation/Preparation.html">this tutorial</a>.</p>
 <p>Yunhui Ge –02/2019</p>
-<p>First, we need to import source code for BICePs classes. More information of these classes can be found <a class="reference external" href="https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/markdown/workflow.md">here</a>.</p>
+<p>First, we need to import source code for BICePs classes. More information of these classes can be found <a class="reference external" href="https://biceps.readthedocs.io/en/latest/workflow.html">here</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -450,7 +450,8 @@ on our experience, the lambda values of 0.0,0.5,1.0 are good enough for BICePs s
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># REQUIRED: specify how many lambdas to sample (more lambdas will provide higher accuracy but slower the whole process, lambda=0.0 and 1.0 are necessary)</span>
+<span></span><span class="c1"># REQUIRED: specify how many lambdas to sample (more lambdas will provide higher</span>
+<span class="c1"># accuracy but slower the whole process, lambda=0.0 and 1.0 are necessary)</span>
 <span class="n">lambda_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">1.0</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -476,7 +477,7 @@ on our experience, the lambda values of 0.0,0.5,1.0 are good enough for BICePs s
 [&#39;J&#39;, &#39;noe&#39;]
 </pre></div></div>
 </div>
-<p>Anoter key parameter for BICePs set-up is the type of reference potential for each experimental observables. More information of reference potential can be found <a class="reference external" href="https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/markdown/Theory.ipynb">here</a>.</p>
+<p>Anoter key parameter for BICePs set-up is the type of reference potential for each experimental observables. More information of reference potential can be found <a class="reference external" href="https://biceps.readthedocs.io/en/latest/theory.html">here</a>.</p>
 <p>Three reference potentials are supported in BICePs: uniform (‘uniform’), exponential (‘exp’), Gaussian (‘gau’).</p>
 <p>As we found in previous research, exponential reference potential is useful in most cases. Some higher level task may require more in reference potential selection (e.g <a class="reference external" href="https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871">force field parametrization</a>).</p>
 <p>(Noet: It will be helpful to print out what is the order of experimental observables included in BICePs sampling as shown above.)</p>
@@ -625,7 +626,7 @@ results_ref_normal/traj_lambda0.50.npz
 results_ref_normal/traj_lambda1.00.npz
 </pre></div></div>
 </div>
-<p>Then, we need to run functions in <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> to get predicted populations of each conformational states and BICePs score. A figure of posterior distribution of populations and nuisance parameters will be plotted as well.</p>
+<p>Then, we need to run functions in <a class="reference external" href="https://biceps.readthedocs.io/en/latest/api.html#analysis">Analysis</a> to get predicted populations of each conformational states and BICePs score. A figure of posterior distribution of populations and nuisance parameters will be plotted as well.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
@@ -806,6 +807,118 @@ Writing populations.dat...
 <p>Then let’s take a look at the output figure (“BICePs.pdf”).</p>
 <p>The top left panel shows the population of each states in the presence (y-axis) and absense (x-axis) of computational modeling prior information. You can find some states (e.g state 38, 59) get awarded after including computational prior information. If you check <a class="reference external" href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738">this work</a> you will see how misleading the results will be if we only use experimental restraints without computational prior information. The other three panels show the
 distribution of nuisance parameters in the presence or absence of computational modeling information. It may not be clear in this example due to the limit of finite sampling, but based on our experience, including prior information from our simulations will lower the nuisance parameters than only using experimental restraints.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
+<span class="k">def</span> <span class="nf">css_styling</span><span class="p">():</span>
+    <span class="n">styles</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../theme.css&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span>
+<span class="n">css_styling</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    @font-face {
+        font-family: "Computer Modern";
+        src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunss.otf');
+    }
+    #notebook { /* centers the page content */
+    padding-left:8%;
+    padding-right:9%;
+    }
+    #ipython-main-app {
+        position: relative;
+    }
+    #jupyter-main-app {
+        position: relative;
+    }
+    div.cell{
+        width:98%;
+        margin-left:4% !important;*/
+        margin-right:4%;
+    }
+    h1 {
+        font-family: "Charis SIL", Palatino, serif;
+        text-align: center;
+    }
+    h4{
+        margin-top:12px;
+        margin-bottom: 3px;
+       }
+    div.text_cell_render{
+        font-family: Computer Modern, "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+        line-height: 145%;
+        font-size: 12pt;
+        width:99%;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    .output_png {
+        display: block;/*table-cell;*/
+        text-align: center;
+        align: center;
+        vertical-align: middle;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+    }
+    div.output_area pre {font-weight: normal; text-align: justify; }
+    .warning{
+        color: rgb( 240, 20, 20 )
+        }
+    .CodeMirror{
+            font-family: "Source Code Pro", source-code-pro,Consolas, monospace;
+    }
+    .prompt{
+        display: None;
+    }
+    .text_cell_render h5 {
+        font-weight: 300;
+        font-size: 16pt;
+        color: #4057A1;
+        font-style: italic;
+        margin-bottom: .5em;
+        margin-top: 0.5em;
+        display: block;
+    }
+    /* override table width restrictions as found on https://github.com/getpelican/pelican/issues/1311 */
+    .wy-table-responsive table td, .wy-table-responsive table th {
+        /* !important prevents the common CSS stylesheets from
+           overriding this as on RTD they are loaded after this stylesheet */
+        white-space: normal !important;
+    }
+
+    .wy-table-responsive {
+        overflow: visible !important;
+    }
+</style>
+
+<!-- MathJax configuration -->
+<script type="text/x-mathjax-config">
+    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    MathJax.Hub.Config({
+                        TeX: {
+                           extensions: ["AMSmath.js"]
+                           },
+                tex2jax: {
+                    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                    displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
+                },
+                displayAlign: 'center', // Change this to 'center' to center equations.
+                "HTML-CSS": {
+                    styles: {'.MathJax_Display': {"margin": 4}},
+                    linebreaks: { automatic: true }}
+        });
+</script></div>
+</div>
 
 
            </div>

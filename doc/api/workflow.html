@@ -89,7 +89,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Workflow</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#preparation">Preparation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#restraint">Restraint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#posteriorsampler">Posteriorsampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#posteriorsampler">PosteriorSampler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#analysis">Analysis</a></li>
 </ul>
 </li>
@@ -186,22 +186,26 @@
 </style>
 <div class="section" id="workflow">
 <h1>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h1>
-<p>A typical BICePs sampling includes four core steps: <code class="xref py py-class docutils literal notranslate"><span class="pre">Preparation</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Posteriorsampler</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">Analysis()</span></code>.</p>
+<p>A typical BICePs sampling includes four core steps: <a class="reference internal" href="api.html#biceps.Preparation" title="biceps.Preparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Preparation</span></code></a>, <a class="reference internal" href="api.html#biceps.Restraint" title="biceps.Restraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Restraint</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Posteriorsampler</span></code> and <a class="reference internal" href="api.html#biceps.Analysis" title="biceps.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Analysis</span></code></a>.</p>
 <div class="section" id="preparation">
 <h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Preparation</span></code> class converts all raw data to  BICePs readable format. It asks for experimental data as well as correspondingly precomputed experimental observables from simulation. We recommend users to use <a class="reference external" href="http://mdtraj.org">MDTraj</a> to compute all necessary experimental quantities from simulation or use our prepared functions in the <code class="xref py py-func docutils literal notranslate"><span class="pre">toolbox()</span></code>. Check more details in the <span class="xref std std-ref">examples</span> page.</p>
+<p>The <a class="reference internal" href="api.html#biceps.Preparation" title="biceps.Preparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Preparation</span></code></a> class converts all raw data to  BICePs readable format. It asks for experimental data as well as correspondingly precomputed experimental observables from simulation. We recommend users to use <a class="reference external" href="http://mdtraj.org">MDTraj</a> to compute all necessary experimental quantities from simulation or use our prepared functions in the <cite>toolbox &lt;api/toolbox&gt;</cite>. Check more details in the <span class="xref std std-ref">examples</span> page.</p>
 </div>
 <div class="section" id="restraint">
 <h2>Restraint<a class="headerlink" href="#restraint" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint</span></code> class initializes all necessary functions to construct numpy array containing information for BICePs sampling. As a parent class, it also includes child classes for different experimental restraints.</p>
+<p>The <a class="reference internal" href="api.html#biceps.Restraint" title="biceps.Restraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Restraint</span></code></a> class initializes all necessary functions to construct numpy array containing information for BICePs sampling. As a parent class, it also includes child classes for different experimental restraints.</p>
 </div>
 <div class="section" id="posteriorsampler">
-<h2>Posteriorsampler<a class="headerlink" href="#posteriorsampler" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Posteriorsampler</span></code> class is closely working with the <code class="xref py py-class docutils literal notranslate"><span class="pre">Restraint</span></code> class. A Markov chain Monte Carlo sampling is performed based on the <a class="reference external" href="https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm">Metroplis-Hastings criterion</a> .</p>
+<h2>PosteriorSampler<a class="headerlink" href="#posteriorsampler" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="api.html#biceps.PosteriorSampler" title="biceps.PosteriorSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.PosteriorSampler</span></code></a> class is closely working with the <a class="reference internal" href="api.html#biceps.Restraint" title="biceps.Restraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Restraint</span></code></a> class. A Markov chain Monte Carlo sampling is performed based on the <a class="reference external" href="https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm">Metroplis-Hastings criterion</a> .</p>
 </div>
 <div class="section" id="analysis">
 <h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">Analysis()</span></code> is consist of two parts: 1/ using <a class="reference external" href="https://pymbar.readthedocs.io/en/master/index.html">MBAR</a> algorithm to compute populations and <a class="reference internal" href="theory.html#theory"><span class="std std-ref">BICePs scores</span></a> and 2/ plot the figures to show population and <a class="reference internal" href="theory.html#theory"><span class="std std-ref">nuisance parameters</span></a>.</p>
+<p>The <a class="reference internal" href="api.html#biceps.Analysis" title="biceps.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Analysis</span></code></a> is consist of two parts:</p>
+<ol class="arabic simple">
+<li>Using <a class="reference external" href="https://pymbar.readthedocs.io/en/master/index.html">MBAR</a> algorithm to compute populations and <a class="reference internal" href="theory.html#theory"><span class="std std-ref">BICePs scores</span></a></li>
+<li>Plot the figures to show population and <a class="reference internal" href="theory.html#theory"><span class="std std-ref">nuisance parameters</span></a>.</li>
+</ol>
 </div>
 </div>
 

@@ -7,10 +7,10 @@ Tutorials
 
 .. _BICePs Example: BICePs_example/BICePs_example.ipynb
 
-
 • `Preparation`_
 
 .. _Preparation: Preparation/Preparation.ipynb
+
 • `Toolbox`_
 
 .. _Toolbox: Tools/toolbox.ipynb

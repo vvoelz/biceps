@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Conlusion &mdash; BICePs 2.0-beta documentation</title>
+  <title>Conclusion &mdash; BICePs 2.0-beta documentation</title>
   
 
   
@@ -133,7 +133,7 @@
     
       <li><a href="../../index.html">Docs</a> &raquo;</li>
         
-      <li>Conlusion</li>
+      <li>Conclusion</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -394,10 +394,10 @@ Interactive online version:
 </div>
 </div>
 <p>In this tutorial, we have two experimental observables: (1) <a class="reference external" href="https://en.wikipedia.org/wiki/J-coupling">J couplings</a> for small molecules and (2) <a class="reference external" href="https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect">NMR nuclear Overhauser effect (NOE)</a> (pairwise distances). First we need to perform conformational clustering on our MD simulations data. In this case, 100 metastable states are clustered. Now we need to prepare prior knowledge we learned from computational simulations. Normally, we used
-potential energy for each metastable state. In the <a class="reference external" href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738">original work</a>, Zhou et al did Quantum Mechanical (QM) calculations to refine each state and B3LYP energy was used as priors in BICePs calculation. Instructions of QM calculations are beyond the scope of this tutorial. Alternatively, we can estimate the potential energy using U = -ln(P) where P is the normalized population for each state. We also have built-in functions in
-<code class="docutils literal notranslate"><span class="pre">toolbox.py</span></code> to conduct this conversion. You can find tutorials using functions in <code class="docutils literal notranslate"><span class="pre">toolbox.py</span></code> <a class="reference external" href="https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/tutorials/Tools/toolbox.ipynb">here</a>.</p>
-<p>Next, we need to compute pairwise distances and J coupling constants for each clustered state. To compute pairwise distances, we recommend to use <a class="reference external" href="http://mdtraj.org">MDTraj</a> which is free to download. To compare simulated conformational ensembles to experimetnal NOE measurements, we normally computed &lt;r:sup:<cite>-6&gt;</cite>-1/6. For convenience in this tutorial, we assume the cluster center of each state is representitive enough and simply compute pairwise distances for the cluster center conformation.
-In practice, we still recommend users to compute ensemble-averaged distance.</p>
+potential energy for each metastable state. In the <a class="reference external" href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738">original work</a>, Zhou et al did Quantum Mechanical (QM) calculations to refine each state and B3LYP energy was used as priors in BICePs calculation. Instructions of QM calculations are beyond the scope of this tutorial. Alternatively, we can estimate the potential energy using U = -ln(P) where P is the normalized population for each state. We also have built-in functions
+(<a class="reference external" href="https://biceps.readthedocs.io/en/latest/api.html#toolbox">toolbox</a>) to conduct this conversion. You can find tutorials using functions in <code class="docutils literal notranslate"><span class="pre">toolbox.py</span></code> <a class="reference external" href="https://biceps.readthedocs.io/en/latest/tutorials/Tools/toolbox.html">here</a>.</p>
+<p>Next, we need to compute pairwise distances and J coupling constants for each clustered state. To compute pairwise distances, we recommend to use <a class="reference external" href="http://mdtraj.org">MDTraj</a> which is free to download. To compare simulated conformational ensembles to experimental NOE measurements, we normally computed <span class="math notranslate nohighlight">\(&lt;r^{-6}&gt;^{-1/6}\)</span>. For convenience in this tutorial, we assume the cluster center of each state is representative enough and simply compute pairwise distances for the cluster center
+conformation. In practice, we still recommend users to compute ensemble-averaged distance.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -1078,22 +1078,125 @@ Wrote noe_J/99.J
 
 </pre></div></div>
 </div>
-<div class="section" id="Conlusion">
-<h1>Conlusion<a class="headerlink" href="#Conlusion" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial, we breifly showed how to use <code class="docutils literal notranslate"><span class="pre">Preparation</span></code> class to prepare input files for BICePs using precomputed experimental observables. So far, BICePs support observables: NOE, J couplings, Chemical Shifts, Protection Factors.</p>
+<div class="section" id="Conclusion">
+<h1>Conclusion<a class="headerlink" href="#Conclusion" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial, we briefly showed how to use <a class="reference external" href="https://biceps.readthedocs.io/en/latest/api.html#preparation">Preparation</a> class to prepare input files for BICePs using precomputed experimental observables. So far, BICePs support observables: NOE, J couplings, Chemical Shifts, Protection Factors.</p>
 <p>In the example above, we showed how to deal with NOE and J couplings (non-natural amino acids).</p>
 <p>For J couplings for natural amino acids, please check this tutorial.</p>
-<p>Checmial shifts can be computed using different algorithm. We recommend to use <a class="reference external" href="http://www.shiftx2.ca">Shiftx2</a> which is also availabe in MDTraj libaray.</p>
+<p>Chemical shifts can be computed using different algorithm. We recommend to use <a class="reference external" href="http://www.shiftx2.ca">Shiftx2</a> which is also available in MDTraj library.</p>
 <p>Protection factors is a special observables which asks for extra work. This tutorial (under construction) shows how to include protection factors in BICePs sampling.</p>
-<p>After the input files are ready, now we are moving on to <a class="reference external" href="https://github.com/vvoelz/biceps/blob/master/BICePs_2.0/tutorials/BICePs_example/BICePs_example.ipynb">how to set up BICePs sampling</a>.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<p>After the input files are ready, now we are moving on to <a class="reference external" href="https://biceps.readthedocs.io/en/latest/tutorials/BICePs_example/BICePs_example.html">how to set up BICePs sampling</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
-<span></span>
+<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
+<span class="k">def</span> <span class="nf">css_styling</span><span class="p">():</span>
+    <span class="n">styles</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../theme.css&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span>
+<span class="n">css_styling</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    @font-face {
+        font-family: "Computer Modern";
+        src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunss.otf');
+    }
+    #notebook { /* centers the page content */
+    padding-left:8%;
+    padding-right:9%;
+    }
+    #ipython-main-app {
+        position: relative;
+    }
+    #jupyter-main-app {
+        position: relative;
+    }
+    div.cell{
+        width:98%;
+        margin-left:4% !important;*/
+        margin-right:4%;
+    }
+    h1 {
+        font-family: "Charis SIL", Palatino, serif;
+        text-align: center;
+    }
+    h4{
+        margin-top:12px;
+        margin-bottom: 3px;
+       }
+    div.text_cell_render{
+        font-family: Computer Modern, "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+        line-height: 145%;
+        font-size: 12pt;
+        width:99%;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    .output_png {
+        display: block;/*table-cell;*/
+        text-align: center;
+        align: center;
+        vertical-align: middle;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+    }
+    div.output_area pre {font-weight: normal; text-align: justify; }
+    .warning{
+        color: rgb( 240, 20, 20 )
+        }
+    .CodeMirror{
+            font-family: "Source Code Pro", source-code-pro,Consolas, monospace;
+    }
+    .prompt{
+        display: None;
+    }
+    .text_cell_render h5 {
+        font-weight: 300;
+        font-size: 16pt;
+        color: #4057A1;
+        font-style: italic;
+        margin-bottom: .5em;
+        margin-top: 0.5em;
+        display: block;
+    }
+    /* override table width restrictions as found on https://github.com/getpelican/pelican/issues/1311 */
+    .wy-table-responsive table td, .wy-table-responsive table th {
+        /* !important prevents the common CSS stylesheets from
+           overriding this as on RTD they are loaded after this stylesheet */
+        white-space: normal !important;
+    }
+
+    .wy-table-responsive {
+        overflow: visible !important;
+    }
+</style>
+
+<!-- MathJax configuration -->
+<script type="text/x-mathjax-config">
+    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    MathJax.Hub.Config({
+                        TeX: {
+                           extensions: ["AMSmath.js"]
+                           },
+                tex2jax: {
+                    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                    displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
+                },
+                displayAlign: 'center', // Change this to 'center' to center equations.
+                "HTML-CSS": {
+                    styles: {'.MathJax_Display': {"margin": 4}},
+                    linebreaks: { automatic: true }}
+        });
+</script></div>
 </div>
 </div>
 
