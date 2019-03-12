@@ -52,7 +52,6 @@ autoapi_modules = {
     }
 }
 
-
 numpydoc_class_members_toctree = False
 
 # concatenate both class and __init__ docstrings when generating autodoc class
@@ -127,6 +126,10 @@ exclude_patterns = [
     '**.ipynb_checkpoints'
 ]
 
+#def setup(app):
+#    app.add_stylesheet('theme.css')
+
+
 # This is processed by Jinja2 and inserted before each notebook
 nbsphinx_prolog = r"""
 {% set docname = env.doc2path(env.docname, base='doc') %}
@@ -164,8 +167,6 @@ nbsphinx_epilog = r"""
     \texttt{\strut{}{{ env.doc2path(env.docname, base='doc') }}}}
     \vfil\penalty-1\vfilneg
 """
-
-
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -212,8 +213,6 @@ html_logo = ''
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-htmlhelp_basename = 'BICePsdoc'
-
 intersphinx_mapping = {'https://docs.python.org/': None}
 
 
@@ -246,4 +245,3 @@ source_parsers = {
     '.md': CommonMarkParser,
 }
 
-source_suffix = ['.rst', '.md']
