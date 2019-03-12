@@ -1,7 +1,7 @@
 Workflow
 ========
 
-A typical BICePs sampling includes four core steps: :class:`biceps.Preparation`, :class:`biceps.Restraint`, :class:`biceps.Posteriorsampler` and :class:`biceps.Analysis`.
+A typical BICePs sampling includes four core steps: :class:`biceps.Preparation`, :class:`biceps.Restraint`, :class:`biceps.PosteriorSampler` and :class:`biceps.Analysis`.
 
 Preparation
 -----------
