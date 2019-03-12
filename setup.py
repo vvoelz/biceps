@@ -21,26 +21,29 @@ install_reqs2 = parse_requirements('./doc/requirements2.txt', session=False)
 reqs2 = [str(ir.req) for ir in install_reqs2]
 req_links2 = [str(ir.url) for ir in install_reqs2]
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 
 setup(
         name="BICePs",
         version="2.0",
         description='BICePs',
-        long_description='This is BICePs',
+        long_description=long_description,
+        long_description_content_type="text/markdown",
         classifiers=[
-        #'Development Status :: 3 - Alpha',
-        #'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
+        #"Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
         'Topic :: Science :: Engineering'],
-        #keywords='',
-        #url='http://github.com/',
-        #author='',
-        #author_email='',
+        #keywords='science',
+        url='https://github.com/vvoelz/biceps',
+        author='Yunhui Ge, Robert M. Raddi, Vincent A. Voelz',
+        author_email='vvoelz@gmail.com',
         license='MIT',
         #packages=['BIcePs'],
         packages=find_packages(),
-        #install_requires=[reqs1,reqs2],
         install_requires=reqs2,
         #dependency_links=[req_links1,req_links2],
         dependency_links=req_links2,
