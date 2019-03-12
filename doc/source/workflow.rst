@@ -13,10 +13,10 @@ Restraint
 
 The :class:`biceps.Restraint` class initializes all necessary functions to construct numpy array containing information for BICePs sampling. As a parent class, it also includes child classes for different experimental restraints.
 
-Posteriorsampler
+PosteriorSampler
 ----------------
 
-The :class:`biceps.Posteriorsampler` class is closely working with the :class:`biceps.Restraint` class. A Markov chain Monte Carlo sampling is performed based on the `Metroplis-Hastings criterion <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`_ .
+The :class:`biceps.PosteriorSampler` class is closely working with the :class:`biceps.Restraint` class. A Markov chain Monte Carlo sampling is performed based on the `Metroplis-Hastings criterion <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`_ .
 
 Analysis
 --------
