@@ -23,6 +23,7 @@ import sys
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+sys.path.append('BICePs_2.0/')
 
 setup(
         name="biceps",
