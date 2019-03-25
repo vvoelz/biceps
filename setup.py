@@ -27,7 +27,7 @@ sys.path.append('BICePs_2.0/')
 
 setup(
         name="biceps",
-        version="2.2",
+        version="2.0",
         description='BICePs',
         long_description=long_description,
         long_description_content_type="text/markdown",
