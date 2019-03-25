@@ -11,7 +11,7 @@ import sys
 # We need two seperate requirement files due to the failure to install all at once.
 #install_reqs1 = parse_requirements('./doc/requirements1.txt', session=False)
 
-install_reqs2 = parse_requirements('./doc/requirements2.txt', session=False)
+install_reqs2 = parse_requirements('requirements2.txt', session=False)
 
 # reqs is a list of requirement
 # e.g. ['django==1.5.1', 'mezzanine==1.4.6']
@@ -27,7 +27,7 @@ with open("README.md", "r") as fh:
 
 setup(
         name="BICePs",
-        version="2.0",
+        version="2.0a",
         description='BICePs',
         long_description=long_description,
         long_description_content_type="text/markdown",
@@ -35,10 +35,17 @@ setup(
         'Programming Language :: Python :: 2.7',
         #"Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        'Topic :: Science :: Engineering'],
-        #keywords='science',
-        url='https://github.com/vvoelz/biceps',
+        "Operating System :: Unix",
+        "Operating System :: MacOS",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        'Topic :: Scientific/Engineering :: Chemistry',
+        'Topic :: Scientific/Engineering :: Bio-Informatics'],
+        url="https://biceps.readthedocs.io/en/latest/index.html",
+            project_urls={
+                "Github": "https://github.com/vvoelz/biceps",
+                "Documentation": "https://biceps.readthedocs.io/en/latest/index.html",
+            },
         author='Yunhui Ge, Robert M. Raddi, Vincent A. Voelz',
         author_email='vvoelz@gmail.com',
         license='MIT',
