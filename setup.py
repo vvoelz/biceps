@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
+from os import path
+from io import open
 try: # for pip >= 10
     from pip._internal.req import parse_requirements
 except ImportError: # for pip <= 9.0.3
@@ -20,14 +22,17 @@ import sys
 #reqs2 = [str(ir.req) for ir in install_reqs2]
 #req_links2 = [str(ir.url) for ir in install_reqs2]
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+here = path.abspath(path.dirname(__file__))
+
+# Get the long description from the README file
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 sys.path.append('BICePs_2.0/')
 
 setup(
         name="biceps",
-        version="2.0",
+        version="2.1",
         description='BICePs',
         long_description=long_description,
         long_description_content_type="text/markdown",
@@ -49,9 +54,14 @@ setup(
         author='Yunhui Ge, Robert M. Raddi, Vincent A. Voelz',
         author_email='vvoelz@gmail.com',
         license='MIT',
-        packages=find_packages(),
+        #packages=exclude=['docs']),
         install_requires=[
-            'cython>=0.28','numpy>=1.7.0','pymbar','mdtraj==1.9.1'],
+            'cython>=0.28','numpy>=1.7.0','mdtraj==1.9.1','pymbar'],
+        python_requires='>=2.7',
+        #extras_require={  # Optional
+        #        'dev': ['check-manifest'],
+        #        'test': ['coverage'],
+        #    },
         #dependency_links=req_links2,
         include_package_data=True,
         zip_safe=True)
