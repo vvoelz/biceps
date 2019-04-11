@@ -17,6 +17,7 @@ models. Supported experimental observables include:
 
 Citation [![DOI for Citing BICePs](https://img.shields.io/badge/DOI-10.1021.acs.jpcb.7b11871-green.svg)](http://doi.org/10.1021/acs.jpcb.7b11871)
 
+### Check our [BICePs website](https://biceps.readthedocs.io/en/latest/) for more details!
 
 ### Please check out the [theory of **BICePs**](./BICePs_2.0/markdown/Theory.ipynb) to learn more.
 
