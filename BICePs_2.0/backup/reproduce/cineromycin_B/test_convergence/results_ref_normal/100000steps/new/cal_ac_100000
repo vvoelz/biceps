@@ -1,0 +1,25 @@
+----------------------------------------
+Begin Batch Job Prologue Tue Jan  8 10:03:18 EST 2019
+Job ID:           267541.cb2rr.cst.temple.edu
+Username:         tuf74040
+Group:            roder_voelz
+Job Name:         cal_ac_100000
+Resources List:   neednodes=1:ppn=4,nodes=1:ppn=4,walltime=24:00:00
+Queue:            normal
+Account:          
+Nodes:            c-2-14 
+End Batch Job Prologue Tue Jan  8 10:03:18 EST 2019
+----------------------------------------
+----------------------------------------
+Begin Batch Job Epilogue Tue Jan  8 10:04:02 EST 2019
+Job ID:           267541.cb2rr.cst.temple.edu
+Username:         tuf74040
+Group:            roder_voelz
+Job Name:         cal_ac_100000
+Session:          18768
+Limits:           neednodes=1:ppn=4,nodes=1:ppn=4,walltime=24:00:00
+Resources:        cput=00:00:39,mem=199620kb,vmem=453332kb,walltime=00:00:44
+Queue:            normal
+Account:          
+End Batch Job Epilogue Tue Jan  8 10:04:22 EST 2019
+----------------------------------------
