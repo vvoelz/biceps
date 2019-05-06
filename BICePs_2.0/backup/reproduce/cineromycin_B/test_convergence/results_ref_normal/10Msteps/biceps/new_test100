@@ -1,0 +1,30 @@
+----------------------------------------
+Begin Batch Job Prologue Tue Apr 30 15:52:15 EDT 2019
+Job ID:           276309
+Username:         tuf74040
+Group:            chem
+Job Name:         new_test100
+Resources List:   walltime=48:00:00,nodes=1:ppn=4,neednodes=1:ppn=4
+Queue:            normal
+Account:          
+Nodes:            b081 
+----------------------------------------
+End Batch Job Prologue Tue Apr 30 15:52:16 EDT 2019
+----------------------------------------
+best-fit tau1 =  3177.84645667 +/- 0.839582338375
+best-fit tau1 =  1593.95981727 +/- 0.56207033085
+best-fit tau1 =  941.628001339 +/- 0.666725587428
+----------------------------------------
+Begin Batch Job Epilogue Tue Apr 30 16:25:06 EDT 2019
+Job ID:           276309
+Username:         tuf74040
+Group:            chem
+Job Name:         new_test100
+Session:          55583
+Limits:           walltime=48:00:00,nodes=1:ppn=4,neednodes=1:ppn=4
+Resources:        cput=00:32:29,vmem=8569580kb,walltime=00:32:51,mem=8237444kb,energy_used=0
+Queue:            normal
+Account:          
+----------------------------------------
+End Batch Job Epilogue Tue Apr 30 16:25:27 EDT 2019
+----------------------------------------
