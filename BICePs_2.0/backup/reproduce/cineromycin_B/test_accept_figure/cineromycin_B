@@ -1,0 +1,25 @@
+----------------------------------------
+Begin Batch Job Prologue Mon May  6 10:46:50 EDT 2019
+Job ID:           332689.cb2rr.cst.temple.edu
+Username:         tuf74040
+Group:            roder_voelz
+Job Name:         cineromycin_B
+Resources List:   neednodes=1:ppn=20,nodes=1:ppn=20,walltime=04:00:00
+Queue:            normal
+Account:          
+Nodes:            c-2-25 
+End Batch Job Prologue Mon May  6 10:46:50 EDT 2019
+----------------------------------------
+----------------------------------------
+Begin Batch Job Epilogue Mon May  6 10:47:03 EDT 2019
+Job ID:           332689.cb2rr.cst.temple.edu
+Username:         tuf74040
+Group:            roder_voelz
+Job Name:         cineromycin_B
+Session:          26794
+Limits:           neednodes=1:ppn=20,nodes=1:ppn=20,walltime=04:00:00
+Resources:        cput=00:00:01,mem=0kb,vmem=0kb,walltime=00:00:13
+Queue:            normal
+Account:          
+End Batch Job Epilogue Mon May  6 10:47:23 EDT 2019
+----------------------------------------
