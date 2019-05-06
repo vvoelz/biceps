@@ -173,11 +173,11 @@ class NMR_Protectionfactor(Observable):
         self.weight = 1.0 # default is N=1
 
 
-__all__ = [
-    'Observable',
-    'NMR_Chemicalshift',
-    'NMR_Dihedral',
-    'NMR_Distance',
-    'NMR_Protectionfactor',
+#__all__ = [
+#    'Observable',
+#    'NMR_Chemicalshift',
+#    'NMR_Dihedral',
+#    'NMR_Distance',
+#    'NMR_Protectionfactor',
 
-]
+#]

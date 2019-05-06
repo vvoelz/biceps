@@ -122,7 +122,7 @@ def compute_J3_HN_HA(traj, model="Bax2007"):
 
 
 
-__all__ = [
-   '_J3_function',
-   'compute_J3_HN_HA']
+#__all__ = [
+#   '_J3_function',
+#   'compute_J3_HN_HA']
 

@@ -151,8 +151,8 @@ class Preparation(object):
             r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
 
-__all__ = [
-    'Preparation'
+#__all__ = [
+#    'Preparation'
 
-]
+#]
 

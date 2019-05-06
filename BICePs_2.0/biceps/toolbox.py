@@ -537,23 +537,49 @@ def plot_conv(all_JSD,all_JSDs,rest_type):
     plt.tight_layout()
     plt.savefig('convergence.pdf')
 
+def plot_grid(traj, rest_type=None):
+    """Plot acceptance ratio for each nuisance parameters jump during MCMC sampling.
+    """
+    if rest_type == None:
+        rest = get_rest_type(traj)
+    else:
+        rest = rest_type
+    t = np.load(traj)['arr_0'].item() 
+    grid = t['grid']
+    for i in range(len(grid)):
+        plt.figure()
+        cmap=plt.get_cmap('Greys')
+        raw = grid[i]
+        max_n = np.max(raw)
+        raw[raw == 0.] = -1.0*max_n
+        plt.pcolor(raw,cmap=cmap,vmin=-1.0*max_n,vmax=max_n,edgecolors='none')
+        plt.colorbar()
+        if rest[i] == "gamma":
+            plt.xlabel('$\gamma$ $index$')
+            plt.ylabel('$\gamma$ $index$')
+        else:
+            plt.xlabel('$\sigma_{%s}$ $index$'%rest[i])
+            plt.ylabel('$\sigma_{%s}$ $index$'%rest[i])
+        plt.xlim(0,len(raw[i]))
+        plt.ylim(0,len(raw[i]))
+        plt.savefig('grid_%s.pdf'%rest[i])
+        plt.close()
 
-
-__all__ = [
-    'sort_data',
-    'list_res',
-    'write_results',
-    'read_results',
-    'convert_pop_to_energy',
-    'get_J3_HN_HA',
-    'dihedral_angle',
-    'compute_nonaa_Jcoupling',
-    'plot_ref',
-    'get_rest_type',
-    'get_allowed_parameters',
-    'autocorr_valid',
-    'compute_ac',
-    'plot_ac',
-    'compute_JSD',
-    'plot_conv']
+#__all__ = [
+#    'sort_data',
+#    'list_res',
+#    'write_results',
+#    'read_results',
+#    'convert_pop_to_energy',
+#    'get_J3_HN_HA',
+#    'dihedral_angle',
+#    'compute_nonaa_Jcoupling',
+#    'plot_ref',
+#    'get_rest_type',
+#    'get_allowed_parameters',
+#    'autocorr_valid',
+#    'compute_ac',
+#    'plot_ac',
+#    'compute_JSD',
+#    'plot_conv']
 

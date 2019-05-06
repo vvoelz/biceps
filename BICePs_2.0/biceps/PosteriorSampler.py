@@ -281,6 +281,14 @@ class PosteriorSampler(object):
         See :class:`neglogP`."""
 
 
+
+        # Generate a high dimentional matrix of allowed nuisance parameters
+        grid = []
+        for rest in self.nuisance_para:
+            grid.append(np.zeros((rest.shape[0],rest.shape[0])))
+        # create a list to record sampled times in each nuisance parameter space
+        sampled = np.zeros(len(self.nuisance_para))
+
         # Generate random restraint index to initialize the sigma and gamma parameters
         self.new_rest_index = np.random.randint(len(self.ensemble[0]))
 
@@ -342,7 +350,7 @@ class PosteriorSampler(object):
             for para in parameters:
                 for in_para in para:
                     temp_parameters.append(in_para)
-
+            
             # RAND = generalized probability of taking a step in restraint space given the total number of restraints.
             RAND = 1. - 1./(len(temp_parameters) + 1.)   # 1. is the state
             # randomly pick up one parameter to sample
@@ -351,7 +359,7 @@ class PosteriorSampler(object):
             allowed_parameters = self.nuisance_para[to_sample_ind]
             # pick up the index to sample
             index = temp_parameter_indices[to_sample_ind]
-
+            ind1 = index
             if np.random.random() < RAND:
                 ## Take a random step in the space of specific parameter
                 actual_sample_ind = to_sample_ind  # actual parameters being sampled
@@ -360,11 +368,12 @@ class PosteriorSampler(object):
 #                index = np.random.randint(len(nuisance_para))
                 # New index for specific parameter that belongs to a specific restraint
                 index = index%(len(allowed_parameters))
-
+                ind2 = index
                 ## Temporary replacement until satisfied by Metroplis criterion
                 # Replace the old parameter with the new parameter
                 temp_parameters[to_sample_ind] = allowed_parameters[index]
                 temp_parameter_indices[to_sample_ind] = index
+
             else:
                 ## Take a random step in state space
                 new_state = np.random.randint(self.nstates)
@@ -387,6 +396,9 @@ class PosteriorSampler(object):
             for m in range(len(original_index)):
                 new_parameters[original_index[m]].append(temp_parameters[m])
                 new_parameter_indices[original_index[m]].append(temp_parameter_indices[m])
+            # record which nuisance parameters space is sampled
+            sampled[to_sample_ind] += 1.0
+
 
 
             # Compute new "energy"
@@ -407,8 +419,12 @@ class PosteriorSampler(object):
                 self.new_state = new_state
                 _parameter_indices = new_parameter_indices
                 _parameters = new_parameters
-                sep_accepted[actual_sample_ind] += 1  # keep recording accepted step based on which parameters sampled
+                sep_accepted[actual_sample_ind] += 1.0  # keep recording accepted step based on which parameters sampled
                 self.accepted += 1.0
+		if actual_sample_ind == len(temp_parameters):
+			grid[to_sample_ind][ind1,ind1] += 1.0
+		else:			
+                	grid[to_sample_ind][ind1,ind2] += 1.0
             self.total += 1.0
 
             if verbose:
@@ -451,7 +467,8 @@ class PosteriorSampler(object):
         print('\nAccepted %s %% \n'%(sep_accepted/self.total*100.))
         self.traj.sep_accept.append(sep_accepted/self.total*100.)    # separate accepted ratio
         self.traj.sep_accept.append(self.accepted/self.total*100.)   # the total accepted ratio
-
+        for g in range(len(grid)):
+            self.traj.grid.append(grid[g]/sampled[g]*100.)
 
 class PosteriorSamplingTrajectory(object):
     """A container class to store and perform operations on the trajectories of
@@ -472,6 +489,7 @@ class PosteriorSamplingTrajectory(object):
         self.ref = [ []  for i in range(len(ensemble[0]))]  # parameters of reference potentials
         self.model = [ [] for i in range(len(ensemble[0]))]  # restraints model data
         self.sep_accept = []     # separate accepted ratio
+	self.grid = []   # for acceptance ratio plot
 
         f_sim = []
         rest_index = 0
@@ -517,7 +535,7 @@ class PosteriorSamplingTrajectory(object):
 
         # Store the accepted ratio (separate + total)
         self.results['accepted'] = self.sep_accept
-
+        self.results['grid'] = self.grid
         # Store the nuisance parameter distributions
         self.results['allowed_sigma'] = self.allowed_sigmas
         self.results['sampled_sigma'] = self.sampled_sigmas
@@ -617,8 +635,8 @@ class PosteriorSamplingTrajectory(object):
 
 
 
-__all__ = [
-    'PosteriorSampler',
+#__all__ = [
+#    'PosteriorSampler',
     #'compute_logZ',
     #'build_exp_ref',
     #'build_gaussian_ref',
@@ -632,6 +650,6 @@ __all__ = [
     #'process',
 
 
-]
+#]
 
 

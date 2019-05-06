@@ -110,7 +110,7 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None)
         raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha, .cs_Ca, .cs_N,.pf}")
     return R
 
-__all__ = [
-    'init_res',
-]
+#__all__ = [
+#    'init_res',
+#]
 

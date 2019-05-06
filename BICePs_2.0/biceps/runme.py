@@ -36,7 +36,7 @@ energies_filename =  'energy.txt'
 energies = loadtxt(energies_filename)
 energies -= energies.min()  # set ground state to zero, just in case
 outdir = 'results_ref_normal_TEST_NOE'
-nsteps = 1000 # 10000000
+nsteps = 1000000 # 10000000
 
 # Make a new directory if we have to
 if not os.path.exists(outdir):
