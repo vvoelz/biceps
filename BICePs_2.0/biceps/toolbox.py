@@ -353,6 +353,100 @@ def get_allowed_parameters(traj,rest_type=None):
     return parameters
 
 
+def get_sampled_parameters(traj,rest_type=None,allowed_parameters=None):
+    """Get sampled parameters along time (steps).
+
+    :param traj: output trajectory from BICePs sampling
+    :var default=None rest_type: experimental restraint type
+    :return list: A list of all nuisance paramters sampled
+    """
+
+    if not traj.endswith('.npz'):
+        raise TypeError("trajectory file should be in the format of '*npz'")
+    else:
+        t = np.load(traj)['arr_0'].item()
+        parameters = []
+        if rest_type == None:
+            rest_type = get_rest_type(traj)
+        parameters = [[] for i in range(len(rest_type))]
+        if allowed_parameters == None:
+            allowed_parameters = get_allowed_parameters(traj,rest_type=rest_type)
+        if 'gamma' in rest_type:
+            for i in range(len(rest_type)):
+                if i == len(rest_type)-1:   # means it is gamma
+                    for j in range(len(t['trajectory'])):
+                        parameters[i].append(allowed_parameters[i][t['trajectory'][j][4][i-1][1]])
+                else:
+                    for j in range(len(t['trajectory'])):
+                        parameters[i].append(allowed_parameters[i][t['trajectory'][j][4][i][0]])
+        else:
+            for j in range(len(t['trajectory'])):
+                parameters[i].append(allowed_parameters[i][t['trajectory'][4][j][i][0]])
+    return parameters
+
+
+def g(f, max_tau=10000, normalize=True):
+    """Calculate the autocorrelaton function for a time-series f(t).
+    INPUT
+    f         - a 1D numpy array containing the time series f(t)
+    
+    PARAMETERS
+    max_tau   - the maximum autocorrelation time to consider.
+    normalize - if True, return g(tau)/g[0]
+    
+    RETURNS
+    result    - a numpy array of size (max_tau+1,) containing g(tau).
+    """
+
+    f_zeroed = f-f.mean()
+    T = f_zeroed.shape[0]
+    result = np.zeros(max_tau+1)
+    for tau in range(max_tau+1):
+        result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
+
+    if normalize:
+        return result/result[0]
+    else:
+        return result
+
+from scipy.optimize import curve_fit
+
+def single_exp_decay(x, a0, a1, tau1):
+    return a0 + a1*np.exp(-(x/tau1))
+
+def double_exp_decay(x, a0, a1, a2, tau1, tau2):
+    return a0 + a1*np.exp(-(x/tau1)) + a2*np.exp(-(x/tau2))
+
+def exponential_fit(ac, use_function='single'):
+    """Perform a single- or double- exponential fit on an autocorrelation curve.
+    
+    RETURNS
+    yFit  - the y-values of the fit curve."""
+
+    nsteps = ac.shape[0]
+    if use_function == 'single':
+        v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
+        popt, pcov = curve_fit(single_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
+        yFit_data = single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
+        # print 'best-fit a0 = ', popt[0], '+/-', pcov[0][0]
+        # print 'best-fit a1 = ', popt[1], '+/-', pcov[1][1]
+        print 'best-fit tau1 = ', popt[2], '+/-', pcov[2][2]
+    else:
+        v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
+        popt, pcov = curve_fit(double_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
+        yFit_data = double_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2], popt[3], popt[4])
+        # print 'best-fit a0 = ', popt[0], '+/-', pcov[0][0]
+        #print 'best-fit a1 = ', popt[1], '+/-', pcov[1][1]
+        #print 'best-fit a2 = ', popt[2], '+/-', pcov[2][2]
+        print 'best-fit tau1 = ', popt[3], '+/-', pcov[3][3]
+        print 'best-fit tau2 = ', popt[4], '+/-', pcov[4][4]
+
+    return yFit_data
+
+
+
+
+
 def autocorr_valid(x,tau):
     """Cross-correlation of two 1-dimensional sequences.
 
@@ -478,8 +572,8 @@ def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters):
             all_JSD[i] = JSD
     else:
         for i in range(len(restraints)):
-	    r1,r2,r_total = np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i]))
-	    for j in T1:
+            r1,r2,r_total = np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i]))
+            for j in T1:
                 r1[j[4:][0][i][0]]+=1
             for j in T2:
                 r2[j[4:][0][i][0]]+=1
@@ -497,6 +591,7 @@ def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters):
             JSD = H-(N1/N_total)*H1-(N2/N_total)*H2
             all_JSD[i] = JSD
     return all_JSD
+
 
 
 def plot_conv(all_JSD,all_JSDs,rest_type):
