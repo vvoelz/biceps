@@ -1,3 +1,4 @@
-To run the doctests on the commandline, enter:
+To run the doctests on the commandline:
+```
 $ python convergence.py
-
+```
