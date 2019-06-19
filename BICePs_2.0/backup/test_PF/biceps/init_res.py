@@ -136,14 +136,16 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None,
             for o in range(len(allowed_xcs)):
                 for p in range(len(allowed_xhs)):
                     for q in range(len(allowed_bs)):
-                        infile_Nc='input/Nc/Nc_x%0.1f_b%d_state%03d.npy'%(allowed_xcs[o], allowed_bs[q],i)
-                        infile_Nh='input/Nh/Nh_x%0.1f_b%d_state%03d.npy'%(allowed_xhs[p], allowed_bs[q],i)
+#                        infile_Nc='input/Nc/Nc_x%0.1f_b%d_state%03d.npy'%(allowed_xcs[o], allowed_bs[q],i)
+#                        infile_Nh='input/Nh/Nh_x%0.1f_b%d_state%03d.npy'%(allowed_xhs[p], allowed_bs[q],i)
+                        infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs, allowed_xcs[o], allowed_bs[q],i)
+                        infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs, allowed_xhs[p], allowed_bs[q],i)
                         Ncs[o,q,:] = (np.load(infile_Nc))
                         Nhs[p,q,:] = (np.load(infile_Nh))
 
 
             if ref == None:
-                R = Restraint_pf(PDB_filename,ref='exp',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
+                R = Restraint_pf(PDB_filename,ref='uniform',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
                 R.prep_observable(lam=lam, free_energy=energy, filename=data,precomputed_pf,Ncs, Nhs)
             else:
                 R = Restraint_pf(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)

@@ -34,7 +34,7 @@ class PosteriorSampler(object):
     :param int freq_save_traj: the frequency (in steps) to store the MCMC trajectory"""
 
     def __init__(self, ensemble, freq_write_traj=100.,
-            freq_print=100., freq_save_traj=100.):
+            freq_print=100., freq_save_traj=100., pf_prior = None):
         """Initialize PosteriorSampler Class."""
 
         # Allow the ensemble to pass through the class
@@ -88,7 +88,9 @@ class PosteriorSampler(object):
         # Compute ref state logZ for the free energies to normalize.
         self.compute_logZ()
 
-
+        # load pf priors from training model
+        if pf_prior is not None:
+            self.pf_prior = np.load(pf_prior)
     def compute_logZ(self):
         """Compute reference state logZ for the free energies to normalize."""
 
@@ -215,7 +217,7 @@ class PosteriorSampler(object):
             print('Number of nuisance parameters for each:\n ')
         #    for i in range(len(nuisance_para)):
                 #print(len(self.nuisance_para[i]))
-        np.save('compiled_nuisance_parameters.npy',self.nuisance_para)
+#        np.save('compiled_nuisance_parameters.npy',self.nuisance_para)
 
 
     def neglogP(self, new_state, parameters, parameter_indices, verbose=False):
@@ -244,7 +246,9 @@ class PosteriorSampler(object):
             # Is gamma a parameter we need to consider?
             if 'allowed_gamma' in s[rest_index]._nuisance_parameters:
                 result += s[rest_index].sse[int(parameter_indices[rest_index][1])] / (2.0*parameters[rest_index][0]**2.0)
-
+            elif 'allowed_beta_c' in s[rest_index]._nuisance_parameters:
+                result += s[rest_index].sse[int(parameter_indices[rest_index][1])][int(parameter_indices[rest_index][2])][int(parameter_indices[rest_index][3])][int(parameter_indices[rest_index][4])][int(parameter_indices[rest_index][5])][int(parameter_indices[rest_index][6])] / (2.0*parameters[rest_index][0]**2.0)
+                result += self.pf_prior[int(parameter_indices[rest_index][1])][int(parameter_indices[rest_index][2])][int(parameter_indices[rest_index][3])][int(parameter_indices[rest_index][4])][int(parameter_indices[rest_index][5])][int(parameter_indices[rest_index][6])]
             else:
                 result += s[rest_index].sse / (2.0*float(parameters[rest_index][0])**2.0)
 
@@ -446,8 +450,15 @@ class PosteriorSampler(object):
             for i in range(len(self.ensemble[int(self.new_state)])):
                 if hasattr(self.ensemble[int(self.new_state)][i], 'gamma'):
                     self.traj.sampled_gamma[int((_parameter_indices)[i][1])] += 1
+                elif hasattr(self.ensemble[int(self.new_state)][i], 'beta_c'):
+                    self.traj.sampled_gamma[int((_parameter_indices)[i][1])] += 1
+                    self.traj.sampled_gamma[int((_parameter_indices)[i][2])] += 1
+                    self.traj.sampled_gamma[int((_parameter_indices)[i][3])] += 1
+                    self.traj.sampled_gamma[int((_parameter_indices)[i][4])] += 1
+                    self.traj.sampled_gamma[int((_parameter_indices)[i][5])] += 1
+                    self.traj.sampled_gamma[int((_parameter_indices)[i][6])] += 1
                 self.traj.sampled_sigmas[i][int((_parameter_indices)[i][0])] += 1
-
+              
 
             # Store trajectory samples
             temp=[[] for i in range(len(_parameter_indices))]
@@ -504,6 +515,20 @@ class PosteriorSamplingTrajectory(object):
                     if hasattr(s[rest_index], 'gamma'):
                         self.allowed_gamma = s[rest_index].allowed_gamma
                         self.sampled_gamma = list(np.zeros(len(self.allowed_gamma)))
+                    elif hasattr(s[rest_index], 'beta_c'):
+                        self.allowed_beta_c = s[rest_index].allowed_beta_c
+                        self.sampled_beta_c = list(np.zeros(len(self.allowed_beta_c)))
+                        self.allowed_beta_h = s[rest_index].allowed_beta_h
+                        self.sampled_beta_h = list(np.zeros(len(self.allowed_beta_h)))
+                        self.allowed_beta_0 = s[rest_index].allowed_beta_0
+                        self.sampled_beta_0 = list(np.zeros(len(self.allowed_beta_0)))
+                        self.allowed_xcs = s[rest_index].allowed_xcs
+                        self.sampled_xcs = list(np.zeros(len(self.allowed_xcs)))
+                        self.allowed_xhs = s[rest_index].allowed_xhs
+                        self.sampled_xhs = list(np.zeros(len(self.allowed_xhs)))
+                        self.allowed_bs = s[rest_index].allowed_bs
+                        self.sampled_bs = list(np.zeros(len(self.allowed_bs)))
+
                 rest_index += 1
 
         self.f_sim = np.array(f_sim)
@@ -541,6 +566,12 @@ class PosteriorSamplingTrajectory(object):
         self.results['sampled_sigma'] = self.sampled_sigmas
 
         self.results['allowed_gamma'] = None
+        self.results['allowed_beta_c'] = None
+        self.results['allowed_beta_h'] = None
+        self.results['allowed_beta_0'] = None
+        self.results['allowed_xcs'] = None
+        self.results['allowed_xhs'] = None
+        self.results['allowed_bs'] = None
 
         for rest_index in range(len(self.ensemble[0])):
             n_observables  = self.ensemble[0][rest_index].nObs
@@ -557,6 +588,19 @@ class PosteriorSamplingTrajectory(object):
                 if hasattr(s[rest_index], 'gamma'):
                     self.results['sampled_gamma'] = self.sampled_gamma
                     self.results['allowed_gamma'] = self.allowed_gamma
+                elif hasattr(s[rest_index], 'beta_c'):
+                    self.results['sampled_beta_c'] = self.sampled_beta_c
+                    self.results['allowed_beta_c'] = self.allowed_beta_c
+                    self.results['sampled_beta_h'] = self.sampled_beta_h
+                    self.results['allowed_beta_h'] = self.allowed_beta_h
+                    self.results['sampled_beta_0'] = self.sampled_beta_0
+                    self.results['allowed_beta_0'] = self.allowed_beta_0
+                    self.results['sampled_xcs'] = self.sampled_xcs
+                    self.results['allowed_xcs'] = self.allowed_xcs
+                    self.results['sampled_xhs'] = self.sampled_xhs
+                    self.results['allowed_xhs'] = self.allowed_xhs
+                    self.results['sampled_bs'] = self.sampled_bs
+                    self.results['allowed_bs'] = self.allowed_bs
 
         self.results['ref_potential'] = self.ref
 
