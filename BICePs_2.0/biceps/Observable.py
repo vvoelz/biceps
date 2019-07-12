@@ -77,7 +77,7 @@ class NMR_Chemicalshift(Observable):
 
         # N equivalent chemical shift should only get 1/N f the weight when
     #... computing chi^2 (not likely in this case but just in case we need it in the future)
-        self.weight = 1.0 # default is N=1
+        self.weight = 1.0/3.0 # default is N=1
 
 
 

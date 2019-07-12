@@ -47,9 +47,10 @@ class Analysis(object):
     :param str default='BICePs.pdf' picfile: output figure name
     """
 
-    def __init__(self, states = 0, data = None, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
+    #def __init__(self, states = 0, data = None, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
+    def __init__(self, states = 0, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
 	self.states = states
-	self.data = data
+	#self.data = data
 	self.resultdir = resultdir
 	self.BSdir = BSdir
 	self.popdir = popdir
@@ -62,40 +63,48 @@ class Analysis(object):
 	self.P_dp = None
 	if self.states == 0:
 		raise ValueError("State number cannot be zero")
-	if self.data == None:
-		raise ValueError("Input data file is not specified")
+	#if self.data == None:
+#		raise ValueError("Input data file is not specified")
 	if self.resultdir == None:
 		raise ValueError("Result directory is missing")
 
-    def list_scheme(self):
+    def list_scheme(self, rest_type):
 	"""Determine what scheme is included in sampling"""
 
-	input_data = d.sort_data(self.data)
+	#input_data = d.sort_data(self.data)
 	d_l=[]
-	for i in input_data[0]:
-                if i.endswith('.cs_H'):
+	for r in rest_type:
+                if r[r.find('_')+1:] == 'cs_H':
                     d_l.append('sigma_cs_H')
-                elif i.endswith('.cs_Ha'):
+                elif r[r.find('_')+1:] == 'cs_Ha':
                     d_l.append('sigma_cs_Ha')
-                elif i.endswith('.cs_N'):
+                elif r[r.find('_')+1:] == 'cs_N':
                     d_l.append('sigma_cs_N')
-                elif i.endswith('.cs_Ca'):
+                elif r[r.find('_')+1:] == 'cs_Ca':
                     d_l.append('sigma_cs_Ca')
-                elif i.endswith('.J'):
+                elif r[r.find('_')+1:] == 'J':
                     d_l.append('sigma_J')
-		elif i.endswith('.pf'):
+		elif r[r.find('_')+1:] == 'pf':
                     d_l.append('sigma_pf')
-                elif i.endswith('.noe'):
+                    d_l.append('beta_c')    # right now only consider the situation that pre-computed pf is not available
+                    d_l.append('beta_h')
+                    d_l.append('beta_0')
+                    d_l.append('xcs')
+                    d_l.append('xhs')
+                    d_l.append('bs')
+
+                elif r[r.find('_')+1:] == 'noe':
                     d_l.append('sigma_noe')
                     d_l.append('gamma')
                 else:
-                    raise ValueError("Incompatible File extension. Use:{*.noe, *.J, *.cs_H, *.cs_Ha, *.cs_N, *.cs_Ca, *.pf}")
-	self.scheme = d_l
+                    raise ValueError("Incompatible Restraint. Use:{*.noe, *.J, *.cs_H, *.cs_Ha, *.cs_N, *.cs_Ca, *.pf}")
+        return d_l
 
     def load_data(self, debug = True):
 	"""load input data from BICePs sampling (*npz and *pkl files)"""
 	# Load in npz trajectories
 	exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.npz') )
+        #print 'exo_files', exp_files
 	exp_files.sort()
 	for filename in exp_files:
 		if debug:
@@ -116,6 +125,11 @@ class Analysis(object):
 	self.lam = [float( (s.split('lambda')[1]).replace('.npz','') ) for s in exp_files ]
 	if debug:
 		print 'lam =', self.lam
+        #print 'len(self.traj)',len(self.traj)
+        rest_type = self.traj[0]['rest_type']
+        self.scheme = self.list_scheme(rest_type)
+
+
 
     def MBAR_analysis(self, debug = False):
 	"""MBAR analysis for populations and BICePs score"""
@@ -156,6 +170,14 @@ class Analysis(object):
                                     elif len(sigma_index[m]) == 2: #noe
                                         sigma[m].append(self.traj[k]['allowed_sigma'][m][sigma_index[m][0]])
                                         sigma[m].append(self.traj[k]['allowed_gamma'][sigma_index[m][1]])
+                                    elif len(sigma_index[m]) == 7: #pf
+                                        sigma[m].append(self.traj[k]['allowed_sigma'][m][sigma_index[m][0]])
+                                        sigma[m].append(self.traj[k]['allowed_beta_c'][sigma_index[m][1]])
+                                        sigma[m].append(self.traj[k]['allowed_beta_h'][sigma_index[m][2]])
+                                        sigma[m].append(self.traj[k]['allowed_beta_0'][sigma_index[m][3]])
+                                        sigma[m].append(self.traj[k]['allowed_xcs'][sigma_index[m][4]])
+                                        sigma[m].append(self.traj[k]['allowed_xhs'][sigma_index[m][5]])
+                                        sigma[m].append(self.traj[k]['allowed_bs'][sigma_index[m][6]])
                                 u_kln[k,l,n] = self.sampler[l].neglogP(state, sigma, sigma_index)
                                 if debug:
 					print 'E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n]
@@ -171,7 +193,7 @@ class Analysis(object):
 	# Extract dimensionless free energy differences and their statistical uncertainties.
 #	(Deltaf_ij, dDeltaf_ij) = mbar.getFreeEnergyDifferences()
 	#(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='svd-ew')
-	(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='approximate')
+	(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='svd-ew')
 	#print 'Deltaf_ij', Deltaf_ij
 	#print 'dDeltaf_ij', dDeltaf_ij
 	beta = 1.0 # keep in units kT
@@ -215,7 +237,7 @@ class Analysis(object):
 	"""plot figures for population, nuisance parameters"""
 
         # first figure out what scheme is used
-	self.list_scheme()
+	#self.list_scheme()
 
 	# next get MABR sampling done
 	self.MBAR_analysis()
@@ -255,29 +277,104 @@ class Analysis(object):
         	if (i==0) or (pops1[i] > 0.05):
             		plt.text( pops0[i], pops1[i], str(i), color='g' )
         if 'gamma' in self.scheme:
-            for k in range(len(self.scheme)-1):
-        	plt.subplot(r,c,k+2)
-        	plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
-        	plt.hold(True)
-                xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][-1]
-                xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
-                xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
-                xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
-                d_x = (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
-                xmax = max(xmax0,xmax1)
-                xmin = min(xmin0, xmin1)
-                plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
-        	#plt.xlim(0,max(t0['allowed_sigma'][k]))
-        	plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
-        	plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
-        	if self.scheme[k].find('cs') == -1:
-                    plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:], fontsize=label_fontsize)
-                    plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:], fontsize=label_fontsize)
-            	    plt.yticks([])
-        	else:
-                    plt.xlabel("$\sigma_{{%s}_{%s}}$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
-            	    plt.ylabel("$P(\sigma_{{%s}_{%s}})$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+            if 'beta_c' in self.scheme:
+                for k in range(len(self.scheme)-8):
+        	    plt.subplot(r,c,k+2)
+        	    plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
+        	    plt.hold(True)
+                    xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][-1]
+                    xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
+                    xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
+                    xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
+                    d_x = (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
+                    xmax = max(xmax0,xmax1)
+                    xmin = min(xmin0, xmin1)
+                    plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
+                    #plt.xlim(0,max(t0['allowed_sigma'][k]))
+                    plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
+                    plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
+                    #if self.scheme[k].find('cs') == -1:
+                    if self.scheme[k].count('_') == 1:
+                        plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:], fontsize=label_fontsize)
+                        plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:], fontsize=label_fontsize)
+                        plt.yticks([])
+                    #else:
+                    elif self.scheme[k].count('_') == 2:
+                        plt.xlabel("$\sigma_{{%s}_{%s}}$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+                        plt.ylabel("$P(\sigma_{{%s}_{%s}})$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+                        plt.yticks([])
+                for k in range(6):    # beta_c, beta_h, beta_0, xcs, xhs, bs
+                    plt.subplot(r,c,len(self.scheme)-8+k+2)
+                    para_name = self.scheme[len(self.scheme)-8+k]
+                    plt.step(t0['allowed_%s'%para_name], t0['sampled_%s'%para_name], 'b-')
+                    plt.hold(True)
+                    xmax0 = [l for l,e in enumerate(t0['sampled_%s'%para_name]) if e != 0.][-1]
+                    xmin0 = [l for l,e in enumerate(t0['sampled_%s'%para_name]) if e != 0.][0]
+                    xmax1 = [l for l,e in enumerate(t1['sampled_%s'%para_name]) if e != 0.][-1]
+                    xmin1 = [l for l,e in enumerate(t1['sampled_%s'%para_name]) if e != 0.][0]
+                    #d_x = (max(t0['allowed_%s'%para_name]) - min(t0['allowed_%s'%para_name])/len(t0['allowed_%s'%para_name]))
+                    xmax = max(xmax0,xmax1)
+                    xmin = min(xmin0, xmin1)
+                    #plt.xlim((t0['allowed_%s'%para_name])[xmin] - d_x, (t0['allowed_%s'%para_name])[xmax] + d_x)
+                    plt.xlim((t0['allowed_%s'%para_name])[xmin], (t0['allowed_%s'%para_name])[xmax])
+                    #plt.xlim(0,max(t0['allowed_sigma'][k]))
+                    plt.step(t1['allowed_%s'%para_name], t1['sampled_%s'%para_name], 'r-')
+                    plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
+                    if para_name.count('_') == 1:
+                        plt.xlabel("$\%s_{%s}$"%(para_name.split('_')[0],para_name.split('_')[1]), fontsize=label_fontsize)
+                        plt.ylabel("$P(\%s_{%s})$"%(para_name.split('_')[0],para_name.split('_')[1]), fontsize=label_fontsize)
+                        plt.yticks([])
+                    else:
+                        plt.xlabel("$%s$"%para_name,fontsize=label_fontsize)
+                        plt.ylabel("$P(%s)$"%para_name,fontsize=label_fontsize)
+                        plt.yticks([])
+            else:
+                for k in range(len(self.scheme)-2):
+                    plt.subplot(r,c,k+2)
                     plt.yticks([])
+                    plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
+                    plt.hold(True)
+                    xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][-1]
+                    xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
+                    xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
+                    xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
+                    d_x = (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
+                    xmax = max(xmax0,xmax1)
+                    xmin = min(xmin0, xmin1)
+                    #plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
+                    plt.xlim(t0['allowed_sigma'][k][xmin], t0['allowed_sigma'][k][xmax])
+                    #plt.xlim(0,max(t0['allowed_sigma'][k]))
+                    plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
+                    plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
+                    if self.scheme[k].count('_') == 1:
+                        plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:], fontsize=label_fontsize)
+                        plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:], fontsize=label_fontsize)
+                        plt.yticks([])
+                    #else:
+                    elif self.scheme[k].count('_') == 2:
+                        plt.xlabel("$\sigma_{{%s}_{%s}}$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+                        plt.ylabel("$P(\sigma_{{%s}_{%s}})$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+                        plt.yticks([])
+
+            plt.subplot(r,c,len(self.scheme))
+            plt.step(t0['allowed_sigma'][len(self.scheme)-1], t0['sampled_sigma'][len(self.scheme)-1], 'b-')
+            plt.hold(True)
+            xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][len(self.scheme)-1]) if e != 0.][-1]
+            xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][len(self.scheme)-1]) if e != 0.][0]
+            xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][len(self.scheme)-1]) if e != 0.][-1]
+            xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][len(self.scheme)-1]) if e != 0.][0]
+            d_x = (max(t0['allowed_sigma'][len(self.scheme)-1]) - min(t0['allowed_sigma'][len(self.scheme)-1])/len(t0['allowed_sigma'][len(self.scheme)-1]))
+            xmax = max(xmax0,xmax1)
+            xmin = min(xmin0, xmin1)
+            #plt.xlim(t0['allowed_sigma'][len(self.scheme)-1][xmin] - d_x, t0['allowed_sigma'][len(self.scheme)-1][xmax] + d_x)
+            plt.xlim(t0['allowed_sigma'][len(self.scheme)-1][xmin], t0['allowed_sigma'][len(self.scheme)-1][xmax])
+            #plt.xlim(0,max(t0['allowed_sigma'][k]))
+            plt.step(t1['allowed_sigma'][len(self.scheme)-1], t1['sampled_sigma'][len(self.scheme)-1], 'r-')
+            plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
+            plt.xlabel("$\sigma_{noe}$, fontsize=label_fontsize")
+            plt.ylabel("$P(\sigma_{noe})$, fontsize=label_fontsize")
+            plt.yticks([])
+            
             plt.subplot(r,c,len(self.scheme)+1)
             plt.step(t0['allowed_gamma'],t0['sampled_gamma'],'b-')
             plt.hold(True)
@@ -288,39 +385,94 @@ class Analysis(object):
             d_x =  (max(t0['allowed_gamma']) - min(t0['allowed_gamma'])/len(t0['allowed_gamma']))
             xmax = max(xmax0,xmax1)
             xmin = min(xmin0, xmin1)
-            plt.xlim(t0['allowed_gamma'][xmin] - d_x, t0['allowed_gamma'][xmax] + d_x)
-
+            #plt.xlim(t0['allowed_gamma'][xmin] - d_x, t0['allowed_gamma'][xmax] + d_x)
+            plt.xlim(t0['allowed_gamma'][xmin], t0['allowed_gamma'][xmax])
 #            plt.xlim(0,max(t0['allowed_gamma']))
             plt.step(t1['allowed_gamma'],t1['sampled_gamma'], 'r-')
-            plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
+            plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
             plt.xlabel("$\%s$"%self.scheme[-1], fontsize=label_fontsize)
             plt.ylabel("$P(\%s)$"%self.scheme[-1], fontsize=label_fontsize)
             plt.yticks([])
         else:
-            for k in range(len(self.scheme)):
-                plt.subplot(r,c,k+2)
-                plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
-                plt.hold(True)
-                xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][-1]
-                xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
-                xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
-                xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
-                d_x = (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
-                xmax = max(xmax0,xmax1)
-                xmin = min(xmin0, xmin1)
-                plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
-
-#                plt.xlim(0,max(t0['allowed_sigma'][k]))
-                plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
-                plt.legend(['exp', 'sim+exp'], fontsize=legend_fontsize)
-                if self.scheme[k].find('cs') == -1:
-                        plt.xlabel("$\%s$"%self.scheme[k], fontsize=label_fontsize)
-                        plt.ylabel("$P(\%s)$"%self.scheme[k], fontsize=label_fontsize)
+            if 'beta_c' in self.scheme:
+                for k in range(len(self.scheme)-6):
+                    plt.subplot(r,c,k+2)
+                    plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
+                    plt.hold(True)
+                    xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][-1]
+                    xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
+                    xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
+                    xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
+                    d_x = (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
+                    xmax = max(xmax0,xmax1)
+                    xmin = min(xmin0, xmin1)
+                    #plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
+                    plt.xlim(t0['allowed_sigma'][k][xmin], t0['allowed_sigma'][k][xmax])
+                    #plt.xlim(0,max(t0['allowed_sigma'][k]))
+                    plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
+                    plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
+                    #if self.scheme[k].find('cs') == -1:
+                    if self.scheme[k].count('_') == 1:
+                        plt.xlabel("$\sigma_{%s}$"%self.scheme[k][6:], fontsize=label_fontsize)
+                        plt.ylabel("$P(\sigma_{%s})$"%self.scheme[k][6:], fontsize=label_fontsize)
                         plt.yticks([])
-                else:
+                    #else:
+                    elif self.scheme[k].count('_') == 2:
                         plt.xlabel("$\sigma_{{%s}_{%s}}$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
                         plt.ylabel("$P(\sigma_{{%s}_{%s}})$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
                         plt.yticks([])
+                for k in range(6):    # beta_c, beta_h, beta_0, xcs, xhs, bs
+                    plt.subplot(r,c,len(self.scheme)-6+k+2)
+                    para_name = self.scheme[len(self.scheme)-6+k]
+                    plt.step(t0['allowed_%s'%para_name], t0['sampled_%s'%para_name], 'b-')
+                    plt.hold(True)
+                    xmax0 = [l for l,e in enumerate(t0['sampled_%s'%para_name]) if e != 0.][-1]
+                    xmin0 = [l for l,e in enumerate(t0['sampled_%s'%para_name]) if e != 0.][0]
+                    xmax1 = [l for l,e in enumerate(t1['sampled_%s'%para_name]) if e != 0.][-1]
+                    xmin1 = [l for l,e in enumerate(t1['sampled_%s'%para_name]) if e != 0.][0]
+                    d_x = (max(t0['allowed_%s'%para_name]) - min(t0['allowed_%s'%para_name])/len(t0['allowed_%s'%para_name]))
+                    xmax = max(xmax0,xmax1)
+                    xmin = min(xmin0, xmin1)
+                    #plt.xlim((t0['allowed_%s'%para_name])[xmin] - d_x, (t0['allowed_%s'%para_name])[xmax] + d_x)
+                    plt.xlim((t0['allowed_%s'%para_name])[xmin], (t0['allowed_%s'%para_name])[xmax])
+                    #plt.xlim(0,max(t0['allowed_sigma'][k]))
+                    plt.step(t1['allowed_%s'%para_name], t1['sampled_%s'%para_name], 'r-')
+                    plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
+                    if para_name.count('_') == 1:
+                        plt.xlabel("$\%s_{%s}$"%(para_name.split('_')[0],para_name.split('_')[1]), fontsize=label_fontsize)
+                        plt.ylabel("$P(\%s_{%s})$"%(para_name.split('_')[0],para_name.split('_')[1]), fontsize=label_fontsize)
+                        plt.yticks([])
+                    else:
+                        plt.xlabel("$%s$"%para_name,fontsize=label_fontsize)
+                        plt.ylabel("$P(%s)$"%para_name,fontsize=label_fontsize)
+                        plt.yticks([])
+            else:
+                for k in range(len(self.scheme)):
+                    plt.subplot(r,c,k+2)
+                    plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
+                    plt.hold(True)
+                    xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][-1]
+                    xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
+                    xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
+                    xmin1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][0]
+                    d_x = (max(t0['allowed_sigma'][k]) - min(t0['allowed_sigma'][k])/len(t0['allowed_sigma'][k]))
+                    xmax = max(xmax0,xmax1)
+                    xmin = min(xmin0, xmin1)
+                    #plt.xlim(t0['allowed_sigma'][k][xmin] - d_x, t0['allowed_sigma'][k][xmax] + d_x)
+                    plt.xlim(t0['allowed_sigma'][k][xmin], t0['allowed_sigma'][k][xmax])
+#                    plt.xlim(0,max(t0['allowed_sigma'][k]))
+                    plt.step(t1['allowed_sigma'][k], t1['sampled_sigma'][k], 'r-')
+                    plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
+                    #if self.scheme[k].find('cs') == -1:
+                    if self.scheme[k].count('_') == 1:
+                            plt.xlabel("$\%s$"%self.scheme[k], fontsize=label_fontsize)
+                            plt.ylabel("$P(\%s)$"%self.scheme[k], fontsize=label_fontsize)
+                            plt.yticks([])
+                    #else:
+                    elif self.scheme[k].count('_') == 2:
+                            plt.xlabel("$\sigma_{{%s}_{%s}}$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+                            plt.ylabel("$P(\sigma_{{%s}_{%s}})$"%(self.scheme[k][6:].split('_')[0],self.scheme[k][6:].split('_')[1]),fontsize=label_fontsize)
+                            plt.yticks([])
     	plt.tight_layout()
     	plt.savefig(self.picfile)
 

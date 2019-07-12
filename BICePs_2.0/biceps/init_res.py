@@ -7,7 +7,7 @@ from Restraint import *
 
 
 
-def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None):
+def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None, precomputed_pf = False, Ncs_fi=None, Nhs_fi=None, state = None):
     """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
 
     :param str PDB_filename: topology file name ('*.pdb')
@@ -25,8 +25,9 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None)
     :param list default=None gamma: only for NOE, range of gamma (if default, will use our suggested broad range (may increase sampling requirement for convergence))"""
 
 #        Restraint.__init__(self, PDB_filename, ref, use_global_ref_sigma=True)
-    if not isinstance(ref, basestring):
-        raise ValueError("reference potential type must be a 'str'")
+    if ref is not None:
+        if not isinstance(ref, basestring):
+            raise ValueError("reference potential type must be a 'str'")
     if not isinstance(lam,float):
         raise ValueError("lambda should be a single number with type of 'float'")
     if not isinstance(energy,float):
@@ -45,6 +46,22 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None)
             raise ValueError("gamma should be a list of three items: gamma_min, gamma_max, dgamma")
         else:
             gamma_min, gamma_max, dgamma = gamma[0], gamma[1], np.log(gamma[2])
+    #if precomputed_pf == False:
+    #    if Ncs == None or Nhs == None:
+    #        raise ValueError("Ncs and Nhs are needed!")
+        # add uncern option here later
+        # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
+        beta_c_min, beta_c_max, dbeta_c = 0.05, 0.25, 0.01
+        beta_h_min, beta_h_max, dbeta_h = 0.0, 5.2, 0.2
+        beta_0_min, beta_0_max, dbeta_0 = -10.0, 0.0, 0.2
+        xcs_min, xcs_max, dxcs = 5.0, 8.5, 0.5
+        xhs_min, xhs_max, dxhs = 2.0, 2.8, 0.1
+        bs_min, bs_max, dbs = 3.0, 21.0, 1.0
+
+        allowed_xcs=np.arange(xcs_min,xcs_max,dxcs)
+        allowed_xhs=np.arange(xhs_min,xhs_max,dxhs)
+        allowed_bs=np.arange(bs_min,bs_max,dbs)
+
 
     if data!= None:
         if data.endswith('cs_H'):
@@ -56,7 +73,7 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None)
                 R.prep_observable(lam=lam, free_energy=energy, filename=data)
 
 
-        elif data.endswith('cs_CA'):
+        elif data.endswith('cs_Ca'):
             if ref == None:
                 R = Restraint_cs_Ca(PDB_filename,ref='exp',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
                 R.prep_observable(lam=lam, free_energy=energy, filename=data)
@@ -99,12 +116,45 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None)
                 R.prep_observable(lam=lam, free_energy=energy, filename=data, dloggamma = dgamma, gamma_min = gamma_min, gamma_max = gamma_max)
 
         elif data.endswith('pf'):
+            if not precomputed_pf:
+                if Ncs_fi == None or Nhs_fi == None or state == None:
+                    raise ValueError("Ncs and Nhs and state numebr are needed!")
+            # add uncern option here later
+            # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
+            beta_c_min, beta_c_max, dbeta_c = 0.05, 0.25, 0.01
+            beta_h_min, beta_h_max, dbeta_h = 0.0, 5.2, 0.2
+            beta_0_min, beta_0_max, dbeta_0 = -10.0, 0.0, 0.2
+            xcs_min, xcs_max, dxcs = 5.0, 8.5, 0.5
+            xhs_min, xhs_max, dxhs = 2.0, 2.7, 0.1
+            bs_min, bs_max, dbs = 15.0, 16.0, 1.0
+
+            allowed_xcs=np.arange(xcs_min,xcs_max,dxcs)
+            allowed_xhs=np.arange(xhs_min,xhs_max,dxhs)
+            allowed_bs=np.arange(bs_min,bs_max,dbs)
+            # 107=residue numbers, Nc/Nh file names are hard coded for now. Yunhui 06/19
+            Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
+            Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
+            for o in range(len(allowed_xcs)):
+		for q in range(len(allowed_bs)):
+			infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],state)
+			Ncs[o,q,:] = (np.load(infile_Nc))
+
+            for p in range(len(allowed_xhs)):
+                for q in range(len(allowed_bs)):
+#                        infile_Nc='input/Nc/Nc_x%0.1f_b%d_state%03d.npy'%(allowed_xcs[o], allowed_bs[q],i)
+#                        infile_Nh='input/Nh/Nh_x%0.1f_b%d_state%03d.npy'%(allowed_xhs[p], allowed_bs[q],i)
+                        infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],state)
+#                        print "infile_Nc", infile_Nc
+#                        print "infile_Nh", infile_Nh
+                        Nhs[p,q,:] = (np.load(infile_Nh))
+
+
             if ref == None:
-                R = Restraint_pf(PDB_filename,ref='exp',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
+                R = Restraint_pf(PDB_filename,ref='uniform',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
+                R.prep_observable(lam=lam, free_energy=energy, filename=data,precomputed_pf=precomputed_pf,Ncs=Ncs, Nhs=Nhs,beta_c_min=beta_c_min,beta_c_max=beta_c_max,dbeta_c=dbeta_c,beta_h_min=beta_h_min,beta_h_max=beta_h_max,dbeta_h=dbeta_h,beta_0_min=beta_0_min,beta_0_max=beta_0_max,dbeta_0=dbeta_0,xcs_min=xcs_min,xcs_max=xcs_max,dxcs=dxcs,xhs_min=xhs_min,xhs_max=xhs_max,dxhs=dxhs,bs_min=bs_min,bs_max=bs_max,dbs=dbs)
             else:
                 R = Restraint_pf(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
+                R.prep_observable(lam=lam, free_energy=energy, filename=data,precomputed_pf=precomputed_pf,Ncs=Ncs, Nhs=Nhs,beta_c_min=beta_c_min,beta_c_max=beta_c_max,dbeta_c=dbeta_c,beta_h_min=beta_h_min,beta_h_max=beta_h_max,dbeta_h=dbeta_h,beta_0_min=beta_0_min,beta_0_max=beta_0_max,dbeta_0=dbeta_0,xcs_min=xcs_min,xcs_max=xcs_max,dxcs=dxcs,xhs_min=xhs_min,xhs_max=xhs_max,dxhs=dxhs,bs_min=bs_min,bs_max=bs_max,dbs=dbs)
 
     else:
         raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha, .cs_Ca, .cs_N,.pf}")

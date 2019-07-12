@@ -36,10 +36,13 @@ class Preparation(object):
     """
 
 #    def __init__(self,scheme=None,states=0.0,indices=None, exp_data=None, top=None, data_dir=None, Karplus=None):
-    def __init__(self,scheme=None,states=0,indices=None, exp_data=None, top=None, data_dir=None):
+    def __init__(self,scheme=None,states=0,indices=None, exp_data=None, top=None, data_dir=None, precomputed_pf=False):
 
         if scheme not in ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']:
             raise ValueError("scheme must be one of ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']")
+        elif scheme == 'pf' and not precomputed_pf:
+            if states==0.0 or indices == None or exp_data == None or top==None:
+                raise ValueError("make sure you have actual input for states, indices, exp_data, topology file or data directory ")
         else:
             if states==0.0 or indices == None or exp_data == None or top==None or data_dir==None:
                 raise ValueError("make sure you have actual input for states, indices, exp_data, topology file or data directory ")
@@ -61,8 +64,11 @@ class Preparation(object):
 
         self.topology = md.load(top).topology
         self.convert = lambda txt: int(txt) if txt.isdigit() else txt
-        self.data = sorted(glob.glob(data_dir),key=lambda x: [self.convert(s) for s in re.split("([0-9]+)",x)])
-        if int(len(self.data)) != int(states):
+        if scheme == 'pf' and not precomputed_pf:
+            self.data  = self.restraint_data
+        else:
+            self.data = sorted(glob.glob(data_dir),key=lambda x: [self.convert(s) for s in re.split("([0-9]+)",x)])
+            if int(len(self.data)) != int(states):
                 raise ValueError("number of states doesn't equal to file numbers")
 
     def write(self,out_dir=None):
@@ -91,6 +97,7 @@ class Preparation(object):
 
 
     def write_cs_input(self):
+        #print self.data
         for j in xrange(len(self.data)):
             model_data = np.loadtxt(self.data[j])
             r = prep_cs()
@@ -137,18 +144,32 @@ class Preparation(object):
             r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_pf_input(self):
-        for j in xrange(len(self.data)):
-            model_data = np.loadtxt(self.data[j])
-            r = prep_pf()
-            all_atom_indices = [atom.index for atom in self.topology.atoms]
-            all_atom_residues = [atom.residue for atom in self.topology.atoms]
-            all_atom_names = [atom.name for atom in self.topology.atoms]
-            for i in xrange(self.ind.shape[0]):
-                a1 = int(self.ind[i])
-                restraint_index = self.restraint_data[i,0]
-                protectionfactor        = self.restraint_data[i,1]
-                r.add_line(restraint_index, a1, self.topology, protectionfactor)
-            r.write('%s/%d.%s'%(self.out,j,self.scheme))
+        if precomputed_pf:
+            for j in xrange(len(self.data)):
+                model_data = np.loadtxt(self.data[j])
+                r = prep_pf()
+                all_atom_indices = [atom.index for atom in self.topology.atoms]
+                all_atom_residues = [atom.residue for atom in self.topology.atoms]
+                all_atom_names = [atom.name for atom in self.topology.atoms]
+                for i in xrange(self.ind.shape[0]):
+                    a1 = int(self.ind[i])
+                    restraint_index = self.restraint_data[i,0]
+                    exp_pf          = self.restraint_data[i,1]
+                    protectionfactor        = model_data[i]
+                    r.add_line(restraint_index, a1, self.topology, exp_pf, protectionfactor)
+                r.write('%s/%d.%s'%(self.out,j,self.scheme))
+        else:
+            for j in xrange(len(self.data)):
+                r = prep_pf()
+                all_atom_indices = [atom.index for atom in self.topology.atoms]
+                all_atom_residues = [atom.residue for atom in self.topology.atoms]
+                all_atom_names = [atom.name for atom in self.topology.atoms]
+                for i in xrange(self.ind.shape[0]):
+                    a1 = int(self.ind[i])
+                    restraint_index = self.restraint_data[i,0]
+                    exp_pf          = self.restraint_data[i,1]
+                    r.add_line(restraint_index, a1, self.topology, exp_pf)
+                r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
 
 #__all__ = [

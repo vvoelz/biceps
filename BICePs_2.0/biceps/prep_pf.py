@@ -36,13 +36,14 @@ import numpy as np
 # Code
 ##############################################################################
 
-def biceps_restraint_line_pf(restraint_index, i, topology, protection_factor):
+def biceps_restraint_line_pf_precomputed(restraint_index, i, topology,exp_pf, protection_factor):
     """Returns a formatted string for a line in protectionfactor restraint file.
 
     0             restraint_index
     1             atom index 1
     2             residue 1
-    3             protection factor
+    3             exp_data
+    4             protection factor
     """
 
     resname1  = [atom.residue for atom in topology.atoms if atom.index == i][0]
@@ -51,24 +52,51 @@ def biceps_restraint_line_pf(restraint_index, i, topology, protection_factor):
     #resname1, atomname1 = topology.atoms[i].residue, topology.atoms[i].name
     #resname2, atomname2 = topology.atoms[j].residue, topology.atoms[j].name
 
-    return '%-8d     %-8d %-8s     %8.4f'%(restraint_index, i, resname1, protection_factor)
+    return '%-8d     %-8d %-8s     %8.4f    %8.4f'%(restraint_index, i, resname1, exp_pf,protection_factor)
+
+
+def biceps_restraint_line_pf_precomputed_header():
+    """Returns a header string the the protectionfactor restraint file."""
+
+    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'exp_pf','protection_factor'], ' ')
+
+
+
+
+def biceps_restraint_line_pf(restraint_index, i, exp_pf, topology):
+    """Returns a formatted string for a line in protectionfactor restraint file.
+
+    0             restraint_index
+    1             atom index 1
+    2             residue 1
+    3             exp_pf
+    """
+
+    resname1  = [atom.residue for atom in topology.atoms if atom.index == i][0]
+    atomname1 = [atom.name for atom in topology.atoms if atom.index == i][0]
+
+    #resname1, atomname1 = topology.atoms[i].residue, topology.atoms[i].name
+    #resname2, atomname2 = topology.atoms[j].residue, topology.atoms[j].name
+
+    return '%-8d     %-8d %-8s    %8.4f'%(restraint_index, i, resname1, exp_pf)
 
 
 def biceps_restraint_line_pf_header():
     """Returns a header string the the protectionfactor restraint file."""
 
-    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'protection_factor'], ' ')
+    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1','exp_pf'], ' ')
 
 
 class prep_pf(object):
     """A class containing input/output methods for writing protectionfactor Restaint Files."""
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, precomputed_pf=False):
         """Initialize the RestraintFile_cs class."""
 
         self.header = biceps_restraint_line_pf_header()
         self.comments = []
         self.lines  = []
+        self.precomputed_pf = precomputed_pf
 
         if filename != None:
             self.read(filename)
@@ -109,10 +137,12 @@ class prep_pf(object):
         print 'Wrote', filename
 
 
-    def add_line(self, restraint_index, i,  topology, protection_factor):
+    def add_line(self, restraint_index, i,  topology, exp_pf, protection_factor=None):
         """Add a line to the protection_factor file."""
-
-        self.lines.append(biceps_restraint_line_pf(restraint_index, i,  topology, protection_factor))
+        if precomputed_pf:
+            self.lines.append(biceps_restraint_line_pf_precomputed(restraint_index, i,  topology, exp_pf,protection_factor))
+        else:
+            self.lines.append(biceps_restraint_line_pf(restraint_index, i,  topology, exp_pf))
 
     def parse_line(self, line):
         """Parse a protectionfactor data line and return the values
@@ -122,12 +152,24 @@ class prep_pf(object):
         """
 
         fields = line.strip().split()
-        if len(fields) != 4:
-            raise Exception, "Incorrect number of fields in parsed protectionfactor line!"
+        if self.precomputed_pf:    
+            if len(fields) != 5:
+                raise Exception, "Incorrect number of fields in parsed protectionfactor line!"
 
-        restraint_index = int(fields[0])
-        atom_index1     = int(fields[1])
-        res1            = fields[2]
-        protection_factor      = float(fields[3])
-        return restraint_index, atom_index1, res1, protection_factor
+            restraint_index = int(fields[0])
+            atom_index1     = int(fields[1])
+            res1            = fields[2]
+            exp_pf          = float(fields[3])
+            protection_factor      = float(fields[4])
+            return restraint_index, atom_index1, res1, exp_pf, protection_factor
+
+        else: #TODO: Check that self.precomputed_pf is supposed to be True or False
+            if len(fields) != 4:
+                raise Exception, "Incorrect number of fields in parsed protectionfactor line!"
+
+            restraint_index = int(fields[0])
+            atom_index1     = int(fields[1])
+            res1            = fields[2]
+            exp_pf          = float(fields[3])
+            return restraint_index, atom_index1, res1, exp_pf
 
