@@ -1,0 +1,11 @@
+#restraint_index atom_index1 res1 atom_name1 atom_index2 res2 atom_name2 atom_index3 res3 atom_name3 atom_index4 res4 atom_name4 exp_J_coupling(Hz) model_J_coupling(Hz)
+1            25       UNK1     H5           9        UNK1     C6           10       UNK1     C7           26       UNK1     H6             5.0000       4.9397
+2            30       UNK1     H10          14       UNK1     C11          15       UNK1     C12          32       UNK1     H12            1.5000       0.5984
+3            31       UNK1     H11          14       UNK1     C11          15       UNK1     C12          32       UNK1     H12            1.5000      13.5128
+4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          38       UNK1     H18            6.0000       1.7055
+4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          39       UNK1     H19            6.0000      13.8114
+4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          40       UNK1     H20            6.0000       3.4715
+5            32       UNK1     H12          15       UNK1     C12          16       UNK1     C13          33       UNK1     H13            1.5000       0.4026
+6            33       UNK1     H13          16       UNK1     C13          21       UNK1     C17          35       UNK1     H15            7.0000       3.1323
+6            33       UNK1     H13          16       UNK1     C13          21       UNK1     C17          36       UNK1     H16            7.0000      10.7447
+6            33       UNK1     H13          16       UNK1     C13          21       UNK1     C17          37       UNK1     H17            7.0000       1.0846
