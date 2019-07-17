@@ -531,17 +531,18 @@ class PosteriorSampler(object):
             self.traj.state_counts[int(self.new_state)] += 1
 
             # Store the counts of sampled sigma along the trajectory
-            for i in range(len(self.ensemble[int(self.new_state)])):
-                if hasattr(self.ensemble[int(self.new_state)][i], 'gamma'):
-                    self.traj.sampled_gamma[int((_parameter_indices)[i][1])] += 1
-                elif hasattr(self.ensemble[int(self.new_state)][i], 'beta_c'):
-                    self.traj.sampled_beta_c[int((_parameter_indices)[i][1])] += 1
-                    self.traj.sampled_beta_h[int((_parameter_indices)[i][2])] += 1
-                    self.traj.sampled_beta_0[int((_parameter_indices)[i][3])] += 1
-                    self.traj.sampled_xcs[int((_parameter_indices)[i][4])] += 1
-                    self.traj.sampled_xhs[int((_parameter_indices)[i][5])] += 1
-                    self.traj.sampled_bs[int((_parameter_indices)[i][6])] += 1
-                self.traj.sampled_sigmas[i][int((_parameter_indices)[i][0])] += 1
+            for i in range(len(np.concatenate(_parameter_indices))):
+                self.traj.sampled_parameters[i][np.concatenate(_parameter_indices)[i]] += 1
+#                if hasattr(self.ensemble[int(self.new_state)][i], 'gamma'):
+#                    self.traj.sampled_gamma[int((_parameter_indices)[i][1])] += 1
+#                elif hasattr(self.ensemble[int(self.new_state)][i], 'beta_c'):
+#                    self.traj.sampled_beta_c[int((_parameter_indices)[i][1])] += 1
+#                    self.traj.sampled_beta_h[int((_parameter_indices)[i][2])] += 1
+#                    self.traj.sampled_beta_0[int((_parameter_indices)[i][3])] += 1
+#                    self.traj.sampled_xcs[int((_parameter_indices)[i][4])] += 1
+#                    self.traj.sampled_xhs[int((_parameter_indices)[i][5])] += 1
+#                    self.traj.sampled_bs[int((_parameter_indices)[i][6])] += 1
+#                self.traj.sampled_sigmas[i][int((_parameter_indices)[i][0])] += 1
               
 
             # Store trajectory samples
@@ -579,50 +580,75 @@ class PosteriorSamplingTrajectory(object):
         self.state_counts = np.ones(self.nstates)  # add a pseudo-count to avoid log(0) errors
 
         # Lists for each restraint inside a list
-        self.sampled_sigmas = [ [] for i in range(len(ensemble[0])) ]
-        self.allowed_sigmas = [ [] for i in range(len(ensemble[0])) ]
+#        self.sampled_sigmas = [ [] for i in range(len(ensemble[0])) ]
+#        self.allowed_sigmas = [ [] for i in range(len(ensemble[0])) ]
+        self.sampled_parameters = []
+        self.allowed_parameters = []
         self.ref = [ []  for i in range(len(ensemble[0]))]  # parameters of reference potentials
         self.model = [ [] for i in range(len(ensemble[0]))]  # restraints model data
         self.sep_accept = []     # separate accepted ratio
 	self.grid = []   # for acceptance ratio plot
 
-        f_sim = []
-        rest_index = 0
-        for s in ensemble:
-            f_sim.append(s[0].free_energy)
-            for rest_index in range(len(s)):
-                allowed_sigma = s[rest_index].allowed_sigma
-                if rest_index < len(self.sampled_sigmas):
-                    self.sampled_sigmas[rest_index] = np.zeros(len(allowed_sigma))
-                    self.allowed_sigmas[rest_index] = allowed_sigma
+        #f_sim = []
+        #rest_index = 0
+        s = self.ensemble[0]
+
+        #f_sim.append(s[0].free_energy)
+        for rest_index in range(len(s)):
+            self.allowed_parameters.append(s[rest_index].allowed_sigma)
+            self.sampled_parameters.append(np.zeros(len(s[rest_index].allowed_sigma)))
+            if hasattr(s[rest_index], 'gamma'):
+                self.allowed_parameters.append(s[rest_index].allowed_gamma)
+                self.sampled_parameters.append(np.zeros(len(s[rest_index].allowed_gamma)))
+            elif hasattr(s[rest_index], 'beta_c'):
+                self.allowed_parameters.append(s[rest_index].allowed_beta_c)
+                self.sampled_parameters.append(np.zeros(len(s[rest_index].allowed_beta_c)))
+                self.allowed_parameters.append(s[rest_index].allowed_beta_h)
+                self.sampled_parameters.append(np.zeros(len(s[rest_index].allowed_beta_h)))
+                self.allowed_parameters.append(s[rest_index].allowed_beta_0)
+                self.sampled_parameters.append(np.zeros(len(s[rest_index].allowed_beta_0)))
+                self.allowed_parameters.append(s[rest_index].allowed_xcs)
+                self.sampled_parameters.append(np.zeros(len(s[rest_index].allowed_xcs)))
+                self.allowed_parameters.append(s[rest_index].allowed_xhs)
+                self.sampled_parameters.append(np.zeros(len(s[rest_index].allowed_xhs)))
+                self.allowed_parameters.append(s[rest_index].allowed_bs)
+                self.sampled_parameters.append(np.zeros(len(s[rest_index].allowed_bs)))
+                    
+                #allowed_sigma = s[rest_index].allowed_sigma
+                #if rest_index < len(self.sampled_sigmas):
+                #    self.sampled_sigmas[rest_index] = np.zeros(len(allowed_sigma))
+                #    self.allowed_sigmas[rest_index] = allowed_sigma
                     # If the restraint has a gamma parameter, then construct a container
-                    if hasattr(s[rest_index], 'gamma'):
-                        self.allowed_gamma = s[rest_index].allowed_gamma
-                        self.sampled_gamma = list(np.zeros(len(self.allowed_gamma)))
-                    elif hasattr(s[rest_index], 'beta_c'):
-                        self.allowed_beta_c = s[rest_index].allowed_beta_c
-                        self.sampled_beta_c = list(np.zeros(len(self.allowed_beta_c)))
-                        self.allowed_beta_h = s[rest_index].allowed_beta_h
-                        self.sampled_beta_h = list(np.zeros(len(self.allowed_beta_h)))
-                        self.allowed_beta_0 = s[rest_index].allowed_beta_0
-                        self.sampled_beta_0 = list(np.zeros(len(self.allowed_beta_0)))
-                        self.allowed_xcs = s[rest_index].allowed_xcs
-                        self.sampled_xcs = list(np.zeros(len(self.allowed_xcs)))
-                        self.allowed_xhs = s[rest_index].allowed_xhs
-                        self.sampled_xhs = list(np.zeros(len(self.allowed_xhs)))
-                        self.allowed_bs = s[rest_index].allowed_bs
-                        self.sampled_bs = list(np.zeros(len(self.allowed_bs)))
+               #     if hasattr(s[rest_index], 'gamma'):
+               #         self.allowed_gamma = s[rest_index].allowed_gamma
+               #         self.sampled_gamma = list(np.zeros(len(self.allowed_gamma)))
+               #     elif hasattr(s[rest_index], 'beta_c'):
+               #         self.allowed_beta_c = s[rest_index].allowed_beta_c
+               #         self.sampled_beta_c = list(np.zeros(len(self.allowed_beta_c)))
+               #         self.allowed_beta_h = s[rest_index].allowed_beta_h
+               #         self.sampled_beta_h = list(np.zeros(len(self.allowed_beta_h)))
+               #         self.allowed_beta_0 = s[rest_index].allowed_beta_0
+               #         self.sampled_beta_0 = list(np.zeros(len(self.allowed_beta_0)))
+               #         self.allowed_xcs = s[rest_index].allowed_xcs
+               #         self.sampled_xcs = list(np.zeros(len(self.allowed_xcs)))
+               #         self.allowed_xhs = s[rest_index].allowed_xhs
+               #         self.sampled_xhs = list(np.zeros(len(self.allowed_xhs)))
+               #         self.allowed_bs = s[rest_index].allowed_bs
+               #         self.sampled_bs = list(np.zeros(len(self.allowed_bs)))
 
-                rest_index += 1
+               # rest_index += 1
 
-        self.f_sim = np.array(f_sim)
-        self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
+        #self.f_sim = np.array(f_sim)
+        #self.sim_pops = np.exp(-self.f_sim)/np.exp(-self.f_sim).sum()
 
         # Generate a list of the names of the parameter indices for the traj header
         parameter_indices = []
-        s = self.ensemble[0]
         for rest_index in range(len(s)):
             parameter_indices.append( getattr(s[rest_index], '_parameter_indices') )
+        self.rest_type = []
+        for rest_index in range(len(s)):
+            for rest_type in getattr(s[rest_index], '_rest_type'):
+                self.rest_type.append(rest_type)
 
         self.trajectory_headers = ["step", "E", "accept", "state",
                 "para_index = %s"%parameter_indices]
@@ -636,8 +662,10 @@ class PosteriorSamplingTrajectory(object):
         ensemble-average NMR observables."""
 
         # Store the name of the restraints in a list corresponding to the correct order
-        self.results['rest_type'] = [ str(i).split(' ')[0].split('.')[-1] for i in self.ensemble[0] ]
-
+        #self.results['rest_type'] = [ str(i).split(' ')[0].split('.')[-1] for i in self.ensemble[0] ]
+        self.results['rest_type'] = self.rest_type
+        #s = self.ensemble[0]
+ 
         # Store the trajectory in results
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
@@ -646,16 +674,18 @@ class PosteriorSamplingTrajectory(object):
         self.results['accepted'] = self.sep_accept
         self.results['grid'] = self.grid
         # Store the nuisance parameter distributions
-        self.results['allowed_sigma'] = self.allowed_sigmas
-        self.results['sampled_sigma'] = self.sampled_sigmas
+        self.results['allowed_parameters'] = self.allowed_parameters
+        self.results['sampled_parameters'] = self.sampled_parameters
+       # self.results['allowed_sigma'] = self.allowed_sigmas
+       # self.results['sampled_sigma'] = self.sampled_sigmas
 
-        self.results['allowed_gamma'] = None
-        self.results['allowed_beta_c'] = None
-        self.results['allowed_beta_h'] = None
-        self.results['allowed_beta_0'] = None
-        self.results['allowed_xcs'] = None
-        self.results['allowed_xhs'] = None
-        self.results['allowed_bs'] = None
+       # self.results['allowed_gamma'] = None
+       # self.results['allowed_beta_c'] = None
+       # self.results['allowed_beta_h'] = None
+       # self.results['allowed_beta_0'] = None
+       # self.results['allowed_xcs'] = None
+       # self.results['allowed_xhs'] = None
+       # self.results['allowed_bs'] = None
 
         for rest_index in range(len(self.ensemble[0])):
             n_observables  = self.ensemble[0][rest_index].nObs
@@ -667,55 +697,55 @@ class PosteriorSamplingTrajectory(object):
 
         self.results['model'] = self.model
 
-        for s in self.ensemble:
-            for rest_index in range(len(s)):
-                if hasattr(s[rest_index], 'gamma'):
-                    self.results['sampled_gamma'] = self.sampled_gamma
-                    self.results['allowed_gamma'] = self.allowed_gamma
-                elif hasattr(s[rest_index], 'beta_c'):
-                    self.results['sampled_beta_c'] = self.sampled_beta_c
-                    self.results['allowed_beta_c'] = self.allowed_beta_c
-                    self.results['sampled_beta_h'] = self.sampled_beta_h
-                    self.results['allowed_beta_h'] = self.allowed_beta_h
-                    self.results['sampled_beta_0'] = self.sampled_beta_0
-                    self.results['allowed_beta_0'] = self.allowed_beta_0
-                    self.results['sampled_xcs'] = self.sampled_xcs
-                    self.results['allowed_xcs'] = self.allowed_xcs
-                    self.results['sampled_xhs'] = self.sampled_xhs
-                    self.results['allowed_xhs'] = self.allowed_xhs
-                    self.results['sampled_bs'] = self.sampled_bs
-                    self.results['allowed_bs'] = self.allowed_bs
+       # for s in self.ensemble:
+       #     for rest_index in range(len(s)):
+       #         if hasattr(s[rest_index], 'gamma'):
+       #             self.results['sampled_gamma'] = self.sampled_gamma
+       #             self.results['allowed_gamma'] = self.allowed_gamma
+       #         elif hasattr(s[rest_index], 'beta_c'):
+       #             self.results['sampled_beta_c'] = self.sampled_beta_c
+       #             self.results['allowed_beta_c'] = self.allowed_beta_c
+       #             self.results['sampled_beta_h'] = self.sampled_beta_h
+       #             self.results['allowed_beta_h'] = self.allowed_beta_h
+       #             self.results['sampled_beta_0'] = self.sampled_beta_0
+       #             self.results['allowed_beta_0'] = self.allowed_beta_0
+       #             self.results['sampled_xcs'] = self.sampled_xcs
+       #             self.results['allowed_xcs'] = self.allowed_xcs
+       #             self.results['sampled_xhs'] = self.sampled_xhs
+       #             self.results['allowed_xhs'] = self.allowed_xhs
+       #             self.results['sampled_bs'] = self.sampled_bs
+       #             self.results['allowed_bs'] = self.allowed_bs
 
         self.results['ref_potential'] = self.ref
 
 
         # Calculate the modes of the nuisance parameter marginal distributions
-        self.results['sigma_mode'] = [ float(self.allowed_sigmas[i][ np.argmax(
-            self.sampled_sigmas[i]) ]) for i in range(len(self.sampled_sigmas)) ]
+       # self.results['sigma_mode'] = [ float(self.allowed_sigmas[i][ np.argmax(
+       #     self.sampled_sigmas[i]) ]) for i in range(len(self.sampled_sigmas)) ]
 
-        if self.results['allowed_gamma'] is not None:
-            self.results['gamma_mode'] = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
+       # if self.results['allowed_gamma'] is not None:
+       #     self.results['gamma_mode'] = float(self.allowed_gamma[ np.argmax(self.sampled_gamma) ])
 
         # copy over the purely computational free energies f_i
-        self.results['comp_f'] = self.f_sim.tolist()
+       # self.results['comp_f'] = self.f_sim.tolist()
 
         # Estimate the populations of each state
-        self.results['state_pops'] = (self.state_counts/self.state_counts.sum()).tolist()
+        #self.results['state_pops'] = (self.state_counts/self.state_counts.sum()).tolist()
 
         # Estimate uncertainty in the populations by bootstrap
-        self.nbootstraps = 1000
-        self.bootstrapped_state_pops = np.random.multinomial(self.state_counts.sum(),
-                self.results['state_pops'], size=self.nbootstraps)
-        self.results['state_pops_std'] = self.bootstrapped_state_pops.std(axis=0).tolist()
+       # self.nbootstraps = 1000
+       # self.bootstrapped_state_pops = np.random.multinomial(self.state_counts.sum(),
+       #         self.results['state_pops'], size=self.nbootstraps)
+       # self.results['state_pops_std'] = self.bootstrapped_state_pops.std(axis=0).tolist()
 
         # Estimate the free energies of each state
-        self.results['state_f'] = (-np.log(self.results['state_pops'])).tolist()
-        state_f = -np.log(self.results['state_pops'])
-        ref_f = state_f.min()
-        state_f -=  ref_f
-        self.results['state_f'] = state_f.tolist()
-        self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudo-count to avoid log(0)s in the bootstrap
-        self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
+       # self.results['state_f'] = (-np.log(self.results['state_pops'])).tolist()
+       # state_f = -np.log(self.results['state_pops'])
+       # ref_f = state_f.min()
+       # state_f -=  ref_f
+       # self.results['state_f'] = state_f.tolist()
+       # self.bootstrapped_state_f = -np.log(self.bootstrapped_state_pops+1e-10) - ref_f  # add pseudo-count to avoid log(0)s in the bootstrap
+       # self.results['state_f_std'] = self.bootstrapped_state_f.std(axis=0).tolist()
 
         # Estimate the ensemble-averaged restraint values
 #        mean = [ np.zeros(len(self.ensemble[0][rest_index].restraints))

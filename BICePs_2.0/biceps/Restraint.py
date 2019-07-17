@@ -209,7 +209,7 @@ class Restraint_cs_Ca(Restraint):
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
-
+        self._rest_type = ['sigma_cs_Ca']
 
         # Reading the data from loading in filenames
         read = prep_cs(filename=filename)
@@ -253,6 +253,7 @@ class Restraint_cs_H(Restraint):
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
+        self._rest_type = ['sigma_cs_H']
 
 
         # Reading the data from loading in filenames
@@ -296,6 +297,7 @@ class Restraint_cs_Ha(Restraint):
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
+        self._rest_type = ['sigma_cs_Ha']
 
 
         # Reading the data from loading in filenames
@@ -338,6 +340,7 @@ class Restraint_cs_N(Restraint):
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
+        self._rest_type = ['sigma_cs_N']
 
 
         # Reading the data from loading in filenames
@@ -409,6 +412,7 @@ class Restraint_J(Restraint):
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
+        self._rest_type = ['sigma_J']
 
 
         # Reading the data from loading in filenames
@@ -502,6 +506,7 @@ class Restraint_noe(Restraint):
         self._nuisance_parameters = ['allowed_sigma','allowed_gamma']
         self._parameters = ['sigma','gamma']
         self._parameter_indices = ['sigma_index','gamma_index']
+        self._rest_type = ['sigma_noe','gamma']
 
 
 
@@ -574,63 +579,68 @@ class Restraint_pf(Restraint):
         self.free_energy = lam*free_energy
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
+        if precomputed_pf:
+            self._nuisance_parameters = ['allowed_sigma']
+            self._parameters = ['sigma']
+            self._parameter_indices = ['sigma_index']
+            self._rest_type = ['sigma_PF']
+        else:
+            self.Ncs = Ncs
+            self.Nhs = Nhs
+            self.dbeta_c = dbeta_c
+            self.beta_c_min = beta_c_min
+            self.beta_c_max = beta_c_max
+            self.allowed_beta_c = np.arange(self.beta_c_min, self.beta_c_max, self.dbeta_c)
 
-        self.Ncs = Ncs
-        self.Nhs = Nhs
-        self.dbeta_c = dbeta_c
-        self.beta_c_min = beta_c_min
-        self.beta_c_max = beta_c_max
-        self.allowed_beta_c = np.arange(self.beta_c_min, self.beta_c_max, self.dbeta_c)
+            self.dbeta_h = dbeta_h
+            self.beta_h_min = beta_h_min
+            self.beta_h_max = beta_h_max
+            self.allowed_beta_h = np.arange(self.beta_h_min, self.beta_h_max, self.dbeta_h)
 
-        self.dbeta_h = dbeta_h
-        self.beta_h_min = beta_h_min
-        self.beta_h_max = beta_h_max
-        self.allowed_beta_h = np.arange(self.beta_h_min, self.beta_h_max, self.dbeta_h)
+            self.dbeta_0 = dbeta_0
+            self.beta_0_min = beta_0_min
+            self.beta_0_max = beta_0_max
+            self.allowed_beta_0 = np.arange(self.beta_0_min, self.beta_0_max, self.dbeta_0)
 
-        self.dbeta_0 = dbeta_0
-        self.beta_0_min = beta_0_min
-        self.beta_0_max = beta_0_max
-        self.allowed_beta_0 = np.arange(self.beta_0_min, self.beta_0_max, self.dbeta_0)
+            self.dxcs = dxcs
+            self.xcs_min = xcs_min
+            self.xcs_max = xcs_max
+            self.allowed_xcs = np.arange(self.xcs_min, self.xcs_max, self.dxcs)
 
-        self.dxcs = dxcs
-        self.xcs_min = xcs_min
-        self.xcs_max = xcs_max
-        self.allowed_xcs = np.arange(self.xcs_min, self.xcs_max, self.dxcs)
+            self.dxhs = dxhs
+            self.xhs_min = xhs_min
+            self.xhs_max = xhs_max
+            self.allowed_xhs = np.arange(self.xhs_min, self.xhs_max, self.dxhs)
 
-        self.dxhs = dxhs
-        self.xhs_min = xhs_min
-        self.xhs_max = xhs_max
-        self.allowed_xhs = np.arange(self.xhs_min, self.xhs_max, self.dxhs)
+            self.dbs = dbs
+            self.bs_min = bs_min
+            self.bs_max = bs_max
+            self.allowed_bs = np.arange(self.bs_min, self.bs_max, self.dbs)
+            #print "self.allowed_beta_c", len(self.allowed_beta_c), "self.allowed_beta_h", len(self.allowed_beta_h), "self.allowed_beta_0", len(self.allowed_beta_0), "self.allowed_xcs", len(self.allowed_xcs), "self.allowed_xhs", len(self.allowed_xhs), "self.allowed_bs", len(self.allowed_bs)
+            #sys.exit()
+            self.beta_c_index = len(self.allowed_beta_c)/2
+            self.beta_c = self.allowed_beta_c[self.beta_c_index]
 
-        self.dbs = dbs
-        self.bs_min = bs_min
-        self.bs_max = bs_max
-        self.allowed_bs = np.arange(self.bs_min, self.bs_max, self.dbs)
-        #print "self.allowed_beta_c", len(self.allowed_beta_c), "self.allowed_beta_h", len(self.allowed_beta_h), "self.allowed_beta_0", len(self.allowed_beta_0), "self.allowed_xcs", len(self.allowed_xcs), "self.allowed_xhs", len(self.allowed_xhs), "self.allowed_bs", len(self.allowed_bs)
-        #sys.exit()
-        self.beta_c_index = len(self.allowed_beta_c)/2
-        self.beta_c = self.allowed_beta_c[self.beta_c_index]
+            self.beta_h_index = len(self.allowed_beta_h)/2
+            self.beta_h = self.allowed_beta_h[self.beta_h_index]
 
-        self.beta_h_index = len(self.allowed_beta_h)/2
-        self.beta_h = self.allowed_beta_h[self.beta_h_index]
+            self.beta_0_index = len(self.allowed_beta_0)/2
+            self.beta_0 = self.allowed_beta_0[self.beta_0_index]
 
-        self.beta_0_index = len(self.allowed_beta_0)/2
-        self.beta_0 = self.allowed_beta_0[self.beta_0_index]
+            self.xcs_index = len(self.allowed_xcs)/2
+            self.xcs = self.allowed_xcs[self.xcs_index]
 
-        self.xcs_index = len(self.allowed_xcs)/2
-        self.xcs = self.allowed_xcs[self.xcs_index]
+            self.xhs_index = len(self.allowed_xhs)/2
+            self.xhs = self.allowed_xhs[self.xhs_index]
 
-        self.xhs_index = len(self.allowed_xhs)/2
-        self.xhs = self.allowed_xhs[self.xhs_index]
+            self.bs_index = len(self.allowed_bs)/2
+            self.bs = self.allowed_bs[self.bs_index]
 
-        self.bs_index = len(self.allowed_bs)/2
-        self.bs = self.allowed_bs[self.bs_index]
-
-        self._nuisance_parameters = ['allowed_sigma','allowed_beta_c', 'allowed_beta_h',
-                'allowed_beta_0', 'allowed_xcs', 'allowed_xhs','allowed_bs']
-        self._parameters = ['sigma','beta_c','beta_h','beta_0','xcs','xhs','bs']
-        self._parameter_indices = ['sigma_index','beta_c_index','beta_h_index','beta_0_index','xcs_index','xhs_index','bs_index']
-
+            self._nuisance_parameters = ['allowed_sigma','allowed_beta_c', 'allowed_beta_h',
+                    'allowed_beta_0', 'allowed_xcs', 'allowed_xhs','allowed_bs']
+            self._parameters = ['sigma','beta_c','beta_h','beta_0','xcs','xhs','bs']
+            self._parameter_indices = ['sigma_index','beta_c_index','beta_h_index','beta_0_index','xcs_index','xhs_index','bs_index']
+            self._rest_type = ['sigma_PF','beta_c','beta_h','beta_0','xcs','xhs','bs']
         # Reading the data from loading in filenames
         read = prep_pf(filename=filename)
         self.load_data(read)
