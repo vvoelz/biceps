@@ -124,9 +124,9 @@ for j in lambda_values:
     print '...Done.'
 
     print 'Writing results...',
-    sampler.traj.write_results(os.path.join(outdir,'traj_lambda%2.2f.npz'%lam))
+    sampler.traj.write_results(os.path.join(outdir,'RR_traj_lambda%2.2f.npz'%lam))
     print '...Done.'
-    sampler.traj.read_results(os.path.join(outdir,'traj_lambda%2.2f.npz'%lam))
+    sampler.traj.read_results(os.path.join(outdir,'RR_traj_lambda%2.2f.npz'%lam))
 
     print 'Pickling the sampler object ...',
     outfilename = 'sampler_lambda%2.2f.pkl'%lam

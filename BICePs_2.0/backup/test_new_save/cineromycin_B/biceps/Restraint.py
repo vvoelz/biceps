@@ -376,7 +376,7 @@ class Restraint_cs_N(Restraint):
 
 #        if verbose:
 #            print 'self.equivalency_groups', self.equivalency_groups
-    
+
         # adjust the weights of distances and dihedrals to account for equivalencies
 #        self.adjust_weights()
 #        self.compute_sse(debug=False)
@@ -773,7 +773,7 @@ class Restraint_pf(Restraint):
             self.neglog_exp_ref[j] = np.maximum(-1.0*self.restraints[j].model, 0.0)
 #           print "sum", sum(self.neglog_reference_priors_PF[j])
             self.sum_neglog_exp_ref  += self.restraints[j].weight * self.neglog_exp_ref[j]
-        
+
 
     def compute_neglog_gaussian_ref_pf(self):
         self.neglog_gaussian_ref = np.zeros((self.n, len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0),
@@ -783,7 +783,7 @@ class Restraint_pf(Restraint):
         for j in range(self.n): # number of residues
             self.neglog_gaussian_ref[j] = 0.5 * np.log(2.0*np.pi) + np.log(self.ref_sigma[j]) \
                       + (self.restraints[j].model - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
-            self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]            
+            self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
 
 
 

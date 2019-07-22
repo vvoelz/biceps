@@ -32,14 +32,14 @@ energies = loadtxt(energies_filename)*627.509  # convert from hartrees to kcal/m
 energies = energies/0.5959   # convert to reduced free energies F = f/kT
 energies -= energies.min()  # set ground state to zero, just in case
 outdir = 'results_ref_normal'
-nsteps = 10000000
+nsteps = 1000000
 
 # Make a new directory if we have to
 if not os.path.exists(outdir):
     os.mkdir(outdir)
 
 uncern=[[0.05,20.0,1.02],[0.05,5.0,1.02]]
-gamma = [0.2,5.0,1.01] 
+gamma = [0.2,5.0,1.01]
 
 ref=['uniform','exp']
 
@@ -80,12 +80,12 @@ for j in lambda_values:
 
     print 'Processing trajectory...',
 
-    sampler.traj.process()  # compute averages, etc.
+    #NOTE: process function is now combined with write results
+    sampler.traj.process()
+
+    sampler.traj.write_results(os.path.join(outdir,'traj_lambda%2.2f.npz'%lam))  # compute averages, etc.
     print '...Done.'
 
-    print 'Writing results...',
-    sampler.traj.write_results(os.path.join(outdir,'traj_lambda%2.2f.npz'%lam))
-    print '...Done.'
     sampler.traj.read_results(os.path.join(outdir,'traj_lambda%2.2f.npz'%lam))
 
     print 'Pickling the sampler object ...',
@@ -103,7 +103,7 @@ for j in lambda_values:
 # Let's do analysis using MBAR and plot figures
 ############ MBAR and Figures ###########
 # Specify necessary argument values
-
+exit(1)
 A = Analysis(100,outdir)
 A.plot()
 
