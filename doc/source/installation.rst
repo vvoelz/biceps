@@ -5,11 +5,11 @@ Installation
 
 We recommend that you install ``BICePs`` with ``conda``. ::
 
-  $ conda install -c conda-forge BICePs
+  $ conda install -c conda-forge biceps
 
 You can install also ``BICePs`` with ``pip``, if you prefer. ::
 
-  $ pip install BICePs
+  $ pip install biceps
 
 
 Conda is a cross-platform package manager built especially for scientific
@@ -27,11 +27,11 @@ Windows.
 Dependencies of BICePs
 ----------------------
 
- - Pymbar 	-->  3.0 or later
- - MDTraj 	-->  1.9 or later
- - Yaml   	-->  0.1.7 or later
- - Matplotlib 	-->  2.1.2 or later
- - Numpy 	-->  1.14.0 or later
+ - pymbar 	-->  3.0 or later
+ - mdtraj 	-->  1.5.0 or later
+ - PyYaml
+ - matplotlib 	-->  2.1.2 or later
+ - numpy 	-->  1.14.0 or later
 
 Testing Your Installation
 -------------------------
