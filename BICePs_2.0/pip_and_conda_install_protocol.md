@@ -38,6 +38,40 @@ twine upload dist/*
 
 
 
+# Protocol for setting up `conda install`
+
+Please see:
+#### Tutorial for [Uploading Conda Packages](https://docs.anaconda.com/anaconda-cloud/user-guide/tasks/work-with-packages/#uploading-conda-packages)
+
+
+##### Prerequisites:
+
+```bash
+conda install anaconda-client conda-build
+
+```
+
+--------------------------------------
+
+1. Register an account on [https://anaconda.org/](https://anaconda.org/).
+
+2. Create a `meta.yaml` - main commands/controls for the project
+to be built.
+
+3. Run `conda build` in the directory of `meta.yml`
+
+```
+conda build .
+```
+
+4. Lastly, login to your anaconda account and upload the package
+
+```
+anaconda login
+anaconda upload /path/to/conda-package.tar.bz2
+```
+
+
 
 
 
