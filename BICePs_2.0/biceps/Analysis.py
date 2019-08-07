@@ -109,7 +109,8 @@ class Analysis(object):
 	for filename in exp_files:
 		if debug:
    			print 'Loading %s ...'%filename
-    		self.traj.append( np.load( file(filename, 'r') )['arr_0'].item() )
+#    		self.traj.append( np.load( file(filename, 'r') )['arr_0'].item() )
+                self.traj.append( np.load( file(filename, 'r'),allow_pickle=True))
 
 	# Load in cpickled sampler objects
 	sampler_files = glob.glob( os.path.join(self.resultdir,'sampler_lambda*.pkl') )
