@@ -543,7 +543,6 @@ class PosteriorSampler(object):
 #                    self.traj.sampled_xhs[int((_parameter_indices)[i][5])] += 1
 #                    self.traj.sampled_bs[int((_parameter_indices)[i][6])] += 1
 #                self.traj.sampled_sigmas[i][int((_parameter_indices)[i][0])] += 1
-            self.traj.traces.append(np.concatenate(_parameters))
 
             # Store trajectory samples
             temp=[[] for i in range(len(_parameter_indices))]
@@ -557,7 +556,7 @@ class PosteriorSampler(object):
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step), float(self.E),
                     int(accept), int(self.new_state), list(temp)])
-
+                self.traj.traces.append(np.concatenate(_parameters))
 
         print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
         print('\nAccepted %s %% \n'%(sep_accepted/self.total*100.))
