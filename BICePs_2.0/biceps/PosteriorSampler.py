@@ -543,7 +543,7 @@ class PosteriorSampler(object):
 #                    self.traj.sampled_xhs[int((_parameter_indices)[i][5])] += 1
 #                    self.traj.sampled_bs[int((_parameter_indices)[i][6])] += 1
 #                self.traj.sampled_sigmas[i][int((_parameter_indices)[i][0])] += 1
-
+            self.traj.traces.append(np.concatenate(_parameters))
 
             # Store trajectory samples
             temp=[[] for i in range(len(_parameter_indices))]
@@ -613,7 +613,7 @@ class PosteriorSamplingTrajectory(object):
                 "para_index = %s"%parameter_indices]
 
         self.trajectory = []
-
+        self.traces = []
         self.results = {}
 
     def process_results(self, outfilename='traj.npz'):
@@ -622,7 +622,7 @@ class PosteriorSamplingTrajectory(object):
 
         # Store the name of the restraints in a list corresponding to the correct order
         saving = ['rest_type', 'trajectory_headers', 'trajectory', 'sep_accept',
-                'grid', 'allowed_parameters', 'sampled_parameters', 'model', 'ref']
+                'grid', 'allowed_parameters', 'sampled_parameters', 'model', 'ref', 'traces']
 
         for rest_index in range(len(self.ensemble[0])):
             n_observables  = self.ensemble[0][rest_index].nObs
