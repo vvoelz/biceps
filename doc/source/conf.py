@@ -49,6 +49,7 @@ autosummary_generate = True
 autoapi_modules = {
         'biceps': {
             'override': False,
+            'output': 'auto'
     }
 }
 
