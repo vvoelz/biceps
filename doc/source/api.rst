@@ -186,6 +186,39 @@ Analysis
        ~Analysis.MBAR_analysis
        ~Analysis.save_MBAR
 
+Convergence
+------------
+.. currentmodule:: biceps
+
+.. autoclass:: Convergence
+
+   .. rubric:: Methods
+
+   .. autosummary::
+
+       ~Convergence.__init__
+       ~Convergence.get_sampled_parameters
+       ~Convergence.get_labels
+       ~Convergence.plot_traces
+       ~Convergence.plot_auto_curve
+       ~Convergence.cal_auto
+       ~Convergence.g
+       ~Convergence.single_exp_decay
+       ~Convergence.double_exp_decay
+       ~Convergence.exponential_fit
+       ~Convergence.process
+       ~Convergence.plot_block_avg
+       ~Convergence.compute_JSD
+       ~Convergence.plot_JSD_conv
+
+
+
+
+
+
+
+
+
 
 toolbox
 -------
