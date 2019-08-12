@@ -35,7 +35,7 @@ sys.path.append('biceps/')
 
 setup(
         name="biceps",
-        version="2.0b3",
+        version="2.0b4",
         description='BICePs',
         long_description=long_description,
         long_description_content_type="text/markdown",

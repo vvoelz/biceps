@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-"""BICePs - Bayesian Inference of Conformational Populations, Version 2.0"""
+__version__= 2.0
+HEADER="""BICePs - Bayesian Inference of Conformational Populations, Version %s"""%(__version__)
+print(HEADER)
 name = "biceps"
 
 #from Analysis import *
@@ -19,5 +21,5 @@ from toolbox import *
 #from Sampler import *
 #from setup import *    # is this needed?
 from Analysis import *
-
+from convergence import *  # Should this be a submodule or just another class
 
