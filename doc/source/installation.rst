@@ -3,13 +3,15 @@
 Installation
 ============
 
-We recommend that you install ``BICePs`` with ``conda``. ::
+We recommend that you install ``BICePs`` with ``pip``. ::
+
+  $ pip install biceps
+
+
+Coming soon:
 
   $ conda install -c conda-forge biceps
 
-You can install also ``BICePs`` with ``pip``, if you prefer. ::
-
-  $ pip install biceps
 
 
 Conda is a cross-platform package manager built especially for scientific
