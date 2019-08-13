@@ -15,6 +15,10 @@ Tutorials
 
 .. _Toolbox: Tools/toolbox.ipynb
 
+• `Convergence`_
+
+.. _Convergence: Convergence/convergence.ipynb
+
 
 
 

@@ -49,6 +49,7 @@ autosummary_generate = True
 autoapi_modules = {
         'biceps': {
             'override': False,
+            'output': 'auto'
     }
 }
 
@@ -123,7 +124,8 @@ language = 'en'
 exclude_patterns = [
     '_build',
     '_templates',
-    '**.ipynb_checkpoints'
+    '**.ipynb_checkpoints',
+    'biceps.egg-info'
 ]
 
 #def setup(app):

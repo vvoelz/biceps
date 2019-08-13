@@ -7,7 +7,7 @@ try: # for pip >= 10
     from pip._internal.req import parse_requirements
 except ImportError: # for pip <= 9.0.3
     from pip.req import parse_requirements
-import sys
+import sys,os
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
 # We need two seperate requirement files due to the failure to install all at once.
@@ -22,17 +22,20 @@ import sys
 #reqs2 = [str(ir.req) for ir in install_reqs2]
 #req_links2 = [str(ir.url) for ir in install_reqs2]
 
+#if str(path.dirname(__file__))
 here = path.abspath(path.dirname(__file__))
+#here = path.abspath(path.dirname(os.getcwd()))
 
 # Get the long description from the README file
 with open(path.join(here, '../README.md'), encoding='utf-8') as f:
+#with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 sys.path.append('biceps/')
 
 setup(
         name="biceps",
-        version="2.0b3",
+        version="2.0b4",
         description='BICePs',
         long_description=long_description,
         long_description_content_type="text/markdown",

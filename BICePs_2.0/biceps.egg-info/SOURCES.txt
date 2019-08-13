@@ -9,6 +9,7 @@ biceps/PosteriorSampler.py
 biceps/Preparation.py
 biceps/Restraint.py
 biceps/__init__.py
+biceps/convergence.py
 biceps/init_res.py
 biceps/prep_J.py
 biceps/prep_cs.py
