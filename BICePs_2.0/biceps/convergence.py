@@ -157,7 +157,8 @@ class Convergence(object):
     def single_exp_decay(self, x, a0, a1, tau1):
         """Function of a single exponential decay fitting.
 
-        :math: r`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1}))`
+        :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1}))`
+
         :param np.array x:
         :param float a0:
         :param float a1:
@@ -169,7 +170,8 @@ class Convergence(object):
     def double_exp_decay(self, x, a0, a1, a2, tau1, tau2):
         """Function of a double exponential decay fitting.
 
-        :math: r`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1})) + a_{2}*exp(-(x/\tau_{2}))`
+        :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1})) + a_{2}*exp(-(x/\tau_{2}))`
+
         :param np.array x:
         :param float a0:
         :param float a1:

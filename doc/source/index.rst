@@ -19,7 +19,6 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    installation
    theory
    workflow
-   tutorials/index
    examples/index
    api
 

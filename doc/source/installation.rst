@@ -8,7 +8,7 @@ We recommend that you install ``BICePs`` with ``pip``. ::
   $ pip install biceps
 
 
-Coming soon:
+Coming soon: ::
 
   $ conda install -c conda-forge biceps
 
