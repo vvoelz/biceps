@@ -110,9 +110,6 @@ exclude_patterns = [
     'biceps.egg-info'
 ]
 
-#def setup(app):
-#    app.add_stylesheet('theme.css')
-
 
 # This is processed by Jinja2 and inserted before each notebook
 nbsphinx_prolog = r"""
@@ -193,9 +190,9 @@ html_theme_options = {
 html_logo = ''
 
 html_static_path = ['_static']
-html_css_files = [
-        'theme.css'
-]
+#html_css_files = [
+#        'theme.css'
+#]
 
 intersphinx_mapping = {'https://docs.python.org/': None}
 
