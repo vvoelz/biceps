@@ -1,17 +1,38 @@
 BICePs - Bayesian Inference of Conformational Populations
 ===========================================================
 
-The BICePs algorithm (Bayesian Inference of Conformational Populations) is a statistically rigorous Bayesian inference method to reconcile theoretical predictions of conformational state populations with sparse and/or noisy experimental measurements and objectively compare different models.
-Supported experimental observables include:
- - `NMR nuclear Overhauser effect (NOE) <https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect>`_.
- - `NMR chemical shifts <https://en.wikipedia.org/wiki/Chemical_shift>`_ (``HA``, ``NH``, ``CA`` and ``N``).
- - `J couplings <https://en.wikipedia.org/wiki/J-coupling>`_ (both small molecules and amino acids)
- - `Hydrogen–deuterium exchange (HDX) <https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange>`_.
+.. raw:: html
 
-All source codes and examples are available here: `GitHub Repository for BICePs <https://github.com/vvoelz/biceps/>`_
+    <hr style="height:2.5px">
 
----------------------------------------------
+.. raw:: html
 
+    <h3 style="align: justify;font-size: 12pt">The BICePs algorithm (Bayesian
+    Inference of Conformational Populations) is a statistically rigorous
+    Bayesian inference method to reconcile theoretical predictions of
+    conformational state populations with sparse and/or noisy experimental
+    measurements and objectively compare different models.
+    Supported experimental observables include:
+    <br>
+    <br>
+    <ul>
+        <li style="list-style-type: none;font-size: 12pt;">
+            <a href="https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect">NMR nuclear Overhauser effect (NOE)</a>
+        </li>
+        <li style="list-style-type: none;font-size: 12pt;">
+            <a href="https://en.wikipedia.org/wiki/Chemical_shift">NMR chemical shifts</a> (``HA``, ``NH``, ``CA`` and ``N``)
+        </li>
+        <li style="list-style-type: none;font-size: 12pt;">
+            <a href="https://en.wikipedia.org/wiki/J-coupling">J couplings</a> (both small molecules and amino acids)
+        </li>
+        <li style="list-style-type: none;font-size: 12pt;">
+            <a href="https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange">Hydrogen–deuterium exchange (HDX)</a>
+        </li>
+    </ul>
+    <br>
+    All raw source code and examples/data are available <a href="https://github.com/vvoelz/biceps/">here</a>.</h3>
+    <hr style="height:2.5px">
+    <h3 style="align: justify;font-size: 10pt">
 .. toctree::
    :maxdepth: 4
    :glob:
@@ -19,9 +40,9 @@ All source codes and examples are available here: `GitHub Repository for BICePs 
    installation
    theory
    workflow
-   tutorials/index
    examples/index
    api
+   </h3>
 
 
 Citation |DOI for Citing BICePs|
