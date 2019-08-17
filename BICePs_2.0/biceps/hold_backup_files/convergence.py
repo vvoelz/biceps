@@ -6,16 +6,19 @@ matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 from matplotlib.offsetbox import AnchoredText
-import c_convergence as c_conv
-import time
 
-# NOTE: This is the cython version...
+
+# NOTE: Cehck for C++ optimization -- is this possbile for any functions?
 
 class Convergence(object):
     """Convergence submodule for BICePs. """
 
     def __init__(self, trajfile=None, maxtau=10000, nblock=5,
             nfold=10, nround=1000):
+        """
+
+        :param int default=10000 max_tau: maximum autocorrelation time to consider (max_tau can't be larger than timeseries!)
+        """
 
         if trajfile is None:
             raise ValueError("Trajectory file is necessary")
@@ -43,8 +46,19 @@ class Convergence(object):
         :return list: A list of all nuisance paramters sampled
         """
 
+#        parameters = [[] for i in range(len(self.rest_type))]
+#        for i in range(len(self.traj['trajectory'])):
+#            print(i)
+#            ind = np.concatenate(self.traj['trajectory'][i][4])
+#            for j in range(len(ind)):
+#                parameters[j].append(self.allowed_parameters[j][ind[j]])
         parameters = []
+        print("len(self.traj['traces'][:]) = %s"%len(self.traj['traces'][:]))
+        print("self.traj['traces'][:] = %s"%self.traj['traces'][:])
+        print("len(self.traj['traces'][:,0]) = %s"%len(self.traj['traces'][:,0]))
+        print("self.traj['traces'][:,0] = %s"%self.traj['traces'][:,0])
         for i in range(len(self.rest_type)):
+
             parameters.append(self.traj['traces'][:,i])
         return parameters
 
@@ -111,7 +125,7 @@ class Convergence(object):
 
 
 ###############################################################################
-# This part was rewritten in C++ ...
+# Could this part when rewritten in C++ be any faster than python???
 ###############################################################################
 
     def cal_auto(self):
@@ -120,26 +134,47 @@ class Convergence(object):
         print('Calculating autocorrelation ...')
         max_tau=10000
         autocorrs = []
+
+        print("len(self.sampled_parameters) = %s"%len(self.sampled_parameters))
+        print("self.sampled_parameters = %s"%self.sampled_parameters)
+
         for timeseries in self.sampled_parameters:
+            print("len(timeseries) = %s"%len(timeseries))
+            exit(1)
+            print("timeseries = %s"%timeseries)
+            print("self.g(np.array(timeser... = %s"%self.g(np.array(timeseries), max_tau=self.maxtau))
+            exit(1)
             autocorrs.append( self.g(np.array(timeseries), max_tau=self.maxtau) )
 
         print('Done!')
         return autocorrs
 
-    def g(self, f, max_tau = 10000, normalize=True):
+    def g(self, f, normalize=True):
         """Calculate the autocorrelaton function for a time-series f(t).
 
         :param np.array f:  a 1D numpy array containing the time series f(t)
-        :param int max_tau: the maximum autocorrelation time to consider.
         :param bool normalize: if True, return g(tau)/g[0]
         :return np.array: a numpy array of size (max_tau+1,) containing g(tau)
         """
 
+        if len(f) < self.maxtau:
+            raise ValueError("Your timeseries dataset is shorter than the default tau values we suggest.")
+            exit(1)
+
+        print("len(f) = %s"%len(f))
+        print("f = %s"%f)
+        #exit(1)
+        print("\n\n")
         f_zeroed = f-f.mean()
         T = f_zeroed.shape[0]
-        result = np.zeros(max_tau+1)
-        for tau in range(max_tau+1):
+        result = np.zeros(self.maxtau+1)
+        for tau in range(self.maxtau+1):
             result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
+            print(result[tau])
+            if (-1-tau) == 0:
+                print(result[tau])
+                exit(1)
+        exit(1)
 
         if normalize:
             return result/result[0]
@@ -159,6 +194,14 @@ class Convergence(object):
         :param float a1:
         :param float tau1:
         :return np.array: """
+        print("single_exp_day ...")
+        print("len(x) = %s"%len(x))
+        print(x)
+        print("a0 = %s"%a0)
+        print("a1 = %s"%a1)
+        print("tau = %s"%tau1)
+        exit(1)
+
 
         return a0 + a1*np.exp(-(x/tau1))
 
@@ -209,7 +252,7 @@ class Convergence(object):
 # except this.
 ###############################################################################
     def process(self, nblock=5, nfold=10, nrounds=100, savefile=True,
-            plot=True, verbose=False, block=False, normalize=True):
+            plot=True, verbose=False, block=False):
         #NOTE: nrounds should be more general look at self.nrounds...in the __init__ function
         """Process the trajectory by computing the autocorrelation, fitting with
         an exponential, plotting the traces, etc...
@@ -222,28 +265,8 @@ class Convergence(object):
         :param bool default=False block: block averaging
         :param bool verbose: verbosity
         """
-        #TODO: This is the location where the function is called on...
-        #autocorr = self.cal_auto()
-        #print("len(autocorr) = %s"%len(autocorr))
-        #print("autocorr = %s"%autocorr)
-        #exit(1)
-        sampled_parameters = self.sampled_parameters
-        maxtau = self.maxtau
-        localtime = time.asctime( time.localtime(time.time()) )
-        print(localtime)
-        autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
-                int(maxtau), bool(normalize)))
-        localtime = time.asctime( time.localtime(time.time()) )
-        print(localtime)
 
-        #print(autocorr.shape)
-        #print([ len(autocorr[i]) for i in range(len(autocorr))])
-        #print(autocorr[0])
-        #print(autocorr[1])
-        #print(autocorr[2])
-        exit(1)
-
-        #exit(1)
+        autocorr = self.cal_auto()
         popts = []
         for i in range(len(autocorr)):
             yFit,popt = self.exponential_fit(autocorr[i])
@@ -297,7 +320,6 @@ class Convergence(object):
             np.save("all_JSD.npy", all_JSD)
             np.save("all_JSDs.npy", all_JSDs)
         print('Done!')
-        exit(1)
         self.plot_JSD_conv(np.array(all_JSD), np.array(all_JSDs))
 
 
@@ -403,20 +425,14 @@ class Convergence(object):
 
 
 
+
 # MAIN
 
 if __name__ == "__main__":
 
-    trajs = ["traj_lambda0.00_100k_steps_every_1_steps.npz",
-            "traj_lambda0.00_1M_steps_every_1_steps.npz",
-            "traj_lambda1.00_10M_steps_every_100.npz"]
-    t = 1
-    print("\n\n\n %s \n"%trajs[t])
 
-    traj = "trajectories/%s"%trajs[t]
-    C = Convergence(traj, nround=10)
+    C = Convergence('traj_lambda1.00.npz', nround=10)
     C.process()
-
 
 
 

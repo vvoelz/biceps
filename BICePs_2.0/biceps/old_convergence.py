@@ -6,7 +6,6 @@ matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 from matplotlib.offsetbox import AnchoredText
-import c_convergence as c_conv
 import time
 
 # NOTE: This is the cython version...
@@ -209,7 +208,7 @@ class Convergence(object):
 # except this.
 ###############################################################################
     def process(self, nblock=5, nfold=10, nrounds=100, savefile=True,
-            plot=True, verbose=False, block=False, normalize=True):
+            plot=True, verbose=False, block=False):
         #NOTE: nrounds should be more general look at self.nrounds...in the __init__ function
         """Process the trajectory by computing the autocorrelation, fitting with
         an exponential, plotting the traces, etc...
@@ -223,27 +222,19 @@ class Convergence(object):
         :param bool verbose: verbosity
         """
         #TODO: This is the location where the function is called on...
-        #autocorr = self.cal_auto()
+        localtime = time.asctime( time.localtime(time.time()) )
+        print(localtime)
+        autocorr = self.cal_auto()
+        localtime = time.asctime( time.localtime(time.time()) )
+        print(localtime)
         #print("len(autocorr) = %s"%len(autocorr))
-        #print("autocorr = %s"%autocorr)
-        #exit(1)
-        sampled_parameters = self.sampled_parameters
-        maxtau = self.maxtau
-        localtime = time.asctime( time.localtime(time.time()) )
-        print(localtime)
-        autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
-                int(maxtau), bool(normalize)))
-        localtime = time.asctime( time.localtime(time.time()) )
-        print(localtime)
-
-        #print(autocorr.shape)
+        #print("autocorr[0] = %s"%autocorr[0])
+        #print("len(autocorr[0]) = %s"%len(autocorr[0]))
         #print([ len(autocorr[i]) for i in range(len(autocorr))])
         #print(autocorr[0])
         #print(autocorr[1])
         #print(autocorr[2])
         exit(1)
-
-        #exit(1)
         popts = []
         for i in range(len(autocorr)):
             yFit,popt = self.exponential_fit(autocorr[i])
@@ -416,7 +407,6 @@ if __name__ == "__main__":
     traj = "trajectories/%s"%trajs[t]
     C = Convergence(traj, nround=10)
     C.process()
-
 
 
 
