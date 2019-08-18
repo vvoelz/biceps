@@ -1,8 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <string>
-#include <fstream>
-#include <sstream>
 using namespace std;
 
 vector< vector<float>> c_autocorrelation(vector< vector<float>> sampled_parameters,

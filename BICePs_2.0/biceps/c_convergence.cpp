@@ -1175,7 +1175,7 @@ static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self,
  * def autocorrelation(vector[vector[float]] sampled_parameters,
  *         int maxtau=10000, bool normalize=True):             # <<<<<<<<<<<<<<
  * 
- * #    cdef vector[vector[float]] result = c_autocorrelation(
+ *     return c_autocorrelation(sampled_parameters, maxtau, normalize)
  */
       __pyx_v_normalize = ((bool)1);
     }
@@ -1209,15 +1209,15 @@ static PyObject *__pyx_pf_13c_convergence_autocorrelation(CYTHON_UNUSED PyObject
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("autocorrelation", 0);
 
-  /* "c_convergence.pyx":18
- * #            sampled_parameters, maxtau, normalize)
- * #    return result
+  /* "c_convergence.pyx":15
+ *         int maxtau=10000, bool normalize=True):
+ * 
  *     return c_autocorrelation(sampled_parameters, maxtau, normalize)             # <<<<<<<<<<<<<<
  * 
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(c_autocorrelation(__pyx_v_sampled_parameters, __pyx_v_maxtau, __pyx_v_normalize)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(c_autocorrelation(__pyx_v_sampled_parameters, __pyx_v_maxtau, __pyx_v_normalize)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;

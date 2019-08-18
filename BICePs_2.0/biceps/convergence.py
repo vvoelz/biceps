@@ -235,12 +235,6 @@ class Convergence(object):
                 int(maxtau), bool(normalize)))
         localtime = time.asctime( time.localtime(time.time()) )
         print(localtime)
-
-        #print(autocorr.shape)
-        #print([ len(autocorr[i]) for i in range(len(autocorr))])
-        #print(autocorr[0])
-        #print(autocorr[1])
-        #print(autocorr[2])
         exit(1)
 
         #exit(1)
@@ -401,21 +395,6 @@ class Convergence(object):
             plt.savefig('JSD_conv_%s.pdf'%self.rest_type[k])
         print('Done')
 
-
-
-# MAIN
-
-if __name__ == "__main__":
-
-    trajs = ["traj_lambda0.00_100k_steps_every_1_steps.npz",
-            "traj_lambda0.00_1M_steps_every_1_steps.npz",
-            "traj_lambda1.00_10M_steps_every_100.npz"]
-    t = 1
-    print("\n\n\n %s \n"%trajs[t])
-
-    traj = "trajectories/%s"%trajs[t]
-    C = Convergence(traj, nround=10)
-    C.process()
 
 
 

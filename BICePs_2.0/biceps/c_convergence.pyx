@@ -12,9 +12,6 @@ cdef extern from "convergence.h":
 def autocorrelation(vector[vector[float]] sampled_parameters,
         int maxtau=10000, bool normalize=True):
 
-#    cdef vector[vector[float]] result = c_autocorrelation(
-#            sampled_parameters, maxtau, normalize)
-#    return result
     return c_autocorrelation(sampled_parameters, maxtau, normalize)
 
 
