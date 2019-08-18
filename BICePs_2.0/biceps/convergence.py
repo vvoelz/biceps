@@ -7,9 +7,7 @@ from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 from matplotlib.offsetbox import AnchoredText
 import c_convergence as c_conv
-import time
 
-# NOTE: This is the cython version...
 
 class Convergence(object):
     """Convergence submodule for BICePs. """
@@ -109,46 +107,6 @@ class Convergence(object):
         plt.savefig(fname)
         print('Done!')
 
-
-###############################################################################
-# This part was rewritten in C++ ...
-###############################################################################
-
-    def cal_auto(self):
-        """Calculates the autocorrelation"""
-
-        print('Calculating autocorrelation ...')
-        max_tau=10000
-        autocorrs = []
-        for timeseries in self.sampled_parameters:
-            autocorrs.append( self.g(np.array(timeseries), max_tau=self.maxtau) )
-
-        print('Done!')
-        return autocorrs
-
-    def g(self, f, max_tau = 10000, normalize=True):
-        """Calculate the autocorrelaton function for a time-series f(t).
-
-        :param np.array f:  a 1D numpy array containing the time series f(t)
-        :param int max_tau: the maximum autocorrelation time to consider.
-        :param bool normalize: if True, return g(tau)/g[0]
-        :return np.array: a numpy array of size (max_tau+1,) containing g(tau)
-        """
-
-        f_zeroed = f-f.mean()
-        T = f_zeroed.shape[0]
-        result = np.zeros(max_tau+1)
-        for tau in range(max_tau+1):
-            result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
-
-        if normalize:
-            return result/result[0]
-        else:
-            return result
-
-
-###############################################################################
-
     def single_exp_decay(self, x, a0, a1, tau1):
         """Function of a single exponential decay fitting.
 
@@ -222,22 +180,11 @@ class Convergence(object):
         :param bool default=False block: block averaging
         :param bool verbose: verbosity
         """
-        #TODO: This is the location where the function is called on...
-        #autocorr = self.cal_auto()
-        #print("len(autocorr) = %s"%len(autocorr))
-        #print("autocorr = %s"%autocorr)
-        #exit(1)
+
         sampled_parameters = self.sampled_parameters
         maxtau = self.maxtau
-        localtime = time.asctime( time.localtime(time.time()) )
-        print(localtime)
         autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
                 int(maxtau), bool(normalize)))
-        localtime = time.asctime( time.localtime(time.time()) )
-        print(localtime)
-        exit(1)
-
-        #exit(1)
         popts = []
         for i in range(len(autocorr)):
             yFit,popt = self.exponential_fit(autocorr[i])
@@ -291,7 +238,6 @@ class Convergence(object):
             np.save("all_JSD.npy", all_JSD)
             np.save("all_JSDs.npy", all_JSDs)
         print('Done!')
-        exit(1)
         self.plot_JSD_conv(np.array(all_JSD), np.array(all_JSDs))
 
 
