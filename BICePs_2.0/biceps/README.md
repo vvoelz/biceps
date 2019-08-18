@@ -1,28 +1,3 @@
-# NOTE TO SELF: The source code from branch `origin/convergence_C++` is not ready to be merged to master branch... See below.
-
-Please remove the following lines from the end of convergence.py to merge.
-
-```python
-
-# MAIN
-
-if __name__ == "__main__":
-
-    trajs = ["traj_lambda0.00_100k_steps_every_1_steps.npz",
-            "traj_lambda0.00_1M_steps_every_1_steps.npz",
-            "traj_lambda1.00_10M_steps_every_100.npz"]
-    t = 1
-    print("\n\n\n %s \n"%trajs[t])
-
-    traj = "trajectories/%s"%trajs[t]
-    C = Convergence(traj, nround=10)
-    C.process()
-
-```
-
----------------------------------
-
-
 # Results of Cython-Wrapped C++ Convergence Methods
 
 -------------------------------------------------------
