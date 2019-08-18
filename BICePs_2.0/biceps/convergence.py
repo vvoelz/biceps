@@ -6,9 +6,8 @@ matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 from matplotlib.offsetbox import AnchoredText
+import c_convergence as c_conv
 
-
-# NOTE: Cehck for C++ optimization -- is this possbile for any functions?
 
 class Convergence(object):
     """Convergence submodule for BICePs. """
@@ -42,12 +41,6 @@ class Convergence(object):
         :return list: A list of all nuisance paramters sampled
         """
 
-#        parameters = [[] for i in range(len(self.rest_type))]
-#        for i in range(len(self.traj['trajectory'])):
-#            print(i)
-#            ind = np.concatenate(self.traj['trajectory'][i][4])
-#            for j in range(len(ind)):
-#                parameters[j].append(self.allowed_parameters[j][ind[j]])
         parameters = []
         for i in range(len(self.rest_type)):
             parameters.append(self.traj['traces'][:,i])
@@ -114,46 +107,6 @@ class Convergence(object):
         plt.savefig(fname)
         print('Done!')
 
-
-###############################################################################
-# Could this part when rewritten in C++ be any faster than python???
-###############################################################################
-
-    def cal_auto(self):
-        """Calculates the autocorrelation"""
-
-        print('Calculating autocorrelation ...')
-        max_tau=10000
-        autocorrs = []
-        for timeseries in self.sampled_parameters:
-            autocorrs.append( self.g(np.array(timeseries), max_tau=self.maxtau) )
-
-        print('Done!')
-        return autocorrs
-
-    def g(self, f, max_tau = 10000, normalize=True):
-        """Calculate the autocorrelaton function for a time-series f(t).
-
-        :param np.array f:  a 1D numpy array containing the time series f(t)
-        :param int max_tau: the maximum autocorrelation time to consider.
-        :param bool normalize: if True, return g(tau)/g[0]
-        :return np.array: a numpy array of size (max_tau+1,) containing g(tau)
-        """
-
-        f_zeroed = f-f.mean()
-        T = f_zeroed.shape[0]
-        result = np.zeros(max_tau+1)
-        for tau in range(max_tau+1):
-            result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
-
-        if normalize:
-            return result/result[0]
-        else:
-            return result
-
-
-###############################################################################
-
     def single_exp_decay(self, x, a0, a1, tau1):
         """Function of a single exponential decay fitting.
 
@@ -214,7 +167,7 @@ class Convergence(object):
 # except this.
 ###############################################################################
     def process(self, nblock=5, nfold=10, nrounds=100, savefile=True,
-            plot=True, verbose=False, block=False):
+            plot=True, verbose=False, block=False, normalize=True):
         #NOTE: nrounds should be more general look at self.nrounds...in the __init__ function
         """Process the trajectory by computing the autocorrelation, fitting with
         an exponential, plotting the traces, etc...
@@ -228,7 +181,10 @@ class Convergence(object):
         :param bool verbose: verbosity
         """
 
-        autocorr = self.cal_auto()
+        sampled_parameters = self.sampled_parameters
+        maxtau = self.maxtau
+        autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
+                int(maxtau), bool(normalize)))
         popts = []
         for i in range(len(autocorr)):
             yFit,popt = self.exponential_fit(autocorr[i])
@@ -384,7 +340,6 @@ class Convergence(object):
             plt.tight_layout()
             plt.savefig('JSD_conv_%s.pdf'%self.rest_type[k])
         print('Done')
-
 
 
 
