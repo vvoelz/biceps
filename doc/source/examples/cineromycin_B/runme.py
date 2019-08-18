@@ -35,7 +35,7 @@ energies_filename =  'cineromycinB_QMenergies.dat'
 energies = np.loadtxt(energies_filename)*627.509  # convert from hartrees to kcal/mol
 energies = energies/0.5959   # convert to reduced free energies F = f/kT
 energies -= energies.min()  # set ground state to zero, just in case
-outdir = 'RR_results_ref_normal'
+outdir = 'results_ref_normal'
 
 # Make a new directory if we have to
 if not os.path.exists(outdir):
