@@ -7,9 +7,9 @@ cdef extern from "convergence.h":
             vector[vector[float]] sampled_parameters,
             int maxtau, bool normalize)
 
-#@cython.boundscheck(False)
-#@cython.wraparound(False)
-#@cython.embedsignature(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.embedsignature(True)
 def autocorrelation(vector[vector[float]] sampled_parameters,
         int maxtau=10000, bool normalize=True):
     """Calculate the autocorrelaton function for a time-series f(t).
