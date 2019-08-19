@@ -40,7 +40,7 @@ template<class T=float, class U=int>
 vector<T> slice_vector(vector<T> vec, U start, U stop, U step=1){
     /* This function will partition a vector. This is a very close equivalent to
      * the python example:
-     * >> vec[start:stop]
+     * vec[start:stop]
      */
 
    if (step == float(0) || int(0)) {
