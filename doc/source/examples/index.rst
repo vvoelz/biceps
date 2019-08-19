@@ -20,16 +20,16 @@ Tutorials & Examples
     <h3 style="align: justify;font-size: 12pt">
     <ul>
         <li style="list-style-type: none;font-size: 12pt;">
-            <a href="Preparation/preparation.html">Preparation</a>
+            <a href="Tutorials/Prep_Rest_Post_Ana/preparation.html">Preparation</a>
         </li>
         <li style="list-style-type: none;font-size: 12pt;">
-            <a href="Restraint/restraint.html">Restraint</a>
+            <a href="Tutorials/Prep_Rest_Post_Ana/restraint.html">Restraint</a>
         </li>
         <li style="list-style-type: none;font-size: 12pt;">
-            <a href="PosteriorSampler/posteriorSampler.html">PosterSampler</a>
+            <a href="Tutorials/Prep_Rest_Post_Ana/posteriorSampler.html">PosterSampler</a>
         </li>
         <li style="list-style-type: none;font-size: 12pt;">
-            <a href="Analysis/analysis.html">Analysis</a>
+            <a href="Tutorials/Prep_Rest_Post_Ana/analysis.html">Analysis</a>
         </li>
         <li style="list-style-type: none;font-size: 12pt;">
             <a href="Convergence/convergence.html">Convergence</a>

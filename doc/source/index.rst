@@ -20,7 +20,7 @@ BICePs - Bayesian Inference of Conformational Populations
             <a href="https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect">NMR nuclear Overhauser effect (NOE)</a>
         </li>
         <li style="list-style-type: none;font-size: 12pt;">
-            <a href="https://en.wikipedia.org/wiki/Chemical_shift">NMR chemical shifts</a> (``HA``, ``NH``, ``CA`` and ``N``)
+            <a href="https://en.wikipedia.org/wiki/Chemical_shift">NMR chemical shifts</a> (HA, NH, CA and N)
         </li>
         <li style="list-style-type: none;font-size: 12pt;">
             <a href="https://en.wikipedia.org/wiki/J-coupling">J couplings</a> (both small molecules and amino acids)
