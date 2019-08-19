@@ -32,10 +32,10 @@ Tutorials & Examples
             <a href="Tutorials/Prep_Rest_Post_Ana/analysis.html">Analysis</a>
         </li>
         <li style="list-style-type: none;font-size: 12pt;">
-            <a href="Convergence/convergence.html">Convergence</a>
+            <a href="Tutorials/Convergence/convergence.html">Convergence</a>
         </li>
         <li style="list-style-type: none;font-size: 12pt;">
-            <a href="Tools/toolbox.html">Toolbox</a>
+            <a href="Tutorials/Tools/toolbox.html">Toolbox</a>
         </li>
     </ul>
     </h3>
