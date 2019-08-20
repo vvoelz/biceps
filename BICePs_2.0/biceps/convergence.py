@@ -295,7 +295,7 @@ class Convergence(object):
             all_JSD[i] = JSD
         return all_JSD
 
-    def plot_JSD_conv(self, JSD, JSDs):
+    def plot_JSD_conv(self, JSD, JSDs, p_limit=0.99):
         """Plot Jensen–Shannon divergence (JSD) distribution for convergence check.
 
         :var all_JSD: JSDs for different amount of total dataset
@@ -322,6 +322,10 @@ class Convergence(object):
                 # Horizontal Line
                 plt.plot([0.0, JSDs_sorted[ind]],
                         [p[ind]/norm, p[ind]/norm], 'k')
+                # Red horizontal line
+                plt.plot([0.0, np.max(JSDs_sorted)],
+                        [p_limit, p_limit], '--r')
+
                 # Vertical Line
                 plt.plot([JSDs_sorted[ind], JSDs_sorted[ind]],
                         [0.0, p[ind]/norm], 'k')
