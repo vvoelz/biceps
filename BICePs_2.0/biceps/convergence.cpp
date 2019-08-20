@@ -40,14 +40,13 @@ template<class T=float, class U=int>
 vector<T> slice_vector(vector<T> vec, U start, U stop, U step=1){
     /* This function will partition a vector. This is a very close equivalent to
      * the python example:
-     * >> vec[start:stop]
+     * vec[start:stop]
      */
 
    if (step == float(0) || int(0)) {
       throw invalid_argument("step for range must be non-zero");
     }
 
-    int size = vec.size();
     vector<T> v;
     // You can't slice nothing...
     if (start == stop) {
@@ -89,7 +88,6 @@ vector< vector<float>> c_autocorrelation(vector< vector<float>> sampled_paramete
             f_zeroed.push_back(f[i]-f_mean);
         }
 
-        int T = f_zeroed.size();
         vector<float> _result;
         float norm;
         for (int tau=0; tau<(maxtau+1); tau++) {

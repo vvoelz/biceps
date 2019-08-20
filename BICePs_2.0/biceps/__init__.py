@@ -22,4 +22,4 @@ from toolbox import *
 #from setup import *    # is this needed?
 from Analysis import *
 from convergence import *  # Should this be a submodule or just another class
-
+from c_convergence import *

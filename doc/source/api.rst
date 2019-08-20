@@ -172,7 +172,10 @@ Analysis
 
 Convergence
 ------------
+
 .. currentmodule:: biceps
+
+.. autofunction:: autocorrelation
 
 .. autoclass:: Convergence
 
@@ -184,8 +187,6 @@ Convergence
        ~Convergence.get_labels
        ~Convergence.plot_traces
        ~Convergence.plot_auto_curve
-       ~Convergence.cal_auto
-       ~Convergence.g
        ~Convergence.single_exp_decay
        ~Convergence.double_exp_decay
        ~Convergence.exponential_fit
@@ -193,13 +194,6 @@ Convergence
        ~Convergence.plot_block_avg
        ~Convergence.compute_JSD
        ~Convergence.plot_JSD_conv
-
-
-
-
-
-
-
 
 
 

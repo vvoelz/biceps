@@ -1094,17 +1094,18 @@ static PyObject *__pyx_tuple_;
 static PyObject *__pyx_codeobj__2;
 /* Late includes */
 
-/* "c_convergence.pyx":12
- * @cython.boundscheck(False)
+/* "c_convergence.pyx":13
  * @cython.wraparound(False)
+ * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
  *         int maxtau=10000, bool normalize=True):
- * 
+ *     """Calculate the autocorrelaton function for a time-series f(t).
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_13c_convergence_1autocorrelation = {"autocorrelation", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_13c_convergence_1autocorrelation, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_13c_convergence_autocorrelation[] = "autocorrelation(vector[vector[float]] sampled_parameters, int maxtau=10000, bool normalize=True)\nCalculate the autocorrelaton function for a time-series f(t).\n\n    :param np.array sampled_parameters: a 2D numpy array containing the time series f(t) for each nuisance parameterurn c_autocorrelation(sampled_parameters, maxtau, normalize)\n    :param int max_tau: the maximum autocorrelation time to consider.\n    :param bool normalize: if True, return g(tau)/g[0]\n    :return np.array: array of size (len(sampled_parameters), max_tau+1) containing g(tau) for each nuisance parameter\n    ";
+static PyMethodDef __pyx_mdef_13c_convergence_1autocorrelation = {"autocorrelation", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_13c_convergence_1autocorrelation, METH_VARARGS|METH_KEYWORDS, __pyx_doc_13c_convergence_autocorrelation};
 static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   std::vector<std::vector<float> >  __pyx_v_sampled_parameters;
   int __pyx_v_maxtau;
@@ -1147,7 +1148,7 @@ static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self,
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "autocorrelation") < 0)) __PYX_ERR(0, 12, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "autocorrelation") < 0)) __PYX_ERR(0, 13, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -1160,29 +1161,29 @@ static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self,
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_sampled_parameters = __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 12, __pyx_L3_error)
+    __pyx_v_sampled_parameters = __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 13, __pyx_L3_error)
     if (values[1]) {
-      __pyx_v_maxtau = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_maxtau == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 13, __pyx_L3_error)
+      __pyx_v_maxtau = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_maxtau == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
     } else {
       __pyx_v_maxtau = ((int)0x2710);
     }
     if (values[2]) {
-      __pyx_v_normalize = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_normalize == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 13, __pyx_L3_error)
+      __pyx_v_normalize = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_normalize == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
     } else {
 
-      /* "c_convergence.pyx":13
- * @cython.wraparound(False)
+      /* "c_convergence.pyx":14
+ * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,
  *         int maxtau=10000, bool normalize=True):             # <<<<<<<<<<<<<<
+ *     """Calculate the autocorrelaton function for a time-series f(t).
  * 
- *     return c_autocorrelation(sampled_parameters, maxtau, normalize)
  */
       __pyx_v_normalize = ((bool)1);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("autocorrelation", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 12, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("autocorrelation", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 13, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("c_convergence.autocorrelation", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1190,12 +1191,12 @@ static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self,
   __pyx_L4_argument_unpacking_done:;
   __pyx_r = __pyx_pf_13c_convergence_autocorrelation(__pyx_self, __pyx_v_sampled_parameters, __pyx_v_maxtau, __pyx_v_normalize);
 
-  /* "c_convergence.pyx":12
- * @cython.boundscheck(False)
+  /* "c_convergence.pyx":13
  * @cython.wraparound(False)
+ * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
  *         int maxtau=10000, bool normalize=True):
- * 
+ *     """Calculate the autocorrelaton function for a time-series f(t).
  */
 
   /* function exit code */
@@ -1209,26 +1210,26 @@ static PyObject *__pyx_pf_13c_convergence_autocorrelation(CYTHON_UNUSED PyObject
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("autocorrelation", 0);
 
-  /* "c_convergence.pyx":15
- *         int maxtau=10000, bool normalize=True):
+  /* "c_convergence.pyx":23
+ *     """
  * 
  *     return c_autocorrelation(sampled_parameters, maxtau, normalize)             # <<<<<<<<<<<<<<
  * 
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(c_autocorrelation(__pyx_v_sampled_parameters, __pyx_v_maxtau, __pyx_v_normalize)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(c_autocorrelation(__pyx_v_sampled_parameters, __pyx_v_maxtau, __pyx_v_normalize)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "c_convergence.pyx":12
- * @cython.boundscheck(False)
+  /* "c_convergence.pyx":13
  * @cython.wraparound(False)
+ * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
  *         int maxtau=10000, bool normalize=True):
- * 
+ *     """Calculate the autocorrelaton function for a time-series f(t).
  */
 
   /* function exit code */
@@ -1658,17 +1659,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "c_convergence.pyx":12
- * @cython.boundscheck(False)
+  /* "c_convergence.pyx":13
  * @cython.wraparound(False)
+ * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
  *         int maxtau=10000, bool normalize=True):
- * 
+ *     """Calculate the autocorrelaton function for a time-series f(t).
  */
-  __pyx_tuple_ = PyTuple_Pack(3, __pyx_n_s_sampled_parameters, __pyx_n_s_maxtau, __pyx_n_s_normalize); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(3, __pyx_n_s_sampled_parameters, __pyx_n_s_maxtau, __pyx_n_s_normalize); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_c_convergence_pyx, __pyx_n_s_autocorrelation, 12, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_c_convergence_pyx, __pyx_n_s_autocorrelation, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -1944,16 +1945,16 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "c_convergence.pyx":12
- * @cython.boundscheck(False)
+  /* "c_convergence.pyx":13
  * @cython.wraparound(False)
+ * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
  *         int maxtau=10000, bool normalize=True):
- * 
+ *     """Calculate the autocorrelaton function for a time-series f(t).
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_13c_convergence_1autocorrelation, NULL, __pyx_n_s_c_convergence); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_13c_convergence_1autocorrelation, NULL, __pyx_n_s_c_convergence); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_autocorrelation, __pyx_t_1) < 0) __PYX_ERR(0, 12, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_autocorrelation, __pyx_t_1) < 0) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "c_convergence.pyx":1
