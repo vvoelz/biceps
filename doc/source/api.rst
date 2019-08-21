@@ -14,7 +14,6 @@ Preparation
 
    .. autosummary::
 
-       ~Preparation.__init__
        ~Preparation.write
 
 Observables
@@ -35,7 +34,6 @@ Observables
 
    .. autosummary::
 
-       ~NMR_Chemicalshift.__init__
 
 .. autoclass:: NMR_Dihedral
 
@@ -43,9 +41,6 @@ Observables
 
    .. autosummary::
 
-       ~NMR_Dihedral.__init__
-       ~NMR_Distance.__init__
-       ~NMR_Protectionfactor.__init__
 
 
 
@@ -60,7 +55,6 @@ Restraint
 
    .. autosummary::
 
-       ~Restraint.__init__
        ~Restraint.load_data
        ~Restraint.add_restraint
        ~Restraint.compute_see
@@ -73,7 +67,6 @@ Restraint
 
    .. autosummary::
 
-       ~Restraint_cs_Ca.__init__
        ~Restraint_cs_Ca.prep_observable
 
 .. autoclass:: Restraint_cs_H
@@ -82,7 +75,6 @@ Restraint
 
    .. autosummary::
 
-       ~Restraint_cs_H.__init__
        ~Restraint_cs_H.prep_observable
 
 .. autoclass:: Restraint_cs_Ha
@@ -91,7 +83,6 @@ Restraint
 
    .. autosummary::
 
-       ~Restraint_cs_Ha.__init__
        ~Restraint_cs_Ha.prep_observable
 
 .. autoclass:: Restraint_cs_N
@@ -101,7 +92,6 @@ Restraint
 
    .. autosummary::
 
-       ~Restraint_cs_N.__init__
        ~Restraint_cs_N.prep_observable
 
 .. autoclass:: Restraint_cs_J
@@ -111,7 +101,6 @@ Restraint
 
    .. autosummary::
 
-       ~Restraint_cs_J.__init__
        ~Restraint_cs_J.prep_observable
        ~Restraint_J.adjust_weights
 
@@ -122,7 +111,6 @@ Restraint
 
    .. autosummary::
 
-       ~Restraint_cs_noe.__init__
        ~Restraint_cs_noe.prep_observable
        ~Restraint_noe.adjust_weights
 
@@ -133,7 +121,6 @@ Restraint
 
    .. autosummary::
 
-       ~Restraint_cs_pf.__init__
        ~Restraint_cs_pf.prep_observable
 
 
@@ -148,7 +135,6 @@ PosteriorSampler
 
    .. autosummary::
 
-       ~PosteriorSampler.__init__
        ~PosteriorSampler.compute_logZ
        ~PosteriorSampler.build_exp_ref
        ~PosteriorSampler.build_gaussian_ref
@@ -166,7 +152,6 @@ PosteriorSampler
 
    .. autosummary::
 
-       ~PosteriorSamplingTrajectory.__init__
        ~PosteriorSamplingTrajectory.process
 
 Analysis
@@ -179,12 +164,37 @@ Analysis
 
    .. autosummary::
 
-       ~Analysis.__init__
        ~Analysis.list_scheme
        ~Analysis.plot
        ~Analysis.load_data
        ~Analysis.MBAR_analysis
        ~Analysis.save_MBAR
+
+Convergence
+------------
+
+.. currentmodule:: biceps
+
+.. autofunction:: autocorrelation
+
+.. autoclass:: Convergence
+
+   .. rubric:: Methods
+
+   .. autosummary::
+
+       ~Convergence.get_sampled_parameters
+       ~Convergence.get_labels
+       ~Convergence.plot_traces
+       ~Convergence.plot_auto_curve
+       ~Convergence.single_exp_decay
+       ~Convergence.double_exp_decay
+       ~Convergence.exponential_fit
+       ~Convergence.process
+       ~Convergence.plot_block_avg
+       ~Convergence.compute_JSD
+       ~Convergence.plot_JSD_conv
+
 
 
 toolbox
