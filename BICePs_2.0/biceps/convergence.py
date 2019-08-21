@@ -193,46 +193,55 @@ class Convergence(object):
         if plot:
             self.plot_traces()
             self.plot_auto_curve(autocorr ,yFit, self.labels)
-
-        tau_auto = np.max(popts)
-        if verbose:
-            print("Maximum tau = %s"%tau_auto)
-        tau = int(1+2*tau_auto)
-        T_new = self.traj['trajectory'][::tau]
-        nsnaps = len(T_new)
-        dx = int(nsnaps/self.nfold)
+       
+#        tau_auto = np.max(popts)
+#        if verbose:
+#            print("Maximum tau = %s"%tau_auto)
         if block:
             r_total = [[] for i in range(len(self.rest_type))]
             r_max = [[] for i in range(len(self.rest_type))]
-
-            for subset in range(self.nblock):
-                T_total = T_new[dx*subset:dx*(subset+1)]
-                for j in range(len(self.rest_type)):
-                    r_grid = np.zeros(len(self.allowed_parameters[j]))
-                    for k in T_total:
-                        ind = np.concatenate(k[4])[j]
-                        r_grid[ind]+=1
-                    r_total[j].append(r_grid)
-                    r_max[j].append(self.allowed_parameters[j][np.argmax(r_grid)])
+            for i in range(len(popts)):
+                tau_auto = popts[i]
+                tau = int(1+2*tau_auto)
+                T_new = self.traj['trajectory'][::tau]
+                nsnaps = len(T_new)
+                dx = int(nsnaps/self.nfold)
+                if block:
+                    for subset in range(self.nblock):
+                        T_total = T_new[dx*subset:dx*(subset+1)]
+                        for j in range(len(self.rest_type)):
+                            r_grid = np.zeros(len(self.allowed_parameters[j]))
+                            for k in T_total:
+                                ind = np.concatenate(k[4])[j]
+                                r_grid[ind]+=1
+                            r_total[j].append(r_grid)
+                            r_max[j].append(self.allowed_parameters[j][np.argmax(r_grid)])
             self.plot_block_avg(nblock,r_max)
-        all_JSD=[]      # create JSD list
-        all_JSDs=[[] for i in range(self.nfold)]   # create JSD list of distribution
+        all_JSD=[[] for i in range(len(popts))]      # create JSD list
+        all_JSDs=[[[] for i in range(self.nfold)] for j in range(len(popts))]   # create JSD list of distribution
         print('starting calculating JSDs ...')
-        for subset in range(self.nfold):
-            half = dx * (subset+1)/2
-            T1 = T_new[:half]     # first half of the trajectory
-            T2 = T_new[half:dx*(subset+1)]    # second half of the trajectory
-            T_total = T_new[:dx*(subset+1)]     # total trajectory
-            all_JSD.append(self.compute_JSD(T1,T2,T_total,self.rest_type,self.allowed_parameters))   # compute JSD
-            for r in range(self.nround):      # now let's mix this dataset
-                mT1 = np.random.choice(len(T_total),len(T_total)/2,replace=False)    # randomly pickup snapshots (index) as the first part
-                mT2 = np.delete(np.arange(0,len(T_total),1),mT1)           # take the rest (index) as the second part
-                temp_T1, temp_T2 = [],[]
-                for snapshot in mT1:
-                        temp_T1.append(T_total[snapshot])      # take the first part dataset from the trajectory
-                for snapshot in mT2:
-                        temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
-                all_JSDs[subset].append(self.compute_JSD(temp_T1,temp_T2,T_total,self.rest_type,self.allowed_parameters))
+        for i in range(len(popts)):
+            ind = i
+            tau_auto = popts[i]
+            tau = int(1+2*tau_auto)
+            T_new = self.traj['trajectory'][::tau]
+            nsnaps = len(T_new)
+            dx = int(nsnaps/self.nfold)
+            for subset in range(self.nfold):
+                half = dx * (subset+1)/2
+                T1 = T_new[:half]     # first half of the trajectory
+                T2 = T_new[half:dx*(subset+1)]    # second half of the trajectory
+                T_total = T_new[:dx*(subset+1)]     # total trajectory
+                all_JSD[i].append(self.compute_JSD(T1,T2,T_total,ind,self.allowed_parameters[i]))   # compute JSD
+                for r in range(self.nround):      # now let's mix this dataset
+                    mT1 = np.random.choice(len(T_total),len(T_total)/2,replace=False)    # randomly pickup snapshots (index) as the first part
+                    mT2 = np.delete(np.arange(0,len(T_total),1),mT1)           # take the rest (index) as the second part
+                    temp_T1, temp_T2 = [],[]
+                    for snapshot in mT1:
+                            temp_T1.append(T_total[snapshot])      # take the first part dataset from the trajectory
+                    for snapshot in mT2:
+                            temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
+                    all_JSDs[i][subset].append(self.compute_JSD(temp_T1,temp_T2,T_total,ind,self.allowed_parameters[i]))
 
         if savefile:
             np.save("all_JSD.npy", all_JSD)
@@ -261,7 +270,7 @@ class Convergence(object):
         plt.savefig(fname)
 
 
-    def compute_JSD(self, T1,T2,T_total,rest_type,allowed_parameters):
+    def compute_JSD(self, T1,T2,T_total,ind,allowed_parameters):
         """Compute JSD for a given part of trajectory.
 
         :var T1, T2, T_total: part 1, part2 and total (part1 + part2)
@@ -270,30 +279,29 @@ class Convergence(object):
         :return float: Jensen–Shannon divergence
         """
 
-        all_JSD = np.zeros(len(rest_type))
-        for i in range(len(rest_type)):
-            r1,r2,r_total = np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i]))
-            for frame in T1:
-                parameter_indices = np.concatenate(frame[4])
-                r1[parameter_indices[i]]+=1
-            for frame in T2:
-                parameter_indices = np.concatenate(frame[4])
-                r2[parameter_indices[i]]+=1
-            for frame in T_total:
-                parameter_indices = np.concatenate(frame[4])
-                r_total[parameter_indices[i]]+=1
-            N1=sum(r1)
-            N2=sum(r2)
-            N_total = sum(r_total)
-            H1 = -1.*r1/N1*np.log(r1/N1)
-            H1 = sum(np.nan_to_num(H1))
-            H2 = -1.*r2/N2*np.log(r2/N2)
-            H2 = sum(np.nan_to_num(H2))
-            H = -1.*r_total/N_total*np.log(r_total/N_total)
-            H = sum(np.nan_to_num(H))
-            JSD = H-(N1/N_total)*H1-(N2/N_total)*H2
-            all_JSD[i] = JSD
-        return all_JSD
+#        all_JSD = np.zeros(len(rest_type))
+#        for i in range(len(rest_type)):
+        r1,r2,r_total = np.zeros(len(allowed_parameters)),np.zeros(len(allowed_parameters)),np.zeros(len(allowed_parameters))
+        for frame in T1:
+            parameter_indices = np.concatenate(frame[4])
+            r1[parameter_indices[ind]]+=1
+        for frame in T2:
+            parameter_indices = np.concatenate(frame[4])
+            r2[parameter_indices[ind]]+=1
+        for frame in T_total:
+            parameter_indices = np.concatenate(frame[4])
+            r_total[parameter_indices[ind]]+=1
+        N1=sum(r1)
+        N2=sum(r2)
+        N_total = sum(r_total)
+        H1 = -1.*r1/N1*np.log(r1/N1)
+        H1 = sum(np.nan_to_num(H1))
+        H2 = -1.*r2/N2*np.log(r2/N2)
+        H2 = sum(np.nan_to_num(H2))
+        H = -1.*r_total/N_total*np.log(r_total/N_total)
+        H = sum(np.nan_to_num(H))
+        JSD = H-(N1/N_total)*H1-(N2/N_total)*H2
+        return JSD
 
     def plot_JSD_conv(self, JSD, JSDs, p_limit=0.99):
         """Plot Jensen–Shannon divergence (JSD) distribution for convergence check.
@@ -305,18 +313,19 @@ class Convergence(object):
         """
 
         print('plotting JSDs ...')
-        for k in range(len(JSD[0])):
+        for k in range(len(JSD)):
             plt.figure(figsize=(10,5))
-            for j in range(len(JSD)):
+            for j in range(len(JSD[0])):
                 plt.subplot(2,5,j+1)
-                all_JSDs = np.append(JSDs[j][:,k],JSD[j][k])
+                all_JSDs = np.append(JSDs[k][j],JSD[k][j])
                 JSDs_sorted = np.sort(all_JSDs)
                 p = np.arange(len(all_JSDs), dtype=float)
-                ind = np.where(JSDs_sorted==JSD[j][k])[0][0]
+                ind = np.where(JSDs_sorted==JSD[k][j])[0][0]
                 norm =  len(all_JSDs) - 1.
                 # Red Dot
                 plt.plot(JSDs_sorted[ind], p[ind]/norm,
-                        'o',ms=5,color='red')
+                        'o',ms=5,color='red',label='%.3f'%(p[ind]/norm))
+#                plt.annotate('%.3f'%(p[ind]/norm),xy=(JSDs_sorted[ind],p[ind]/norm),color='red',fontsize=6)
                 # Blue Curve
                 plt.plot(JSDs_sorted, p/norm)
                 # Horizontal Line
@@ -330,10 +339,10 @@ class Convergence(object):
                 plt.plot([JSDs_sorted[ind], JSDs_sorted[ind]],
                         [0.0, p[ind]/norm], 'k')
 
-                ax = plt.gca()
-                anchored_text = AnchoredText('%0.3f'%(p[ind]/norm),
-                        loc="upper left",frameon=False)
-                ax.add_artist(anchored_text)
+#                ax = plt.gca()
+#                anchored_text = AnchoredText('%0.3f'%(p[ind]/norm),
+#                        loc="upper left",frameon=False)
+#                ax.add_artist(anchored_text)
                 plt.ylim(bottom=0.0, top=1.0)
                 plt.xlim(left=0.0)
                 plt.xlabel('JSD')
@@ -341,6 +350,7 @@ class Convergence(object):
                 plt.xticks(fontsize=6)
                 plt.locator_params(axis='x',nbins=5)
                 plt.title('%d'%(10*(j+1))+'%',fontsize=10)
+                plt.legend(loc='best',fontsize=6)
             plt.tight_layout()
             plt.savefig('JSD_conv_%s.pdf'%self.rest_type[k])
         print('Done')
