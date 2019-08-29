@@ -185,9 +185,6 @@ class Convergence(object):
         sampled_parameters = self.sampled_parameters
         maxtau = self.maxtau
 
-        if len(f) <= max_tau:
-            raise ValueError("The time series is shorter than the tau values (%d), you need either sample more steps or change the tau value smaller."%(max_tau))
-
         autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
                 int(maxtau), bool(normalize)))
         popts = []
