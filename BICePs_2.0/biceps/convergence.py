@@ -19,8 +19,8 @@ class Convergence(object):
             raise ValueError("Trajectory file is necessary")
         else:
             print('Loading trajectory file...')
-            self.traj = np.load(trajfile, allow_pickle=True)
-
+#            self.traj = np.load(trajfile, allow_pickle=True)
+            self.traj = np.load(trajfile)['arr_0'].item()
         print('Collecting rest_type...')
         self.rest_type = self.traj['rest_type']
         print('Collecting allowed_parameters...')
