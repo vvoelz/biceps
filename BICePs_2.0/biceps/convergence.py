@@ -43,7 +43,7 @@ class Convergence(object):
 
         parameters = []
         for i in range(len(self.rest_type)):
-            parameters.append(np.transpose(self.traj['traces'])[:,i])
+            parameters.append(np.array(self.traj['traces'])[:,i])
         return parameters
 
     def get_labels(self):
