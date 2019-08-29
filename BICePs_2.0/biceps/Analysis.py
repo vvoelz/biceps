@@ -23,10 +23,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 from scipy import loadtxt, savetxt
 import cPickle, pprint
-
 from pymbar import MBAR
 import re
-import time
 
 ##############################################################################
 # Code
@@ -140,9 +138,6 @@ class Analysis(object):
 	self.load_data()
 
 
-        print("setting up for MBAR...")
-        localtime = time.asctime( time.localtime(time.time()) )
-        print(localtime)
 	# Suppose the energies sampled from each simulation are u_kln, where u_kln[k,l,n] is the reduced potential energy
 	#   of snapshot n \in 1,...,N_k of simulation k \in 1,...,K evaluated at reduced potential for state l.
 	self.K = self.nlambda   # number of thermodynamic ensembles
@@ -209,10 +204,6 @@ class Analysis(object):
                                 if debug:
 					print 'E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n]
 
-
-        print("done!")
-        localtime = time.asctime( time.localtime(time.time()) )
-        print(localtime)
 
 	# Initialize MBAR with reduced energies u_kln and number of uncorrelated configurations from each state N_k.
  	# u_kln[k,l,n] is the reduced potential energy beta*U_l(x_kn), where U_l(x) is the potential energy function for state l,
