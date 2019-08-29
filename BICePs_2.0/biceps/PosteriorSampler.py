@@ -623,6 +623,7 @@ class PosteriorSamplingTrajectory(object):
         saving = ['rest_type', 'trajectory_headers', 'trajectory', 'sep_accept',
                 'grid', 'allowed_parameters', 'sampled_parameters', 'model', 'ref', 'traces']
 
+
         for rest_index in range(len(self.ensemble[0])):
             n_observables  = self.ensemble[0][rest_index].nObs
             for n in range(n_observables):
@@ -631,15 +632,27 @@ class PosteriorSamplingTrajectory(object):
                     model.append(self.ensemble[s][rest_index].restraints[n].model)
                 self.model[rest_index].append(model)
 
+        self.results['rest_type'] = self.rest_type
+        self.results['trajectory_headers'] = self.trajectory_headers
+        self.results['trajectory'] = self.trajectory
+        self.results['accepted'] = self.sep_accept
+        self.results['grid'] = self.grid
+        self.results['allowed_parameters'] = self.allowed_parameters
+        self.results['sampled_parameters'] = self.sampled_parameters
+        self.results['model'] = self.model
 
-        for key in saving:
-            self.results[key] = np.array(getattr(self, key), dtype=object)
+
+        #element = 0
+        #for key in saving:
+        #    self.results[key] = np.array(getattr(self, key).astype(Type[element]))
+        #    element += 1
 
         #print(self.results)
         #exit(1)
         #np.savez_compressed(outfilename, **{ key: getattr(self, key) for key in saving })
         #np.savez(outfilename, **self.results)
-        self.write(outfilename, **self.results)
+        #self.write(outfilename, **self.results)
+        self.write(outfilename, self.results)
         #exit(1)
 
 
@@ -649,7 +662,7 @@ class PosteriorSamplingTrajectory(object):
         dy = (ymax-ymin)/nsteps
         return np.exp(np.arange(ymin, ymax, dy))
 
-    def write(self, outfilename='traj.npz', *args, **kwds):
+    def write(self, outfilename='traj.npz', *args, **kwds): # new
         """Writes a compact file of several arrays into binary format.
         Standardized: Yes ; Binary: Yes; Human Readable: No;
 
@@ -658,6 +671,15 @@ class PosteriorSamplingTrajectory(object):
         """
         np.savez_compressed(outfilename, *args, **kwds)
         #np.savez(outfilename, *args, **kwds)
+
+#    def write_results(self, outfilename='traj.npz'):
+#        """Writes a compact file of several arrays into binary format.
+#        Standardized: Yes ; Binary: Yes; Human Readable: No;
+#        :param str outfilename: name of the output file
+#        :return: numpy compressed filetype
+#        """
+#
+#        np.savez_compressed(outfilename, self.results)
 
 
     def read_results(self,filename):
@@ -686,5 +708,4 @@ class PosteriorSamplingTrajectory(object):
 
 
 #]
-
 
