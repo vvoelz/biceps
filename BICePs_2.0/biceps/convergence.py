@@ -44,6 +44,7 @@ class Convergence(object):
         parameters = []
         for i in range(len(self.rest_type)):
             parameters.append(np.array(self.traj['traces'])[:,i])
+        parameters = np.array(parameters)
         return parameters
 
     def get_labels(self):
@@ -183,6 +184,10 @@ class Convergence(object):
 
         sampled_parameters = self.sampled_parameters
         maxtau = self.maxtau
+
+        if len(f) <= max_tau:
+            raise ValueError("The time series is shorter than the tau values (%d), you need either sample more steps or change the tau value smaller."%(max_tau))
+
         autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
                 int(maxtau), bool(normalize)))
         popts = []
