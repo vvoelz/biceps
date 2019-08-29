@@ -620,8 +620,8 @@ class PosteriorSamplingTrajectory(object):
         ensemble-average NMR observables."""
 
         # Store the name of the restraints in a list corresponding to the correct order
-        saving = ['rest_type', 'trajectory_headers', 'trajectory', 'sep_accept',
-                'grid', 'allowed_parameters', 'sampled_parameters', 'model', 'ref', 'traces']
+        saving = ['rest_type','trajectory_headers','trajectory','sep_accept',
+                'grid','allowed_parameters','sampled_parameters','model','ref','traces']
 
 
         for rest_index in range(len(self.ensemble[0])):
@@ -635,11 +635,13 @@ class PosteriorSamplingTrajectory(object):
         self.results['rest_type'] = self.rest_type
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
-        self.results['accepted'] = self.sep_accept
+        self.results['sep_accept'] = self.sep_accept
         self.results['grid'] = self.grid
         self.results['allowed_parameters'] = self.allowed_parameters
         self.results['sampled_parameters'] = self.sampled_parameters
         self.results['model'] = self.model
+        self.results['ref'] = self.ref
+        self.results['traces'] = self.traces
 
 
         #element = 0
