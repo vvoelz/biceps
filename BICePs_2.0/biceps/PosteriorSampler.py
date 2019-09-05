@@ -368,7 +368,8 @@ class PosteriorSampler(object):
         :param int nsteps: number of steps of sampling.
         See :class:`neglogP`."""
 
-
+        # Generate a matrix of nuisance parameters
+        self.compile_nuisance_parameters()
 
         # Generate a high dimentional matrix of allowed nuisance parameters
         grid = []
