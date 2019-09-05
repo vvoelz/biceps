@@ -43,7 +43,8 @@ class Convergence(object):
 
         parameters = []
         for i in range(len(self.rest_type)):
-            parameters.append(self.traj['traces'][:,i])
+            parameters.append(np.array(self.traj['traces'])[:,i])
+        parameters = np.array(parameters)
         return parameters
 
     def get_labels(self):
@@ -183,6 +184,7 @@ class Convergence(object):
 
         sampled_parameters = self.sampled_parameters
         maxtau = self.maxtau
+
         autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
                 int(maxtau), bool(normalize)))
         popts = []
@@ -193,7 +195,7 @@ class Convergence(object):
         if plot:
             self.plot_traces()
             self.plot_auto_curve(autocorr ,yFit, self.labels)
-       
+
 #        tau_auto = np.max(popts)
 #        if verbose:
 #            print("Maximum tau = %s"%tau_auto)

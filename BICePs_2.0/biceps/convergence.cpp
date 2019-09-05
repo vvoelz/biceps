@@ -77,10 +77,17 @@ vector< vector<float>> c_autocorrelation(vector< vector<float>> sampled_paramete
      */
 
     printf("Calculating autocorrelation...\n");
+
     vector< vector<float>> result(sampled_parameters.size());
 
     for (int k=0; k<sampled_parameters.size(); k++) {
         vector<float> f = sampled_parameters[k];
+        if (f.size() <= maxtau) {
+            printf("The time series is shorter than the\
+                    tau values (%i), you need either sample more steps \
+                    or change the tau value smaller.",maxtau);
+            exit(1);
+        }
 
         float f_mean = accumulate( f.begin(), f.end(), 0.0)/f.size();
         vector<float> f_zeroed;
