@@ -531,6 +531,7 @@ class PosteriorSampler(object):
 
 
             self.traj.state_counts[int(self.new_state)] += 1
+            self.traj.state_trace.append(int(self.new_state))
 
             # Store the counts of sampled sigma along the trajectory
             for i in range(len(np.concatenate(_parameter_indices))):
@@ -587,6 +588,7 @@ class PosteriorSamplingTrajectory(object):
         self.model = [ [] for i in range(len(ensemble[0]))]  # restraints model data
         self.sep_accept = []     # separate accepted ratio
         self.grid = []   # for acceptance ratio plot
+        self.state_trace = []
 
         #f_sim = []
         #rest_index = 0
@@ -623,7 +625,7 @@ class PosteriorSamplingTrajectory(object):
 
         # Store the name of the restraints in a list corresponding to the correct order
         saving = ['rest_type','trajectory_headers','trajectory','sep_accept',
-                'grid','allowed_parameters','sampled_parameters','model','ref','traces']
+                'grid','allowed_parameters','sampled_parameters','model','ref','traces','state_trace']
 
 
         for rest_index in range(len(self.ensemble[0])):
@@ -644,6 +646,7 @@ class PosteriorSamplingTrajectory(object):
         self.results['model'] = self.model
         self.results['ref'] = self.ref
         self.results['traces'] = self.traces
+        self.results['state_trace'] = self.state_trace
 
 
         #element = 0
