@@ -662,12 +662,19 @@ def plot_grid(traj, rest_type=None):
 
 
 def find_all_state_sampled_time(trace,nstates):
+    frac = []
     all_states = np.zeros(nstates)
     init = 0
     while 0 in all_states:
-        all_states[trace[init]] += 1
-        init += 1
-    return init
+        if init == len(trace):
+            print 'not all state sampled, these states', np.where(all_states == 0)[0],'are not sampled'
+            return 'null', frac
+        else:
+        #    print trace[init]
+            all_states[trace[init]] += 1
+            frac.append(float(len(np.where(all_states!=0)[0]))/float(nstates))
+            init += 1
+    return init, frac
 
 #__all__ = [
 #    'sort_data',
