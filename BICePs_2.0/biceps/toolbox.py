@@ -660,6 +660,15 @@ def plot_grid(traj, rest_type=None):
         plt.savefig('grid_%s.pdf'%rest[i])
         plt.close()
 
+
+def find_all_state_sampled_time(trace,nstates):
+    all_states = np.zeros(nstates)
+    init = 0
+    while 0 in all_states:
+        all_states[trace[init]] += 1
+        init += 1
+    return init
+
 #__all__ = [
 #    'sort_data',
 #    'list_res',
