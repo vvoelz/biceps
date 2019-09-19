@@ -7,6 +7,10 @@ cdef extern from "convergence.h":
             vector[vector[float]] sampled_parameters,
             int maxtau, bool normalize)
 
+    cdef vector[float] c_autocorrelation_time(
+            vector[vector[float]] autocorr, bool normalize)
+
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.embedsignature(True)
@@ -21,5 +25,25 @@ def autocorrelation(vector[vector[float]] sampled_parameters,
     """
 
     return c_autocorrelation(sampled_parameters, maxtau, normalize)
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.embedsignature(True)
+def autocorrelation_time(vector[vector[float]] autocorr, bool normalize=True):
+    """Calculate the autocorrelation time, tau_c for a time-series f(t).  The autocorrelation
+    time tau_c quantifies the amount of time necessary for simulation data to become
+    decorrelated or "lose their memory".
+
+    :math: \tau_{c} = \int_{0}^{\infty} g(\tau) d \tau
+
+    :param np.array autocorr: a 2D numpy array containing the autocorrelation for each nuisance parameter
+    :param bool normalize: if True, return g(tau)/g[0]
+    :return np.array: a numpy array of size (3, max_tau+1) containing g(tau) for each nuisance parameter
+    """
+
+    return c_autocorrelation_time(autocorr, normalize)
+
+
 
 

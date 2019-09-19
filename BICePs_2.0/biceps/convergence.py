@@ -86,12 +86,12 @@ class Convergence(object):
         plt.savefig(fname)
         print('Done!')
 
-    def plot_auto_curve(self, autocorrs, yFit, labels,
+    def plot_auto_curve(self, autocorrs, tau_c, labels,
             fname="autocorrelation_curve_with_exp_fitting.png"):
         """Plot auto-correlation curve.
 
         :param autocorrs:
-        :param yFit:
+        :param tau_c:
         :param labels:
         :return figure: A figure of auto-correlation
         """
@@ -101,12 +101,20 @@ class Convergence(object):
         for i in range(len(autocorrs)):
             plt.subplot(len(autocorrs),2,i+1)
             plt.plot(np.arange(self.maxtau+1), autocorrs[i])
-            plt.plot(np.arange(self.maxtau+1), yFit, 'r--')
+            j = round(tau_c[i])
+            plt.axvline(tau_c[i], color='k', linestyle="--")
+            plt.annotate("$\\tau_{0} = %0.4G$"%tau_c[i],
+                    (tau_c[i], autocorrs[i][j]),
+                    xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
+
+            #plt.plot(np.arange(self.maxtau+1), yFit, 'r--')
             plt.xlabel('$\\tau$')
             plt.ylabel('$g(\\tau)$ for %s'%labels[i])
+            plt.xlim(left=0)
         plt.tight_layout()
         plt.savefig(fname)
         print('Done!')
+
 
     def single_exp_decay(self, x, a0, a1, tau1):
         """Function of a single exponential decay fitting.
@@ -187,23 +195,17 @@ class Convergence(object):
 
         autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
                 int(maxtau), bool(normalize)))
-        popts = []
-        for i in range(len(autocorr)):
-            yFit,popt = self.exponential_fit(autocorr[i])
-            popts.append(popt)
+        tau_c = np.array(c_conv.autocorrelation_time(autocorr))
 
         if plot:
             self.plot_traces()
-            self.plot_auto_curve(autocorr ,yFit, self.labels)
+            self.plot_auto_curve(autocorr, tau_c, self.labels)
 
-#        tau_auto = np.max(popts)
-#        if verbose:
-#            print("Maximum tau = %s"%tau_auto)
         if block:
             r_total = [[] for i in range(len(self.rest_type))]
             r_max = [[] for i in range(len(self.rest_type))]
-            for i in range(len(popts)):
-                tau_auto = popts[i]
+            for i in range(len(tau_c)):
+                tau_auto = tau_c[i]
                 tau = int(1+2*tau_auto)
                 T_new = self.traj['trajectory'][::tau]
                 nsnaps = len(T_new)
@@ -219,12 +221,12 @@ class Convergence(object):
                             r_total[j].append(r_grid)
                             r_max[j].append(self.allowed_parameters[j][np.argmax(r_grid)])
             self.plot_block_avg(nblock,r_max)
-        all_JSD=[[] for i in range(len(popts))]      # create JSD list
-        all_JSDs=[[[] for i in range(self.nfold)] for j in range(len(popts))]   # create JSD list of distribution
+        all_JSD=[[] for i in range(len(tau_c))]      # create JSD list
+        all_JSDs=[[[] for i in range(self.nfold)] for j in range(len(tau_c))]   # create JSD list of distribution
         print('starting calculating JSDs ...')
-        for i in range(len(popts)):
+        for i in range(len(tau_c)):
             ind = i
-            tau_auto = popts[i]
+            tau_auto = tau_c[i]
             tau = int(1+2*tau_auto)
             T_new = self.traj['trajectory'][::tau]
             nsnaps = len(T_new)

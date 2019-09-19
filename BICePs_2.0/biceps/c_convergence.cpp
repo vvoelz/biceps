@@ -1072,13 +1072,17 @@ static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_maxtau[] = "maxtau";
+static const char __pyx_k_autocorr[] = "autocorr";
 static const char __pyx_k_normalize[] = "normalize";
 static const char __pyx_k_c_convergence[] = "c_convergence";
 static const char __pyx_k_autocorrelation[] = "autocorrelation";
 static const char __pyx_k_c_convergence_pyx[] = "c_convergence.pyx";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_sampled_parameters[] = "sampled_parameters";
+static const char __pyx_k_autocorrelation_time[] = "autocorrelation_time";
+static PyObject *__pyx_n_s_autocorr;
 static PyObject *__pyx_n_s_autocorrelation;
+static PyObject *__pyx_n_s_autocorrelation_time;
 static PyObject *__pyx_n_s_c_convergence;
 static PyObject *__pyx_kp_s_c_convergence_pyx;
 static PyObject *__pyx_n_s_cline_in_traceback;
@@ -1090,11 +1094,14 @@ static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_sampled_parameters;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_pf_13c_convergence_autocorrelation(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::vector<float> >  __pyx_v_sampled_parameters, int __pyx_v_maxtau, bool __pyx_v_normalize); /* proto */
+static PyObject *__pyx_pf_13c_convergence_2autocorrelation_time(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::vector<float> >  __pyx_v_autocorr, bool __pyx_v_normalize); /* proto */
 static PyObject *__pyx_tuple_;
+static PyObject *__pyx_tuple__3;
 static PyObject *__pyx_codeobj__2;
+static PyObject *__pyx_codeobj__4;
 /* Late includes */
 
-/* "c_convergence.pyx":13
+/* "c_convergence.pyx":17
  * @cython.wraparound(False)
  * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
@@ -1148,7 +1155,7 @@ static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self,
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "autocorrelation") < 0)) __PYX_ERR(0, 13, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "autocorrelation") < 0)) __PYX_ERR(0, 17, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -1161,17 +1168,17 @@ static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self,
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_sampled_parameters = __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 13, __pyx_L3_error)
+    __pyx_v_sampled_parameters = __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 17, __pyx_L3_error)
     if (values[1]) {
-      __pyx_v_maxtau = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_maxtau == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+      __pyx_v_maxtau = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_maxtau == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
     } else {
       __pyx_v_maxtau = ((int)0x2710);
     }
     if (values[2]) {
-      __pyx_v_normalize = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_normalize == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+      __pyx_v_normalize = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_normalize == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
     } else {
 
-      /* "c_convergence.pyx":14
+      /* "c_convergence.pyx":18
  * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,
  *         int maxtau=10000, bool normalize=True):             # <<<<<<<<<<<<<<
@@ -1183,7 +1190,7 @@ static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self,
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("autocorrelation", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 13, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("autocorrelation", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 17, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("c_convergence.autocorrelation", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1191,7 +1198,7 @@ static PyObject *__pyx_pw_13c_convergence_1autocorrelation(PyObject *__pyx_self,
   __pyx_L4_argument_unpacking_done:;
   __pyx_r = __pyx_pf_13c_convergence_autocorrelation(__pyx_self, __pyx_v_sampled_parameters, __pyx_v_maxtau, __pyx_v_normalize);
 
-  /* "c_convergence.pyx":13
+  /* "c_convergence.pyx":17
  * @cython.wraparound(False)
  * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
@@ -1210,7 +1217,7 @@ static PyObject *__pyx_pf_13c_convergence_autocorrelation(CYTHON_UNUSED PyObject
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("autocorrelation", 0);
 
-  /* "c_convergence.pyx":23
+  /* "c_convergence.pyx":27
  *     """
  * 
  *     return c_autocorrelation(sampled_parameters, maxtau, normalize)             # <<<<<<<<<<<<<<
@@ -1218,13 +1225,13 @@ static PyObject *__pyx_pf_13c_convergence_autocorrelation(CYTHON_UNUSED PyObject
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(c_autocorrelation(__pyx_v_sampled_parameters, __pyx_v_maxtau, __pyx_v_normalize)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(c_autocorrelation(__pyx_v_sampled_parameters, __pyx_v_maxtau, __pyx_v_normalize)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "c_convergence.pyx":13
+  /* "c_convergence.pyx":17
  * @cython.wraparound(False)
  * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
@@ -1236,6 +1243,123 @@ static PyObject *__pyx_pf_13c_convergence_autocorrelation(CYTHON_UNUSED PyObject
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_AddTraceback("c_convergence.autocorrelation", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "c_convergence.pyx":33
+ * @cython.wraparound(False)
+ * @cython.embedsignature(True)
+ * def autocorrelation_time(vector[vector[float]] autocorr, bool normalize=True):             # <<<<<<<<<<<<<<
+ *     """Calculate the autocorrelation time, tau_c for a time-series f(t).  The autocorrelation
+ *     time tau_c quantifies the amount of time necessary for simulation data to become
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_13c_convergence_3autocorrelation_time(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_13c_convergence_2autocorrelation_time[] = "autocorrelation_time(vector[vector[float]] autocorr, bool normalize=True)\nCalculate the autocorrelation time, tau_c for a time-series f(t).  The autocorrelation\n    time tau_c quantifies the amount of time necessary for simulation data to become\n    decorrelated or \"lose their memory\".\n\n    :math: \tau_{c} = \\int_{0}^{\\infty} g(\tau) d \tau\n\n    :param np.array autocorr: a 2D numpy array containing the autocorrelation for each nuisance parameter\n    :param bool normalize: if True, return g(tau)/g[0]\n    :return np.array: a numpy array of size (3, max_tau+1) containing g(tau) for each nuisance parameter\n    ";
+static PyMethodDef __pyx_mdef_13c_convergence_3autocorrelation_time = {"autocorrelation_time", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_13c_convergence_3autocorrelation_time, METH_VARARGS|METH_KEYWORDS, __pyx_doc_13c_convergence_2autocorrelation_time};
+static PyObject *__pyx_pw_13c_convergence_3autocorrelation_time(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  std::vector<std::vector<float> >  __pyx_v_autocorr;
+  bool __pyx_v_normalize;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("autocorrelation_time (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_autocorr,&__pyx_n_s_normalize,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_autocorr)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_normalize);
+          if (value) { values[1] = value; kw_args--; }
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "autocorrelation_time") < 0)) __PYX_ERR(0, 33, __pyx_L3_error)
+      }
+    } else {
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    __pyx_v_autocorr = __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L3_error)
+    if (values[1]) {
+      __pyx_v_normalize = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_normalize == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L3_error)
+    } else {
+      __pyx_v_normalize = ((bool)1);
+    }
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("autocorrelation_time", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 33, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("c_convergence.autocorrelation_time", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_13c_convergence_2autocorrelation_time(__pyx_self, __pyx_v_autocorr, __pyx_v_normalize);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_13c_convergence_2autocorrelation_time(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::vector<float> >  __pyx_v_autocorr, bool __pyx_v_normalize) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("autocorrelation_time", 0);
+
+  /* "c_convergence.pyx":45
+ *     """
+ * 
+ *     return c_autocorrelation_time(autocorr, normalize)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __pyx_convert_vector_to_py_float(c_autocorrelation_time(__pyx_v_autocorr, __pyx_v_normalize)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "c_convergence.pyx":33
+ * @cython.wraparound(False)
+ * @cython.embedsignature(True)
+ * def autocorrelation_time(vector[vector[float]] autocorr, bool normalize=True):             # <<<<<<<<<<<<<<
+ *     """Calculate the autocorrelation time, tau_c for a time-series f(t).  The autocorrelation
+ *     time tau_c quantifies the amount of time necessary for simulation data to become
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("c_convergence.autocorrelation_time", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1635,7 +1759,9 @@ static struct PyModuleDef __pyx_moduledef = {
 #endif
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
+  {&__pyx_n_s_autocorr, __pyx_k_autocorr, sizeof(__pyx_k_autocorr), 0, 0, 1, 1},
   {&__pyx_n_s_autocorrelation, __pyx_k_autocorrelation, sizeof(__pyx_k_autocorrelation), 0, 0, 1, 1},
+  {&__pyx_n_s_autocorrelation_time, __pyx_k_autocorrelation_time, sizeof(__pyx_k_autocorrelation_time), 0, 0, 1, 1},
   {&__pyx_n_s_c_convergence, __pyx_k_c_convergence, sizeof(__pyx_k_c_convergence), 0, 0, 1, 1},
   {&__pyx_kp_s_c_convergence_pyx, __pyx_k_c_convergence_pyx, sizeof(__pyx_k_c_convergence_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
@@ -1659,17 +1785,29 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "c_convergence.pyx":13
+  /* "c_convergence.pyx":17
  * @cython.wraparound(False)
  * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
  *         int maxtau=10000, bool normalize=True):
  *     """Calculate the autocorrelaton function for a time-series f(t).
  */
-  __pyx_tuple_ = PyTuple_Pack(3, __pyx_n_s_sampled_parameters, __pyx_n_s_maxtau, __pyx_n_s_normalize); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(3, __pyx_n_s_sampled_parameters, __pyx_n_s_maxtau, __pyx_n_s_normalize); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_c_convergence_pyx, __pyx_n_s_autocorrelation, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_c_convergence_pyx, __pyx_n_s_autocorrelation, 17, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 17, __pyx_L1_error)
+
+  /* "c_convergence.pyx":33
+ * @cython.wraparound(False)
+ * @cython.embedsignature(True)
+ * def autocorrelation_time(vector[vector[float]] autocorr, bool normalize=True):             # <<<<<<<<<<<<<<
+ *     """Calculate the autocorrelation time, tau_c for a time-series f(t).  The autocorrelation
+ *     time tau_c quantifies the amount of time necessary for simulation data to become
+ */
+  __pyx_tuple__3 = PyTuple_Pack(2, __pyx_n_s_autocorr, __pyx_n_s_normalize); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 33, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__3);
+  __Pyx_GIVEREF(__pyx_tuple__3);
+  __pyx_codeobj__4 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__3, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_c_convergence_pyx, __pyx_n_s_autocorrelation_time, 33, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__4)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -1945,16 +2083,28 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "c_convergence.pyx":13
+  /* "c_convergence.pyx":17
  * @cython.wraparound(False)
  * @cython.embedsignature(True)
  * def autocorrelation(vector[vector[float]] sampled_parameters,             # <<<<<<<<<<<<<<
  *         int maxtau=10000, bool normalize=True):
  *     """Calculate the autocorrelaton function for a time-series f(t).
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_13c_convergence_1autocorrelation, NULL, __pyx_n_s_c_convergence); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_13c_convergence_1autocorrelation, NULL, __pyx_n_s_c_convergence); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_autocorrelation, __pyx_t_1) < 0) __PYX_ERR(0, 13, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_autocorrelation, __pyx_t_1) < 0) __PYX_ERR(0, 17, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "c_convergence.pyx":33
+ * @cython.wraparound(False)
+ * @cython.embedsignature(True)
+ * def autocorrelation_time(vector[vector[float]] autocorr, bool normalize=True):             # <<<<<<<<<<<<<<
+ *     """Calculate the autocorrelation time, tau_c for a time-series f(t).  The autocorrelation
+ *     time tau_c quantifies the amount of time necessary for simulation data to become
+ */
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_13c_convergence_3autocorrelation_time, NULL, __pyx_n_s_c_convergence); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 33, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_autocorrelation_time, __pyx_t_1) < 0) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "c_convergence.pyx":1
