@@ -23,7 +23,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 from scipy import loadtxt, savetxt
 import cPickle, pprint
-
 from pymbar import MBAR
 import re
 
@@ -41,7 +40,7 @@ class Analysis(object):
     :param str default=None resultdir: output files directory
 
     :param str default='BS.dat' BSdir: output BICePs score file name
-    
+
     :param str default='populations.dat' popdir: output BICePs reweighted populations file name
 
     :param str default='BICePs.pdf' picfile: output figure name
@@ -109,8 +108,8 @@ class Analysis(object):
 	for filename in exp_files:
 		if debug:
    			print 'Loading %s ...'%filename
-#    		self.traj.append( np.load( file(filename, 'r') )['arr_0'].item() )
-                self.traj.append( np.load( file(filename, 'r'),allow_pickle=True))
+    		self.traj.append( np.load( file(filename, 'r') )['arr_0'].item() )
+#                self.traj.append( np.load( file(filename, 'r'),allow_pickle=True))
 
 	# Load in cpickled sampler objects
 	sampler_files = glob.glob( os.path.join(self.resultdir,'sampler_lambda*.pkl') )
@@ -138,6 +137,7 @@ class Analysis(object):
         # load necessary data first
 	self.load_data()
 
+
 	# Suppose the energies sampled from each simulation are u_kln, where u_kln[k,l,n] is the reduced potential energy
 	#   of snapshot n \in 1,...,N_k of simulation k \in 1,...,K evaluated at reduced potential for state l.
 	self.K = self.nlambda   # number of thermodynamic ensembles
@@ -160,7 +160,7 @@ class Analysis(object):
 
 	# Get snapshot energies rescored in the different ensembles
 	"""['step', 'E', 'accept', 'state', [nuisance parameters]]"""
-        
+
 	for n in range(nsnaps):
 
   		for k in range(self.K):
@@ -396,7 +396,7 @@ class Analysis(object):
 #            plt.xlabel("$\sigma_{noe}$, fontsize=label_fontsize")
 #            plt.ylabel("$P(\sigma_{noe})$, fontsize=label_fontsize")
 #            plt.yticks([])
-#            
+#
 #            plt.subplot(r,c,len(self.scheme)+1)
 #            plt.step(t0['allowed_gamma'],t0['sampled_gamma'],'b-')
 #            plt.hold(True)
@@ -517,3 +517,10 @@ class Analysis(object):
     #'MBAR_analysis',
     #'save_MBAR',
 #]
+
+
+
+
+
+
+

@@ -369,6 +369,8 @@ class PosteriorSampler(object):
         See :class:`neglogP`."""
 
 
+        # Generate a matrix of nuisance parameters
+        self.compile_nuisance_parameters()
 
         # Generate a high dimentional matrix of allowed nuisance parameters
         grid = []
@@ -529,6 +531,7 @@ class PosteriorSampler(object):
 
 
             self.traj.state_counts[int(self.new_state)] += 1
+            self.traj.state_trace.append(int(self.new_state))
 
             # Store the counts of sampled sigma along the trajectory
             for i in range(len(np.concatenate(_parameter_indices))):
@@ -585,6 +588,7 @@ class PosteriorSamplingTrajectory(object):
         self.model = [ [] for i in range(len(ensemble[0]))]  # restraints model data
         self.sep_accept = []     # separate accepted ratio
         self.grid = []   # for acceptance ratio plot
+        self.state_trace = []
 
         #f_sim = []
         #rest_index = 0
@@ -620,8 +624,9 @@ class PosteriorSamplingTrajectory(object):
         ensemble-average NMR observables."""
 
         # Store the name of the restraints in a list corresponding to the correct order
-        saving = ['rest_type', 'trajectory_headers', 'trajectory', 'sep_accept',
-                'grid', 'allowed_parameters', 'sampled_parameters', 'model', 'ref', 'traces']
+        saving = ['rest_type','trajectory_headers','trajectory','sep_accept',
+                'grid','allowed_parameters','sampled_parameters','model','ref','traces','state_trace']
+
 
         for rest_index in range(len(self.ensemble[0])):
             n_observables  = self.ensemble[0][rest_index].nObs
@@ -631,15 +636,30 @@ class PosteriorSamplingTrajectory(object):
                     model.append(self.ensemble[s][rest_index].restraints[n].model)
                 self.model[rest_index].append(model)
 
+        self.results['rest_type'] = self.rest_type
+        self.results['trajectory_headers'] = self.trajectory_headers
+        self.results['trajectory'] = self.trajectory
+        self.results['sep_accept'] = self.sep_accept
+        self.results['grid'] = self.grid
+        self.results['allowed_parameters'] = self.allowed_parameters
+        self.results['sampled_parameters'] = self.sampled_parameters
+        self.results['model'] = self.model
+        self.results['ref'] = self.ref
+        self.results['traces'] = self.traces
+        self.results['state_trace'] = self.state_trace
 
-        for key in saving:
-            self.results[key] = np.array(getattr(self, key), dtype=object)
+
+        #element = 0
+        #for key in saving:
+        #    self.results[key] = np.array(getattr(self, key).astype(Type[element]))
+        #    element += 1
 
         #print(self.results)
         #exit(1)
         #np.savez_compressed(outfilename, **{ key: getattr(self, key) for key in saving })
         #np.savez(outfilename, **self.results)
-        self.write(outfilename, **self.results)
+        #self.write(outfilename, **self.results)
+        self.write(outfilename, self.results)
         #exit(1)
 
 
@@ -649,7 +669,7 @@ class PosteriorSamplingTrajectory(object):
         dy = (ymax-ymin)/nsteps
         return np.exp(np.arange(ymin, ymax, dy))
 
-    def write(self, outfilename='traj.npz', *args, **kwds):
+    def write(self, outfilename='traj.npz', *args, **kwds): # new
         """Writes a compact file of several arrays into binary format.
         Standardized: Yes ; Binary: Yes; Human Readable: No;
 
@@ -658,6 +678,15 @@ class PosteriorSamplingTrajectory(object):
         """
         np.savez_compressed(outfilename, *args, **kwds)
         #np.savez(outfilename, *args, **kwds)
+
+#    def write_results(self, outfilename='traj.npz'):
+#        """Writes a compact file of several arrays into binary format.
+#        Standardized: Yes ; Binary: Yes; Human Readable: No;
+#        :param str outfilename: name of the output file
+#        :return: numpy compressed filetype
+#        """
+#
+#        np.savez_compressed(outfilename, self.results)
 
 
     def read_results(self,filename):
@@ -686,5 +715,4 @@ class PosteriorSamplingTrajectory(object):
 
 
 #]
-
 

@@ -77,10 +77,17 @@ vector< vector<float>> c_autocorrelation(vector< vector<float>> sampled_paramete
      */
 
     printf("Calculating autocorrelation...\n");
+
     vector< vector<float>> result(sampled_parameters.size());
 
     for (int k=0; k<sampled_parameters.size(); k++) {
         vector<float> f = sampled_parameters[k];
+        if (f.size() <= maxtau) {
+            printf("The time series is shorter than the\
+                    tau values (%i), you need either sample more steps \
+                    or change the tau value smaller.",maxtau);
+            exit(1);
+        }
 
         float f_mean = accumulate( f.begin(), f.end(), 0.0)/f.size();
         vector<float> f_zeroed;
@@ -117,5 +124,27 @@ vector< vector<float>> c_autocorrelation(vector< vector<float>> sampled_paramete
 }
 //}}}
 
+// Autocorrelation_time Method:{{{
+vector<float> c_autocorrelation_time(vector< vector<float>> autocorr,
+        bool normalize=true) {
+    /* Calculate the expectation of tau from the autocorrelation for a time-series f(t).
+     *
+     * :param np.array autocorr: a 2D numpy array containing the autocorrelation for each nuisance parameter
+     * :param bool normalize: if True, return g(tau)/g[0]
+     *
+     * :return np.array: a numpy array of size N containing the expectation value of tau for each nuisance parameter
+     *
+     */
+
+    printf("Computing the autocorrelation time for each nuisance parameter...\n");
+    vector<float> result;
+    for (int i=0; i<autocorr.size(); i++) {
+        float sum = accumulate(autocorr[i].begin(), autocorr[i].end(), 0.0);
+        result.push_back(sum);
+    }
+    return result;
+}
+
+//}}}
 
 
