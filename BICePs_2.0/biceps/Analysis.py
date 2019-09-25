@@ -47,19 +47,20 @@ class Analysis(object):
     """
 
     #def __init__(self, states = 0, data = None, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
-    def __init__(self, states = 0, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
+    def __init__(self, states = 0, precheck = True, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
 	self.states = states
 	#self.data = data
 	self.resultdir = resultdir
-	self.BSdir = BSdir
-	self.popdir = popdir
-	self.picfile = picfile
+	self.BSdir = self.resultdir+BSdir
+	self.popdir = self.resultdir+popdir
+	self.picfile = self.resultdir+picfile
 	self.scheme = None
 	self.traj = []
 	self.sampler = []
 	self.lam = None
 	self.f_df = None
 	self.P_dp = None
+        self.precheck = precheck
 	if self.states == 0:
 		raise ValueError("State number cannot be zero")
 	#if self.data == None:
@@ -110,6 +111,24 @@ class Analysis(object):
    			print 'Loading %s ...'%filename
     		self.traj.append( np.load( file(filename, 'r') )['arr_0'].item() )
 #                self.traj.append( np.load( file(filename, 'r'),allow_pickle=True))
+        if self.precheck:
+            steps = []
+            fractions = []
+            for i in range(len(self.traj)):
+               s,f = d.find_all_state_sampled_time(self.traj[i]['state_trace'],self.states)
+               steps.append(s)
+               fractions.append(f)
+            total_fractions = np.concatenate(fractions)
+            if 1. in total_fractions:
+                plt.figure()
+                for i in range(len(fractions)):
+                    plt.plot(range(len(fractions[i])),fractions[i],label = r'$\lambda_{%s}$'%i)
+                    plt.xlabel('steps')
+                    plt.ylabel('fractions')
+                    plt.legend(loc='best')
+                    plt.savefig(self.resultdir+'fractions.pdf')
+            else:
+                raise ValueError('Not all states are sampled in any of the lambda values')
 
 	# Load in cpickled sampler objects
 	sampler_files = glob.glob( os.path.join(self.resultdir,'sampler_lambda*.pkl') )
