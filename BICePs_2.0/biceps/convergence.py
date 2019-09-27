@@ -6,7 +6,7 @@ matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 from matplotlib.offsetbox import AnchoredText
-import c_convergence as c_conv
+#import c_convergence as c_conv
 
 
 class Convergence(object):
@@ -87,7 +87,8 @@ class Convergence(object):
         print('Done!')
 
     def plot_auto_curve(self, autocorrs, tau_c, labels,
-            fname="autocorrelation_curve_with_exp_fitting.png"):
+            fname="autocorrelation_curve_with_exp_fitting.png",
+            std_x=None, std_y=None):
         """Plot auto-correlation curve.
 
         :param autocorrs:
@@ -107,7 +108,14 @@ class Convergence(object):
                     (tau_c[i], autocorrs[i][j]),
                     xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
 
-            #plt.plot(np.arange(self.maxtau+1), yFit, 'r--')
+            if std_x != None:
+                plt.errorbar(tau_c[i], autocorrs[i][j], xerr=std_x[i],
+                        ecolor='k', fmt='o', capsize=10)
+
+            if std_y != None:
+                plt.fill_between(np.arange(self.maxtau+1),
+                        autocorrs[i]-std_y[i], autocorrs[i]+std_y[i], color='r', alpha=0.4)
+
             plt.xlabel('$\\tau$')
             plt.ylabel('$g(\\tau)$ for %s'%labels[i])
             plt.xlim(left=0)
@@ -169,6 +177,56 @@ class Convergence(object):
             max_tau = max(popt[3],popt[4])
         return yFit_data,max_tau
 
+    def cal_auto(self, data):
+        """Calculates the autocorrelation"""
+
+        print('Calculating autocorrelation ...')
+        max_tau=10000
+        autocorrs = []
+        for timeseries in data:
+            autocorrs.append( self.g(np.array(timeseries), max_tau=self.maxtau) )
+
+        print('Done!')
+        return autocorrs
+
+    def g(self, f, max_tau = 10000, normalize=True):
+        """Calculate the autocorrelaton function for a time-series f(t).
+
+        :param np.array f:  a 1D numpy array containing the time series f(t)
+        :param int max_tau: the maximum autocorrelation time to consider.
+        :param bool normalize: if True, return g(tau)/g[0]
+        :return np.array: a numpy array of size (max_tau+1,) containing g(tau)
+        """
+
+        f_zeroed = f-f.mean()
+        T = f_zeroed.shape[0]
+        result = np.zeros(max_tau+1)
+        for tau in range(max_tau+1):
+            result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
+
+        if normalize:
+            return result/result[0]
+        else:
+            return result
+
+
+    def autocorrelation_time(self, autocorr):
+        result = [sum(autocorr[i]) for i in range(len(autocorr))]
+        return np.array(result)
+
+    def get_blocks(self, data, nblocks=5):
+        """Method used to partition data into blocks"""
+
+        # slice the data into nblocks
+        blocks = []
+        for vec in data:
+            dx = int(len(vec)/nblocks)
+            blocks.append([vec[dx*n:dx*(n+1)] for n in range(nblocks)])
+        return blocks
+
+
+
+
 
 
 ###############################################################################
@@ -191,15 +249,33 @@ class Convergence(object):
         """
 
         sampled_parameters = self.sampled_parameters
+        blocks = self.get_blocks(data=sampled_parameters, nblocks=5)
         maxtau = self.maxtau
 
-        autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
-                int(maxtau), bool(normalize)))
-        tau_c = np.array(c_conv.autocorrelation_time(autocorr))
+        # C++
+        #autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
+        #        int(maxtau), bool(normalize)))
+        #tau_c = np.array(c_conv.autocorrelation_time(autocorr))
+
+        # Python
+        autocorr = self.cal_auto(sampled_parameters)
+        tau_c = self.autocorrelation_time(autocorr)
+
+
+        avg_x,avg_y = [],[]
+        for i in range(len(blocks)):
+            auto = self.cal_auto(blocks[i])
+            _time = self.autocorrelation_time(auto)
+            avg_y.append(np.average(auto, axis=0))
+            avg_x.append(np.average(_time, axis=0))
+
+        std_y = np.std([np.array(avg_y), autocorr], axis=0)
+        std_x = np.std([np.array(avg_x), tau_c], axis=0)
 
         if plot:
             self.plot_traces()
-            self.plot_auto_curve(autocorr, tau_c, self.labels)
+            self.plot_auto_curve(autocorr, tau_c, self.labels,
+                    std_x=std_x, std_y=std_y)
 
         if block:
             r_total = [[] for i in range(len(self.rest_type))]
