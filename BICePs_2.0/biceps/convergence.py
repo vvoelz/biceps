@@ -286,16 +286,16 @@ class Convergence(object):
                 T_new = self.traj['trajectory'][::tau]
                 nsnaps = len(T_new)
                 dx = int(nsnaps/self.nfold)
-                if block:
-                    for subset in range(self.nblock):
-                        T_total = T_new[dx*subset:dx*(subset+1)]
-                        for j in range(len(self.rest_type)):
-                            r_grid = np.zeros(len(self.allowed_parameters[j]))
-                            for k in T_total:
-                                ind = np.concatenate(k[4])[j]
-                                r_grid[ind]+=1
-                            r_total[j].append(r_grid)
-                            r_max[j].append(self.allowed_parameters[j][np.argmax(r_grid)])
+                for subset in range(self.nblock):
+                    T_total = T_new[dx*subset:dx*(subset+1)]
+                    #for j in range(len(self.rest_type)):
+                    r_grid = np.zeros(len(self.allowed_parameters[i]))
+                    for k in T_total:
+                        ind = np.concatenate(k[4])[i]
+                        r_grid[ind]+=1
+                    r_total[i].append(r_grid)
+                    r_max[i].append(self.allowed_parameters[i][np.argmax(r_grid)])
+
             self.plot_block_avg(nblock,r_max)
         all_JSD=[[] for i in range(len(tau_c))]      # create JSD list
         all_JSDs=[[[] for i in range(self.nfold)] for j in range(len(tau_c))]   # create JSD list of distribution
@@ -338,7 +338,7 @@ class Convergence(object):
         x=np.arange(1.,nblock+1.,1.)
         colors=['red', 'blue','black','green']
         for i in range(len(self.rest_type)):
-            total_max = self.allowed_parameters[i][np.argmax(traj['sampled_parameters'][i])]
+            total_max = self.allowed_parameters[i][np.argmax(self.traj['sampled_parameters'][i])]
             plt.subplot(len(self.rest_type),1,i+1)
             plt.plot(x,r_max[i],'o-',color=colors[i],label=self.labels[i])
             plt.xlabel('block')
