@@ -104,7 +104,7 @@ class Convergence(object):
             plt.plot(np.arange(self.maxtau+1), autocorrs[i])
             j = round(tau_c[i])
             plt.axvline(tau_c[i], color='k', linestyle="--")
-            plt.annotate("$\\tau_{0} = %0.4G$"%tau_c[i],
+            plt.annotate("$\\tau_{0} = %0.4G \\pm %0.2G$"%(tau_c[i],std_x[i]),
                     (tau_c[i], autocorrs[i][j]),
                     xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
 
@@ -261,16 +261,15 @@ class Convergence(object):
         autocorr = self.cal_auto(sampled_parameters)
         tau_c = self.autocorrelation_time(autocorr)
 
-
-        avg_x,avg_y = [],[]
+        x,y = [],[]
         for i in range(len(blocks)):
-            auto = self.cal_auto(blocks[i])
-            _time = self.autocorrelation_time(auto)
-            avg_y.append(np.average(auto, axis=0))
-            avg_x.append(np.average(_time, axis=0))
+            y.append(self.cal_auto(blocks[i]))
+            x.append(self.autocorrelation_time(y[i]))
 
-        std_y = np.std([np.array(avg_y), autocorr], axis=0)
-        std_x = np.std([np.array(avg_x), tau_c], axis=0)
+        autocorr = np.average(y, axis=1)
+        tau_c = np.average(x, axis=1)
+        std_y = np.std(y, axis=1)
+        std_x = np.std(x, axis=1)
 
         if plot:
             self.plot_traces()
