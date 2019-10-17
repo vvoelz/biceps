@@ -91,20 +91,25 @@ class Convergence(object):
             std_x=None, std_y=None):
         """Plot auto-correlation curve.
 
+
         :param autocorrs:
         :param tau_c:
         :param labels:
-        :return figure: A figure of auto-correlation
+        :return figure: A figure of auto-correlation with error bars at the 95%
+        confidence interval (tau0 is rounded to the nearest integer).
         """
 
         print('plotting autocorrelation curve ...')
         plt.figure( figsize=(3*len(self.rest_type),10))
         for i in range(len(autocorrs)):
-            plt.subplot(len(autocorrs),2,i+1)
+            if len(self.rest_type) == 2:
+                plt.subplot(len(autocorrs),1,i+1)
+            else:
+                plt.subplot(len(autocorrs),2,i+1)
             plt.plot(np.arange(self.maxtau+1), autocorrs[i])
             j = round(tau_c[i])
             plt.axvline(tau_c[i], color='k', linestyle="--")
-            plt.annotate("$\\tau_{0} = %0.4G \\pm %0.2G$"%(tau_c[i],std_x[i]),
+            plt.annotate("$\\tau_{0} = %i \\pm %i$"%(round(tau_c[i]),round(std_x[i])),
                     (tau_c[i], autocorrs[i][j]),
                     xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
 
