@@ -216,6 +216,10 @@ class Convergence(object):
 
 
     def autocorrelation_time(self, autocorr):
+        """Computes the autocorrelation time:
+
+        :math:`\tau_{0} = \int g(\tau) d\tau`
+        """
         result = [sum(autocorr[i]) for i in range(len(autocorr))]
         return np.array(result)
 
@@ -230,31 +234,17 @@ class Convergence(object):
         return blocks
 
 
-
-
-
-
-###############################################################################
-# Should this be its own script?  Everything else in the file is generalized
-# except this.
-###############################################################################
-    def process(self, nblock=5, nfold=10, nrounds=100, savefile=True,
-            plot=True, verbose=False, block=False, normalize=True):
-        #NOTE: nrounds should be more general look at self.nrounds...in the __init__ function
-        """Process the trajectory by computing the autocorrelation, fitting with
-        an exponential, plotting the traces, etc...
+    def get_autocorrelation_curves(self, nblocks=5, plot_traces=True):
+        """Compute autocorrelaton function for a time-series f(t), partition the
+        data into the specified number of blocks and plot the autocorrelation curve.
 
         :param int nblock: number of blocks to split up the trajectory
-        :param int nfold: number of
-        :param int nrounds: number of rounds to bootstrap
-        :param bool default=True savefile:
-        :param bool default=True plot:
-        :param bool default=False block: block averaging
-        :param bool verbose: verbosity
+        :param bool default=True plot_traces: will plot the trajectory traces
+        :return figure: A figure of autocorrelation curves for each restraint
         """
 
         sampled_parameters = self.sampled_parameters
-        blocks = self.get_blocks(data=sampled_parameters, nblocks=5)
+        blocks = self.get_blocks(sampled_parameters, nblocks)
         maxtau = self.maxtau
 
         # C++
@@ -271,21 +261,39 @@ class Convergence(object):
             y.append(self.cal_auto(blocks[i]))
             x.append(self.autocorrelation_time(y[i]))
 
-        autocorr = np.average(y, axis=1)
-        tau_c = np.average(x, axis=1)
+        self.autocorr = np.average(y, axis=1)
+        self.tau_c = np.average(x, axis=1)
+        # Check to see if there are any negative autocorrelation times
+        if any(i < 0 for i in self.tau_c):
+            print("NOTE: Found a negative autocorrelation time...")
         std_y = np.std(y, axis=1)
         std_x = np.std(x, axis=1)
 
-        if plot:
+        if plot_traces:
             self.plot_traces()
-            self.plot_auto_curve(autocorr, tau_c, self.labels,
-                    std_x=std_x, std_y=std_y)
+        self.plot_auto_curve(self.autocorr, self.tau_c, self.labels,
+                std_x=std_x, std_y=std_y)
+
+    def process(self, nblock=5, nfold=10, nrounds=100, savefile=True,
+            plot=True, verbose=False, block=False, normalize=True):
+        #NOTE: nrounds should be more general look at self.nrounds...in the __init__ function
+        """Process the trajectory by computing the autocorrelation, fitting with
+        an exponential, plotting the traces, etc...
+
+        :param int nblock: number of blocks
+        :param int nfold: number of
+        :param int nrounds: number of rounds to bootstrap
+        :param bool default=True savefile:
+        :param bool default=True plot:
+        :param bool default=False block: block averaging
+        :param bool verbose: verbosity
+        """
 
         if block:
             r_total = [[] for i in range(len(self.rest_type))]
             r_max = [[] for i in range(len(self.rest_type))]
-            for i in range(len(tau_c)):
-                tau_auto = tau_c[i]
+            for i in range(len(self.tau_c)):
+                tau_auto = self.tau_c[i]
                 tau = int(1+2*tau_auto)
                 T_new = self.traj['trajectory'][::tau]
                 nsnaps = len(T_new)
@@ -301,12 +309,12 @@ class Convergence(object):
                     r_max[i].append(self.allowed_parameters[i][np.argmax(r_grid)])
 
             self.plot_block_avg(nblock,r_max)
-        all_JSD=[[] for i in range(len(tau_c))]      # create JSD list
-        all_JSDs=[[[] for i in range(self.nfold)] for j in range(len(tau_c))]   # create JSD list of distribution
+        all_JSD=[[] for i in range(len(self.tau_c))]      # create JSD list
+        all_JSDs=[[[] for i in range(self.nfold)] for j in range(len(self.tau_c))]   # create JSD list of distribution
         print('starting calculating JSDs ...')
-        for i in range(len(tau_c)):
+        for i in range(len(self.tau_c)):
             ind = i
-            tau_auto = tau_c[i]
+            tau_auto = self.tau_c[i]
             tau = int(1+2*tau_auto)
             T_new = self.traj['trajectory'][::tau]
             nsnaps = len(T_new)
@@ -326,15 +334,11 @@ class Convergence(object):
                     for snapshot in mT2:
                             temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
                     all_JSDs[i][subset].append(self.compute_JSD(temp_T1,temp_T2,T_total,ind,self.allowed_parameters[i]))
-
         if savefile:
             np.save("all_JSD.npy", all_JSD)
             np.save("all_JSDs.npy", all_JSDs)
         print('Done!')
         self.plot_JSD_conv(np.array(all_JSD), np.array(all_JSDs))
-
-
-###############################################################################
 
 
     def plot_block_avg(self, nblock, r_max, fname = "block_avg.png"):
