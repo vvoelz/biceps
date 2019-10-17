@@ -87,10 +87,8 @@ class Convergence(object):
         print('Done!')
 
     def plot_auto_curve(self, autocorrs, tau_c, labels,
-            fname="autocorrelation_curve_with_exp_fitting.png",
-            std_x=None, std_y=None):
+            fname="autocorrelation_curve.png", std_x=None, std_y=None):
         """Plot auto-correlation curve.
-
 
         :param autocorrs:
         :param tau_c:
@@ -127,6 +125,30 @@ class Convergence(object):
         plt.tight_layout()
         plt.savefig(fname)
         print('Done!')
+
+    def plot_auto_curve_with_exp_fitting(self, autocorrs, yFits, labels,
+            fname="autocorrelation_curve_with_exp_fitting.png"):
+        """Plot auto-correlation curve.
+
+        :param autocorrs:
+        :param yFits:
+        :param labels:
+        :return figure: A figure of auto-correlation
+        """
+
+        print('plotting autocorrelation curve ...')
+        plt.figure( figsize=(3*len(self.rest_type),10))
+        for i in range(len(autocorrs)):
+            plt.subplot(len(autocorrs),2,i+1)
+            plt.plot(np.arange(self.maxtau+1), autocorrs[i])
+            plt.plot(np.arange(self.maxtau+1), yFits[i], 'r--')
+            plt.xlabel('$\\tau$')
+            plt.ylabel('$g(\\tau)$ for %s'%labels[i])
+        plt.tight_layout()
+        plt.savefig(fname)
+        print('Done!')
+
+
 
 
     def single_exp_decay(self, x, a0, a1, tau1):
@@ -234,19 +256,19 @@ class Convergence(object):
         return blocks
 
 
-    def get_autocorrelation_curves(self, nblocks=5, plot_traces=True):
+    def get_autocorrelation_curves(self, method="block-avg", nblocks=5,
+            plot_traces=True):
         """Compute autocorrelaton function for a time-series f(t), partition the
         data into the specified number of blocks and plot the autocorrelation curve.
 
+        :param string method: method for computing autocorrelation time; "block-avg" or "exp"
         :param int nblock: number of blocks to split up the trajectory
         :param bool default=True plot_traces: will plot the trajectory traces
         :return figure: A figure of autocorrelation curves for each restraint
         """
 
         sampled_parameters = self.sampled_parameters
-        blocks = self.get_blocks(sampled_parameters, nblocks)
         maxtau = self.maxtau
-
         # C++
         #autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
         #        int(maxtau), bool(normalize)))
@@ -256,23 +278,35 @@ class Convergence(object):
         autocorr = self.cal_auto(sampled_parameters)
         tau_c = self.autocorrelation_time(autocorr)
 
-        x,y = [],[]
-        for i in range(len(blocks)):
-            y.append(self.cal_auto(blocks[i]))
-            x.append(self.autocorrelation_time(y[i]))
+        if method == "block-avg":
+            blocks = self.get_blocks(sampled_parameters, nblocks)
+            x,y = [],[]
+            for i in range(len(blocks)):
+                y.append(self.cal_auto(blocks[i]))
+                x.append(self.autocorrelation_time(y[i]))
+            self.autocorr = np.average(y, axis=1)
+            self.tau_c = np.average(x, axis=1)
+            # Check to see if there are any negative autocorrelation times
+            if any(i < 0 for i in self.tau_c):
+                print("NOTE: Found a negative autocorrelation time...")
+            std_y = np.std(y, axis=1)
+            std_x = np.std(x, axis=1)
+            self.plot_auto_curve(self.autocorr, self.tau_c, self.labels,
+                    std_x=std_x, std_y=std_y)
 
-        self.autocorr = np.average(y, axis=1)
-        self.tau_c = np.average(x, axis=1)
-        # Check to see if there are any negative autocorrelation times
-        if any(i < 0 for i in self.tau_c):
-            print("NOTE: Found a negative autocorrelation time...")
-        std_y = np.std(y, axis=1)
-        std_x = np.std(x, axis=1)
+        if method == "exp":
+            self.autocorr = autocorr
+            yFits,popts = [],[]
+            for i in range(len(self.autocorr)):
+                yFit,popt = self.exponential_fit(self.autocorr[i])
+                popts.append(popt)
+                yFits.append(yFit)
+            self.tau_c = np.max(popts)
+            self.plot_auto_curve_with_exp_fitting(self.autocorr, yFits, self.labels)
 
         if plot_traces:
             self.plot_traces()
-        self.plot_auto_curve(self.autocorr, self.tau_c, self.labels,
-                std_x=std_x, std_y=std_y)
+
 
     def process(self, nblock=5, nfold=10, nrounds=100, savefile=True,
             plot=True, verbose=False, block=False, normalize=True):
