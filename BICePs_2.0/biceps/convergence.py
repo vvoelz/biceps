@@ -113,7 +113,7 @@ class Convergence(object):
                         (tau_c[i], autocorrs[i][j]),
                         xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
             else:
-                plt.annotate("$\\tau_{0} = %i$"%(round(tau_c[i]),
+                plt.annotate("$\\tau_{0} = %i$"%(round(tau_c[i])),
                         (tau_c[i], autocorrs[i][j]),
                         xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
 
@@ -508,15 +508,24 @@ class Convergence(object):
                 JSD_std[rest].append(np.std(temp_JSD))
         plt.figure(figsize=(10,5*n_rest))
         # NOTE: To Yunhui, can we generalize this next line using nfolds?
-        x=np.arange(10.,101.,10.)   # the dataset was divided into ten folds (this is the only hard coded part)
+        x=np.arange(int(100/self.nfold),101.,int(100/self.nfold))   # the dataset was divided into ten folds (this is the only hard coded part)
         for i in range(n_rest):
             plt.subplot(n_rest,1,i+1)
             plt.plot(x,all_JSD[i].transpose(),'o-',color=colors[i],label=self.labels[i])
             plt.hold(True)
             #plt.plot(x,JSD_dist[i],'*',color=colors[i],label=self.labels[i])
-            plt.fill_between(x,np.array(JSD_dist[i])+2*np.array(JSD_std[i]),
-                    np.array(JSD_dist[i])-2*np.array(JSD_std[i]),
-                    color=colors[i],alpha=0.2)
+
+            ## 2 Standard deviations from the mean
+            #plt.fill_between(x,np.array(JSD_dist[i])+2*np.array(JSD_std[i]),
+            #        np.array(JSD_dist[i])-2*np.array(JSD_std[i]),
+            #        color=colors[i],alpha=0.2)
+
+            # at 95% confidence interval
+            bounds = np.sort(all_JSDs[i])
+            # remove top 50 and lower 50
+            lower = bounds[:, int(self.nround*0.05)]
+            upper = bounds[:, int(self.nround*0.95)]
+            plt.fill_between(x,lower,upper,color=colors[i],alpha=0.2)
             plt.xlabel('dataset (%)')
             plt.ylabel('JSD')
             plt.legend(loc='best')
