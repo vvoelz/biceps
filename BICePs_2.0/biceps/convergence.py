@@ -107,9 +107,15 @@ class Convergence(object):
             plt.plot(np.arange(self.maxtau+1), autocorrs[i])
             j = round(tau_c[i])
             plt.axvline(tau_c[i], color='k', linestyle="--")
-            plt.annotate("$\\tau_{0} = %i \\pm %i$"%(round(tau_c[i]),round(std_x[i])),
-                    (tau_c[i], autocorrs[i][j]),
-                    xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
+            # If the number of blocks is 1, then we can't get std.
+            if len(autocorrs) > 1:
+                plt.annotate("$\\tau_{0} = %i \\pm %i$"%(round(tau_c[i]),round(std_x[i])),
+                        (tau_c[i], autocorrs[i][j]),
+                        xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
+            else:
+                plt.annotate("$\\tau_{0} = %i$"%(round(tau_c[i]),
+                        (tau_c[i], autocorrs[i][j]),
+                        xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
 
             if std_x != None:
                 plt.errorbar(tau_c[i], autocorrs[i][j], xerr=std_x[i],
