@@ -507,7 +507,7 @@ class Convergence(object):
             plt.subplot(n_rest,1,i+1)
             plt.plot(x,all_JSD[i].transpose(),'o-',color=colors[i],label=self.labels[i])
             plt.hold(True)
-            plt.plot(x,JSD_dist[i],'*',color=colors[i],label=self.labels[i])
+            #plt.plot(x,JSD_dist[i],'*',color=colors[i],label=self.labels[i])
             plt.fill_between(x,np.array(JSD_dist[i])+2*np.array(JSD_std[i]),
                     np.array(JSD_dist[i])-2*np.array(JSD_std[i]),
                     color=colors[i],alpha=0.2)
