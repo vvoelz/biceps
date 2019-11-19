@@ -372,6 +372,7 @@ class Convergence(object):
             np.save("all_JSD.npy", all_JSD)
             np.save("all_JSDs.npy", all_JSDs)
         print('Done!')
+        self.plot_JSD_distribution(np.array(all_JSD), np.array(all_JSDs), nrounds)
         self.plot_JSD_conv(np.array(all_JSD), np.array(all_JSDs))
 
 
@@ -479,7 +480,42 @@ class Convergence(object):
 
 
 
+    def plot_JSD_distribution(self, all_JSD, all_JSDs, nrounds, fname="JSD_distribution.png"):
+        """Plots the distributions for JSD
+        """
+        print(all_JSDs.shape)
+        print(all_JSDs[0].shape)
+        print(all_JSDs[0][0].shape)
 
+        colors=['red', 'blue','black','green']
+        # convert shape of all_JSD from (fold,n_rest) to (n_rest,fold)
+        n_rest = len(self.rest_type)
+        # compute mean, std of JSDs from each fold dataset of each restraint
+        JSD_dist = [[] for i in range(n_rest)]
+        JSD_std = [[] for i in range(n_rest)]
+        for rest in range(n_rest):
+            for f in range(self.nfold):
+                temp_JSD = []
+                for r in range(self.nround):
+                    temp_JSD.append(all_JSDs[rest][f][r])
+                JSD_dist[rest].append(np.mean(temp_JSD))
+                JSD_std[rest].append(np.std(temp_JSD))
+        plt.figure(figsize=(10,5*n_rest))
+        # NOTE: To Yunhui, can we generalize this next line using nfolds?
+        x=np.arange(10.,101.,10.)   # the dataset was divided into ten folds (this is the only hard coded part)
+        for i in range(n_rest):
+            plt.subplot(n_rest,1,i+1)
+            plt.plot(x,all_JSD[i].transpose(),'o-',color=colors[i],label=self.labels[i])
+            plt.hold(True)
+            plt.plot(x,JSD_dist[i],'*',color=colors[i],label=self.labels[i])
+            plt.fill_between(x,np.array(JSD_dist[i])+2*np.array(JSD_std[i]),
+                    np.array(JSD_dist[i])-2*np.array(JSD_std[i]),
+                    color=colors[i],alpha=0.2)
+            plt.xlabel('dataset (%)')
+            plt.ylabel('JSD')
+            plt.legend(loc='best')
+        plt.tight_layout()
+        plt.savefig(fname)
 
 
 
