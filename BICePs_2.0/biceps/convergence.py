@@ -358,6 +358,9 @@ class Convergence(object):
             tau = int(1+2*tau_auto)
             T_new = self.traj['trajectory'][::tau]
             nsnaps = len(T_new)
+            if nsnaps < 2*self.nfold:
+                print('Warning: no enough data left after subsampling using auto-correlation time with the given nfold')
+                exit()
             dx = int(nsnaps/self.nfold)
             for subset in range(self.nfold):
                 half = dx * (subset+1)/2
