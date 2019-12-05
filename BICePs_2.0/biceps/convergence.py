@@ -107,23 +107,23 @@ class Convergence(object):
             plt.plot(np.arange(self.maxtau+1), autocorrs[i])
             j = round(tau_c[i])
             plt.axvline(tau_c[i], color='k', linestyle="--")
-            # If the number of blocks is 1, then we can't get std.
-            if len(autocorrs) > 1:
+
+            if (std_x or std_y) != None:
                 plt.annotate("$\\tau_{0} = %i \\pm %i$"%(round(tau_c[i]),round(std_x[i])),
                         (tau_c[i], autocorrs[i][j]),
                         xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
+                if std_x != None:
+                    plt.errorbar(tau_c[i], autocorrs[i][j], xerr=std_x[i],
+                            ecolor='k', fmt='o', capsize=10)
+
+                if std_y != None:
+                    plt.fill_between(np.arange(self.maxtau+1),
+                            autocorrs[i]-std_y[i], autocorrs[i]+std_y[i], color='r', alpha=0.4)
+
             else:
                 plt.annotate("$\\tau_{0} = %i$"%(round(tau_c[i])),
                         (tau_c[i], autocorrs[i][j]),
                         xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
-
-            if std_x != None:
-                plt.errorbar(tau_c[i], autocorrs[i][j], xerr=std_x[i],
-                        ecolor='k', fmt='o', capsize=10)
-
-            if std_y != None:
-                plt.fill_between(np.arange(self.maxtau+1),
-                        autocorrs[i]-std_y[i], autocorrs[i]+std_y[i], color='r', alpha=0.4)
 
             plt.xlabel('$\\tau$')
             plt.ylabel('$g(\\tau)$ for %s'%labels[i])
@@ -292,11 +292,18 @@ class Convergence(object):
                 x.append(self.autocorrelation_time(y[i]))
             self.autocorr = np.average(y, axis=1)
             self.tau_c = np.average(x, axis=1)
+
             # Check to see if there are any negative autocorrelation times
             if any(i < 0 for i in self.tau_c):
                 print("NOTE: Found a negative autocorrelation time...")
-            std_y = np.std(y, axis=1)
-            std_x = np.std(x, axis=1)
+
+            # If the number of blocks is 1, then we can't get std.
+            if n_blocks == 1:
+                std_y,std_x = None,None
+            else:
+                std_y = np.std(y, axis=1)
+                std_x = np.std(x, axis=1)
+
             self.plot_auto_curve(self.autocorr, self.tau_c, self.labels,
                     std_x=std_x, std_y=std_y)
 
