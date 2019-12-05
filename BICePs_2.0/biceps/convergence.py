@@ -298,7 +298,7 @@ class Convergence(object):
                 print("NOTE: Found a negative autocorrelation time...")
 
             # If the number of blocks is 1, then we can't get std.
-            if n_blocks == 1:
+            if nblocks == 1:
                 std_y,std_x = None,None
             else:
                 std_y = np.std(y, axis=1)
