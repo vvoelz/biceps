@@ -79,8 +79,8 @@ class Convergence(object):
         for i in range(len(self.rest_type)):
             plt.subplot(len(self.rest_type), 1, i+1)
             plt.plot(x, self.sampled_parameters[i],label=self.labels[i])
-            plt.ylabel(self.labels[i])
-            plt.xlabel('steps')
+            plt.ylabel(self.labels[i], fontsize=18)
+            plt.xlabel('steps', fontsize=18)
             plt.legend(loc='best')
         plt.tight_layout()
         plt.savefig(fname)
@@ -123,10 +123,10 @@ class Convergence(object):
             else:
                 plt.annotate("$\\tau_{0} = %i$"%(round(tau_c[i])),
                         (tau_c[i], autocorrs[i][j]),
-                        xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
+                        xytext=(tau_c[i]+10, autocorrs[i][j]+0.05), fontsize=16)
 
-            plt.xlabel('$\\tau$')
-            plt.ylabel('$g(\\tau)$ for %s'%labels[i])
+            plt.xlabel('$\\tau$', fontsize=18)
+            plt.ylabel('$g(\\tau)$ for %s'%labels[i], fontsize=18)
             plt.xlim(left=0)
         plt.tight_layout()
         plt.savefig(fname)
@@ -148,8 +148,8 @@ class Convergence(object):
             plt.subplot(len(autocorrs),2,i+1)
             plt.plot(np.arange(self.maxtau+1), autocorrs[i])
             plt.plot(np.arange(self.maxtau+1), yFits[i], 'r--')
-            plt.xlabel('$\\tau$')
-            plt.ylabel('$g(\\tau)$ for %s'%labels[i])
+            plt.xlabel('$\\tau$', fontsize=18)
+            plt.ylabel('$g(\\tau)$ for %s'%labels[i], fontsize=18)
         plt.tight_layout()
         plt.savefig(fname)
         print('Done!')
@@ -400,11 +400,11 @@ class Convergence(object):
             total_max = self.allowed_parameters[i][np.argmax(self.traj['sampled_parameters'][i])]
             plt.subplot(len(self.rest_type),1,i+1)
             plt.plot(x,r_max[i],'o-',color=colors[i],label=self.labels[i])
-            plt.xlabel('block')
-            plt.ylabel('allowed '+self.labels[i])
+            plt.xlabel('block', fontsize=18)
+            plt.ylabel('allowed '+self.labels[i], fontsize=18)
             plt.ylim(min(self.allowed_parameters[i]),max(self.allowed_parameters[i]))
             plt.plot(nblock-0.2,total_max,'*',ms=20,color='green',label='total max')
-            plt.legend(loc='best')
+            plt.legend(loc='best', fontsize=16)
         plt.tight_layout()
         plt.savefig(fname)
 
