@@ -22,7 +22,7 @@ cat main.tex | grep "\includegraphics"
 |  8 | Main | omnigraffle  | JSD_distribution_good.png |  |
 |  9 | Main | omnigraffle  | traces.png |  |
 | 10 | Main | script       | BICePs.pdf     |  |
-| 11 | SI   | script | d_102__1M_autocorrelation_curve_with_exp_fitting.png | scripts_following/replot_autocorrelation_curves.py |
+| 11 | SI   | script | d_102__1M_autocorrelation_curve_with_exp_fitting.png | scripts_for_images/replot_autocorrelation_curves.py |
 | 12 | SI   | omnigraffle | autocorrelation_curve_2.pd |  |
 | 13 | SI   | omnigraffle | JSD_out_of_dist.pn |  |
 | 14 | SI   | omnigraffle | JSD_dist_Conv_notConv.png |  |
