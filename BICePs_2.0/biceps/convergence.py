@@ -10,11 +10,10 @@ import warnings
 warnings.filterwarnings("ignore",category=DeprecationWarning)
 #import c_convergence as c_conv
 
-
 class Convergence(object):
     """Convergence submodule for BICePs. """
 
-    def __init__(self, trajfile=None, maxtau=10000):
+    def __init__(self, trajfile=None):
 
         if trajfile is None:
             raise ValueError("Trajectory file is necessary")
@@ -29,7 +28,6 @@ class Convergence(object):
         print('Collecting sampled parameters...')
         self.sampled_parameters = self.get_sampled_parameters()
         self.labels = self.get_labels()
-        self.maxtau = maxtau
 
     def get_sampled_parameters(self):
         """Get sampled parameters along time (steps).
@@ -270,19 +268,20 @@ class Convergence(object):
         return blocks
 
 
-    def get_autocorrelation_curves(self, method="normal", nblocks=5,
+    def get_autocorrelation_curves(self, method="normal", nblocks=5, maxtau=10000,
             plot_traces=True):
         """Compute autocorrelaton function for a time-series f(t), partition the
         data into the specified number of blocks and plot the autocorrelation curve.
 
         :param string method: method for computing autocorrelation time; "block-avg" or "exp" or "normal"
         :param int nblock: number of blocks to split up the trajectory
+        :param int maxtau: the upper bound of autocorrelation lag time
         :param bool default=True plot_traces: will plot the trajectory traces
         :return figure: A figure of autocorrelation curves for each restraint
         """
 
         sampled_parameters = self.sampled_parameters
-        maxtau = self.maxtau
+        self.maxtau = maxtau
         # C++
         #autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
         #        int(maxtau), bool(normalize)))
@@ -313,7 +312,6 @@ class Convergence(object):
             else:
                 std_y = np.std(y, axis=1)
                 std_x = np.std(x, axis=1)
-
             self.plot_auto_curve(self.autocorr, self.tau_c, self.labels,
                     std_x=std_x, std_y=std_y)
 
@@ -357,7 +355,6 @@ class Convergence(object):
                 dx = int(nsnaps/nfold)
                 for subset in range(nblock):
                     T_total = T_new[dx*subset:dx*(subset+1)]
-                    #for j in range(len(self.rest_type)):
                     r_grid = np.zeros(len(self.allowed_parameters[i]))
                     for k in T_total:
                         ind = np.concatenate(k[4])[i]
