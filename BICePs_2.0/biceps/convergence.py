@@ -6,14 +6,15 @@ matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 from matplotlib.offsetbox import AnchoredText
+import warnings
+warnings.filterwarnings("ignore",category=DeprecationWarning)
 #import c_convergence as c_conv
 
 
 class Convergence(object):
     """Convergence submodule for BICePs. """
 
-    def __init__(self, trajfile=None, maxtau=10000, nblock=5,
-            nfold=10, nround=1000):
+    def __init__(self, trajfile=None, maxtau=10000):
 
         if trajfile is None:
             raise ValueError("Trajectory file is necessary")
@@ -29,9 +30,6 @@ class Convergence(object):
         self.sampled_parameters = self.get_sampled_parameters()
         self.labels = self.get_labels()
         self.maxtau = maxtau
-        self.nblock = nblock
-        self.nfold = nfold
-        self.nround = nround
 
     def get_sampled_parameters(self):
         """Get sampled parameters along time (steps).
@@ -74,7 +72,7 @@ class Convergence(object):
         total_steps = len(self.sampled_parameters[0])
         x = np.arange(1,total_steps+0.1,1)
         n_rest = len(self.rest_type)
-        plt.figure(figsize=(3*n_rest,15))
+        plt.figure(figsize=(3*n_rest,6))
 
         for i in range(len(self.rest_type)):
             plt.subplot(len(self.rest_type), 1, i+1)
@@ -82,6 +80,8 @@ class Convergence(object):
             plt.ylabel(self.labels[i], fontsize=18)
             plt.xlabel('steps', fontsize=18)
             plt.legend(loc='best')
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
         plt.tight_layout()
         plt.savefig(fname)
         print('Done!')
@@ -94,11 +94,11 @@ class Convergence(object):
         :param tau_c:
         :param labels:
         :return figure: A figure of auto-correlation with error bars at the 95%
-        confidence interval (tau0 is rounded to the nearest integer).
+        confidence interval (`\tau_{auto}` is rounded to the nearest integer).
         """
 
-        print('plotting autocorrelation curve ...')
-        plt.figure( figsize=(3*len(self.rest_type),10))
+        print('Plotting autocorrelation curve ...')
+        plt.figure( figsize=(3*len(self.rest_type),6))
         for i in range(len(autocorrs)):
             if len(self.rest_type) == 2:
                 plt.subplot(len(autocorrs),1,i+1)
@@ -109,7 +109,7 @@ class Convergence(object):
             plt.axvline(tau_c[i], color='k', linestyle="--")
 
             if (std_x or std_y) != None:
-                plt.annotate("$\\tau_{0} = %i \\pm %i$"%(round(tau_c[i]),round(std_x[i])),
+                plt.annotate("$\\tau_{auto} = %i \\pm %i$"%(round(tau_c[i]),round(std_x[i])),
                         (tau_c[i], autocorrs[i][j]),
                         xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
                 if std_x != None:
@@ -121,13 +121,15 @@ class Convergence(object):
                             autocorrs[i]-std_y[i], autocorrs[i]+std_y[i], color='r', alpha=0.4)
 
             else:
-                plt.annotate("$\\tau_{0} = %i$"%(round(tau_c[i])),
+                plt.annotate("$\\tau_{auto} = %i$"%(round(tau_c[i])),
                         (tau_c[i], autocorrs[i][j]),
                         xytext=(tau_c[i]+10, autocorrs[i][j]+0.05), fontsize=16)
 
             plt.xlabel('$\\tau$', fontsize=18)
-            plt.ylabel('$g(\\tau)$ for %s'%labels[i], fontsize=18)
+            plt.ylabel('$C_{\\tau}$ for %s'%labels[i], fontsize=18)
             plt.xlim(left=0)
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
         plt.tight_layout()
         plt.savefig(fname)
         print('Done!')
@@ -142,14 +144,20 @@ class Convergence(object):
         :return figure: A figure of auto-correlation
         """
 
-        print('plotting autocorrelation curve ...')
-        plt.figure( figsize=(3*len(self.rest_type),10))
+        print('Plotting autocorrelation curve ...')
+        plt.figure( figsize=(3*len(self.rest_type),6))
         for i in range(len(autocorrs)):
-            plt.subplot(len(autocorrs),2,i+1)
+            if len(self.rest_type) == 2:
+                plt.subplot(len(autocorrs),1,i+1)
+            else:
+                plt.subplot(len(autocorrs),2,i+1)
             plt.plot(np.arange(self.maxtau+1), autocorrs[i])
             plt.plot(np.arange(self.maxtau+1), yFits[i], 'r--')
             plt.xlabel('$\\tau$', fontsize=18)
-            plt.ylabel('$g(\\tau)$ for %s'%labels[i], fontsize=18)
+            plt.ylabel('$C_{\\tau}$ for %s'%labels[i], fontsize=18)
+            plt.xlim(left=0)
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
         plt.tight_layout()
         plt.savefig(fname)
         print('Done!')
@@ -192,6 +200,8 @@ class Convergence(object):
         :param ac:
         :param default='single' use_function:
         :return np.array yFit: the y-values of the fit curve."""
+        #TODO: Need to include exponential fit argument "single", "double"
+        # inside the get_autocorrelation_curves method
 
         nsteps = ac.shape[0]
         if use_function == 'single':
@@ -214,11 +224,9 @@ class Convergence(object):
         """Calculates the autocorrelation"""
 
         print('Calculating autocorrelation ...')
-        max_tau=10000
         autocorrs = []
         for timeseries in data:
             autocorrs.append( self.g(np.array(timeseries), max_tau=self.maxtau) )
-
         print('Done!')
         return autocorrs
 
@@ -246,7 +254,7 @@ class Convergence(object):
     def autocorrelation_time(self, autocorr):
         """Computes the autocorrelation time:
 
-        :math:`\tau_{0} = \int g(\tau) d\tau`
+        :math:`\tau_{auto} = \int C_{\tau} d\tau`
         """
         result = [sum(autocorr[i]) for i in range(len(autocorr))]
         return np.array(result)
@@ -262,12 +270,12 @@ class Convergence(object):
         return blocks
 
 
-    def get_autocorrelation_curves(self, method="block-avg", nblocks=5,
+    def get_autocorrelation_curves(self, method="normal", nblocks=5,
             plot_traces=True):
         """Compute autocorrelaton function for a time-series f(t), partition the
         data into the specified number of blocks and plot the autocorrelation curve.
 
-        :param string method: method for computing autocorrelation time; "block-avg" or "exp"
+        :param string method: method for computing autocorrelation time; "block-avg" or "exp" or "normal"
         :param int nblock: number of blocks to split up the trajectory
         :param bool default=True plot_traces: will plot the trajectory traces
         :return figure: A figure of autocorrelation curves for each restraint
@@ -284,7 +292,9 @@ class Convergence(object):
         autocorr = self.cal_auto(sampled_parameters)
         tau_c = self.autocorrelation_time(autocorr)
 
-        if method == "block-avg":
+        if method in ["block-avg","normal"]:
+            if method == "normal":
+                nblocks = 1
             blocks = self.get_blocks(sampled_parameters, nblocks)
             x,y = [],[]
             for i in range(len(blocks)):
@@ -311,25 +321,25 @@ class Convergence(object):
             self.autocorr = autocorr
             yFits,popts = [],[]
             for i in range(len(self.autocorr)):
+                #TODO: Need to include exponential fit argument "single", "double"
                 yFit,popt = self.exponential_fit(self.autocorr[i])
                 popts.append(popt)
                 yFits.append(yFit)
-            self.tau_c = np.max(popts)
+            self.tau_c = np.array(popts) #np.max(popts)
             self.plot_auto_curve_with_exp_fitting(self.autocorr, yFits, self.labels)
 
         if plot_traces:
             self.plot_traces()
 
 
-    def process(self, nblock=5, nfold=10, nrounds=100, savefile=True,
+    def process(self, nblock=5, nfold=10, nround=100, savefile=True,
             plot=True, verbose=False, block=False, normalize=True):
-        #NOTE: nrounds should be more general look at self.nrounds...in the __init__ function
         """Process the trajectory by computing the autocorrelation, fitting with
         an exponential, plotting the traces, etc...
 
         :param int nblock: number of blocks
         :param int nfold: number of
-        :param int nrounds: number of rounds to bootstrap
+        :param int nround: number of rounds to bootstrap
         :param bool default=True savefile:
         :param bool default=True plot:
         :param bool default=False block: block averaging
@@ -344,8 +354,8 @@ class Convergence(object):
                 tau = int(1+2*tau_auto)
                 T_new = self.traj['trajectory'][::tau]
                 nsnaps = len(T_new)
-                dx = int(nsnaps/self.nfold)
-                for subset in range(self.nblock):
+                dx = int(nsnaps/nfold)
+                for subset in range(nblock):
                     T_total = T_new[dx*subset:dx*(subset+1)]
                     #for j in range(len(self.rest_type)):
                     r_grid = np.zeros(len(self.allowed_parameters[i]))
@@ -354,10 +364,10 @@ class Convergence(object):
                         r_grid[ind]+=1
                     r_total[i].append(r_grid)
                     r_max[i].append(self.allowed_parameters[i][np.argmax(r_grid)])
-
             self.plot_block_avg(nblock,r_max)
+
         all_JSD=[[] for i in range(len(self.tau_c))]      # create JSD list
-        all_JSDs=[[[] for i in range(self.nfold)] for j in range(len(self.tau_c))]   # create JSD list of distribution
+        all_JSDs=[[[] for i in range(nfold)] for j in range(len(self.tau_c))]   # create JSD list of distribution
         print('starting calculating JSDs ...')
         for i in range(len(self.tau_c)):
             ind = i
@@ -365,17 +375,17 @@ class Convergence(object):
             tau = int(1+2*tau_auto)
             T_new = self.traj['trajectory'][::tau]
             nsnaps = len(T_new)
-            if nsnaps < 2*self.nfold:
-                print('Warning: no enough data left after subsampling using auto-correlation time with the given nfold')
+            if nsnaps < 2*nfold:
+                print('Warning: not enough data left after subsampling using auto-correlation time with the given nfold')
                 exit()
-            dx = int(nsnaps/self.nfold)
-            for subset in range(self.nfold):
+            dx = int(nsnaps/nfold)
+            for subset in range(nfold):
                 half = dx * (subset+1)/2
                 T1 = T_new[:half]     # first half of the trajectory
                 T2 = T_new[half:dx*(subset+1)]    # second half of the trajectory
                 T_total = T_new[:dx*(subset+1)]     # total trajectory
                 all_JSD[i].append(self.compute_JSD(T1,T2,T_total,ind,self.allowed_parameters[i]))   # compute JSD
-                for r in range(self.nround):      # now let's mix this dataset
+                for r in range(nround):      # now let's mix this dataset
                     mT1 = np.random.choice(len(T_total),len(T_total)/2,replace=False)    # randomly pickup snapshots (index) as the first part
                     mT2 = np.delete(np.arange(0,len(T_total),1),mT1)           # take the rest (index) as the second part
                     temp_T1, temp_T2 = [],[]
@@ -388,14 +398,14 @@ class Convergence(object):
             np.save("all_JSD.npy", all_JSD)
             np.save("all_JSDs.npy", all_JSDs)
         print('Done!')
-        self.plot_JSD_distribution(np.array(all_JSD), np.array(all_JSDs), nrounds)
+        self.plot_JSD_distribution(np.array(all_JSD), np.array(all_JSDs), nround, nfold)
         self.plot_JSD_conv(np.array(all_JSD), np.array(all_JSDs))
 
 
     def plot_block_avg(self, nblock, r_max, fname = "block_avg.png"):
         plt.figure(figsize=(10,5*len(self.rest_type)))
         x=np.arange(1.,nblock+1.,1.)
-        colors=['red', 'blue','black','green']
+        colors=['red','blue','black','green']
         for i in range(len(self.rest_type)):
             total_max = self.allowed_parameters[i][np.argmax(self.traj['sampled_parameters'][i])]
             plt.subplot(len(self.rest_type),1,i+1)
@@ -496,12 +506,12 @@ class Convergence(object):
 
 
 
-    def plot_JSD_distribution(self, all_JSD, all_JSDs, nrounds, fname="JSD_distribution.png"):
-        """Plots the distributions for JSD
-        """
-        print(all_JSDs.shape)
-        print(all_JSDs[0].shape)
-        print(all_JSDs[0][0].shape)
+    def plot_JSD_distribution(self, all_JSD, all_JSDs, nround, nfold, fname="JSD_distribution.png"):
+        """Plots the distributions for JSD"""
+
+        #print(all_JSDs.shape)
+        #print(all_JSDs[0].shape)
+        #print(all_JSDs[0][0].shape)
 
         colors=['red', 'blue','black','green']
         # convert shape of all_JSD from (fold,n_rest) to (n_rest,fold)
@@ -510,15 +520,15 @@ class Convergence(object):
         JSD_dist = [[] for i in range(n_rest)]
         JSD_std = [[] for i in range(n_rest)]
         for rest in range(n_rest):
-            for f in range(self.nfold):
+            for f in range(nfold):
                 temp_JSD = []
-                for r in range(self.nround):
+                for r in range(nround):
                     temp_JSD.append(all_JSDs[rest][f][r])
                 JSD_dist[rest].append(np.mean(temp_JSD))
                 JSD_std[rest].append(np.std(temp_JSD))
         plt.figure(figsize=(10,5*n_rest))
         # NOTE: To Yunhui, can we generalize this next line using nfolds?
-        x=np.arange(int(100/self.nfold),101.,int(100/self.nfold))   # the dataset was divided into ten folds (this is the only hard coded part)
+        x=np.arange(int(100/nfold),101.,int(100/nfold))   # the dataset was divided into ten folds (this is the only hard coded part)
         for i in range(n_rest):
             plt.subplot(n_rest,1,i+1)
             plt.plot(x,all_JSD[i].transpose(),'o-',color=colors[i],label=self.labels[i])
@@ -533,8 +543,8 @@ class Convergence(object):
             # at 95% confidence interval
             bounds = np.sort(all_JSDs[i])
             # remove top 50 and lower 50
-            lower = bounds[:, int(self.nround*0.05)]
-            upper = bounds[:, int(self.nround*0.95)]
+            lower = bounds[:, int(nround*0.05)]
+            upper = bounds[:, int(nround*0.95)]
             plt.fill_between(x,lower,upper,color=colors[i],alpha=0.2)
             plt.xlabel('dataset (%)')
             plt.ylabel('JSD')
