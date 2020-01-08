@@ -11,7 +11,10 @@ warnings.filterwarnings("ignore",category=DeprecationWarning)
 #import c_convergence as c_conv
 
 class Convergence(object):
-    """Convergence submodule for BICePs. """
+    """Convergence submodule for BICePs.
+
+    :param np.array traj: output trajectory from BICePs sampling
+    """
 
     def __init__(self, trajfile=None):
 
@@ -28,12 +31,11 @@ class Convergence(object):
         print('Collecting sampled parameters...')
         self.sampled_parameters = self.get_sampled_parameters()
         self.labels = self.get_labels()
+        self.exp_function = "single"
 
     def get_sampled_parameters(self):
         """Get sampled parameters along time (steps).
 
-        :param np.array traj: output trajectory from BICePs sampling
-        :var default=None rest_type: experimental restraint type
         :return list: A list of all nuisance paramters sampled
         """
 
@@ -88,9 +90,9 @@ class Convergence(object):
             fname="autocorrelation_curve.png", std_x=None, std_y=None):
         """Plot auto-correlation curve.
 
-        :param autocorrs:
-        :param tau_c:
-        :param labels:
+        :param np.ndarray autocorrs:
+        :param np.ndarray tau_c:
+        :param list labels:
         :return figure: A figure of auto-correlation with error bars at the 95%
         confidence interval (`\tau_{auto}` is rounded to the nearest integer).
         """
@@ -136,9 +138,9 @@ class Convergence(object):
             fname="autocorrelation_curve_with_exp_fitting.png"):
         """Plot auto-correlation curve.
 
-        :param autocorrs:
-        :param yFits:
-        :param labels:
+        :param np.ndarray autocorrs:
+        :param np.ndarray yFits:
+        :param list labels:
         :return figure: A figure of auto-correlation
         """
 
@@ -191,18 +193,18 @@ class Convergence(object):
 
         return a0 + a1*np.exp(-(x/tau1)) + a2*np.exp(-(x/tau2))
 
-    def exponential_fit(self, ac, use_function='single'):
+    def exponential_fit(self, ac, exp_function='single'):
         """Calls on `single_exp_decay` or `double_exp_decay` for an
         exponential fitting of an autocorrelation curve.
+        See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
+        for more details on curve fit.
 
-        :param ac:
-        :param default='single' use_function:
+        :param np.ndarray ac:
+        :param str default='single' exp_function:
         :return np.array yFit: the y-values of the fit curve."""
-        #TODO: Need to include exponential fit argument "single", "double"
-        # inside the get_autocorrelation_curves method
 
         nsteps = ac.shape[0]
-        if use_function == 'single':
+        if exp_function == 'single':
             v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
             popt, pcov = curve_fit(self.single_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
             yFit_data = self.single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
@@ -274,8 +276,8 @@ class Convergence(object):
         data into the specified number of blocks and plot the autocorrelation curve.
 
         :param string method: method for computing autocorrelation time; "block-avg" or "exp" or "normal"
-        :param int nblock: number of blocks to split up the trajectory
-        :param int maxtau: the upper bound of autocorrelation lag time
+        :param int default=5 nblocks: number of blocks to split up the trajectory
+        :param int default=10000 maxtau: the upper bound of autocorrelation lag time
         :param bool default=True plot_traces: will plot the trajectory traces
         :return figure: A figure of autocorrelation curves for each restraint
         """
@@ -319,11 +321,11 @@ class Convergence(object):
             self.autocorr = autocorr
             yFits,popts = [],[]
             for i in range(len(self.autocorr)):
-                #TODO: Need to include exponential fit argument "single", "double"
-                yFit,popt = self.exponential_fit(self.autocorr[i])
+                yFit,popt = self.exponential_fit(self.autocorr[i], exp_function=self.exp_function)
                 popts.append(popt)
                 yFits.append(yFit)
             self.tau_c = np.array(popts) #np.max(popts)
+            print("self.tau_c = %s"%self.tau_c)
             self.plot_auto_curve_with_exp_fitting(self.autocorr, yFits, self.labels)
 
         if plot_traces:
@@ -332,12 +334,11 @@ class Convergence(object):
 
     def process(self, nblock=5, nfold=10, nround=100, savefile=True,
             plot=True, verbose=False, block=False, normalize=True):
-        """Process the trajectory by computing the autocorrelation, fitting with
-        an exponential, plotting the traces, etc...
+        """Process the trajectory
 
-        :param int nblock: number of blocks
-        :param int nfold: number of
-        :param int nround: number of rounds to bootstrap
+        :param int default=5 nblock: is the number of partitions in the time series
+        :param int default=10 nfold: is the number of partitions in the shuffled (subsampled) trajectory
+        :param int default=100 nround: is the number of rounds of bootstrapping when computing JSDs
         :param bool default=True savefile:
         :param bool default=True plot:
         :param bool default=False block: block averaging
@@ -400,6 +401,8 @@ class Convergence(object):
 
 
     def plot_block_avg(self, nblock, r_max, fname = "block_avg.png"):
+        """Plot block average"""
+
         plt.figure(figsize=(10,5*len(self.rest_type)))
         x=np.arange(1.,nblock+1.,1.)
         colors=['red','blue','black','green']
@@ -416,7 +419,7 @@ class Convergence(object):
         plt.savefig(fname)
 
 
-    def compute_JSD(self, T1,T2,T_total,ind,allowed_parameters):
+    def compute_JSD(self, T1, T2, T_total, ind, allowed_parameters):
         """Compute JSD for a given part of trajectory.
 
         :var T1, T2, T_total: part 1, part2 and total (part1 + part2)
@@ -455,6 +458,7 @@ class Convergence(object):
         :var all_JSD: JSDs for different amount of total dataset
         :var all_JSDs: JSDs for different amount of total dataset from bootstrapping
         :var rest_type: experimental restraint type
+        :param float default=0.99 p_limit: plot a red horizontal dotted line at this y-value
         :return figure: A figure of JSD and JSDs distribution
         """
 
@@ -506,9 +510,6 @@ class Convergence(object):
     def plot_JSD_distribution(self, all_JSD, all_JSDs, nround, nfold, fname="JSD_distribution.png"):
         """Plots the distributions for JSD"""
 
-        #print(all_JSDs.shape)
-        #print(all_JSDs[0].shape)
-        #print(all_JSDs[0][0].shape)
 
         colors=['red', 'blue','black','green']
         # convert shape of all_JSD from (fold,n_rest) to (n_rest,fold)
@@ -524,7 +525,6 @@ class Convergence(object):
                 JSD_dist[rest].append(np.mean(temp_JSD))
                 JSD_std[rest].append(np.std(temp_JSD))
         plt.figure(figsize=(10,5*n_rest))
-        # NOTE: To Yunhui, can we generalize this next line using nfolds?
         x=np.arange(int(100/nfold),101.,int(100/nfold))   # the dataset was divided into ten folds (this is the only hard coded part)
         for i in range(n_rest):
             plt.subplot(n_rest,1,i+1)
