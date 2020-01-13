@@ -415,6 +415,8 @@ class Convergence(object):
             plt.ylim(min(self.allowed_parameters[i]),max(self.allowed_parameters[i]))
             plt.plot(nblock-0.2,total_max,'*',ms=20,color='green',label='total max')
             plt.legend(loc='best', fontsize=16)
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
         plt.tight_layout()
         plt.savefig(fname)
 
@@ -543,9 +545,11 @@ class Convergence(object):
             lower = bounds[:, int(nround*0.05)]
             upper = bounds[:, int(nround*0.95)]
             plt.fill_between(x,lower,upper,color=colors[i],alpha=0.2)
-            plt.xlabel('dataset (%)')
-            plt.ylabel('JSD')
+            plt.xlabel('dataset (%)', size=18)
+            plt.ylabel('JSD', size=18)
             plt.legend(loc='best')
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
         plt.tight_layout()
         plt.savefig(fname)
 
