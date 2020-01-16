@@ -62,9 +62,10 @@ class Convergence(object):
         return labels
 
 
-    def plot_traces(self, fname="traj_traces.png"):
+    def plot_traces(self, fname="traj_traces.png", xlim=None):
         """Plot trajectory traces.
 
+        :param tuple xlim:
         :return figure: A figure
         """
 
@@ -82,6 +83,8 @@ class Convergence(object):
             plt.legend(loc='best')
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
+            if xlim:
+                plt.xlim(left=xlim[0], right=xlim[1])
         plt.tight_layout()
         plt.savefig(fname)
         print('Done!')
