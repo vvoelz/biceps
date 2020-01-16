@@ -89,7 +89,7 @@ class Convergence(object):
         plt.savefig(fname)
         print('Done!')
 
-    def plot_auto_curve(self, autocorrs, tau_c, labels,
+    def plot_auto_curve(self, xlim=None,
             fname="autocorrelation_curve.png", std_x=None, std_y=None):
         """Plot auto-correlation curve.
 
@@ -102,62 +102,61 @@ class Convergence(object):
 
         print('Plotting autocorrelation curve ...')
         plt.figure( figsize=(3*len(self.rest_type),6))
-        for i in range(len(autocorrs)):
+        for i in range(len(self.autocorr)):
             if len(self.rest_type) == 2:
-                plt.subplot(len(autocorrs),1,i+1)
+                plt.subplot(len(self.autocorr),1,i+1)
             else:
-                plt.subplot(len(autocorrs),2,i+1)
-            plt.plot(np.arange(self.maxtau+1), autocorrs[i])
-            j = round(tau_c[i])
-            plt.axvline(tau_c[i], color='k', linestyle="--")
+                plt.subplot(len(self.autocorr),2,i+1)
+            plt.plot(np.arange(self.maxtau+1), self.autocorr[i])
+            j = round(self.tau_c[i])
+            plt.axvline(self.tau_c[i], color='k', linestyle="--")
 
             if (std_x or std_y) != None:
-                plt.annotate("$\\tau_{auto} = %i \\pm %i$"%(round(tau_c[i]),round(std_x[i])),
-                        (tau_c[i], autocorrs[i][j]),
-                        xytext=(tau_c[i]+10, autocorrs[i][j]+0.05))
+                plt.annotate("$\\tau_{auto} = %i \\pm %i$"%(round(self.tau_c[i]),round(std_x[i])),
+                        (self.tau_c[i], self.autocorr[i][j]),
+                        xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05))
                 if std_x != None:
-                    plt.errorbar(tau_c[i], autocorrs[i][j], xerr=std_x[i],
+                    plt.errorbar(self.tau_c[i], self.autocorr[i][j], xerr=std_x[i],
                             ecolor='k', fmt='o', capsize=10)
 
                 if std_y != None:
                     plt.fill_between(np.arange(self.maxtau+1),
-                            autocorrs[i]-std_y[i], autocorrs[i]+std_y[i], color='r', alpha=0.4)
+                            self.autocorr[i]-std_y[i], self.autocorr[i]+std_y[i], color='r', alpha=0.4)
 
             else:
-                plt.annotate("$\\tau_{auto} = %i$"%(round(tau_c[i])),
-                        (tau_c[i], autocorrs[i][j]),
-                        xytext=(tau_c[i]+10, autocorrs[i][j]+0.05), fontsize=16)
+                plt.annotate("$\\tau_{auto} = %i$"%(round(self.tau_c[i])),
+                        (self.tau_c[i], self.autocorr[i][j]),
+                        xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05), fontsize=16)
 
             plt.xlabel('$\\tau$', fontsize=18)
-            plt.ylabel('$C_{\\tau}$ for %s'%labels[i], fontsize=18)
+            plt.ylabel('$C_{\\tau}$ for %s'%self.labels[i], fontsize=18)
             plt.xlim(left=0)
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
+            if xlim:
+                plt.xlim(left=xlim[0], right=xlim[1])
         plt.tight_layout()
         plt.savefig(fname)
         print('Done!')
 
-    def plot_auto_curve_with_exp_fitting(self, autocorrs, yFits, labels,
+    def plot_auto_curve_with_exp_fitting(self,
             fname="autocorrelation_curve_with_exp_fitting.png"):
         """Plot auto-correlation curve.
 
-        :param np.ndarray autocorrs:
-        :param np.ndarray yFits:
-        :param list labels:
         :return figure: A figure of auto-correlation
         """
 
         print('Plotting autocorrelation curve ...')
         plt.figure( figsize=(3*len(self.rest_type),6))
-        for i in range(len(autocorrs)):
+        for i in range(len(self.autocorr)):
             if len(self.rest_type) == 2:
-                plt.subplot(len(autocorrs),1,i+1)
+                plt.subplot(len(self.autocorr),1,i+1)
             else:
-                plt.subplot(len(autocorrs),2,i+1)
-            plt.plot(np.arange(self.maxtau+1), autocorrs[i])
-            plt.plot(np.arange(self.maxtau+1), yFits[i], 'r--')
+                plt.subplot(len(self.autocorr),2,i+1)
+            plt.plot(np.arange(self.maxtau+1), self.autocorr[i])
+            plt.plot(np.arange(self.maxtau+1), self.yFits[i], 'r--')
             plt.xlabel('$\\tau$', fontsize=18)
-            plt.ylabel('$C_{\\tau}$ for %s'%labels[i], fontsize=18)
+            plt.ylabel('$C_{\\tau}$ for %s'%self.labels[i], fontsize=18)
             plt.xlim(left=0)
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
@@ -290,11 +289,11 @@ class Convergence(object):
         # C++
         #autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
         #        int(maxtau), bool(normalize)))
-        #tau_c = np.array(c_conv.autocorrelation_time(autocorr))
+        #self.tau_c = np.array(c_conv.autocorrelation_time(autocorr))
 
         # Python
-        autocorr = self.cal_auto(sampled_parameters)
-        tau_c = self.autocorrelation_time(autocorr)
+        self.autocorr = self.cal_auto(sampled_parameters)
+        self.tau_c = self.autocorrelation_time(self.autocorr)
 
         if method in ["block-avg","normal"]:
             if method == "normal":
@@ -317,19 +316,17 @@ class Convergence(object):
             else:
                 std_y = np.std(y, axis=1)
                 std_x = np.std(x, axis=1)
-            self.plot_auto_curve(self.autocorr, self.tau_c, self.labels,
-                    std_x=std_x, std_y=std_y)
+            self.plot_auto_curve(std_x=std_x, std_y=std_y)
 
         if method == "exp":
-            self.autocorr = autocorr
-            yFits,popts = [],[]
+            self.yFits,popts = [],[]
             for i in range(len(self.autocorr)):
                 yFit,popt = self.exponential_fit(self.autocorr[i], exp_function=self.exp_function)
                 popts.append(popt)
-                yFits.append(yFit)
+                self.yFits.append(yFit)
             self.tau_c = np.array(popts) #np.max(popts)
             print("self.tau_c = %s"%self.tau_c)
-            self.plot_auto_curve_with_exp_fitting(self.autocorr, yFits, self.labels)
+            self.plot_auto_curve_with_exp_fitting()
 
         if plot_traces:
             self.plot_traces()
