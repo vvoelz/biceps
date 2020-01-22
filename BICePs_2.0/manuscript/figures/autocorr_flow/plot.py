@@ -59,8 +59,3 @@ if __name__ == "__main__":
     plot_JSD_distribution(np.array(all_JSD), np.array(all_JSDs),
             nfold=10, nround=100, fname="JSD_distribution_.pdf")
 
-
-
-
-
-
