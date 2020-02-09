@@ -1,9 +1,9 @@
 import os, sys, glob
 import numpy as np
 import mdtraj
-from toolbox import *
-from Observable import * # Containers for experimental observables
-from Restraint import *
+from .toolbox import *
+from .Observable import * # Containers for experimental observables
+from .Restraint import *
 
 
 
@@ -26,7 +26,7 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None,
 
 #        Restraint.__init__(self, PDB_filename, ref, use_global_ref_sigma=True)
     if ref is not None:
-        if not isinstance(ref, basestring):
+        if not isinstance(ref, str):
             raise ValueError("reference potential type must be a 'str'")
     if not isinstance(lam,float):
         raise ValueError("lambda should be a single number with type of 'float'")
@@ -65,6 +65,14 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None,
 
     if data!= None:
         if data.endswith('cs_H'):
+
+        # NOTE: FIXME
+        #for rest_index in range(len(s)):
+        #    nuisance_parameters = getattr(s[rest_index], "_nuisance_parameters")
+        #    for para in nuisance_parameters:
+        #        self.allowed_parameters.append(getattr(s[rest_index], para))
+        #        self.sampled_parameters.append(np.zeros(len(getattr(s[rest_index], para))))
+
             if ref ==  None:
                 R = Restraint_cs_H(PDB_filename,ref='exp',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
                 R.prep_observable(lam=lam, free_energy=energy, filename=data)
@@ -135,18 +143,18 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None,
             Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
             Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
             for o in range(len(allowed_xcs)):
-		for q in range(len(allowed_bs)):
-			infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],state)
-			Ncs[o,q,:] = (np.load(infile_Nc))
+                for q in range(len(allowed_bs)):
+                    infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],state)
+                    Ncs[o,q,:] = (np.load(infile_Nc))
 
             for p in range(len(allowed_xhs)):
                 for q in range(len(allowed_bs)):
 #                        infile_Nc='input/Nc/Nc_x%0.1f_b%d_state%03d.npy'%(allowed_xcs[o], allowed_bs[q],i)
 #                        infile_Nh='input/Nh/Nh_x%0.1f_b%d_state%03d.npy'%(allowed_xhs[p], allowed_bs[q],i)
-                        infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],state)
+                    infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],state)
 #                        print "infile_Nc", infile_Nc
 #                        print "infile_Nh", infile_Nh
-                        Nhs[p,q,:] = (np.load(infile_Nh))
+                    Nhs[p,q,:] = (np.load(infile_Nh))
 
 
             if ref == None:
@@ -163,4 +171,3 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None,
 #__all__ = [
 #    'init_res',
 #]
-

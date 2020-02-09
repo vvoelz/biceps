@@ -92,7 +92,7 @@ def biceps_restraint_line_J(restraint_index, i, j, k, l, topology, exp_J_couplin
 def biceps_restraint_line_J_header():
     """Returns a header string the the Jcoupling restraint file."""
 
-    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3', 'atom_index4', 'res4', 'atom_name4', 'exp_J_coupling(Hz)', 'model_J_coupling(Hz)'], ' ')
+    return "#" + str.join(' ', ('restraint_index', 'atom_index1', 'res1', 'atom_name1', 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3', 'atom_index4', 'res4', 'atom_name4', 'exp_J_coupling(Hz)', 'model_J_coupling(Hz)'))
 
 
 class prep_J(object):
@@ -141,7 +141,7 @@ class prep_J(object):
             fout.write(line+'\n')
         fout.close()
 
-        print 'Wrote', filename
+        print('Wrote', filename)
 
 
 
@@ -161,7 +161,7 @@ class prep_J(object):
 
         fields = line.strip().split()
         if len(fields) != 15:
-            raise Exception, "Incorrect number of fields in parsed Jcoupling line!"
+            raise Exception("Incorrect number of fields in parsed Jcoupling line!")
 
         restraint_index = int(fields[0])
         atom_index1     = int(fields[1])
@@ -179,4 +179,3 @@ class prep_J(object):
         exp_J_coupling      = float(fields[13])
         model_J_coupling      = float(fields[14])
         return restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, exp_J_coupling, model_J_coupling
-

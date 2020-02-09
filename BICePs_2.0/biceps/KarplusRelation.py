@@ -6,7 +6,7 @@ class KarplusRelation(object):
     """ A class containing formulae giving J-coupling values from dihedral angle."""
 
     def __init__(self):
-        """Initialize the KarplusRelation class.""" 
+        """Initialize the KarplusRelation class."""
 
         pass
 
@@ -55,7 +55,7 @@ class KarplusRelation(object):
         for an allylic sp3-sp2 bond"""
 
         if np.abs(angle) < 90.0:
-            J0 = 6.6 
+            J0 = 6.6
         else:
             J0 = 11.6
         # Convert to radians
@@ -78,10 +78,10 @@ class KarplusRelation(object):
         """
         NOTES: From: http://janocchio.sourceforge.net/janocchio.docbook/ch04s03.html
         Altona is good if the protons are attached to two sp3 carbons. This equation
-        takes into account the electronegativity of all adjacent atoms. 
+        takes into account the electronegativity of all adjacent atoms.
 
         Haasnoot, C., de Leeuw, FA, Altona, C (1980). Tetrahedron 36(19), 2783-2792
-        """ 
+        """
 
         # This is really complicated -- you have to know the electronegativities of substituents
         # TBA
@@ -160,11 +160,8 @@ if __name__ == '__main__':
         plt.hold(True)
     plt.xlim(0,180)
     plt.ylim(-2, 16)
-    plt.yticks(range(16))
+    plt.yticks(list(range(16)))
     plt.legend(['Karplus', 'Bothner-By', 'Karplus2'], 'upper left')
     plt.xlabel('angle (degrees)')
     plt.ylabel('$^3 J_{HH}$')
     plt.show()
-
-    
-

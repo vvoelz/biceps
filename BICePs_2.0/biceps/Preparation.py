@@ -10,10 +10,10 @@ import os, sys, glob, string
 import numpy as np
 import mdtraj as md
 import re
-from prep_cs import *
-from prep_J import *
-from prep_noe import *
-from prep_pf import *
+from .prep_cs import *
+from .prep_J import *
+from .prep_noe import *
+from .prep_pf import *
 
 ##############################################################################
 # Code
@@ -60,7 +60,7 @@ class Preparation(object):
         self.restraint_data = np.loadtxt(exp_data)
         self.scheme = scheme
         if self.ind.shape[0] != self.restraint_data.shape[0]:
-                raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.')%(self.ind.shape[0],self.restraint_data.shape[0])
+            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.')%(self.ind.shape[0],self.restraint_data.shape[0])
 
         self.topology = md.load(top).topology
         self.convert = lambda txt: int(txt) if txt.isdigit() else txt
@@ -98,13 +98,13 @@ class Preparation(object):
 
     def write_cs_input(self):
         #print self.data
-        for j in xrange(len(self.data)):
+        for j in range(len(self.data)):
             model_data = np.loadtxt(self.data[j])
             r = prep_cs()
             all_atom_indices = [atom.index for atom in self.topology.atoms]
             all_atom_residues = [atom.residue for atom in self.topology.atoms]
             all_atom_names = [atom.name for atom in self.topology.atoms]
-            for i in xrange(self.ind.shape[0]):
+            for i in range(self.ind.shape[0]):
                 a1 = int(self.ind[i])
                 restraint_index = self.restraint_data[i,0]
                 exp_chemical_shift        = self.restraint_data[i,1]
@@ -113,13 +113,13 @@ class Preparation(object):
             r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_noe_input(self):
-        for j in xrange(len(self.data)):
+        for j in range(len(self.data)):
             model_data = np.loadtxt(self.data[j])
             r = prep_noe()
             all_atom_indices = [atom.index for atom in self.topology.atoms]
             all_atom_residues = [atom.residue for atom in self.topology.atoms]
             all_atom_names = [atom.name for atom in self.topology.atoms]
-            for i in xrange(self.ind.shape[0]):
+            for i in range(self.ind.shape[0]):
                 a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
                 restraint_index = self.restraint_data[i,0]
                 exp_noe        = self.restraint_data[i,1]
@@ -128,13 +128,13 @@ class Preparation(object):
             r.write('%s/%d.%s'%(self.out,j,self.scheme))
 
     def write_J_input(self):
-        for j in xrange(len(self.data)):
+        for j in range(len(self.data)):
             model_data = np.loadtxt(self.data[j])
             r = prep_J()
             all_atom_indices = [atom.index for atom in self.topology.atoms]
             all_atom_residues = [atom.residue for atom in self.topology.atoms]
             all_atom_names = [atom.name for atom in self.topology.atoms]
-            for i in xrange(self.ind.shape[0]):
+            for i in range(self.ind.shape[0]):
                 a1, a2, a3, a4 = int(self.ind[i,0]), int(self.ind[i,1]), int(self.ind[i,2]), int(self.ind[i,3])
                 restraint_index = self.restraint_data[i,0]
                 exp_J_coupling      = self.restraint_data[i,1]
@@ -145,13 +145,13 @@ class Preparation(object):
 
     def write_pf_input(self):
         if precomputed_pf:
-            for j in xrange(len(self.data)):
+            for j in range(len(self.data)):
                 model_data = np.loadtxt(self.data[j])
                 r = prep_pf()
                 all_atom_indices = [atom.index for atom in self.topology.atoms]
                 all_atom_residues = [atom.residue for atom in self.topology.atoms]
                 all_atom_names = [atom.name for atom in self.topology.atoms]
-                for i in xrange(self.ind.shape[0]):
+                for i in range(self.ind.shape[0]):
                     a1 = int(self.ind[i])
                     restraint_index = self.restraint_data[i,0]
                     exp_pf          = self.restraint_data[i,1]
@@ -159,12 +159,12 @@ class Preparation(object):
                     r.add_line(restraint_index, a1, self.topology, exp_pf, protectionfactor)
                 r.write('%s/%d.%s'%(self.out,j,self.scheme))
         else:
-            for j in xrange(len(self.data)):
+            for j in range(len(self.data)):
                 r = prep_pf()
                 all_atom_indices = [atom.index for atom in self.topology.atoms]
                 all_atom_residues = [atom.residue for atom in self.topology.atoms]
                 all_atom_names = [atom.name for atom in self.topology.atoms]
-                for i in xrange(self.ind.shape[0]):
+                for i in range(self.ind.shape[0]):
                     a1 = int(self.ind[i])
                     restraint_index = self.restraint_data[i,0]
                     exp_pf          = self.restraint_data[i,1]
@@ -176,4 +176,3 @@ class Preparation(object):
 #    'Preparation'
 
 #]
-

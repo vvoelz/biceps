@@ -14,8 +14,8 @@ import sys, os, glob
 import numpy as np
 import re
 import yaml, io
-from J_coupling import * # MDTraj altered src code
-from KarplusRelation import *
+from .J_coupling import * # MDTraj altered src code
+from .KarplusRelation import *
 import mdtraj as md
 import matplotlib
 matplotlib.use('Agg')
@@ -35,24 +35,24 @@ def sort_data(dataFiles):
 
     dir_list=[]
     if not os.path.exists(dataFiles):
-                raise ValueError("data directory doesn't exist")
+        raise ValueError("data directory doesn't exist")
     if ',' in dataFiles:
-        print 'Sorting out the data...\n'
+        print('Sorting out the data...\n')
         raw_dir = (dataFiles).split(',')
-	for dirt in raw_dir:
-		if dirt[-1] == '/':
-			dir_list.append(dirt+'*')
-		else:
-			dir_list.append(dirt+'/*')
+        for dirt in raw_dir:
+            if dirt[-1] == '/':
+                dir_list.append(dirt+'*')
+            else:
+                dir_list.append(dirt+'/*')
     else:
-	raw_dir = dataFiles
-	if raw_dir[-1] == '/':
-	        dir_list.append(dataFiles+'*')
-	else:
-		dir_list.append(dataFiles+'/*')
+        raw_dir = dataFiles
+        if raw_dir[-1] == '/':
+            dir_list.append(dataFiles+'*')
+        else:
+            dir_list.append(dataFiles+'/*')
 #    print 'dir_list', dir_list
 
-    data = [[] for x in xrange(7)] # list for every extension; 7 possible experimental observables supported
+    data = [[] for x in range(7)] # list for every extension; 7 possible experimental observables supported
     # Sorting the data by extension into lists. Various directories is not an issue...
     for i in range(0,len(dir_list)):
         convert = lambda txt: int(txt) if txt.isdigit() else txt
@@ -75,7 +75,7 @@ def sort_data(dataFiles):
 
             else:
                 raise ValueError("Incompatible file extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
-    data = np.array(filter(None, data)) # removing any empty lists
+    data = np.array([_f for _f in data if _f]) # removing any empty lists
     Data = np.stack(data, axis=-1)
     data = Data.tolist()
     return data
@@ -87,23 +87,23 @@ def list_res(input_data):
 #    input_data = sort_data(data)
     scheme=[]
     for i in input_data[0]:
-            if i.endswith('.cs_H'):
-                scheme.append('cs_H')
-            elif i.endswith('.cs_Ha'):
-                scheme.append('cs_Ha')
-            elif i.endswith('.cs_N'):
-                scheme.append('cs_N')
-            elif i.endswith('.cs_Ca'):
-                scheme.append('cs_Ca')
-            elif i.endswith('.J'):
-                scheme.append('J')
-            elif i.endswith('.pf'):
-                scheme.append('pf')
-            elif i.endswith('.noe'):
-                scheme.append('noe')
+        if i.endswith('.cs_H'):
+            scheme.append('cs_H')
+        elif i.endswith('.cs_Ha'):
+            scheme.append('cs_Ha')
+        elif i.endswith('.cs_N'):
+            scheme.append('cs_N')
+        elif i.endswith('.cs_Ca'):
+            scheme.append('cs_Ca')
+        elif i.endswith('.J'):
+            scheme.append('J')
+        elif i.endswith('.pf'):
+            scheme.append('pf')
+        elif i.endswith('.noe'):
+            scheme.append('noe')
 #                scheme.append('gamma')
-            else:
-                raise ValueError("Incompatible File extension. Use:{*.noe, *.J, *.cs_H, *.cs_Ha, *.cs_N, *.cs_Ca, *.pf}")
+        else:
+            raise ValueError("Incompatible File extension. Use:{*.noe, *.J, *.cs_H, *.cs_Ha, *.cs_N, *.cs_Ca, *.pf}")
 
     return scheme
 
@@ -121,7 +121,7 @@ def read_results(self,filename):
     """Reads a numpy compressed filetype(*.npz) file"""
 
     loaded = np.load(filename)
-    print(loaded.items())
+    print((list(loaded.items())))
 
 def convert_pop_to_energy(pop_filename, out_filename=None):
     """Convert population to energy for each state using the following:
@@ -173,17 +173,17 @@ def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
                 t = md.load(traj,top=top)[frame[i]]
                 d = compute_J3_HN_HA(t, model = model)
                 if i == 0:
-                        J.append(d[0])
-                        J.append(d[1])
+                    J.append(d[0])
+                    J.append(d[1])
                 else:
-                        J.append(d[1])
+                    J.append(d[1])
     else:
         t = md.load(top)
         J = compute_J3_HN_HA(t, model = model)
     if outname is not None:
-            print('saving output file...')
-            np.save(outname, J)
-            print('Done!')
+        print('saving output file...')
+        np.save(outname, J)
+        print('Done!')
     else:
         print('saving output file ...')
         np.save('J3_coupling',J)
@@ -258,7 +258,7 @@ def plot_ref(traj, debug = True):
     """
 
     if debug:
-            print 'Loading %s ...'%traj
+        print('Loading %s ...'%traj)
     results = np.load(traj)['arr_0'].item()
     n_restraints = len(results['ref_potential'])
     for i in range(n_restraints):
@@ -268,7 +268,7 @@ def plot_ref(traj, debug = True):
             n_model = len(results['ref_potential'][i][0])
             c,r = 5, int(n_model)/5 + 1
             x = np.arange(0.0,30.0,0.01)
-            print "plotting figures..."
+            print("plotting figures...")
             plt.figure(figsize=(4*c,5*r))
             if len(results['ref_potential'][i]) == 1:   ## exp ##
                 for j in range(n_model):
@@ -301,7 +301,7 @@ def plot_ref(traj, debug = True):
                 plt.tight_layout()
                 plt.savefig('ref_distribution.pdf')
                 plt.close()
-                print "Done!"
+                print("Done!")
 
 
 
@@ -389,11 +389,11 @@ def g(f, max_tau=10000, normalize=True):
     """Calculate the autocorrelaton function for a time-series f(t).
     INPUT
     f         - a 1D numpy array containing the time series f(t)
-    
+
     PARAMETERS
     max_tau   - the maximum autocorrelation time to consider.
     normalize - if True, return g(tau)/g[0]
-    
+
     RETURNS
     result    - a numpy array of size (max_tau+1,) containing g(tau).
     """
@@ -419,7 +419,7 @@ def double_exp_decay(x, a0, a1, a2, tau1, tau2):
 
 def exponential_fit(ac, use_function='single'):
     """Perform a single- or double- exponential fit on an autocorrelation curve.
-    
+
     RETURNS
     yFit  - the y-values of the fit curve."""
 
@@ -430,7 +430,7 @@ def exponential_fit(ac, use_function='single'):
         yFit_data = single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
         # print 'best-fit a0 = ', popt[0], '+/-', pcov[0][0]
         # print 'best-fit a1 = ', popt[1], '+/-', pcov[1][1]
-        print 'best-fit tau1 = ', popt[2], '+/-', pcov[2][2]
+        print('best-fit tau1 = ', popt[2], '+/-', pcov[2][2])
     else:
         v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
         popt, pcov = curve_fit(double_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
@@ -438,8 +438,8 @@ def exponential_fit(ac, use_function='single'):
         # print 'best-fit a0 = ', popt[0], '+/-', pcov[0][0]
         #print 'best-fit a1 = ', popt[1], '+/-', pcov[1][1]
         #print 'best-fit a2 = ', popt[2], '+/-', pcov[2][2]
-        print 'best-fit tau1 = ', popt[3], '+/-', pcov[3][3]
-        print 'best-fit tau2 = ', popt[4], '+/-', pcov[4][4]
+        print('best-fit tau1 = ', popt[3], '+/-', pcov[3][3])
+        print('best-fit tau2 = ', popt[4], '+/-', pcov[4][4])
 
     return yFit_data
 
@@ -494,7 +494,7 @@ def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
                     for j in range(len(rest_type)):
                         sampled_parameters[j].append(allowed_parameters[j][t[i][4:][0][j][0]])
             #ac_parameters=[[] for i in range(len(rest_type))]
-	    ac_parameters=[]
+            ac_parameters=[]
             for i in range(len(rest_type)):
                 ac_parameters.append(autocorr_valid(np.array(sampled_parameters[i]),tau))
     n_rest = len(rest_type)
@@ -639,7 +639,7 @@ def plot_grid(traj, rest_type=None):
         rest = get_rest_type(traj)
     else:
         rest = rest_type
-    t = np.load(traj)['arr_0'].item() 
+    t = np.load(traj)['arr_0'].item()
     grid = t['grid']
     for i in range(len(grid)):
         plt.figure()
@@ -667,7 +667,7 @@ def find_all_state_sampled_time(trace,nstates):
     init = 0
     while 0 in all_states:
         if init == len(trace):
-            print 'not all state sampled, these states', np.where(all_states == 0)[0],'are not sampled'
+            print('not all state sampled, these states', np.where(all_states == 0)[0],'are not sampled')
             return 'null', frac
         else:
         #    print trace[init]
@@ -693,4 +693,3 @@ def find_all_state_sampled_time(trace,nstates):
 #    'plot_ac',
 #    'compute_JSD',
 #    'plot_conv']
-

@@ -115,7 +115,7 @@ def compute_J3_HN_HA(traj, model="Bax2007"):
     indices, phi = compute_phi(traj)
 
     if model not in J3_HN_HA_coefficients:
-        raise(KeyError("model must be one of %s" % J3_HN_HA_coefficients.keys()))
+        raise KeyError
 
     J = _J3_function(phi, **J3_HN_HA_coefficients[model])
     return indices, J
@@ -125,4 +125,3 @@ def compute_J3_HN_HA(traj, model="Bax2007"):
 #__all__ = [
 #   '_J3_function',
 #   'compute_J3_HN_HA']
-

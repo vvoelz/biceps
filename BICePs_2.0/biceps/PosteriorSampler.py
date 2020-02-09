@@ -7,16 +7,16 @@
 ##############################################################################
 # Imports
 ##############################################################################
-from __future__ import print_function
+
 import os, sys, glob, copy
 import numpy as np
 #cimport numpy as np
 #import cython
 from scipy  import loadtxt, savetxt
 #from matplotlib import pylab as plt
-from KarplusRelation import *     # Returns J-coupling values from dihedral angles
-from Restraint import *
-from toolbox import *
+from .KarplusRelation import *     # Returns J-coupling values from dihedral angles
+from .Restraint import *
+from .toolbox import *
 
 ##############################################################################
 # Main
@@ -64,7 +64,7 @@ class PosteriorSampler(object):
         # Go through each restraint type, and construct the specified reference potential if needed
 
         ## the list of Restraints should be the same for all structures in the ensemble -
-	## ... use the first structure's list to determine what kind of reference potential each Restraint has
+        ## ... use the first structure's list to determine what kind of reference potential each Restraint has
         ref_types = [ R.ref for R in ensemble[0] ]
 
         # for each Restraint, calculate global reference potential parameters by looking across all structures
@@ -114,7 +114,7 @@ class PosteriorSampler(object):
 #        for rest_index in range(len(self.ensemble[0])):
 #            for s in self.ensemble[rest_index]:
         for s in self.ensemble:
-            Z +=  np.exp(-s[0].free_energy)
+            Z +=  np.exp( -np.array(s[0].free_energy, dtype=np.float128) )
         self.logZ = np.log(Z)
         self.ln2pi = np.log(2.0*np.pi)
 
@@ -350,9 +350,9 @@ class PosteriorSampler(object):
                 print('Result =',result)
                 print('state %s, f_sim %s, logZ %s'%(new_state, s[rest_index].free_energy, self.logZ))
                 if 'allowed_gamma' in s[rest_index]._nuisance_parameters:
-                     print('s[%s].sse[%s]'%(rest_index,int(parameter_indices[rest_index][1])), s[rest_index].sse[int(parameter_indices[rest_index][1])], 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
+                    print('s[%s].sse[%s]'%(rest_index,int(parameter_indices[rest_index][1])), s[rest_index].sse[int(parameter_indices[rest_index][1])], 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
                 else:
-                     print('s[%s].sse'%rest_index, s[rest_index].sse, 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
+                    print('s[%s].sse'%rest_index, s[rest_index].sse, 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
                 if hasattr(s[rest_index], 'sum_neglog_exp_ref'):
                     print('s[%s].sum_neglog_exp_ref'%rest_index, s[rest_index].sum_neglog_exp_ref)
                 if hasattr(s[rest_index], 'sum_neglog_gaussian_ref'):
@@ -511,10 +511,10 @@ class PosteriorSampler(object):
                 _parameters = new_parameters
                 sep_accepted[actual_sample_ind] += 1.0  # keep recording accepted step based on which parameters sampled
                 self.accepted += 1.0
-		if actual_sample_ind == len(temp_parameters):
-			grid[to_sample_ind][ind1,ind1] += 1.0
-		else:
-                	grid[to_sample_ind][ind1,ind2] += 1.0
+                if actual_sample_ind == len(temp_parameters):
+                    grid[to_sample_ind][ind1,ind1] += 1.0
+                else:
+                    grid[to_sample_ind][ind1,ind2] += 1.0
             self.total += 1.0
 
             if verbose:
@@ -551,7 +551,7 @@ class PosteriorSampler(object):
             temp=[[] for i in range(len(_parameter_indices))]
             for i in range(len(_parameter_indices)):
                 for j in _parameter_indices[i]:
-                        temp[i].append(int(j))
+                    temp[i].append(int(j))
 
 
 
@@ -715,4 +715,3 @@ class PosteriorSamplingTrajectory(object):
 
 
 #]
-

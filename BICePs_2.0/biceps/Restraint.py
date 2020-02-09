@@ -10,13 +10,13 @@
 import os, sys, glob
 import numpy as np
 import mdtraj
-from KarplusRelation import * # Returns J-coupling values from dihedral angles
-from toolbox import *
-from prep_cs import *    # Creates Chemical shift restraint file
-from prep_J import *     # Creates J-coupling const. restraint file
-from prep_noe import *   # Creates NOE (Nuclear Overhauser effect) restraint file
-from prep_pf import *    # Prepare functions for protection factors restraint file
-from Observable import * # Containers for experimental observables
+from .KarplusRelation import * # Returns J-coupling values from dihedral angles
+from .toolbox import *
+from .prep_cs import *    # Creates Chemical shift restraint file
+from .prep_J import *     # Creates J-coupling const. restraint file
+from .prep_noe import *   # Creates NOE (Nuclear Overhauser effect) restraint file
+from .prep_pf import *    # Prepare functions for protection factors restraint file
+from .Observable import * # Containers for experimental observables
 
 ##############################################################################
 # Code
@@ -75,7 +75,7 @@ class Restraint(object):
         self.sigma_max = sigma_max
         self.allowed_sigma = np.exp(np.arange(np.log(self.sigma_min),
             np.log(self.sigma_max), self.dlogsigma))
-        self.sigma_index = len(self.allowed_sigma)/2
+        self.sigma_index = int(len(self.allowed_sigma)/2)
         self.sigma = self.allowed_sigma[self.sigma_index]
 
 
@@ -89,7 +89,7 @@ class Restraint(object):
         # Read in the lines of the cs data file
         read = prep
         if verbose:
-            print read.lines
+            print(read.lines)
         data = []
         for line in read.lines:
             data.append( read.parse_line(line) )
@@ -128,8 +128,8 @@ class Restraint(object):
 
             if debug:
                 for i in range(self.n):
-                    print '---->', i, '%d'%self.restraints[i].i,
-                    print '      exp', self.restraints[i].exp, 'model', self.restraints[i].model
+                    print('---->', i, '%d'%self.restraints[i].i, end=' ')
+                    print('      exp', self.restraints[i].exp, 'model', self.restraints[i].model)
 
                 #/print 'self.sse', self.sse
 
@@ -148,8 +148,8 @@ class Restraint(object):
             N = 0.0
             for i in range(self.n):
                 if debug:
-                    print '---->', i, '%d'%self.restraints[i].i,
-                    print '      exp', self.restraints[i].exp, 'model', self.restraints[i].model
+                    print('---->', i, '%d'%self.restraints[i].i, end=' ')
+                    print('      exp', self.restraints[i].exp, 'model', self.restraints[i].model)
 
                 err = self.restraints[i].model - self.restraints[i].exp
                 sse += (self.restraints[i].weight*err**2.0)
@@ -157,7 +157,7 @@ class Restraint(object):
             self.sse = sse
             self.Ndof = N
             if debug:
-                print 'self.sse', self.sse
+                print('self.sse', self.sse)
 
 
     def compute_neglog_exp_ref(self):
@@ -203,7 +203,7 @@ class Restraint_cs_Ca(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         ##self.free_energy = free_energy
-        self.free_energy = lam*free_energy
+        self.free_energy = np.float128(lam*free_energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
@@ -220,14 +220,14 @@ class Restraint_cs_Ca(Restraint):
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print 'Loaded from', filename, ':'
+            print('Loaded from', filename, ':')
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
             Obs =  NMR_Chemicalshift(i, exp, model)
             self.add_restraint(Obs)
             if verbose:
-                print entry
+                print(entry)
             self.n += 1
         self.compute_sse(debug=False)
 
@@ -247,7 +247,7 @@ class Restraint_cs_H(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         #self.free_energy = free_energy
-        self.free_energy = lam*free_energy
+        self.free_energy = np.float128(lam*free_energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
@@ -264,14 +264,14 @@ class Restraint_cs_H(Restraint):
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print 'Loaded from', filename, ':'
+            print('Loaded from', filename, ':')
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
             Obs = NMR_Chemicalshift(i, exp, model)
             self.add_restraint(Obs)
             if verbose:
-                print entry
+                print(entry)
             self.n += 1
         self.compute_sse(debug=False)
 
@@ -290,7 +290,7 @@ class Restraint_cs_Ha(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         #self.free_energy = free_energy
-        self.free_energy = lam*free_energy
+        self.free_energy = np.float128(lam*free_energy)
         self.Ndof = None
         self._nuisance_parameters = ['allowed_sigma']
         # Private variables to store specific restraint attributes in a list
@@ -308,14 +308,14 @@ class Restraint_cs_Ha(Restraint):
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print 'Loaded from', filename, ':'
+            print('Loaded from', filename, ':')
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
             Obs = NMR_Chemicalshift(i, exp, model)
             self.add_restraint(Obs)
             if verbose:
-                print entry
+                print(entry)
             self.n += 1
         self.compute_sse(debug=False)
 
@@ -334,7 +334,7 @@ class Restraint_cs_N(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         #self.free_energy = free_energy
-        self.free_energy = lam*free_energy
+        self.free_energy = np.float128(lam*free_energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
@@ -351,14 +351,14 @@ class Restraint_cs_N(Restraint):
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print 'Loaded from', filename, ':'
+            print('Loaded from', filename, ':')
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
             Obs = NMR_Chemicalshift(i, exp, model)
             self.add_restraint(Obs)
             if verbose:
-                print entry
+                print(entry)
             self.n += 1
         self.compute_sse(debug=False)
 #        self.equivalency_groups = {}
@@ -376,7 +376,7 @@ class Restraint_cs_N(Restraint):
 
 #        if verbose:
 #            print 'self.equivalency_groups', self.equivalency_groups
-    
+
         # adjust the weights of distances and dihedrals to account for equivalencies
 #        self.adjust_weights()
 #        self.compute_sse(debug=False)
@@ -406,7 +406,7 @@ class Restraint_J(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         #self.free_energy = free_energy
-        self.free_energy = lam*free_energy
+        self.free_energy = np.float128(lam*free_energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
@@ -438,7 +438,7 @@ class Restraint_J(Restraint):
                     equivalency_index=restraint_index)
             self.add_restraint(Obs)
             if verbose:
-                print entry
+                print(entry)
             self.n += 1
 
         self.equivalency_groups = {}
@@ -448,12 +448,12 @@ class Restraint_J(Restraint):
             if 'NMR_Dihedral' in self.restraints[i].__str__():
                 d = self.restraints[i]
                 if d.equivalency_index != None:
-                    if not self.equivalency_groups.has_key(d.equivalency_index):
+                    if d.equivalency_index not in self.equivalency_groups:
                         self.equivalency_groups[d.equivalency_index] = []
                     self.equivalency_groups[d.equivalency_index].append(i)
 
         if verbose:
-            print 'self.equivalency_groups', self.equivalency_groups
+            print('self.equivalency_groups', self.equivalency_groups)
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
         self.compute_sse(debug=False)
@@ -463,7 +463,7 @@ class Restraint_J(Restraint):
         """Adjust the weights of distance and dihedral restraints based on
         their equivalency group."""
 
-        for group in self.equivalency_groups.values():
+        for group in list(self.equivalency_groups.values()):
             n = float(len(group))
             for i in group:
                 if 'NMR_Dihedral' in self.restraints[i].__str__():
@@ -491,7 +491,7 @@ class Restraint_noe(Restraint):
         self.gamma_min = gamma_min
         self.gamma_max = gamma_max
         self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
-        self.gamma_index = len(self.allowed_gamma)/2
+        self.gamma_index = int(len(self.allowed_gamma)/2)
         self.gamma = self.allowed_gamma[self.gamma_index]
 
         # Flag to use log-normal distance errors log(d/d0)
@@ -500,7 +500,7 @@ class Restraint_noe(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         #self.free_energy = free_energy
-        self.free_energy = lam*free_energy
+        self.free_energy = np.float128(lam*free_energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma','allowed_gamma']
@@ -527,7 +527,7 @@ class Restraint_noe(Restraint):
             Obs = NMR_Distance(i, j, exp, model, equivalency_index=restraint_index)
             self.add_restraint(Obs)
             if verbose:
-                print entry
+                print(entry)
             self.n += 1
 
         self.equivalency_groups = {}
@@ -539,12 +539,12 @@ class Restraint_noe(Restraint):
             if 'NMR_Distance' in self.restraints[i].__str__():
                 d = self.restraints[i]
                 if d.equivalency_index != None:
-                    if not self.equivalency_groups.has_key(d.equivalency_index):
+                    if d.equivalency_index not in self.equivalency_groups:
                         self.equivalency_groups[d.equivalency_index] = []
                     self.equivalency_groups[d.equivalency_index].append(i)
 
         if verbose:
-            print 'self.equivalency_groups', self.equivalency_groups
+            print('self.equivalency_groups', self.equivalency_groups)
 
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
@@ -554,7 +554,7 @@ class Restraint_noe(Restraint):
         """Adjust the weights of distance restraints based on
         their equivalency group."""
 
-        for group in self.equivalency_groups.values():
+        for group in list(self.equivalency_groups.values()):
             n = float(len(group))
             for i in group:
                 if 'NMR_Distance' in self.restraints[i].__str__():
@@ -576,7 +576,7 @@ class Restraint_pf(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         #self.free_energy = free_energy
-        self.free_energy = lam*free_energy
+        self.free_energy = np.float128(lam*free_energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         if precomputed_pf:
@@ -618,22 +618,22 @@ class Restraint_pf(Restraint):
             self.allowed_bs = np.arange(self.bs_min, self.bs_max, self.dbs)
             #print "self.allowed_beta_c", len(self.allowed_beta_c), "self.allowed_beta_h", len(self.allowed_beta_h), "self.allowed_beta_0", len(self.allowed_beta_0), "self.allowed_xcs", len(self.allowed_xcs), "self.allowed_xhs", len(self.allowed_xhs), "self.allowed_bs", len(self.allowed_bs)
             #sys.exit()
-            self.beta_c_index = len(self.allowed_beta_c)/2
+            self.beta_c_index = int(len(self.allowed_beta_c)/2)
             self.beta_c = self.allowed_beta_c[self.beta_c_index]
 
-            self.beta_h_index = len(self.allowed_beta_h)/2
+            self.beta_h_index = int(len(self.allowed_beta_h)/2)
             self.beta_h = self.allowed_beta_h[self.beta_h_index]
 
-            self.beta_0_index = len(self.allowed_beta_0)/2
+            self.beta_0_index = int(len(self.allowed_beta_0)/2)
             self.beta_0 = self.allowed_beta_0[self.beta_0_index]
 
-            self.xcs_index = len(self.allowed_xcs)/2
+            self.xcs_index = int(len(self.allowed_xcs)/2)
             self.xcs = self.allowed_xcs[self.xcs_index]
 
-            self.xhs_index = len(self.allowed_xhs)/2
+            self.xhs_index = int(len(self.allowed_xhs)/2)
             self.xhs = self.allowed_xhs[self.xhs_index]
 
-            self.bs_index = len(self.allowed_bs)/2
+            self.bs_index = int(len(self.allowed_bs)/2)
             self.bs = self.allowed_bs[self.bs_index]
 
             self._nuisance_parameters = ['allowed_sigma','allowed_beta_c', 'allowed_beta_h',
@@ -649,7 +649,7 @@ class Restraint_pf(Restraint):
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print 'Loaded from', filename, ':'
+            print('Loaded from', filename, ':')
 
         self.nObs = len(self.data)
         if precomputed_pf:
@@ -658,7 +658,7 @@ class Restraint_pf(Restraint):
                 Obs = NMR_Protectionfactor(i, exp, model)
                 self.add_restraint(Obs)
                 if verbose:
-                    print entry
+                    print(entry)
                 self.n += 1
         else:
             for entry in self.data:
@@ -667,7 +667,7 @@ class Restraint_pf(Restraint):
                 Obs = NMR_Protectionfactor(i, exp, model)
                 self.add_restraint(Obs)
                 if verbose:
-                    print entry
+                    print(entry)
                 self.n += 1
         self.compute_sse(debug=False)
 
@@ -710,12 +710,12 @@ class Restraint_pf(Restraint):
         Nh     = self.tile_2D_multiaxis(Nhs_i, nuisance_shape, axes=[4,5])
 
         if debug:
-            print 'nuisance_shape', nuisance_shape
-            print 'beta_c.shape', beta_c.shape
-            print 'beta_h.shape', beta_h.shape
-            print 'beta_0.shape', beta_0.shape
-            print 'Nc.shape', Nc.shape
-            print 'Nh.shape', Nh.shape
+            print('nuisance_shape', nuisance_shape)
+            print('beta_c.shape', beta_c.shape)
+            print('beta_h.shape', beta_h.shape)
+            print('beta_0.shape', beta_0.shape)
+            print('Nc.shape', Nc.shape)
+            print('Nh.shape', Nh.shape)
 
         return beta_c * Nc + beta_h * Nh + beta_0
 
@@ -773,7 +773,7 @@ class Restraint_pf(Restraint):
             self.neglog_exp_ref[j] = np.maximum(-1.0*self.restraints[j].model, 0.0)
 #           print "sum", sum(self.neglog_reference_priors_PF[j])
             self.sum_neglog_exp_ref  += self.restraints[j].weight * self.neglog_exp_ref[j]
-        
+
 
     def compute_neglog_gaussian_ref_pf(self):
         self.neglog_gaussian_ref = np.zeros((self.n, len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0),
@@ -783,7 +783,7 @@ class Restraint_pf(Restraint):
         for j in range(self.n): # number of residues
             self.neglog_gaussian_ref[j] = 0.5 * np.log(2.0*np.pi) + np.log(self.ref_sigma[j]) \
                       + (self.restraints[j].model - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
-            self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]            
+            self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
 
 
 
@@ -813,6 +813,3 @@ class Restraint_pf(Restraint):
 #    'Restraint_pf.prep_observable',
 
 #]
-
-
-

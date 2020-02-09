@@ -46,7 +46,7 @@ def biceps_restraint_line_cs(restraint_index, i, topology, exp_chemical_shift, m
     2             residue 1
     3             atom name 1
     4             exp_chemical_shift (in ppm)
-    5		  model_chemical_shift (in ppm)
+    5             model_chemical_shift (in ppm)
     """
 
     resname1  = [atom.residue for atom in topology.atoms if atom.index == i][0]
@@ -55,7 +55,7 @@ def biceps_restraint_line_cs(restraint_index, i, topology, exp_chemical_shift, m
     #resname1, atomname1 = topology.atoms[i].residue, topology.atoms[i].name
     #resname2, atomname2 = topology.atoms[j].residue, topology.atoms[j].name
 
-    return '%-8d     %-8d %-8s %-8s     %8.4f	%8.4f'%(restraint_index, i, resname1, atomname1, exp_chemical_shift, model_chemical_shift)
+    return '%-8d     %-8d %-8s %-8s     %8.4f   %8.4f'%(restraint_index, i, resname1, atomname1, exp_chemical_shift, model_chemical_shift)
 
 
 def biceps_restraint_line_cs_header():
@@ -110,7 +110,7 @@ class prep_cs(object):
             fout.write(line+'\n')
         fout.close()
 
-        print 'Wrote', filename
+        print('Wrote', filename)
 
 
     def add_line(self, restraint_index, i,  topology, exp_chemical_shift, model_chemical_shift):
@@ -127,13 +127,12 @@ class prep_cs(object):
 
         fields = line.strip().split()
         if len(fields) != 6:
-            raise Exception, "Incorrect number of fields in parsed chemicalshift line!"
+            raise Exception("Incorrect number of fields in parsed chemicalshift line!")
 
         restraint_index = int(fields[0])
         atom_index1     = int(fields[1])
         res1            = fields[2]
         atom_name1      = fields[3]
         exp_chemical_shift      = float(fields[4])
-	model_chemical_shift	= float(fields[5])
+        model_chemical_shift    = float(fields[5])
         return restraint_index, atom_index1, res1, atom_name1,  exp_chemical_shift, model_chemical_shift
-

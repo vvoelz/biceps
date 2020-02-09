@@ -14,15 +14,15 @@ import sys, os, glob
 
 #sys.path.append('src')
 
-from Restraint import *
-from PosteriorSampler import *
-import toolbox as d
+from .Restraint import *
+from .PosteriorSampler import *
+from . import toolbox as d
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy import loadtxt, savetxt
-import cPickle, pprint
+import pickle, pprint
 from pymbar import MBAR
 import re
 
@@ -48,32 +48,32 @@ class Analysis(object):
 
     #def __init__(self, states = 0, data = None, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
     def __init__(self, states = 0, precheck = True, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
-	self.states = states
-	#self.data = data
-	self.resultdir = resultdir
-	self.BSdir = self.resultdir+BSdir
-	self.popdir = self.resultdir+popdir
-	self.picfile = self.resultdir+picfile
-	self.scheme = None
-	self.traj = []
-	self.sampler = []
-	self.lam = None
-	self.f_df = None
-	self.P_dp = None
+        self.states = states
+        #self.data = data
+        self.resultdir = resultdir
+        self.BSdir = self.resultdir+BSdir
+        self.popdir = self.resultdir+popdir
+        self.picfile = self.resultdir+picfile
+        self.scheme = None
+        self.traj = []
+        self.sampler = []
+        self.lam = None
+        self.f_df = None
+        self.P_dp = None
         self.precheck = precheck
-	if self.states == 0:
-		raise ValueError("State number cannot be zero")
-	#if self.data == None:
-#		raise ValueError("Input data file is not specified")
-	if self.resultdir == None:
-		raise ValueError("Result directory is missing")
+        if self.states == 0:
+            raise ValueError("State number cannot be zero")
+        #if self.data == None:
+#               raise ValueError("Input data file is not specified")
+        if self.resultdir == None:
+            raise ValueError("Result directory is missing")
 
 #    def list_scheme(self, rest_type):
-#	"""Determine what scheme is included in sampling"""
+#       """Determine what scheme is included in sampling"""
 #
-#	#input_data = d.sort_data(self.data)
-#	d_l=[]
-#	for r in rest_type:
+#       #input_data = d.sort_data(self.data)
+#       d_l=[]
+#       for r in rest_type:
 #                if r[r.find('_')+1:] == 'cs_H':
 #                    d_l.append('sigma_cs_H')
 #                elif r[r.find('_')+1:] == 'cs_Ha':
@@ -84,7 +84,7 @@ class Analysis(object):
 #                    d_l.append('sigma_cs_Ca')
 #                elif r[r.find('_')+1:] == 'J':
 #                    d_l.append('sigma_J')
-#		elif r[r.find('_')+1:] == 'pf':
+#               elif r[r.find('_')+1:] == 'pf':
 #                    d_l.append('sigma_pf')
 #                    d_l.append('beta_c')    # right now only consider the situation that pre-computed pf is not available
 #                    d_l.append('beta_h')
@@ -101,28 +101,29 @@ class Analysis(object):
 #        return d_l
 
     def load_data(self, debug = True):
-	"""load input data from BICePs sampling (*npz and *pkl files)"""
-	# Load in npz trajectories
-	exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.npz') )
+        """load input data from BICePs sampling (*npz and *pkl files)"""
+        # Load in npz trajectories
+        exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.npz') )
         #print 'exo_files', exp_files
-	exp_files.sort()
-	for filename in exp_files:
-		if debug:
-   			print 'Loading %s ...'%filename
-    		self.traj.append( np.load( file(filename, 'r') )['arr_0'].item() )
+        exp_files.sort()
+        for filename in exp_files:
+            if debug:
+                print('Loading %s ...'%filename)
+            #self.traj.append( np.load( file(filename, 'r') )['arr_0'].item() )
+            self.traj.append( np.load(filename, allow_pickle=True )['arr_0'].item() )
 #                self.traj.append( np.load( file(filename, 'r'),allow_pickle=True))
         if self.precheck:
             steps = []
             fractions = []
             for i in range(len(self.traj)):
-               s,f = d.find_all_state_sampled_time(self.traj[i]['state_trace'],self.states)
-               steps.append(s)
-               fractions.append(f)
+                s,f = d.find_all_state_sampled_time(self.traj[i]['state_trace'],self.states)
+                steps.append(s)
+                fractions.append(f)
             total_fractions = np.concatenate(fractions)
             if 1. in total_fractions:
                 plt.figure()
                 for i in range(len(fractions)):
-                    plt.plot(range(len(fractions[i])),fractions[i],label = r'$\lambda_{%s}$'%i)
+                    plt.plot(list(range(len(fractions[i]))),fractions[i],label = r'$\lambda_{%s}$'%i)
                     plt.xlabel('steps')
                     plt.ylabel('fractions')
                     plt.legend(loc='best')
@@ -132,20 +133,20 @@ class Analysis(object):
                 exit()
                 #raise ValueError('Not all states are sampled in any of the lambda values')
 
-	# Load in cpickled sampler objects
-	sampler_files = glob.glob( os.path.join(self.resultdir,'sampler_lambda*.pkl') )
-	sampler_files.sort()
-	for pkl_filename in sampler_files:
-		if debug:
-    			print 'Loading %s ...'%pkl_filename
-    		pkl_file = open(pkl_filename, 'rb')
-    		self.sampler.append( cPickle.load(pkl_file) )
+        # Load in cpickled sampler objects
+        sampler_files = glob.glob( os.path.join(self.resultdir,'sampler_lambda*.pkl') )
+        sampler_files.sort()
+        for pkl_filename in sampler_files:
+            if debug:
+                print('Loading %s ...'%pkl_filename)
+            pkl_file = open(pkl_filename, 'rb')
+            self.sampler.append( pickle.load(pkl_file) )
 
-	# parse the lambda* filenames to get the full list of lambdas
-	self.nlambda = len(exp_files)
-	self.lam = [float( (s.split('lambda')[1]).replace('.npz','') ) for s in exp_files ]
-	if debug:
-		print 'lam =', self.lam
+        # parse the lambda* filenames to get the full list of lambdas
+        self.nlambda = len(exp_files)
+        self.lam = [float( (s.split('lambda')[1]).replace('.npz','') ) for s in exp_files ]
+        if debug:
+            print('lam =', self.lam)
         #print 'len(self.traj)',len(self.traj)
         self.scheme = self.traj[0]['rest_type']
 #        self.scheme = self.list_scheme(rest_type)
@@ -153,57 +154,57 @@ class Analysis(object):
 
 
     def MBAR_analysis(self, debug = False):
-	"""MBAR analysis for populations and BICePs score"""
+        """MBAR analysis for populations and BICePs score"""
 
         # load necessary data first
-	self.load_data()
+        self.load_data()
 
 
-	# Suppose the energies sampled from each simulation are u_kln, where u_kln[k,l,n] is the reduced potential energy
-	#   of snapshot n \in 1,...,N_k of simulation k \in 1,...,K evaluated at reduced potential for state l.
-	self.K = self.nlambda   # number of thermodynamic ensembles
-	# N_k[k] will denote the number of correlated snapshots from state k
-	N_k = np.array( [len(self.traj[i]['trajectory']) for i in range(self.nlambda)] )
-	nsnaps = N_k.max()
-	u_kln = np.zeros( (self.K, self.K, nsnaps) )
-	nstates = int(self.states)
-	print 'nstates', nstates
-	states_kn = np.zeros( (self.K, nsnaps) )
+        # Suppose the energies sampled from each simulation are u_kln, where u_kln[k,l,n] is the reduced potential energy
+        #   of snapshot n \in 1,...,N_k of simulation k \in 1,...,K evaluated at reduced potential for state l.
+        self.K = self.nlambda   # number of thermodynamic ensembles
+        # N_k[k] will denote the number of correlated snapshots from state k
+        N_k = np.array( [len(self.traj[i]['trajectory']) for i in range(self.nlambda)] )
+        nsnaps = N_k.max()
+        u_kln = np.zeros( (self.K, self.K, nsnaps) )
+        nstates = int(self.states)
+        print('nstates', nstates)
+        states_kn = np.zeros( (self.K, nsnaps) )
 
-	# special treatment for neglogP function
-	temp_parameters_indices = self.traj[0]['trajectory'][0][4:][0]
+        # special treatment for neglogP function
+        temp_parameters_indices = self.traj[0]['trajectory'][0][4:][0]
         #print temp_parameters_indices
         original_index =[]   # keep tracking the original index of the parameters
         for ind in range(len(temp_parameters_indices)):
             for in_ind in temp_parameters_indices[ind]:
                 original_index.append(ind)
-	#print original_index
+        #print original_index
 
-	# Get snapshot energies rescored in the different ensembles
-	"""['step', 'E', 'accept', 'state', [nuisance parameters]]"""
+        # Get snapshot energies rescored in the different ensembles
+        """['step', 'E', 'accept', 'state', [nuisance parameters]]"""
 
-	for n in range(nsnaps):
+        for n in range(nsnaps):
 
-  		for k in range(self.K):
-    			for l in range(self.K):
-				if debug:
-      					print 'step', self.traj[k]['trajectory'][n][0],
-      				if k==l:
-          				#print 'E%d evaluated in model %d'%(k,k), self.traj[k]['trajectory'][n][1],
-          				u_kln[k,k,n] = self.traj[k]['trajectory'][n][1]
-                                state, sigma_index = self.traj[k]['trajectory'][n][3:]
-          			states_kn[k,n] = state
-				temp_parameters = []
-				new_parameters=[[] for i in range(len(temp_parameters_indices))]
-                                #print new_parameters
-				#print sigma_index
-				temp_parameter_indices = np.concatenate(sigma_index)
-				for ind in range(len(temp_parameter_indices)):
-					temp_parameters.append(self.traj[k]['allowed_parameters'][ind][temp_parameter_indices[ind]])
-            			for m in range(len(original_index)):
-                			new_parameters[original_index[m]].append(temp_parameters[m])
-				#print new_parameters
-				#sys.exit()
+            for k in range(self.K):
+                for l in range(self.K):
+                    if debug:
+                        print('step', self.traj[k]['trajectory'][n][0], end=' ')
+                    if k==l:
+                        #print 'E%d evaluated in model %d'%(k,k), self.traj[k]['trajectory'][n][1],
+                        u_kln[k,k,n] = self.traj[k]['trajectory'][n][1]
+                    state, sigma_index = self.traj[k]['trajectory'][n][3:]
+                    states_kn[k,n] = state
+                    temp_parameters = []
+                    new_parameters=[[] for i in range(len(temp_parameters_indices))]
+                    #print new_parameters
+                    #print sigma_index
+                    temp_parameter_indices = np.concatenate(sigma_index)
+                    for ind in range(len(temp_parameter_indices)):
+                        temp_parameters.append(self.traj[k]['allowed_parameters'][ind][temp_parameter_indices[ind]])
+                    for m in range(len(original_index)):
+                        new_parameters[original_index[m]].append(temp_parameters[m])
+                    #print new_parameters
+                    #sys.exit()
 #                                sigma=[ [] for p in range(len(sigma_index)) ]
 #                                for m in range(len(sigma_index)):
 #                                    if len(sigma_index[m]) == 1:  #cs,J
@@ -221,75 +222,75 @@ class Analysis(object):
 #                                        sigma[m].append(self.traj[k]['allowed_xhs'][sigma_index[m][5]])
 #                                        sigma[m].append(self.traj[k]['allowed_bs'][sigma_index[m][6]])
 #                                u_kln[k,l,n] = self.sampler[l].neglogP(state, sigma, sigma_index)
-                                u_kln[k,l,n] = self.sampler[l].neglogP(state, new_parameters, sigma_index)
-                                if debug:
-					print 'E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n]
+                    u_kln[k,l,n] = self.sampler[l].neglogP(state, new_parameters, sigma_index)
+                    if debug:
+                        print('E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n])
 
 
-	# Initialize MBAR with reduced energies u_kln and number of uncorrelated configurations from each state N_k.
- 	# u_kln[k,l,n] is the reduced potential energy beta*U_l(x_kn), where U_l(x) is the potential energy function for state l,
-	# beta is the inverse temperature, and and x_kn denotes uncorrelated configuration n from state k.
-	# N_k[k] is the number of configurations from state k stored in u_knm
-	# Note that this step may take some time, as the relative dimensionless free energies f_k are determined at this point.
-	mbar = MBAR(u_kln, N_k)
+        # Initialize MBAR with reduced energies u_kln and number of uncorrelated configurations from each state N_k.
+        # u_kln[k,l,n] is the reduced potential energy beta*U_l(x_kn), where U_l(x) is the potential energy function for state l,
+        # beta is the inverse temperature, and and x_kn denotes uncorrelated configuration n from state k.
+        # N_k[k] is the number of configurations from state k stored in u_knm
+        # Note that this step may take some time, as the relative dimensionless free energies f_k are determined at this point.
+        mbar = MBAR(u_kln, N_k)
 
-	# Extract dimensionless free energy differences and their statistical uncertainties.
-#	(Deltaf_ij, dDeltaf_ij) = mbar.getFreeEnergyDifferences()
-	#(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='svd-ew')
-	(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='approximate')
-	#print 'Deltaf_ij', Deltaf_ij
-	#print 'dDeltaf_ij', dDeltaf_ij
-	beta = 1.0 # keep in units kT
-	#print 'Unit-bearing (units kT) free energy difference f_1K = f_K - f_1: %f +- %f' % ( (1./beta) * Deltaf_ij[0,K-1], (1./beta) * dDeltaf_ij[0,K-1])
-	self.f_df = np.zeros( (self.nlambda, 2) )  # first column is Deltaf_ij[0,:], second column is dDeltaf_ij[0,:]
-	self.f_df[:,0] = Deltaf_ij[0,:]
-	self.f_df[:,1] = dDeltaf_ij[0,:]
+        # Extract dimensionless free energy differences and their statistical uncertainties.
+#       (Deltaf_ij, dDeltaf_ij) = mbar.getFreeEnergyDifferences()
+        #(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='svd-ew')
+        (Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='approximate')
+        #print 'Deltaf_ij', Deltaf_ij
+        #print 'dDeltaf_ij', dDeltaf_ij
+        beta = 1.0 # keep in units kT
+        #print 'Unit-bearing (units kT) free energy difference f_1K = f_K - f_1: %f +- %f' % ( (1./beta) * Deltaf_ij[0,K-1], (1./beta) * dDeltaf_ij[0,K-1])
+        self.f_df = np.zeros( (self.nlambda, 2) )  # first column is Deltaf_ij[0,:], second column is dDeltaf_ij[0,:]
+        self.f_df[:,0] = Deltaf_ij[0,:]
+        self.f_df[:,1] = dDeltaf_ij[0,:]
 
-	# Compute the expectation of some observable A(x) at each state i, and associated uncertainty matrix.
+        # Compute the expectation of some observable A(x) at each state i, and associated uncertainty matrix.
         # Here, A_kn[k,n] = A(x_{kn})
         #(A_k, dA_k) = mbar.computeExpectations(A_kn)
         self.P_dP = np.zeros( (nstates, 2*self.K) )  # left columns are P, right columns are dP
-	if debug:
-        	print 'state\tP\tdP'
-    	for i in range(nstates):
-        	A_kn = np.where(states_kn==i,1,0)
-        	(p_i, dp_i) = mbar.computeExpectations(A_kn, uncertainty_method='approximate')
-        	self.P_dP[i,0:self.K] = p_i
-        	self.P_dP[i,self.K:2*self.K] = dp_i
-		#print i
-        	#for p in p_i: print p,
-        	#for dp in dp_i: print dp,
-#		print
-	pops, dpops = self.P_dP[:,0:self.K], self.P_dP[:,self.K:2*self.K]
+        if debug:
+            print('state\tP\tdP')
+        for i in range(nstates):
+            A_kn = np.where(states_kn==i,1,0)
+            (p_i, dp_i) = mbar.computeExpectations(A_kn, uncertainty_method='approximate')
+            self.P_dP[i,0:self.K] = p_i
+            self.P_dP[i,self.K:2*self.K] = dp_i
+            #print i
+            #for p in p_i: print p,
+            #for dp in dp_i: print dp,
+#               print
+        pops, dpops = self.P_dP[:,0:self.K], self.P_dP[:,self.K:2*self.K]
 
-	# save results
-	self.save_MBAR()
+        # save results
+        self.save_MBAR()
 
     def save_MBAR(self):
-	"""save results (BICePs score and populations) from MBAR analysis"""
+        """save results (BICePs score and populations) from MBAR analysis"""
 
-        print 'Writing %s...'%self.BSdir
-	savetxt(self.BSdir, self.f_df)
-	print '...Done.'
+        print('Writing %s...'%self.BSdir)
+        savetxt(self.BSdir, self.f_df)
+        print('...Done.')
 
-	print 'Writing %s...'%self.popdir
-	savetxt(self.popdir, self.P_dP)
-	print '...Done.'
+        print('Writing %s...'%self.popdir)
+        savetxt(self.popdir, self.P_dP)
+        print('...Done.')
 
     def plot(self, debug = False):
-	"""plot figures for population, nuisance parameters"""
+        """plot figures for population, nuisance parameters"""
 
         # first figure out what scheme is used
-	#self.list_scheme()
+        #self.list_scheme()
 
-	# next get MABR sampling done
-	self.MBAR_analysis()
+        # next get MABR sampling done
+        self.MBAR_analysis()
 
-	# load in precomputed P and dP from MBAR analysis
+        # load in precomputed P and dP from MBAR analysis
         pops0, pops1   = self.P_dP[:,0], self.P_dP[:,self.K-1]
         dpops0, dpops1 = self.P_dP[:,self.K], self.P_dP[:,2*self.K-1]
-	t0 = self.traj[0]
-    	t1 = self.traj[self.K-1]
+        t0 = self.traj[0]
+        t1 = self.traj[self.K-1]
 
         # Figure Plot SETTINGS
         label_fontsize = 12
@@ -300,31 +301,31 @@ class Analysis(object):
         # determine number of row and column
         if (len(self.scheme)+1)%2 != 0:
             c,r = 2, (len(self.scheme)+2)/2
-    	else:
+        else:
             c,r = 2, (len(self.scheme)+1)/2
-    	plt.figure( figsize=(4*c,5*r) )
-    	# Make a subplot in the upper left
-    	plt.subplot(r,c,1)
-    	plt.errorbar( pops0, pops1, xerr=dpops0, yerr=dpops1, fmt='k.')
-    	plt.hold(True)
-    	plt.plot([1e-6, 1], [1e-6, 1], color='k', linestyle='-', linewidth=2)
-    	plt.xlim(1e-6, 1.)
-    	plt.ylim(1e-6, 1.)
-    	plt.xlabel('$p_i$ (exp)', fontsize=label_fontsize)
-    	plt.ylabel('$p_i$ (sim+exp)', fontsize=label_fontsize)
-    	plt.xscale('log')
-    	plt.yscale('log')
-    	# label key states
-    	plt.hold(True)
-    	for i in range(len(pops1)):
-        	if (i==0) or (pops1[i] > 0.05):
-            		plt.text( pops0[i], pops1[i], str(i), color='g' )
+        plt.figure( figsize=(4*c,5*r) )
+        # Make a subplot in the upper left
+        plt.subplot(r,c,1)
+        plt.errorbar( pops0, pops1, xerr=dpops0, yerr=dpops1, fmt='k.')
+        #plt.hold(True)
+        plt.plot([1e-6, 1], [1e-6, 1], color='k', linestyle='-', linewidth=2)
+        plt.xlim(1e-6, 1.)
+        plt.ylim(1e-6, 1.)
+        plt.xlabel('$p_i$ (exp)', fontsize=label_fontsize)
+        plt.ylabel('$p_i$ (sim+exp)', fontsize=label_fontsize)
+        plt.xscale('log')
+        plt.yscale('log')
+        # label key states
+        #plt.hold(True)
+        for i in range(len(pops1)):
+            if (i==0) or (pops1[i] > 0.05):
+                plt.text( pops0[i], pops1[i], str(i), color='g' )
 #        if 'gamma' in self.scheme:
 #            if 'beta_c' in self.scheme:
 #                for k in range(len(self.scheme)-8):
-#        	    plt.subplot(r,c,k+2)
-#        	    plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
-#        	    plt.hold(True)
+#                   plt.subplot(r,c,k+2)
+#                   plt.step(t0['allowed_sigma'][k], t0['sampled_sigma'][k], 'b-')
+#                   plt.hold(True)
 #                    xmax0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][-1]
 #                    xmin0 = [l for l,e in enumerate(t0['sampled_sigma'][k]) if e != 0.][0]
 #                    xmax1 = [l for l,e in enumerate(t1['sampled_sigma'][k]) if e != 0.][-1]
@@ -493,7 +494,7 @@ class Analysis(object):
         for k in range(len(self.scheme)):
             plt.subplot(r,c,k+2)
             plt.step(t0['allowed_parameters'][k], t0['sampled_parameters'][k], 'b-')
-            plt.hold(True)
+            #plt.hold(True)
             xmax0 = [l for l,e in enumerate(t0['sampled_parameters'][k]) if e != 0.][-1]
             xmin0 = [l for l,e in enumerate(t0['sampled_parameters'][k]) if e != 0.][0]
             xmax1 = [l for l,e in enumerate(t1['sampled_parameters'][k]) if e != 0.][-1]
@@ -517,16 +518,16 @@ class Analysis(object):
                 plt.yticks([])
 
             elif self.scheme[k].count('_') == 1:
-                    plt.xlabel("$\%s_{%s}$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]),fontsize=label_fontsize)
-                    plt.ylabel("$P(\%s_{%s})$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]), fontsize=label_fontsize)
-                    plt.yticks([])
+                plt.xlabel("$\%s_{%s}$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]),fontsize=label_fontsize)
+                plt.ylabel("$P(\%s_{%s})$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]), fontsize=label_fontsize)
+                plt.yticks([])
             #else:
             elif self.scheme[k].count('_') == 2:
-                    plt.xlabel("$\%s_{{%s}_{%s}}$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1],self.scheme[k].split('_')[2]),fontsize=label_fontsize)
-                    plt.ylabel("$P(\%s_{{%s}_{%s}})$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1],self.scheme[k].split('_')[2]),fontsize=label_fontsize)
-                    plt.yticks([])
-    	plt.tight_layout()
-    	plt.savefig(self.picfile)
+                plt.xlabel("$\%s_{{%s}_{%s}}$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1],self.scheme[k].split('_')[2]),fontsize=label_fontsize)
+                plt.ylabel("$P(\%s_{{%s}_{%s}})$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1],self.scheme[k].split('_')[2]),fontsize=label_fontsize)
+                plt.yticks([])
+        plt.tight_layout()
+        plt.savefig(self.picfile)
 
 
 
@@ -538,10 +539,3 @@ class Analysis(object):
     #'MBAR_analysis',
     #'save_MBAR',
 #]
-
-
-
-
-
-
-

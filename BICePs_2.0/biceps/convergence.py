@@ -8,7 +8,6 @@ from scipy.optimize import curve_fit
 from matplotlib.offsetbox import AnchoredText
 import warnings
 warnings.filterwarnings("ignore",category=DeprecationWarning)
-#import c_convergence as c_conv
 
 class Convergence(object):
     """Convergence submodule for BICePs.
@@ -23,7 +22,7 @@ class Convergence(object):
         else:
             print('Loading trajectory file...')
 #            self.traj = np.load(trajfile, allow_pickle=True)
-            self.traj = np.load(trajfile)['arr_0'].item()
+            self.traj = np.load(trajfile, allow_pickle=True)['arr_0'].item()
         print('Collecting rest_type...')
         self.rest_type = self.traj['rest_type']
         print('Collecting allowed_parameters...')
@@ -108,7 +107,7 @@ class Convergence(object):
             else:
                 plt.subplot(len(self.autocorr),2,i+1)
             plt.plot(np.arange(self.maxtau+1), self.autocorr[i])
-            j = round(self.tau_c[i])
+            j = int(round(self.tau_c[i]))
             plt.axvline(self.tau_c[i], color='k', linestyle="--")
 
             if (std_x or std_y) != None:
@@ -210,14 +209,14 @@ class Convergence(object):
             v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
             popt, pcov = curve_fit(self.single_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
             yFit_data = self.single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
-            print('Best-fit tau1 = %s +/- %s'%(popt[2],pcov[2][2]))
+            print(('Best-fit tau1 = %s +/- %s'%(popt[2],pcov[2][2])))
             max_tau = popt[2]
         else:
             v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
             popt, pcov = curve_fit(self.double_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
             yFit_data = self.double_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2], popt[3], popt[4])
-            print('Best-fit tau1 = %s +/- %s'%(popt[3],pcov[3][3]))
-            print('Best-fit tau2 = %s +/- %s'%(popt[4],pcov[4][4]))
+            print(('Best-fit tau1 = %s +/- %s'%(popt[3],pcov[3][3])))
+            print(('Best-fit tau2 = %s +/- %s'%(popt[4],pcov[4][4])))
             #NOTE: This may need to be fixed later
             max_tau = max(popt[3],popt[4])
         return yFit_data,max_tau
@@ -325,7 +324,7 @@ class Convergence(object):
                 popts.append(popt)
                 self.yFits.append(yFit)
             self.tau_c = np.array(popts) #np.max(popts)
-            print("self.tau_c = %s"%self.tau_c)
+            print(("self.tau_c = %s"%self.tau_c))
             self.plot_auto_curve_with_exp_fitting()
 
         if plot_traces:
@@ -378,19 +377,19 @@ class Convergence(object):
                 exit()
             dx = int(nsnaps/nfold)
             for subset in range(nfold):
-                half = dx * (subset+1)/2
+                half = int(dx * (subset+1)/2)
                 T1 = T_new[:half]     # first half of the trajectory
                 T2 = T_new[half:dx*(subset+1)]    # second half of the trajectory
                 T_total = T_new[:dx*(subset+1)]     # total trajectory
                 all_JSD[i].append(self.compute_JSD(T1,T2,T_total,ind,self.allowed_parameters[i]))   # compute JSD
                 for r in range(nround):      # now let's mix this dataset
-                    mT1 = np.random.choice(len(T_total),len(T_total)/2,replace=False)    # randomly pickup snapshots (index) as the first part
+                    mT1 = np.random.choice(len(T_total),int(len(T_total)/2),replace=False)    # randomly pickup snapshots (index) as the first part
                     mT2 = np.delete(np.arange(0,len(T_total),1),mT1)           # take the rest (index) as the second part
                     temp_T1, temp_T2 = [],[]
                     for snapshot in mT1:
-                            temp_T1.append(T_total[snapshot])      # take the first part dataset from the trajectory
+                        temp_T1.append(T_total[snapshot])      # take the first part dataset from the trajectory
                     for snapshot in mT2:
-                            temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
+                        temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
                     all_JSDs[i][subset].append(self.compute_JSD(temp_T1,temp_T2,T_total,ind,self.allowed_parameters[i]))
         if savefile:
             np.save("all_JSD.npy", all_JSD)
@@ -531,7 +530,7 @@ class Convergence(object):
         for i in range(n_rest):
             plt.subplot(n_rest,1,i+1)
             plt.plot(x,all_JSD[i].transpose(),'o-',color=colors[i],label=self.labels[i])
-            plt.hold(True)
+            #plt.hold(True)
             #plt.plot(x,JSD_dist[i],'*',color=colors[i],label=self.labels[i])
 
             ## 2 Standard deviations from the mean
@@ -552,6 +551,3 @@ class Convergence(object):
             plt.yticks(fontsize=14)
         plt.tight_layout()
         plt.savefig(fname)
-
-
-

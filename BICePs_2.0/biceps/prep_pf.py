@@ -15,21 +15,21 @@ import numpy as np
 # column        description
 #
 # 0             restraint index
-# 1		atom index 1
+# 1             atom index 1
 # 2             residue 1
 #
 # 3             protection factor
 
-# 
+#
 # EQUIVALENT PROTONS
 # Multiple restraints can share the same restraint index -- this means they are equivalent protons
-# 
+#
 # AMBIGUOUS ASSIGNMENTS
 # There may be two (or more) sets of protons assigned different distances, but we don't know which is which.
 # BICePs has limited capabilities to deal with this situation, with the ambiguous restraint info read in separately.
 #
 # UPPER and LOWER BOUNDS
-# BICePs restraints do not have upper/lower bounds, only a mean distance value.  Any values specified in  
+# BICePs restraints do not have upper/lower bounds, only a mean distance value.  Any values specified in
 # XPLOR/CNS files are ignored.
 
 ##############################################################################
@@ -118,7 +118,7 @@ class prep_pf(object):
         while lines[0][0] == '#':
             self.comments.append( lines.pop(0).strip() )
 
-        # read the other lines 
+        # read the other lines
         while len(lines) > 0:
             self.lines.append( lines.pop(0).strip() )
 
@@ -134,7 +134,7 @@ class prep_pf(object):
             fout.write(line+'\n')
         fout.close()
 
-        print 'Wrote', filename
+        print('Wrote', filename)
 
 
     def add_line(self, restraint_index, i,  topology, exp_pf, protection_factor=None):
@@ -148,13 +148,13 @@ class prep_pf(object):
         """Parse a protectionfactor data line and return the values
 
         RETURNS
-        restraint_index, atom_index1, res1, protectionfactor 
+        restraint_index, atom_index1, res1, protectionfactor
         """
 
         fields = line.strip().split()
-        if self.precomputed_pf:    
+        if self.precomputed_pf:
             if len(fields) != 5:
-                raise Exception, "Incorrect number of fields in parsed protectionfactor line!"
+                raise Exception("Incorrect number of fields in parsed protectionfactor line!")
 
             restraint_index = int(fields[0])
             atom_index1     = int(fields[1])
@@ -165,11 +165,10 @@ class prep_pf(object):
 
         else: #TODO: Check that self.precomputed_pf is supposed to be True or False
             if len(fields) != 4:
-                raise Exception, "Incorrect number of fields in parsed protectionfactor line!"
+                raise Exception("Incorrect number of fields in parsed protectionfactor line!")
 
             restraint_index = int(fields[0])
             atom_index1     = int(fields[1])
             res1            = fields[2]
             exp_pf          = float(fields[3])
             return restraint_index, atom_index1, res1, exp_pf
-
