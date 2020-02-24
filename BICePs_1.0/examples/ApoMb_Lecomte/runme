@@ -1,2 +1,0 @@
-python ../../scripts/convert_xplor_to_biceps.py apomb_distances_reformat.tbl deposit_reformat.pdb > apomb_distances.biceps
-

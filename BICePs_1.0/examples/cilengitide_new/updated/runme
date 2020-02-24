@@ -1,2 +1,0 @@
-#python get_pops.py
-mdconvert Gens100.lh5 -o Gens100.pdb -t frame0.pdb 

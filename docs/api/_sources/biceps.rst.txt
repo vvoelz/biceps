@@ -1,0 +1,126 @@
+biceps package
+==============
+
+Submodules
+----------
+
+biceps.Analysis module
+----------------------
+
+.. automodule:: biceps.Analysis
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.J\_coupling module
+-------------------------
+
+.. automodule:: biceps.J_coupling
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.KarplusRelation module
+-----------------------------
+
+.. automodule:: biceps.KarplusRelation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.Observable module
+------------------------
+
+.. automodule:: biceps.Observable
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.PosteriorSampler module
+------------------------------
+
+.. automodule:: biceps.PosteriorSampler
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.Preparation module
+-------------------------
+
+.. automodule:: biceps.Preparation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.Restraint module
+-----------------------
+
+.. automodule:: biceps.Restraint
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.init\_res module
+-----------------------
+
+.. automodule:: biceps.init_res
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.prep\_J module
+---------------------
+
+.. automodule:: biceps.prep_J
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.prep\_cs module
+----------------------
+
+.. automodule:: biceps.prep_cs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.prep\_noe module
+-----------------------
+
+.. automodule:: biceps.prep_noe
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.prep\_pf module
+----------------------
+
+.. automodule:: biceps.prep_pf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.runme module
+-------------------
+
+.. automodule:: biceps.runme
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+biceps.toolbox module
+---------------------
+
+.. automodule:: biceps.toolbox
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: biceps
+    :members:
+    :undoc-members:
+    :show-inheritance:

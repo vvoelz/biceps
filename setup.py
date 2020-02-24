@@ -32,7 +32,7 @@ sys.path.append('BICePs_2.0/')
 
 setup(
         name="biceps",
-        version="2.1",
+        version="2.0",
         description='BICePs',
         long_description=long_description,
         long_description_content_type="text/markdown",
@@ -56,8 +56,8 @@ setup(
         license='MIT',
         #packages=exclude=['docs']),
         install_requires=[
-            'cython>=0.28','numpy>=1.7.0','mdtraj==1.9.1','pymbar'],
-        python_requires='>=2.7',
+            'numpy>=1.7.0','mdtraj==1.9.3','pymbar'],
+        python_requires='>=3.6',
         #extras_require={  # Optional
         #        'dev': ['check-manifest'],
         #        'test': ['coverage'],
