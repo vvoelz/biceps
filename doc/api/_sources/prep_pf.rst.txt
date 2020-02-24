@@ -1,7 +1,0 @@
-prep\_pf module
-===============
-
-.. automodule:: prep_pf
-    :members:
-    :undoc-members:
-    :show-inheritance:

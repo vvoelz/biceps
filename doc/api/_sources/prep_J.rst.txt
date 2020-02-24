@@ -1,7 +1,0 @@
-prep\_J module
-==============
-
-.. automodule:: prep_J
-    :members:
-    :undoc-members:
-    :show-inheritance:

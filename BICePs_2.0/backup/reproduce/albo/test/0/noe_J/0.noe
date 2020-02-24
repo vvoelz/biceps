@@ -1,4 +1,0 @@
-#restraint_index atom_index1 res1 atom_name1 atom_index2 res2 atom_name2 exp_noe(A) model_noe(A)
-0            44       UNK1     H24          42       UNK1     H23            0.3800      0.4250
-1            45       UNK1     H25          28       UNK1     H11            0.3800      0.4263
-1            45       UNK1     H25          47       UNK1     H26            0.3800      0.3115
