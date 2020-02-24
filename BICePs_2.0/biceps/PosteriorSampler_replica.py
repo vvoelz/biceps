@@ -13,7 +13,6 @@ import numpy as np
 #cimport numpy as np
 #import cython
 from scipy  import loadtxt, savetxt
-#from matplotlib import pylab as plt
 from KarplusRelation import *     # Returns J-coupling values from dihedral angles
 from Restraint import *
 from toolbox import *
@@ -52,7 +51,7 @@ class PosteriorSampler(object):
         # Ensemble is a list of Restraint objects
         self.nstates = len(ensemble)
 
-        # number of replicas 
+        # number of replicas
         self.nreplica = nreplica
 
         # The initial state of the structural ensemble we're sampling from
@@ -295,7 +294,7 @@ class PosteriorSampler(object):
 
 
     def compute_sse(self,states,debug=False):
-        
+
         new_state = states   # a list of states for different replicas
         # make a list of sse
         all_sse = []
@@ -418,7 +417,7 @@ class PosteriorSampler(object):
 
         # Generate a matrix of nuisance parameters
         self.compile_nuisance_parameters()
-      
+
         # Generate a high dimentional matrix of allowed nuisance parameters
         grid = []
         for rest in self.nuisance_para:
@@ -488,7 +487,7 @@ class PosteriorSampler(object):
             for para in parameters:
                 for in_para in para:
                     temp_parameters.append(in_para)
-            
+
             new_state = np.random(self.nstates, self.nreplica, replacement = True) # it's okay to have identical states???
             # RAND = generalized probability of taking a step in restraint space given the total number of restraints.
             #RAND = 1. - 1./(len(temp_parameters) + 1.)   # 1. is the state
