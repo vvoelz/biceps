@@ -37,8 +37,8 @@ setup(
         long_description=long_description,
         long_description_content_type="text/markdown",
         classifiers=[
-        'Programming Language :: Python :: 2.7',
-        #"Programming Language :: Python :: 3",
+        #'Programming Language :: Python :: 2.7',
+        "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: Unix",
         "Operating System :: MacOS",

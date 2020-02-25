@@ -179,7 +179,7 @@ class Restraint_cs_Ca(Restraint):
         :param float lam: Lambda value (between 0 and 1)
         :param float free_energy: The (reduced) free energy of this conformation
 
-          >>> f = beta*F
+        >>> f = beta*F
         """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling

@@ -5,8 +5,8 @@ import biceps
 
 ####### Data and Output Directories #######
 energies = np.loadtxt('energy.dat')
-data = biceps.sort_data('noe')
-res = biceps.list_res(data)
+data = biceps.toolbox.sort_data('noe')
+res = biceps.toolbox.list_res(data)
 outdir = 'results_ref_normal'
 if not os.path.exists(outdir):
     os.mkdir(outdir)
