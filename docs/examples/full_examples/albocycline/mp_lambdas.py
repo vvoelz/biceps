@@ -4,17 +4,21 @@ import biceps
 import multiprocessing as mp
 
 ####### Data and Output Directories #######
-energies = np.loadtxt('albocycline_QMenergies.dat')
-data = biceps.toolbox.sort_data('noe_j')
+energies = np.loadtxt('../../datasets/albocycline/albocycline_QMenergies.dat')*627.509  # convert from hartrees to kcal/mol
+energies = energies/0.5959   # convert to reduced free energies F = f/kT
+energies -= energies.min()  # set ground state to zero, just in case
+data = biceps.toolbox.sort_data('../../datasets/albocycline/noe_J')
 res = biceps.toolbox.list_res(data)
 outdir = 'results_ref_normal'
 biceps.toolbox.mkdir(outdir)
+
 ####### Parameters #######
-nsteps=10000000
+nsteps=1000000
 maxtau = 1000
 lambda_values = [0.0, 0.5, 1.0]
 ref = ['uniform', 'exp']
 uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
+
 ####### Multiprocessing Lambda values #######
 def mp_lambdas(Lambda):
     ####### MCMC Simulations #######
@@ -23,7 +27,7 @@ def mp_lambdas(Lambda):
         ensemble.append([])
         for k in range(len(data[0])):
             File = data[i][k]
-            R = biceps.init_res(PDB_filename='pdbs/0.pdb', lam=lam,
+            R = biceps.init_res(PDB_filename='../../datasets/albocycline/pdbs/0.pdb', lam=lam,
                 energy=energies[i], ref=ref[k], data=File,
                 uncern=uncern[k], gamma=[0.2, 5.0, 1.02])
             ensemble[-1].append(R)
@@ -39,8 +43,8 @@ def mp_lambdas(Lambda):
     print('...Done.')
 # Check the number of CPU's available
 print("Number of CPU's: %s"%(mp.cpu_count()))
-#p = mp.Pool(processes=mp.cpu_count()-1) # knows the number of CPU's to allocate
-p = mp.Pool(processes=mp.cpu_count()) # knows the number of CPU's to allocate
+p = mp.Pool(processes=mp.cpu_count()-1) # knows the number of CPU's to allocate
+#p = mp.Pool(processes=mp.cpu_count()) # knows the number of CPU's to allocate
 #print("Process ID's: %s"%get_processes(p, n=lam))
 jobs = []
 for lam in lambda_values:
@@ -68,8 +72,9 @@ C.plot_auto_curve(fname="auto_curve.pdf", xlim=(0, maxtau))
 C.process(nblock=5, nfold=10, nround=100, savefile=True,
     plot=True, block=True, normalize=True)
 
+
 ####### Posterior Analysis #######
-A = biceps.Analysis(states=100, resultdir=outdir,
+A = biceps.Analysis(states=100, resultdir=outdir+"/",
     BSdir='BS.dat', popdir='populations.dat',
     picfile='BICePs.pdf')
 A.plot()
