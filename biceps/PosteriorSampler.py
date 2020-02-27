@@ -98,7 +98,7 @@ class PosteriorSampler(object):
 #        for rest_index in range(len(self.ensemble[0])):
 #            for s in self.ensemble[rest_index]:
         for s in self.ensemble:
-            Z +=  np.exp( -np.array(s[0].free_energy, dtype=np.float128) )
+            Z +=  np.exp( -np.array(s[0].energy, dtype=np.float128) )
         self.logZ = np.log(Z)
         self.ln2pi = np.log(2.0*np.pi)
 
@@ -291,7 +291,7 @@ class PosteriorSampler(object):
         s = self.ensemble[int(new_state)]
 
         # Grab the free energy of the state and normalize
-        result = s[0].free_energy + self.logZ
+        result = s[0].energy + self.logZ
         # Use the restraint index to get the corresponding sigma.
         for rest_index in range(len(s)):
 
@@ -332,7 +332,7 @@ class PosteriorSampler(object):
                 print('\nstep = ',int(self.total+1))
                 print('s[%s] = '%(rest_index),s[rest_index])
                 print('Result =',result)
-                print('state %s, f_sim %s, logZ %s'%(new_state, s[rest_index].free_energy, self.logZ))
+                print('state %s, f_sim %s, logZ %s'%(new_state, s[rest_index].energy, self.logZ))
                 if 'allowed_gamma' in s[rest_index]._nuisance_parameters:
                     print('s[%s].sse[%s]'%(rest_index,int(parameter_indices[rest_index][1])), s[rest_index].sse[int(parameter_indices[rest_index][1])], 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
                 else:

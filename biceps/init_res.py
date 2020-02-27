@@ -87,35 +87,15 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None,
         if ref ==  None:
             # TODO: place the default ref inside the class
             ref = 'exp' # 'uniform'
-
         extension = data.split(".")[-1]
         R = getattr(Restraint, "Restraint_%s"%(extension))
         R = R(PDB_filename, ref, dsigma, sigma_min, sigma_max)
         args = {"%s"%key: val for key,val in locals().items()
                 if key in R.prep_observable.__code__.co_varnames}
-
-        print(R)
-        print(args)
-        print(args.values())
-        R.prep_observable(*args)
-        print(R.prep_observable.__code__.co_varnames)
-        print("\n\n")
-        print(args)
-        exit()
-        R.prep_observable(*locals())
-        print(R.PDB_filename)
-        print(R.ref)
-        #print(dir(R.prep_observable))
-        #print(locals())
-        print(R)
-        exit()
-
+        R.prep_observable(**args)
     else:
         raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha, .cs_Ca, .cs_N,.pf}")
     return R
-
-
-
 
 
 

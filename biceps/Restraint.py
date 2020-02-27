@@ -350,7 +350,7 @@ class Restraint_J(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
         #self.energy = energy
-        print(type(energy))
+        #print(type(energy))
         self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
