@@ -31,7 +31,10 @@ class Analysis(object):
 
     def __init__(self, states = 0, precheck = True, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
         self.states = states
-        self.resultdir = resultdir
+        if resultdir.endswith("/"):
+            self.resultdir = resultdir
+        else:
+            self.resultdir = resultdir+"/"
         self.BSdir = self.resultdir+BSdir
         self.popdir = self.resultdir+popdir
         self.picfile = self.resultdir+picfile

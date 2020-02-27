@@ -58,7 +58,6 @@ def sort_data(dataFiles):
                 data[5].append(j)
             elif j.endswith('.noe'):
                 data[6].append(j)
-
             else:
                 raise ValueError("Incompatible file extension. Use:{.noe,.J,.cs_H,.cs_Ha}")
     data = np.array([_f for _f in data if _f]) # removing any empty lists
@@ -115,11 +114,14 @@ def write_results(self, outfilename):
 
     np.savez_compressed(outfilename, self.results)
 
+
 def read_results(self,filename):
     """Reads a numpy compressed filetype(*.npz) file"""
 
     loaded = np.load(filename)
     print((list(loaded.items())))
+
+
 
 def convert_pop_to_energy(pop_filename, out_filename=None):
     """Convert population to energy for each state using the following:
@@ -149,6 +151,8 @@ def convert_pop_to_energy(pop_filename, out_filename=None):
         np.savetxt(out_filename,energy)
 
     return energy
+
+
 
 def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
     '''Compute J3_HN_HA for frames in a trajectories.

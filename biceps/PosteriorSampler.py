@@ -90,6 +90,7 @@ class PosteriorSampler(object):
         # load pf priors from training model
         if pf_prior is not None:
             self.pf_prior = np.load(pf_prior)
+
     def compute_logZ(self):
         """Compute reference state logZ for the free energies to normalize."""
 
