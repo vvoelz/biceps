@@ -1,4 +1,4 @@
-import os, sys, pickle #NOTE: cPickle has issues with Python 3
+import os, sys, pickle
 import numpy as np
 import biceps
 import multiprocessing as mp
@@ -17,7 +17,6 @@ maxtau = 1000
 lambda_values = [0.0, 0.5, 1.0]
 ref = ['uniform', 'exp']
 uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
-
 ####### Multiprocessing Lambda values #######
 def mp_lambdas(Lambda):
     ####### MCMC Simulations #######
@@ -65,15 +64,14 @@ for job in jobs:
 p.close()
 
 ####### Convergence Check #######
-C = biceps.Convergence(trajfile=outdir+"/traj_lambda0.00.npz")
+C = biceps.Convergence(trajfile=outdir+"/traj_lambda0.00.npz", resultdir=outdir)
 C.get_autocorrelation_curves(method="normal", maxtau=maxtau)
 C.plot_auto_curve(fname="auto_curve.pdf", xlim=(0, maxtau))
 C.process(nblock=5, nfold=10, nround=100, savefile=True,
     plot=True, block=True, normalize=True)
 
-
 ####### Posterior Analysis #######
-A = biceps.Analysis(states=100, resultdir=outdir+"/",
+A = biceps.Analysis(states=100, resultdir=outdir,
     BSdir='BS.dat', popdir='populations.dat',
     picfile='BICePs.pdf')
 A.plot()

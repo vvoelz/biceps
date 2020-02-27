@@ -49,7 +49,7 @@ def biceps_restraint_line_cs(restraint_index, i, topology, exp_chemical_shift, m
 def biceps_restraint_line_cs_header():
     """Returns a header string the the chemicalshift restraint file."""
 
-    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'atom_name1', 'exp_chemical_shift(ppm)', 'model_chemical_shift(ppm)'], ' ')
+    return "#" + str.join(' ', ('restraint_index', 'atom_index1', 'res1', 'atom_name1', 'exp_chemical_shift(ppm)', 'model_chemical_shift(ppm)'))
 
 
 class prep_cs(object):

@@ -1,12 +1,11 @@
 import os, sys, glob
 import numpy as np
 import mdtraj
-#import biceps.toolbox
-#import biceps.Observable  # Containers for experimental observables
 import biceps.Restraint as Restraint
 
-
-def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None, precomputed_pf = False, Ncs_fi=None, Nhs_fi=None, state = None):
+def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None,
+        gamma=None, precomputed_pf = False, Ncs_fi=None, Nhs_fi=None,
+        state = None):
     """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
 
     :param str PDB_filename: topology file name ('*.pdb')
@@ -32,12 +31,12 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None,
         else:
             sigma_min, sigma_max, dsigma = uncern[0], uncern[1], np.log(uncern[2])
     if gamma ==  None:
-        gamma_min, gamma_max, dgamma = 0.05, 20.0, np.log(1.02)
+        gamma_min, gamma_max, dloggamma = 0.05, 20.0, np.log(1.02)
     else:
         if len(gamma) != 3:
             raise ValueError("gamma should be a list of three items: gamma_min, gamma_max, dgamma")
         else:
-            gamma_min, gamma_max, dgamma = gamma[0], gamma[1], np.log(gamma[2])
+            gamma_min, gamma_max, dloggamma = gamma[0], gamma[1], np.log(gamma[2])
     #if precomputed_pf == False:
     #    if Ncs == None or Nhs == None:
     #        raise ValueError("Ncs and Nhs are needed!")
@@ -54,63 +53,7 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None,
         allowed_bs=np.arange(bs_min,bs_max,dbs)
 
     if data!= None:
-        if data.endswith('cs_H'):
-
-        # NOTE: FIXME
-        #for rest_index in range(len(s)):
-        #    nuisance_parameters = getattr(s[rest_index], "_nuisance_parameters")
-        #    for para in nuisance_parameters:
-        #        self.allowed_parameters.append(getattr(s[rest_index], para))
-        #        self.sampled_parameters.append(np.zeros(len(getattr(s[rest_index], para))))
-
-            if ref ==  None:
-                R = Restraint.Restraint_cs_H(PDB_filename,ref='exp',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-            else:
-                R = Restraint.Restraint_cs_H(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-
-        elif data.endswith('cs_Ca'):
-            if ref == None:
-                R = Restraint.Restraint_cs_Ca(PDB_filename,ref='exp',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-            else:
-                R = Restraint.Restraint_cs_Ca(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-
-        elif data.endswith('cs_Ha'):
-            if ref == None:
-                R = Restraint.Restraint_cs_Ha(PDB_filename,ref='exp',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-            else:
-                R = Restraint.Restraint_cs_Ha(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-
-        elif data.endswith('cs_N'):
-            if ref == None:
-                R = Restraint.Restraint_cs_N(PDB_filename,ref='exp',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-            else:
-                R = Restraint.Restraint_cs_N(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-
-        elif data.endswith('J'):
-            if ref == None:
-                R = Restraint.Restraint_J(PDB_filename,ref='uniform',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-            else:
-                R = Restraint.Restraint_J(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data)
-
-        elif data.endswith('noe'):
-            if ref == None:
-                R = Restraint.Restraint_noe(PDB_filename,ref='gau',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data, dloggamma = dgamma, gamma_min = gamma_min, gamma_max = gamma_max)
-            else:
-                R = Restraint.Restraint_noe(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data, dloggamma = dgamma, gamma_min = gamma_min, gamma_max = gamma_max)
-
-        elif data.endswith('pf'):
+        if data.endswith('pf'):
             if not precomputed_pf:
                 if Ncs_fi == None or Nhs_fi == None or state == None:
                     raise ValueError("Ncs and Nhs and state numebr are needed!")
@@ -133,27 +76,44 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None, gamma=None,
                 for q in range(len(allowed_bs)):
                     infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],state)
                     Ncs[o,q,:] = (np.load(infile_Nc))
-
             for p in range(len(allowed_xhs)):
                 for q in range(len(allowed_bs)):
-#                        infile_Nc='input/Nc/Nc_x%0.1f_b%d_state%03d.npy'%(allowed_xcs[o], allowed_bs[q],i)
-#                        infile_Nh='input/Nh/Nh_x%0.1f_b%d_state%03d.npy'%(allowed_xhs[p], allowed_bs[q],i)
                     infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],state)
-#                        print "infile_Nc", infile_Nc
-#                        print "infile_Nh", infile_Nh
                     Nhs[p,q,:] = (np.load(infile_Nh))
 
+        ###########################################
+        # Generalizing (input data --> restraint)
+        ###########################################
+        if ref ==  None:
+            # TODO: place the default ref inside the class
+            ref = 'exp' # 'uniform'
 
-            if ref == None:
-                R = Restraint.Restraint_pf(PDB_filename,ref='uniform',dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data,precomputed_pf=precomputed_pf,Ncs=Ncs, Nhs=Nhs,beta_c_min=beta_c_min,beta_c_max=beta_c_max,dbeta_c=dbeta_c,beta_h_min=beta_h_min,beta_h_max=beta_h_max,dbeta_h=dbeta_h,beta_0_min=beta_0_min,beta_0_max=beta_0_max,dbeta_0=dbeta_0,xcs_min=xcs_min,xcs_max=xcs_max,dxcs=dxcs,xhs_min=xhs_min,xhs_max=xhs_max,dxhs=dxhs,bs_min=bs_min,bs_max=bs_max,dbs=dbs)
-            else:
-                R = Restraint.Restraint_pf(PDB_filename,ref=ref,dlogsigma=dsigma, sigma_min=sigma_min,sigma_max=sigma_max)
-                R.prep_observable(lam=lam, free_energy=energy, filename=data,precomputed_pf=precomputed_pf,Ncs=Ncs, Nhs=Nhs,beta_c_min=beta_c_min,beta_c_max=beta_c_max,dbeta_c=dbeta_c,beta_h_min=beta_h_min,beta_h_max=beta_h_max,dbeta_h=dbeta_h,beta_0_min=beta_0_min,beta_0_max=beta_0_max,dbeta_0=dbeta_0,xcs_min=xcs_min,xcs_max=xcs_max,dxcs=dxcs,xhs_min=xhs_min,xhs_max=xhs_max,dxhs=dxhs,bs_min=bs_min,bs_max=bs_max,dbs=dbs)
+        extension = data.split(".")[-1]
+        R = getattr(Restraint, "Restraint_%s"%(extension))
+        R = R(PDB_filename, ref, dsigma, sigma_min, sigma_max)
+        args = {"%s"%key: val for key,val in locals().items()
+                if key in R.prep_observable.__code__.co_varnames}
+
+        print(R)
+        print(args)
+        print(args.values())
+        R.prep_observable(*args)
+        print(R.prep_observable.__code__.co_varnames)
+        print("\n\n")
+        print(args)
+        exit()
+        R.prep_observable(*locals())
+        print(R.PDB_filename)
+        print(R.ref)
+        #print(dir(R.prep_observable))
+        #print(locals())
+        print(R)
+        exit()
 
     else:
         raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha, .cs_Ca, .cs_N,.pf}")
     return R
+
 
 
 

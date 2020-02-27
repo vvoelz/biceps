@@ -1,4 +1,4 @@
-import os, sys, glob, string
+import os, sys, glob
 import numpy as np
 """
 # FORMAT (Jcoupling)

@@ -47,7 +47,7 @@ def biceps_restraint_line_pf_precomputed(restraint_index, i, topology,exp_pf, pr
 def biceps_restraint_line_pf_precomputed_header():
     """Returns a header string the the protectionfactor restraint file."""
 
-    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1', 'exp_pf','protection_factor'], ' ')
+    return "#" + str.join(' ', ('restraint_index', 'atom_index1', 'res1', 'exp_pf','protection_factor'))
 
 
 
@@ -73,7 +73,7 @@ def biceps_restraint_line_pf(restraint_index, i, exp_pf, topology):
 def biceps_restraint_line_pf_header():
     """Returns a header string the the protectionfactor restraint file."""
 
-    return "#" + string.joinfields(['restraint_index', 'atom_index1', 'res1','exp_pf'], ' ')
+    return "#" + str.join(' ', ('restraint_index', 'atom_index1', 'res1','exp_pf'))
 
 
 class prep_pf(object):

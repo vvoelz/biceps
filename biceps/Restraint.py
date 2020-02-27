@@ -172,20 +172,20 @@ class Restraint(object):
 class Restraint_cs_Ca(Restraint):
     """A derived class of RestraintClass() for C_alpha chemical shift restraints."""
 
-    def prep_observable(self,filename,free_energy,lam,verbose=False):
+    def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in C_alpha restraints.
 
-        :param str filename: Experimental data file
+        :param str data: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy of this conformation
+        :param float energy: The (reduced) free energy of this conformation
 
         >>> f = beta*F
         """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        ##self.free_energy = free_energy
-        self.free_energy = np.float128(lam*free_energy)
+        ##self.energy = energy
+        self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
@@ -194,7 +194,7 @@ class Restraint_cs_Ca(Restraint):
         self._rest_type = ['sigma_cs_Ca']
 
         # Reading the data from loading in filenames
-        read = prep_cs(filename=filename)
+        read = prep_cs(filename=data)
         self.load_data(read)
 
         # Add the chemical shift restraints
@@ -202,7 +202,7 @@ class Restraint_cs_Ca(Restraint):
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print('Loaded from', filename, ':')
+            print('Loaded from', data, ':')
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
@@ -217,18 +217,18 @@ class Restraint_cs_Ca(Restraint):
 class Restraint_cs_H(Restraint):
     """A derived class of RestraintClass() for H chemical shift restraints."""
 
-    def prep_observable(self,filename,free_energy,lam,verbose=False):
+    def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in cs_H restraints.
 
-        :param str filename: Experimental data file
+        :param str data: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy of this conformation
+        :param float energy: The (reduced) free energy of this conformation
         """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        #self.free_energy = free_energy
-        self.free_energy = np.float128(lam*free_energy)
+        #self.energy = energy
+        self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
@@ -237,13 +237,13 @@ class Restraint_cs_H(Restraint):
         self._rest_type = ['sigma_cs_H']
 
         # Reading the data from loading in filenames
-        read = prep_cs(filename=filename)
+        read = prep_cs(filename=data)
         self.load_data(read)
         self.n = 0
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print('Loaded from', filename, ':')
+            print('Loaded from', data, ':')
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
@@ -258,18 +258,18 @@ class Restraint_cs_H(Restraint):
 class Restraint_cs_Ha(Restraint):
     """A derived class of RestraintClass() for Ha chemical shift restraints."""
 
-    def prep_observable(self,filename,free_energy,lam,verbose=False):
+    def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in cs_Ha restraints.
 
-        :param str filename: Experimental data file
+        :param str data: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy of this conformation
+        :param float energy: The (reduced) free energy of this conformation
         """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        #self.free_energy = free_energy
-        self.free_energy = np.float128(lam*free_energy)
+        #self.energy = energy
+        self.energy = np.float128(lam*energy)
         self.Ndof = None
         self._nuisance_parameters = ['allowed_sigma']
         # Private variables to store specific restraint attributes in a list
@@ -279,13 +279,13 @@ class Restraint_cs_Ha(Restraint):
         self._rest_type = ['sigma_cs_Ha']
 
         # Reading the data from loading in filenames
-        read = prep_cs(filename=filename)
+        read = prep_cs(filename=data)
         self.load_data(read)
         self.n = 0
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print('Loaded from', filename, ':')
+            print('Loaded from', data, ':')
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
@@ -300,17 +300,17 @@ class Restraint_cs_Ha(Restraint):
 class Restraint_cs_N(Restraint):
     """A derived class of RestraintClass() for N chemical shift restraints."""
 
-    def prep_observable(self,filename,free_energy,lam,verbose=False):
+    def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in cs_N restraints.
 
-        :param str filename: Experimental data file
+        :param str data: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy of this conformation"""
+        :param float energy: The (reduced) free energy of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        #self.free_energy = free_energy
-        self.free_energy = np.float128(lam*free_energy)
+        #self.energy = energy
+        self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
@@ -319,13 +319,13 @@ class Restraint_cs_N(Restraint):
         self._rest_type = ['sigma_cs_N']
 
         # Reading the data from loading in filenames
-        read = prep_cs(filename=filename)
+        read = prep_cs(filename=data)
         self.load_data(read)
         self.n = 0
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print('Loaded from', filename, ':')
+            print('Loaded from', data, ':')
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
@@ -340,17 +340,18 @@ class Restraint_cs_N(Restraint):
 class Restraint_J(Restraint):
     """A derived class of RestraintClass() for J coupling constant."""
 
-    def prep_observable(self,filename,free_energy,lam,verbose=False):
+    def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in J coupling restraints.
 
-        :param str filename: Experimental data file
+        :param str data: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy of this conformation"""
+        :param float energy: The (reduced) free energy of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        #self.free_energy = free_energy
-        self.free_energy = np.float128(lam*free_energy)
+        #self.energy = energy
+        print(type(energy))
+        self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
@@ -359,7 +360,7 @@ class Restraint_J(Restraint):
         self._rest_type = ['sigma_J']
 
         # Reading the data from loading in filenames
-        read = prep_J(filename=filename)
+        read = prep_J(filename=data)
         self.load_data(read)
 
         self.n = 0
@@ -410,14 +411,14 @@ class Restraint_J(Restraint):
 class Restraint_noe(Restraint):
     """A derived class of Restraint() for noe distance restraints."""
 
-    def prep_observable(self,filename,free_energy,lam,verbose=False,
-            use_log_normal_noe=False,dloggamma=np.log(1.01),
-            gamma_min=0.2,gamma_max=10.0):
+    def prep_observable(self, data, energy, lam, verbose=False,
+            use_log_normal_noe=False, dloggamma=np.log(1.01),
+            gamma_min=0.2, gamma_max=10.0):
         """Observable is prepped by loading in noe distance restraints.
 
-        :param str filename: Experimental data file
+        :param str data: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy f = beta*F of this conformation
+        :param float energy: The (reduced) free energy f = beta*F of this conformation
         :param float dloggamma: Gamma is in log space
         :param float gamma_min: Minimum value of gamma
         :param float gamma_max: Maximum value of gamma"""
@@ -435,8 +436,8 @@ class Restraint_noe(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        #self.free_energy = free_energy
-        self.free_energy = np.float128(lam*free_energy)
+        #self.energy = energy
+        self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma','allowed_gamma']
@@ -447,7 +448,7 @@ class Restraint_noe(Restraint):
 
 
         # Reading the data from loading in filenames
-        read = prep_noe(filename=filename)
+        read = prep_noe(filename=data)
         self.load_data(read)
 
         self.n = 0
@@ -501,22 +502,22 @@ class Restraint_noe(Restraint):
 class Restraint_pf(Restraint):
     """A derived class of Restraint() for protection factor restraints."""
 
-    def prep_observable(self,lam, free_energy, filename,precomputed_pf = False,
+    def prep_observable(self,lam, energy, data, precomputed_pf = False,
             Ncs=None, Nhs=None,verbose=False, beta_c_min=0.05,beta_c_max=0.25,
             dbeta_c=0.01,beta_h_min=0.0,beta_h_max=5.2,dbeta_h=0.2,
             beta_0_min=-10.0,beta_0_max=0.0,dbeta_0=0.2,xcs_min=5.0,xcs_max=8.5,
             dxcs=0.5,xhs_min=2.0,xhs_max=2.7,dxhs=0.1,bs_min=15.0,bs_max=16.0,dbs=1.0):
         """Observable is prepped by loading in protection factor restraints.
 
-        :param str filename: Experimental data file
+        :param str data: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
-        :param float free_energy: The (reduced) free energy f = beta*F of this conformation
+        :param float energy: The (reduced) free energy f = beta*F of this conformation
         """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        #self.free_energy = free_energy
-        self.free_energy = np.float128(lam*free_energy)
+        #self.energy = energy
+        self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         if precomputed_pf:
@@ -582,14 +583,14 @@ class Restraint_pf(Restraint):
             self._parameter_indices = ['sigma_index','beta_c_index','beta_h_index','beta_0_index','xcs_index','xhs_index','bs_index']
             self._rest_type = ['sigma_PF','beta_c','beta_h','beta_0','xcs','xhs','bs']
         # Reading the data from loading in filenames
-        read = prep_pf(filename=filename)
+        read = prep_pf(filename=data)
         self.load_data(read)
 
         self.n = 0
 
         # Extract the data corresponding to an observable and add a the restraint
         if verbose:
-            print('Loaded from', filename, ':')
+            print('Loaded from', data, ':')
 
         self.nObs = len(self.data)
         if precomputed_pf:

@@ -15,7 +15,7 @@ class Convergence(object):
     :param np.array traj: output trajectory from BICePs sampling
     """
 
-    def __init__(self, trajfile=None):
+    def __init__(self, trajfile=None, resultdir=None):
 
         if trajfile is None:
             raise ValueError("Trajectory file is necessary")
@@ -31,6 +31,11 @@ class Convergence(object):
         self.sampled_parameters = self.get_sampled_parameters()
         self.labels = self.get_labels()
         self.exp_function = "single"
+        if resultdir.endswith("/"):
+            self.resultdir = resultdir
+        else:
+            self.resultdir = resultdir+"/"
+
 
     def get_sampled_parameters(self):
         """Get sampled parameters along time (steps).
@@ -85,7 +90,7 @@ class Convergence(object):
             if xlim:
                 plt.xlim(left=xlim[0], right=xlim[1])
         plt.tight_layout()
-        plt.savefig(fname)
+        plt.savefig(self.resultdir+fname)
         print('Done!')
 
     def plot_auto_curve(self, xlim=None,
@@ -135,7 +140,7 @@ class Convergence(object):
             if xlim:
                 plt.xlim(left=xlim[0], right=xlim[1])
         plt.tight_layout()
-        plt.savefig(fname)
+        plt.savefig(self.resultdir+fname)
         print('Done!')
 
     def plot_auto_curve_with_exp_fitting(self,
@@ -160,7 +165,7 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(fname)
+        plt.savefig(self.resultdir+fname)
         print('Done!')
 
 
@@ -392,8 +397,8 @@ class Convergence(object):
                         temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
                     all_JSDs[i][subset].append(self.compute_JSD(temp_T1,temp_T2,T_total,ind,self.allowed_parameters[i]))
         if savefile:
-            np.save("all_JSD.npy", all_JSD)
-            np.save("all_JSDs.npy", all_JSDs)
+            np.save(self.resultdir+"all_JSD.npy", all_JSD)
+            np.save(self.resultdir+"all_JSDs.npy", all_JSDs)
         print('Done!')
         self.plot_JSD_distribution(np.array(all_JSD), np.array(all_JSDs), nround, nfold)
         self.plot_JSD_conv(np.array(all_JSD), np.array(all_JSDs))
@@ -417,7 +422,7 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(fname)
+        plt.savefig(self.resultdir+fname)
 
 
     def compute_JSD(self, T1, T2, T_total, ind, allowed_parameters):
@@ -503,7 +508,7 @@ class Convergence(object):
                 plt.title('%d'%(10*(j+1))+'%',fontsize=10)
                 plt.legend(loc='best',fontsize=6)
             plt.tight_layout()
-            plt.savefig('JSD_conv_%s.pdf'%self.rest_type[k])
+            plt.savefig(self.resultdir+'JSD_conv_%s.pdf'%self.rest_type[k])
         print('Done')
 
 
@@ -550,7 +555,7 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(fname)
+        plt.savefig(self.resultdir+fname)
 
 
 
