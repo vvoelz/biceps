@@ -2,48 +2,7 @@
 import os, sys
 import numpy as np
 
-class Observable(object):
-    """A Parent class of observables """
-
-    def __init__(self, i, exp, model,
-            model_angle=None, j=None, k=None, l=None,
-            equivalency_index=None, ambiguity_index=None):
-        """Initialize the parent observable class that acts as a container class.
-
-        :param int i,j,k,l:
-        :var exp:
-        :var model_angle:
-        :var model:
-        :var equivalency_index:
-        :var ambiguity_index:
-        """
-
-        # Atom indices from the Conformation() defining this dihedral
-        self.i = i
-        self.j = j
-        self.k = k
-        self.l = l
-
-        # the model distance in this structure (in Angstroms)
-        self.model = model
-        self.model_angle = model_angle
-
-        # the experimental J-coupling constant
-        self.exp = exp
-
-        # the index of the equivalency group (i.e. a tag for equivalent H's)
-        self.equivalency_index = equivalency_index
-
-        # N equivalent distances should only get 1/N of the weight when computing chi^2
-        self.weight = 1.0  # default is N=1
-
-        # the index of the ambiguity group (i.e. some groups distances have
-        # distant values, but ambiguous assignments.  We can do posterior sampling over these)
-        self.ambiguity_index = ambiguity_index
-
-
-
-class NMR_Chemicalshift(Observable):
+class NMR_Chemicalshift(object):
     """A data containter class to store a datum for NMR chemical shift information."""
 
     def __init__(self, i, exp, model):
@@ -69,7 +28,7 @@ class NMR_Chemicalshift(Observable):
 
 
 
-class NMR_Dihedral(Observable):
+class NMR_Dihedral(object):
     """A data containter class to store a datum for NMR dihedral information."""
 
     def __init__(self, i, j, k, l, exp, model,
@@ -107,7 +66,7 @@ class NMR_Dihedral(Observable):
         self.ambiguity_index = ambiguity_index
 
 
-class NMR_Distance(Observable):
+class NMR_Distance(object):
     """A class to store NMR noe information."""
 
     def __init__(self, i, j, exp, model, equivalency_index=None):
@@ -136,7 +95,7 @@ class NMR_Distance(Observable):
         self.weight = 1.0  # default is N=1
 
 
-class NMR_Protectionfactor(Observable):
+class NMR_Protectionfactor(object):
     """A class to store NMR protection factor information."""
 
     def __init__(self, i, exp, model):

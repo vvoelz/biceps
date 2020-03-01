@@ -6,6 +6,7 @@ import biceps.prep_cs
 import biceps.prep_J
 import biceps.prep_noe
 import biceps.prep_pf
+import biceps.toolbox
 
 class Preparation(object):
     """A parent class to prepare input files for BICePs calculation.
@@ -18,10 +19,11 @@ class Preparation(object):
     :param str default=None data_dir: precomputed data directory (should have *txt file inside)
     """
 
-    def __init__(self,scheme=None,states=0,indices=None, exp_data=None, top=None, data_dir=None, precomputed_pf=False):
+    def __init__(self, scheme=None, states=0, indices=None, exp_data=None,
+            top=None, data_dir=None, precomputed_pf=False):
 
-        if scheme not in ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']:
-            raise ValueError("scheme must be one of ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']")
+        if scheme not in biceps.toolbox.list_possible_extensions():
+            raise ValueError(f"Scheme must be one of {biceps.toolbox.list_possible_extensions()}")
         elif scheme == 'pf' and not precomputed_pf:
             if states==0.0 or indices == None or exp_data == None or top==None:
                 raise ValueError("make sure you have actual input for states, indices, exp_data, topology file or data directory ")
@@ -66,11 +68,10 @@ class Preparation(object):
         elif self.scheme == 'pf':
             self.write_pf_input()
         else:
-            raise ValueError("scheme must be one of ['noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf']")
+            raise ValueError(f"scheme must be one of {biceps.toolbox.list_possible_extensions()}")
 
 
     def write_cs_input(self):
-        #print self.data
         for j in range(len(self.data)):
             model_data = np.loadtxt(self.data[j])
             r = prep_cs()

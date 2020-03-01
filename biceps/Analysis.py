@@ -29,7 +29,9 @@ class Analysis(object):
     :param str default='BICePs.pdf' picfile: output figure name
     """
 
-    def __init__(self, states = 0, precheck = True, resultdir = None, BSdir = 'BS.dat', popdir = 'populations.dat', picfile = 'BICePs.pdf'):
+    def __init__(self, states=0, precheck=True, resultdir=None, BSdir='BS.dat',
+            popdir='populations.dat', picfile='BICePs.pdf'):
+
         self.states = states
         if resultdir.endswith("/"):
             self.resultdir = resultdir

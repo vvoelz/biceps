@@ -37,9 +37,7 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None,
             raise ValueError("gamma should be a list of three items: gamma_min, gamma_max, dgamma")
         else:
             gamma_min, gamma_max, dloggamma = gamma[0], gamma[1], np.log(gamma[2])
-    #if precomputed_pf == False:
-    #    if Ncs == None or Nhs == None:
-    #        raise ValueError("Ncs and Nhs are needed!")
+
         # add uncern option here later
         # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
         beta_c_min, beta_c_max, dbeta_c = 0.05, 0.25, 0.01
@@ -94,7 +92,8 @@ def init_res(PDB_filename, lam, energy, data, ref=None, uncern=None,
                 if key in R.prep_observable.__code__.co_varnames}
         R.prep_observable(**args)
     else:
-        raise ValueError("Incompatible File extension. Use:{.noe,.J,.cs_H,.cs_Ha, .cs_Ca, .cs_N,.pf}")
+        import biceps.toolbox
+        raise ValueError(f"Incompatible File extension. Use: {biceps.toolbox.list_possible_extensions()}")
     return R
 
 

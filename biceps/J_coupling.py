@@ -1,24 +1,6 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-# Authors: Rob Raddi
-# Contributors: Yunhui Ge
-# This file includes functions of computing J3 couplings and is modified based
-# on the source code from MDTraj. Cite the original MDTraj paper to use this
-# function.
-##############################################################################
-
-##############################################################################
-# Imports
-##############################################################################
-
 import numpy as np
-
 from mdtraj.geometry import compute_phi
-
-##############################################################################
-# Globals
-##############################################################################
-
 
 J3_HN_HA_coefficients = {  # See full citations below in docstring references.
     "Ruterjans1999": dict(phi0=-60 * np.pi/180., A=7.90, B=-1.05, C=0.65),  # From Table 1. in paper.
@@ -39,9 +21,6 @@ J3_HN_HA_uncertainties = {
     "Pardi"  : 0.76
 }
 
-##############################################################################
-# Functions
-##############################################################################
 
 def _J3_function(phi, A, B, C, phi0):
     """Return a scalar couplings with a given choice of karplus coefficients.
@@ -53,7 +32,6 @@ def _J3_function(phi, A, B, C, phi0):
     :param float phi0:
 
     .. warning:: in radians"""
-
 
     return A * np.cos(phi + phi0) ** 2. + B * np.cos(phi + phi0) + C
 
@@ -122,6 +100,3 @@ def compute_J3_HN_HA(traj, model="Bax2007"):
 
 
 
-#__all__ = [
-#   '_J3_function',
-#   'compute_J3_HN_HA']

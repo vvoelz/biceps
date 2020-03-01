@@ -9,6 +9,7 @@ import mdtraj as md
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
+import biceps.Restraint as Restraint
 
 
 def sort_data(dataFiles):
@@ -93,12 +94,29 @@ def list_res(input_data):
     return scheme
 
 
-def mkdir(path):
-    """Create directory if path does not exist.
 
+def list_possible_restraints():
+    """Function will return a list of all possible restraint classes in Restraint.py.
+    >>> biceps.toolbox.list_possible_restraints()
+    """
+    return [ key for key in vars(Restraint).keys() if key.startswith("Restraint_") ]
+
+def list_possible_extensions():
+    """Function will return a list of all possible input data file extensions.
+    >>> biceps.toolbox.list_possible_extensions()
+    """
+    restraint_classes = list_possible_restraints()
+    possible = list()
+    for rest in restraint_classes:
+        R = getattr(Restraint, rest)
+        possible.append(getattr(R, "_ext"))
+    return possible
+
+
+def mkdir(path):
+    """Function will create a directory if given path does not exist.
     >>> toolbox.mkdir("./doctest")
     """
-
     # create a directory for each system
     if not os.path.exists(path):
         os.mkdir(path)
@@ -327,6 +345,13 @@ def get_rest_type(traj):
                 rest_type.append(r.split('_')[1])
                 rest_type.append('gamma')
     return rest_type
+
+#TODO:
+# input: pandas daraframe of populations
+# output: ordered list of populations with labeled columns
+def get_populations():
+    pass
+
 
 
 

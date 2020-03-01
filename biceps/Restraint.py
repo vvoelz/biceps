@@ -172,6 +172,8 @@ class Restraint(object):
 class Restraint_cs_Ca(Restraint):
     """A derived class of RestraintClass() for C_alpha chemical shift restraints."""
 
+    _ext = 'cs_Ca'
+
     def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in C_alpha restraints.
 
@@ -217,6 +219,8 @@ class Restraint_cs_Ca(Restraint):
 class Restraint_cs_H(Restraint):
     """A derived class of RestraintClass() for H chemical shift restraints."""
 
+    _ext = 'cs_H'
+
     def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in cs_H restraints.
 
@@ -257,6 +261,8 @@ class Restraint_cs_H(Restraint):
 
 class Restraint_cs_Ha(Restraint):
     """A derived class of RestraintClass() for Ha chemical shift restraints."""
+
+    _ext = 'cs_Ha'
 
     def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in cs_Ha restraints.
@@ -300,6 +306,8 @@ class Restraint_cs_Ha(Restraint):
 class Restraint_cs_N(Restraint):
     """A derived class of RestraintClass() for N chemical shift restraints."""
 
+    _ext = 'cs_N'
+
     def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in cs_N restraints.
 
@@ -339,6 +347,8 @@ class Restraint_cs_N(Restraint):
 
 class Restraint_J(Restraint):
     """A derived class of RestraintClass() for J coupling constant."""
+
+    _ext = 'J'
 
     def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in J coupling restraints.
@@ -411,6 +421,8 @@ class Restraint_J(Restraint):
 class Restraint_noe(Restraint):
     """A derived class of Restraint() for noe distance restraints."""
 
+    _ext = 'noe'
+
     def prep_observable(self, data, energy, lam, verbose=False,
             use_log_normal_noe=False, dloggamma=np.log(1.01),
             gamma_min=0.2, gamma_max=10.0):
@@ -444,7 +456,6 @@ class Restraint_noe(Restraint):
         self._parameters = ['sigma','gamma']
         self._parameter_indices = ['sigma_index','gamma_index']
         self._rest_type = ['sigma_noe','gamma']
-
 
 
         # Reading the data from loading in filenames
@@ -501,6 +512,8 @@ class Restraint_noe(Restraint):
 
 class Restraint_pf(Restraint):
     """A derived class of Restraint() for protection factor restraints."""
+
+    _ext = 'pf'
 
     def prep_observable(self,lam, energy, data, precomputed_pf = False,
             Ncs=None, Nhs=None,verbose=False, beta_c_min=0.05,beta_c_max=0.25,
@@ -582,6 +595,8 @@ class Restraint_pf(Restraint):
             self._parameters = ['sigma','beta_c','beta_h','beta_0','xcs','xhs','bs']
             self._parameter_indices = ['sigma_index','beta_c_index','beta_h_index','beta_0_index','xcs_index','xhs_index','bs_index']
             self._rest_type = ['sigma_PF','beta_c','beta_h','beta_0','xcs','xhs','bs']
+
+
         # Reading the data from loading in filenames
         read = prep_pf(filename=data)
         self.load_data(read)
