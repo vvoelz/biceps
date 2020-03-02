@@ -8,6 +8,8 @@ from scipy.optimize import curve_fit
 from matplotlib.offsetbox import AnchoredText
 import warnings
 warnings.filterwarnings("ignore",category=DeprecationWarning)
+warnings.filterwarnings("ignore",category=RuntimeWarning)
+
 
 class Convergence(object):
     """Convergence submodule for BICePs.
@@ -227,11 +229,10 @@ class Convergence(object):
     def cal_auto(self, data):
         """Calculates the autocorrelation"""
 
-        print('Calculating autocorrelation ...')
         autocorrs = []
         for timeseries in data:
             autocorrs.append( self.g(np.array(timeseries), max_tau=self.maxtau) )
-        print('Done!')
+        #print('Done!')
         return autocorrs
 
 
@@ -277,7 +278,7 @@ class Convergence(object):
 
 
     def get_autocorrelation_curves(self, method="normal", nblocks=5, maxtau=10000,
-            plot_traces=True):
+            plot_traces=False):
         """Compute autocorrelaton function for a time-series f(t), partition the
         data into the specified number of blocks and plot the autocorrelation curve.
 
@@ -296,8 +297,12 @@ class Convergence(object):
         #self.tau_c = np.array(c_conv.autocorrelation_time(autocorr))
 
         # Python
+        print('Calculating autocorrelation ...')
         self.autocorr = self.cal_auto(sampled_parameters)
+        print("Done!")
+        print('Calculating autocorrelation times...')
         self.tau_c = self.autocorrelation_time(self.autocorr)
+        print("Done!")
 
         if method in ["block-avg","normal"]:
             if method == "normal":
@@ -370,7 +375,7 @@ class Convergence(object):
 
         all_JSD=[[] for i in range(len(self.tau_c))]      # create JSD list
         all_JSDs=[[[] for i in range(nfold)] for j in range(len(self.tau_c))]   # create JSD list of distribution
-        print('starting calculating JSDs ...')
+        print('Calculating JSDs ...')
         for i in range(len(self.tau_c)):
             ind = i
             tau_auto = self.tau_c[i]

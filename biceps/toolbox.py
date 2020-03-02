@@ -187,8 +187,16 @@ def plot_ref(traj, debug = True):
 #TODO:
 # input: pandas daraframe of populations
 # output: ordered list of populations with labeled columns
-def get_populations():
-    pass
+def print_populations(file):
+    """ populations.dat file
+    """
+    return np.loadtxt(file)[:][0]
+
+
+def print_scores(file):
+    """ BS.dat file
+    """
+    return np.loadtxt(file)[1,0]
 
 
 

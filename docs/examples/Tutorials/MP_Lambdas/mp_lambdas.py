@@ -1,16 +1,16 @@
-import os, sys, pickle #NOTE: cPickle has issues with Python 3
+import os, sys, pickle
 import numpy as np
-sys.path.append("../")
 import biceps
 import multiprocessing as mp
 
 ####### Data and Output Directories #######
-energies = np.loadtxt('energy.dat')
-data = biceps.sort_data('noe')
-res = biceps.list_res(data)
+energies = np.loadtxt('../../datasets/cineromycin_B/cineromycinB_QMenergies.dat')*627.509  # convert from hartrees to kcal/mol
+energies = energies/0.5959   # convert to reduced free energies F = f/kT
+energies -= energies.min()  # set ground state to zero, just in case
+data = biceps.toolbox.sort_data('../../datasets/cineromycin_B/noe_J')
+res = biceps.toolbox.list_res(data)
 outdir = 'results_ref_normal'
-if not os.path.exists(outdir):
-    os.mkdir(outdir)
+biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
 nsteps=1000000
 maxtau = 1000
@@ -25,7 +25,7 @@ def mp_lambdas(Lambda):
         ensemble.append([])
         for k in range(len(data[0])):
             File = data[i][k]
-            R = biceps.init_res(PDB_filename='cineromycinB_pdbs/0.fixed.pdb', lam=lam,
+            R = biceps.init_res(PDB_filename='../../datasets/cineromycin_B/cineromycinB_pdbs/0.fixed.pdb', lam=lam,
                 energy=energies[i], ref=ref[k], data=File,
                 uncern=uncern[k], gamma=[0.2, 5.0, 1.02])
             ensemble[-1].append(R)
@@ -41,8 +41,8 @@ def mp_lambdas(Lambda):
     print('...Done.')
 # Check the number of CPU's available
 print("Number of CPU's: %s"%(mp.cpu_count()))
-#p = mp.Pool(processes=mp.cpu_count()-1) # knows the number of CPU's to allocate
-p = mp.Pool(processes=mp.cpu_count()) # knows the number of CPU's to allocate
+p = mp.Pool(processes=mp.cpu_count()-1) # knows the number of CPU's to allocate
+#p = mp.Pool(processes=mp.cpu_count()) # knows the number of CPU's to allocate
 #print("Process ID's: %s"%get_processes(p, n=lam))
 jobs = []
 for lam in lambda_values:
@@ -64,13 +64,11 @@ for job in jobs:
 p.close()
 
 ####### Convergence Check #######
-C = biceps.Convergence(trajfile=outdir+"/traj_lambda0.00.npz")
-C.plot_traces(fname="traces.png", xlim=(0, nsteps))
+C = biceps.Convergence(trajfile=outdir+"/traj_lambda0.00.npz", resultdir=outdir)
 C.get_autocorrelation_curves(method="normal", maxtau=maxtau)
 C.plot_auto_curve(fname="auto_curve.pdf", xlim=(0, maxtau))
 C.process(nblock=5, nfold=10, nround=100, savefile=True,
     plot=True, block=True, normalize=True)
-
 
 ####### Posterior Analysis #######
 A = biceps.Analysis(states=100, resultdir=outdir,
