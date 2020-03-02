@@ -2,10 +2,10 @@ import os, sys, glob, string
 import numpy as np
 import mdtraj as md
 import re
-import biceps.prep_cs
-import biceps.prep_J
-import biceps.prep_noe
-import biceps.prep_pf
+from biceps.prep_cs import prep_cs
+from biceps.prep_J import prep_J
+from biceps.prep_noe import prep_noe
+from biceps.prep_pf import prep_pf
 import biceps.toolbox
 
 class Preparation(object):
@@ -46,29 +46,25 @@ class Preparation(object):
             if int(len(self.data)) != int(states):
                 raise ValueError("number of states doesn't equal to file numbers")
 
-    def write(self,out_dir=None):
+
+    def write(self, out_dir=None):
         """write BICePs format input files.
 
         :param str default=None out_dir: output directory
         """
 
+        if self.scheme not in biceps.toolbox.list_possible_extensions():
+            raise ValueError(f"scheme must be one of {biceps.toolbox.list_possible_extensions()}")
+
         if out_dir == None:
             self.out = 'BICePs_'+self.scheme
         else:
             self.out = out_dir
-        if not os.path.exists(self.out):
-            os.mkdir(self.out)
 
-        if self.scheme in ['cs_H','cs_Ha','cs_Ca','cs_N']:
-            self.write_cs_input()
-        elif self.scheme == 'noe':
-            self.write_noe_input()
-        elif self.scheme == 'J':
-            self.write_J_input()
-        elif self.scheme == 'pf':
-            self.write_pf_input()
-        else:
-            raise ValueError(f"scheme must be one of {biceps.toolbox.list_possible_extensions()}")
+        biceps.toolbox.mkdir(self.out)
+        write = getattr(self, "write_%s_input"%self.scheme)
+        write()
+
 
 
     def write_cs_input(self):

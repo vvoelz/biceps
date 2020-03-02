@@ -2,7 +2,7 @@
 1            25       UNK1     H5           9        UNK1     C6           10       UNK1     C7           26       UNK1     H6             5.0000      11.3458
 2            30       UNK1     H10          14       UNK1     C11          15       UNK1     C12          32       UNK1     H12            1.5000       0.6203
 3            31       UNK1     H11          14       UNK1     C11          15       UNK1     C12          32       UNK1     H12            1.5000      13.5273
-4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          38       UNK1     H18            6.0000       3.4833
+4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          38       UNK1     H18            6.0000       3.4832
 4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          39       UNK1     H19            6.0000       1.6982
 4            32       UNK1     H12          15       UNK1     C12          20       UNK1     C16          40       UNK1     H20            6.0000      13.8120
 5            32       UNK1     H12          15       UNK1     C12          16       UNK1     C13          33       UNK1     H13            1.5000       0.4428

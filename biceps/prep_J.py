@@ -1,5 +1,6 @@
 import os, sys, glob
 import numpy as np
+
 """
 # FORMAT (Jcoupling)
 # column        description
@@ -128,7 +129,6 @@ class prep_J(object):
         print('Wrote', filename)
 
 
-
     def add_line(self, restraint_index, i, j, k, l, topology, exp_J_coupling, model_J_coupling):
         """Add a line to the Jcoupling file."""
 
@@ -140,8 +140,6 @@ class prep_J(object):
         RETURNS
         restraint_index, atom_index1, res1, atom_name1, atom_index2, res2, atom_name2, atom_index3, res3, atom_name3, atom_index4, res4, atom_name4, exp_J_coupling(Hz), model_J_coupling(Hz)
         """
-
-
 
         fields = line.strip().split()
         if len(fields) != 15:

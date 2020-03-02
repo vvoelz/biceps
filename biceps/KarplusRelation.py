@@ -32,6 +32,8 @@ class KarplusRelation(object):
             return self.Allylic(angle)
         elif key == 'Karplus_antiperiplanar_O':
             return self.Karplus_HH_appO(angle)
+        else:
+            print("%s is not an appropriate Karplus key..."%key)
 
 
     def Karplus_HH(self, angle):

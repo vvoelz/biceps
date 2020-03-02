@@ -50,8 +50,6 @@ def biceps_restraint_line_pf_precomputed_header():
     return "#" + str.join(' ', ('restraint_index', 'atom_index1', 'res1', 'exp_pf','protection_factor'))
 
 
-
-
 def biceps_restraint_line_pf(restraint_index, i, exp_pf, topology):
     """Returns a formatted string for a line in protectionfactor restraint file.
 

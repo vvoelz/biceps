@@ -191,7 +191,7 @@ class Analysis(object):
         savetxt(self.popdir, self.P_dP)
         print('...Done.')
 
-    def plot(self, debug = False):
+    def plot(self, show=False, debug=False):
         """plot figures for population, nuisance parameters"""
 
         # first figure out what scheme is used
@@ -264,6 +264,8 @@ class Analysis(object):
                 plt.yticks([])
         plt.tight_layout()
         plt.savefig(self.picfile)
+        if show:
+            plt.show()
 
 
 
