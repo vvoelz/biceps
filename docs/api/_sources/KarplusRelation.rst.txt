@@ -1,0 +1,7 @@
+KarplusRelation module
+======================
+
+.. automodule:: KarplusRelation
+    :members:
+    :undoc-members:
+    :show-inheritance:

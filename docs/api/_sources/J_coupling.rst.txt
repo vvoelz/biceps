@@ -1,0 +1,7 @@
+J\_coupling module
+==================
+
+.. automodule:: J_coupling
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,6 +1,0 @@
-cython>=0.28
-numpy>=1.7.0
-mdtraj>=1.5.0
-pymbar
-matplotlib
-PyYAML

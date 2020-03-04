@@ -1,4 +1,0 @@
-pymbar
-#-e git://github.com/mdtraj/mdtraj#egg=mdtraj
-mdtraj==1.9.1
-

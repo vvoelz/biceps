@@ -1,9 +1,0 @@
-#restraint_index atom_index1 res1 atom_name1 atom_index2 res2 atom_name2 exp_noe(A) model_noe(A)
-0            0        HYD1     CA           9        HYD10    CA             3.1010      2.2361
-1            0        HYD1     CA           11       HYD12    CA             2.3890      3.6056
-2            2        HYD3     CA           9        HYD10    CA             2.6817      3.6056
-3            2        HYD3     CA           11       HYD12    CA             2.0024      5.0000
-4            4        HYD5     CA           9        HYD10    CA             1.9855      3.6056
-5            4        HYD5     CA           11       HYD12    CA             1.8488      5.0000
-6            6        HYD7     CA           9        HYD10    CA             1.4481      3.0000
-7            6        HYD7     CA           11       HYD12    CA             2.1461      4.1231

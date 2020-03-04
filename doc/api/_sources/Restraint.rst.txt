@@ -1,7 +1,0 @@
-Restraint module
-================
-
-.. automodule:: Restraint
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,7 +1,0 @@
-Observable module
-=================
-
-.. automodule:: Observable
-    :members:
-    :undoc-members:
-    :show-inheritance:

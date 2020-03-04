@@ -1,7 +1,0 @@
-Preparation module
-==================
-
-.. automodule:: Preparation
-    :members:
-    :undoc-members:
-    :show-inheritance:

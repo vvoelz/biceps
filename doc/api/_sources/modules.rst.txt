@@ -1,7 +1,0 @@
-biceps
-======
-
-.. toctree::
-   :maxdepth: 4
-
-   biceps
