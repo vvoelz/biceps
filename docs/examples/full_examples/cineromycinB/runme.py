@@ -17,6 +17,7 @@ maxtau = 1000
 lambda_values = [0.0, 0.5, 1.0]
 ref = ['uniform', 'exp']
 uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
+
 ####### MCMC Simulations #######
 for lam in lambda_values:
     ensemble = []
@@ -38,6 +39,7 @@ for lam in lambda_values:
     pickle.dump(sampler, fout)
     fout.close()
     print('...Done.')
+
 
 ####### Convergence Check #######
 C = biceps.Convergence(trajfile=outdir+"/traj_lambda0.00.npz", resultdir=outdir)

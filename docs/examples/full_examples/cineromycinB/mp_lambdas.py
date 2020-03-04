@@ -14,7 +14,8 @@ biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
 nsteps=1000000
 maxtau = 1000
-lambda_values = [0.0, 0.5, 1.0]
+n_lambdas = 2
+lambda_values = np.linspace(0.0, 1.0, n_lambdas)
 ref = ['uniform', 'exp']
 uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
 ####### Multiprocessing Lambda values #######

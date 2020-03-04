@@ -3,6 +3,7 @@ import sys, os, glob
 import numpy as np
 import re
 import yaml, io
+import pandas as pd
 from biceps.J_coupling import *
 from biceps.KarplusRelation import KarplusRelation
 import mdtraj as md
@@ -126,7 +127,7 @@ def read_results(self,filename):
     print((list(loaded.items())))
 
 
-def plot_ref(traj, debug = True):
+def plot_ref(traj, debug=True):
     #from matplotlib import pyplot as plt
     # Load in yaml trajectories
     #output = os.path.join(resultdir,'traj_lambda0.00.npz')
@@ -139,7 +140,7 @@ def plot_ref(traj, debug = True):
 
     if debug:
         print('Loading %s ...'%traj)
-    results = np.load(traj)['arr_0'].item()
+    results = np.load(traj, allow_pickle=True)['arr_0'].item()
     n_restraints = len(results['ref_potential'])
     for i in range(n_restraints):
         if results['ref_potential'][i][0] == 'Nan':
@@ -187,7 +188,7 @@ def plot_ref(traj, debug = True):
 #TODO:
 # input: pandas daraframe of populations
 # output: ordered list of populations with labeled columns
-def print_populations(file):
+def get_state_populations(file):
     """ populations.dat file
     """
     return np.loadtxt(file)[:][0]
@@ -197,6 +198,30 @@ def print_scores(file):
     """ BS.dat file
     """
     return np.loadtxt(file)[1,0]
+
+
+def npz_to_DataFrame(file, out_filename="traj_lambda0.00.pkl", verbose=False):
+    """Converts numpy Z compressed file to Pandas DataFrame (*.pkl)
+
+    >>> biceps.toolbox.npz_to_DataFrame(file, out_filename="traj_lambda0.00.pkl")
+    """
+
+    npz = np.load(file, allow_pickle=True)["arr_0"].item()
+    if verbose:
+        print(npz.keys())
+
+    # get trajectory information
+    traj = npz["trajectory"]
+    #freq_save_traj = traj[1][0] - traj[0][0]
+    traj_headers = [ header.split()[0] for header in npz["trajectory_headers"] ]
+    t = {"%s"%header: [] for header in traj_headers}
+    for i in range(len(traj)):
+        for k,header in enumerate(traj_headers):
+            t[header].append(traj[i][k])
+    df = pd.DataFrame(t, columns=traj_headers)
+    df.to_pickle(out_filename)
+    return df
+
 
 
 
@@ -701,3 +726,7 @@ if __name__ == "__main__":
 
     import doctest
     doctest.testmod()
+
+
+
+

@@ -357,9 +357,9 @@ class PosteriorSampler(object):
         self.compile_nuisance_parameters()
 
         # Generate a high dimentional matrix of allowed nuisance parameters
-        grid = []
-        for rest in self.nuisance_para:
-            grid.append(np.zeros((rest.shape[0],rest.shape[0])))
+        #grid = []
+        #for rest in self.nuisance_para:
+        #    grid.append(np.zeros((rest.shape[0],rest.shape[0])))
         # create a list to record sampled times in each nuisance parameter space
         sampled = np.zeros(len(self.nuisance_para))
 
@@ -411,7 +411,8 @@ class PosteriorSampler(object):
                 for in_ind in parameter_indices[ind]:
                     temp_parameter_indices.append(in_ind)
                     original_index.append(ind)
-
+            original_index = np.array(original_index)
+            #print('original_index',original_index)
             # parameters e.g. [[1.2122652], [0.832136160]]
             parameters = _parameters
             # make a temporary list of parameters
@@ -421,40 +422,68 @@ class PosteriorSampler(object):
                     temp_parameters.append(in_para)
 
             # RAND = generalized probability of taking a step in restraint space given the total number of restraints.
-            RAND = 1. - 1./(len(temp_parameters) + 1.)   # 1. is the state
-            # randomly pick up one parameter to sample
-            to_sample_ind = np.random.randint(len(temp_parameters))
+            RAND = 1. - 1./(len(parameter_indices) + 1.)   # 1. is the state
+            #print('RAND',RAND)
+            # randomly pick up one observable to sample
+            to_sample_ind = np.random.randint(len(parameter_indices))
+            #print('to_sample_ind',to_sample_ind)
+            sample_ind = np.where(original_index==to_sample_ind)[0]   # the ind in the list of parameters (later used for self.nuisance_para)
+            #print('sample_ind',sample_ind)
             # find corresponding nuisance parameters
-            allowed_parameters = self.nuisance_para[to_sample_ind]
+            allowed_parameters = []
+            for para_ind in sample_ind:
+                allowed_parameters.append(self.nuisance_para[para_ind])
+            #print('allowed_parameters',allowed_parameters)
             # pick up the index to sample
-            index = temp_parameter_indices[to_sample_ind]
-            ind1 = index
-            if np.random.random() < RAND:
+            index = []
+            for para_ind in sample_ind:
+                index.append(temp_parameter_indices[para_ind])
+            #print('index',index)
+            #ind1 = index
+
+            dice = np.random.random()
+            #print('rolling dice', dice)
+            #if np.random.random() < RAND:
+            if dice < RAND:
                 ## Take a random step in the space of specific parameter
-                actual_sample_ind = to_sample_ind  # actual parameters being sampled
+                actual_sample_ind = sample_ind  # actual parameters being sampled
+                #print('actual_sample_ind',actual_sample_ind)
                 # Shift the index by +1, 0 or -1
-                index += (np.random.randint(3)-1)
+                temp_index = []
+                for ind in range(len(index)):
+                    temp_index.append(index[ind] + (np.random.randint(3)-1))
+                #print('temp_index',temp_index)
+                #index += (np.random.randint(3)-1)
 #                index = np.random.randint(len(nuisance_para))
                 # New index for specific parameter that belongs to a specific restraint
-                index = index%(len(allowed_parameters))
-                ind2 = index
+                temp_index2 = []
+                for ind in range(len(temp_index)):
+                    temp_index2.append(temp_index[ind]%len(allowed_parameters[ind]))
+                #print('temp_index2',temp_index2)
+                #index = index%(len(allowed_parameters))
+                #ind2 = index
                 ## Temporary replacement until satisfied by Metroplis criterion
                 # Replace the old parameter with the new parameter
-                temp_parameters[to_sample_ind] = allowed_parameters[index]
-                temp_parameter_indices[to_sample_ind] = index
+                for ind in range(len(sample_ind)):
+                    temp_parameters[sample_ind[ind]] = allowed_parameters[ind][temp_index2[ind]]
+                    temp_parameter_indices[sample_ind[ind]] = temp_index2[ind]
+                #print('temp_parameters',temp_parameters)
+                #print('temp_parameter_indices',temp_parameter_indices)
+                #temp_parameters[to_sample_ind] = allowed_parameters[index]
+                #temp_parameter_indices[to_sample_ind] = index
 
             else:
                 ## Take a random step in state space
                 new_state = np.random.randint(self.nstates)
-                actual_sample_ind = len(temp_parameters)  # actual parameters being sampled, if it's state then it's the last one in the list
+                actual_sample_ind = [len(temp_parameters)]  # actual parameters being sampled, if it's state then it's the last one in the list
             if verbose:
                 print('*****************************************')
-                print('new_rest_index ', new_rest_index )
-                print('new_para_index ', new_para_index )
+                #print('new_rest_index ', new_rest_index )
+                #print('new_para_index ', new_para_index )
                 print('new_state ', new_state )
-                print('new_sigma ', temp_parameters[to_sample_ind] )
-                print('new_sigma_index ', temp_parameter_indices[to_sample_ind] )
-                print('new_allowed_parameters ', allowed_parameters )
+                #print('new_sigma ', temp_parameters[to_sample_ind] )
+                #print('new_sigma_index ', temp_parameter_indices[to_sample_ind] )
+                #print('new_allowed_parameters ', allowed_parameters )
                 print('parameter_indices ', temp_parameter_indices )
                 print('parameters ',temp_parameters)
                 print('*****************************************')
@@ -486,12 +515,14 @@ class PosteriorSampler(object):
                 self.new_state = new_state
                 _parameter_indices = new_parameter_indices
                 _parameters = new_parameters
-                sep_accepted[actual_sample_ind] += 1.0  # keep recording accepted step based on which parameters sampled
+                for ind in actual_sample_ind:
+                    sep_accepted[ind] += 1.0
+                #sep_accepted[actual_sample_ind] += 1.0  # keep recording accepted step based on which parameters sampled
                 self.accepted += 1.0
-                if actual_sample_ind == len(temp_parameters):
-                    grid[to_sample_ind][ind1,ind1] += 1.0
-                else:
-                    grid[to_sample_ind][ind1,ind2] += 1.0
+                #if actual_sample_ind == len(temp_parameters):
+                #    grid[to_sample_ind][ind1,ind1] += 1.0
+                #else:
+                #    grid[to_sample_ind][ind1,ind2] += 1.0
             self.total += 1.0
 
             if verbose:
@@ -530,8 +561,8 @@ class PosteriorSampler(object):
         print('\nAccepted %s %% \n'%(sep_accepted/self.total*100.))
         self.traj.sep_accept.append(sep_accepted/self.total*100.)    # separate accepted ratio
         self.traj.sep_accept.append(self.accepted/self.total*100.)   # the total accepted ratio
-        for g in range(len(grid)):
-            self.traj.grid.append(grid[g]/sampled[g]*100.)
+        #for g in range(len(grid)):
+        #    self.traj.grid.append(grid[g]/sampled[g]*100.)
 
 class PosteriorSamplingTrajectory(object):
     """A container class to store and perform operations on the trajectories of
@@ -552,7 +583,7 @@ class PosteriorSamplingTrajectory(object):
         self.ref = [ []  for i in range(len(ensemble[0]))]  # parameters of reference potentials
         self.model = [ [] for i in range(len(ensemble[0]))]  # restraints model data
         self.sep_accept = []     # separate accepted ratio
-        self.grid = []   # for acceptance ratio plot
+        #self.grid = []   # for acceptance ratio plot
         self.state_trace = []
         s = self.ensemble[0]
 
@@ -585,7 +616,7 @@ class PosteriorSamplingTrajectory(object):
 
         # Store the name of the restraints in a list corresponding to the correct order
         saving = ['rest_type','trajectory_headers','trajectory','sep_accept',
-                'grid','allowed_parameters','sampled_parameters','model','ref','traces','state_trace']
+                'allowed_parameters','sampled_parameters','model','ref','traces','state_trace']
 
         for rest_index in range(len(self.ensemble[0])):
             n_observables  = self.ensemble[0][rest_index].nObs
@@ -602,7 +633,7 @@ class PosteriorSamplingTrajectory(object):
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
         self.results['sep_accept'] = self.sep_accept
-        self.results['grid'] = self.grid
+        #self.results['grid'] = self.grid
         self.results['allowed_parameters'] = self.allowed_parameters
         self.results['sampled_parameters'] = self.sampled_parameters
         self.results['model'] = self.model

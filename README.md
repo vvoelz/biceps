@@ -19,7 +19,7 @@ Citation [![DOI for Citing BICePs](https://img.shields.io/badge/DOI-10.1021.acs.
 
 ### Check our [BICePs website](https://biceps.readthedocs.io/en/latest/) for more details!
 
-### Please check out the [theory of **BICePs**](./BICePs_2.0/markdown/Theory.ipynb) to learn more.
+### Please check out the [theory of **BICePs**](https://biceps.readthedocs.io/en/latest/Theory.html) to learn more.
 
 Installation (in progress)
 ==========================
@@ -49,8 +49,7 @@ distribution](http://conda.pydata.org/miniconda.html), which is a
 bare-bones Python installation.
 -->
 
-BICePs supports Python 2.7 or Python 3.4+ (coming soon) on Mac, Linux,
-and Windows.
+BICePs supports Python 2.7 (see [tag v1.0](https://github.com/vvoelz/biceps/releases/tag/v1.0)) or Python 3.4+ on Mac, Linux, and Windows.
 
 
 Dependencies of BICePs

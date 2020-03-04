@@ -25,6 +25,7 @@ class Convergence(object):
             print('Loading trajectory file...')
 #            self.traj = np.load(trajfile, allow_pickle=True)
             self.traj = np.load(trajfile, allow_pickle=True)['arr_0'].item()
+            self.freq_save_traj = int(self.traj["trajectory"][1][0] - self.traj["trajectory"][0][0])
         print('Collecting rest_type...')
         self.rest_type = self.traj['rest_type']
         print('Collecting allowed_parameters...')
@@ -77,10 +78,9 @@ class Convergence(object):
 
         print('Plotting traces...')
         total_steps = len(self.sampled_parameters[0])
-        x = np.arange(1,total_steps+0.1,1)
+        x = np.arange(1,total_steps+0.1,1)*self.freq_save_traj
         n_rest = len(self.rest_type)
         plt.figure(figsize=(3*n_rest,6))
-
         for i in range(len(self.rest_type)):
             plt.subplot(len(self.rest_type), 1, i+1)
             plt.plot(x, self.sampled_parameters[i],label=self.labels[i])
