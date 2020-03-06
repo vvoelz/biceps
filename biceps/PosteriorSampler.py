@@ -404,7 +404,23 @@ class PosteriorSampler(object):
             # parameter_indices e.g. [[161], [142]]
             parameter_indices = _parameter_indices
 
-            """ the point of the following part is to convert the original parameters in the format of list of lists (e.g. [[1],[2,3]]) to a 1D list (e.g. [1,2,3] because the allowed_parameters (self.nuisance_para) is in the format of [a,b,c] where a,b,c represent parameters (which is different from parameter_indices). So the logic is to convert from list of lists to a 1D list and track the original index of each parameters to convert it back to the list of lists. (The reason for that is because the way we coded up neglogP function requires that format). The code will randomly pick up one observable space (including state space) to sample and then propose a jump along each parameter space associated with that observable. Once we have the new index and parameter of that observable, we convert all parameters/indices back to the original format (list of lists) and feed them to neglogP function for energy calculation. I'm sure this part can be improved and I suggest people who are going to work on this read the code carefully and make sure you fully understand what is going on here and come up with your own way to make it better. This is the core part of BICePs so make sure you know what you are doing. --Yunhui Ge 03/2020)
+            """ the point of the following part is to convert 
+            the original parameters in the format of list of lists (e.g. [[1],[2,3]]) 
+            to a 1D list (e.g. [1,2,3] because the allowed_parameters (self.nuisance_para) 
+            is in the format of [a,b,c] where a,b,c represent parameters 
+            (which is different from parameter_indices). 
+            So the logic is to convert from list of lists to a 1D list 
+            and track the original index of each parameters to convert it back to the list of lists later. 
+            (The reason for that is because the way we coded up neglogP function requires that format). 
+            The code will randomly pick up one observable space (including state space) to sample 
+            and then propose a jump along each parameter space associated with that observable. 
+            Once we have the new index and parameter of that observable, 
+            we convert all parameters/indices back to the original format (list of lists)
+            and feed them to neglogP function for energy calculation. 
+            I'm sure this part can be improved and I suggest people who are going to work on this 
+            read the code carefully and make sure you fully understand what is going on here 
+            and come up with your own way to make it better. 
+            This is the core part of BICePs so make sure you know what you are doing. --Yunhui Ge 03/2020)
             """
 
             # make a temporary list of indices
