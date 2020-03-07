@@ -39,12 +39,12 @@ class Preparation(object):
 
         self.topology = md.load(top).topology
         self.convert = lambda txt: int(txt) if txt.isdigit() else txt
-        if scheme == 'pf' and not precomputed_pf:
-            self.data  = self.restraint_data
-        else:
-            self.data = sorted(glob.glob(data_dir),key=lambda x: [self.convert(s) for s in re.split("([0-9]+)",x)])
-            if int(len(self.data)) != int(states):
-                raise ValueError("number of states doesn't equal to file numbers")
+#        if scheme == 'pf' and not precomputed_pf:
+#            self.data  = self.restraint_data
+#        else:
+        self.data = sorted(glob.glob(data_dir),key=lambda x: [self.convert(s) for s in re.split("([0-9]+)",x)])
+        if int(len(self.data)) != int(states):
+            raise ValueError("number of states doesn't equal to file numbers")
 
 
     def write(self, out_dir=None):

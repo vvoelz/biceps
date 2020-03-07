@@ -404,6 +404,25 @@ class PosteriorSampler(object):
             # parameter_indices e.g. [[161], [142]]
             parameter_indices = _parameter_indices
 
+            """ the point of the following part is to convert 
+            the original parameters in the format of list of lists (e.g. [[1],[2,3]]) 
+            to a 1D list (e.g. [1,2,3] because the allowed_parameters (self.nuisance_para) 
+            is in the format of [a,b,c] where a,b,c represent parameters 
+            (which is different from parameter_indices). 
+            So the logic is to convert from list of lists to a 1D list 
+            and track the original index of each parameters to convert it back to the list of lists later. 
+            (The reason for that is because the way we coded up neglogP function requires that format). 
+            The code will randomly pick up one observable space (including state space) to sample 
+            and then propose a jump along each parameter space associated with that observable. 
+            Once we have the new index and parameter of that observable, 
+            we convert all parameters/indices back to the original format (list of lists)
+            and feed them to neglogP function for energy calculation. 
+            I'm sure this part can be improved and I suggest people who are going to work on this 
+            read the code carefully and make sure you fully understand what is going on here 
+            and come up with your own way to make it better. 
+            This is the core part of BICePs so make sure you know what you are doing. --Yunhui Ge 03/2020)
+            """
+
             # make a temporary list of indices
             temp_parameter_indices = []
             original_index =[]   # keep tracking the original index of the parameters
@@ -425,7 +444,7 @@ class PosteriorSampler(object):
             RAND = 1. - 1./(len(parameter_indices) + 1.)   # 1. is the state
             #print('RAND',RAND)
             # randomly pick up one observable to sample
-            to_sample_ind = np.random.randint(len(parameter_indices))
+            to_sample_ind = np.random.randint(len(parameter_indices))  # together with RAND, this will make sure all observables and the state space will share the same probability to propose a MCMC movement
             #print('to_sample_ind',to_sample_ind)
             sample_ind = np.where(original_index==to_sample_ind)[0]   # the ind in the list of parameters (later used for self.nuisance_para)
             #print('sample_ind',sample_ind)
@@ -434,16 +453,18 @@ class PosteriorSampler(object):
             for para_ind in sample_ind:
                 allowed_parameters.append(self.nuisance_para[para_ind])
             #print('allowed_parameters',allowed_parameters)
-            # pick up the index to sample
+            # pick up the index of parameters associated with the observable to sample
             index = []
             for para_ind in sample_ind:
                 index.append(temp_parameter_indices[para_ind])
             #print('index',index)
             #ind1 = index
 
-            dice = np.random.random()
+            # rolling a dice
+            dice = np.random.random() 
             #print('rolling dice', dice)
             #if np.random.random() < RAND:
+
             if dice < RAND:
                 ## Take a random step in the space of specific parameter
                 actual_sample_ind = sample_ind  # actual parameters being sampled
@@ -451,11 +472,11 @@ class PosteriorSampler(object):
                 # Shift the index by +1, 0 or -1
                 temp_index = []
                 for ind in range(len(index)):
-                    temp_index.append(index[ind] + (np.random.randint(3)-1))
+                    temp_index.append(index[ind] + (np.random.randint(3)-1)) 
                 #print('temp_index',temp_index)
                 #index += (np.random.randint(3)-1)
 #                index = np.random.randint(len(nuisance_para))
-                # New index for specific parameter that belongs to a specific restraint
+                # Make sure the index doesn't fall out of the boundry of the allowed parameters
                 temp_index2 = []
                 for ind in range(len(temp_index)):
                     temp_index2.append(temp_index[ind]%len(allowed_parameters[ind]))
