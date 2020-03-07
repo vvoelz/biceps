@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os, sys
 from datetime import datetime
-#sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../'))
 import biceps
 
 # -- General configuration ------------------------------------------------
@@ -17,7 +17,7 @@ extensions = [
 
 ## Document Python Code
 autoapi_type = 'python'
-autoapi_dirs = ['biceps'] # Directory of Source Code    (directory of source code)
+autoapi_dirs = ['../biceps'] # Directory of Source Code    (directory of source code)
 autoapi_root = 'api'
 
 autodoc_default_flags = ['members', 'inherited-members']
