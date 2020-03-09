@@ -1,6 +1,12 @@
 BICePs - Bayesian Inference of Conformational Populations
 =========================================================
 
+<!-- List badges here: -->
+[![Documentation Status](https://readthedocs.org/projects/biceps/badge/?version=latest)](https://biceps.readthedocs.io/en/latest/?badge=latest)
+      
+
+<!--                   -->
+
 The BICePs algorithm (Bayesian Inference of Conformational Populations)
 is a statistically rigorous Bayesian inference method to reconcile
 theoretical predictions of conformational state populations with sparse
