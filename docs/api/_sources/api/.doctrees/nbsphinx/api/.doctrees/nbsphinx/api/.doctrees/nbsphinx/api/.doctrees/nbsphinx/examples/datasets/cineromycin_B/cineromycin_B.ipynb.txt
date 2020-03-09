@@ -1,0 +1,422 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<h1 style=\"align: center;font-size: 18pt;\"> Cineromycin B</h1>\n",
+    "\n",
+    "<hr style=\"height:2.5px\">\n",
+    "\n",
+    "Summary: In our previous work (DOI: [10.1002/jcc.23738](https://onlinelibrary-wiley-com.libproxy.temple.edu/doi/pdf/10.1002/jcc.23738\")), we determine solution-state conformational populations of the 14-membered macrocycle cineromycin B, using a combination of previously published sparse Nuclear Magnetic Resonance (NMR) observables and replica exchange molecular dynamic/Quantum mehcanics (QM)-refined conformational ensembles. Cineromycin B is a 14-membered macrolide antibiotic that has become increasingly known for having activity against methicillin-resistant Staphylococcus Aureus (MRSA). In this example, we show how to calculate the consistency of computational modeling with experiment, and the relative importance of reference potentials and other model parameters. \n",
+    "\n",
+    "<hr style=\"height:2.5px\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Supplemental Information: [the workflow](https://biceps.readthedocs.io/en/latest/workflow.html), [more examples](https://biceps.readthedocs.io/en/latest/examples/index.html)\n",
+    "First, we need to `import biceps`. More information of these python objects can be found .\n",
+    "\n",
+    "Please feel free to use this example as a template."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import sys, os, glob, cPickle\n",
+    "import numpy as np\n",
+    "import biceps"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now we need to specify input files and output files folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#########################################\n",
+    "# Lets' create input files for BICePs\n",
+    "############ Preparation ################\n",
+    "# Specify necessary argument values\n",
+    "path='NOE/*txt'                # precomputed distances for each state\n",
+    "states=100                     # number of states\n",
+    "indices='atom_indice_noe.txt'  # atom indices of each distance\n",
+    "exp_data='noe_distance.txt'    # experimental NOE data \n",
+    "top='cineromycinB_pdbs/0.fixed.pdb'    # topology file \n",
+    "dataFiles = 'noe_J'            # output directory of BICePs formated input file from this scripts\n",
+    "out_dir=dataFiles               \n",
+    "\n",
+    "#p=Preparation('noe',states=states,indices=indices,\n",
+    "#    exp_data=exp_data,top=top,data_dir=data_dir)  # the type of data needs to be specified {'noe', 'J', 'cs_H', etc}\n",
+    "#p.write(out_dir=out_dir)      # raw data will be converted to a BICePs readable format to the folder specified"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#########################################\n",
+    "# Let's create our ensemble of structures\n",
+    "############ Initialization #############    \n",
+    "# Specify necessary argument values\n",
+    "data = biceps.sort_data(dataFiles)   # sorting data in the folder and figure out what types of data are used\n",
+    "print data\n",
+    "print len(data),len(data[0])\n",
+    "\n",
+    "energies_filename =  'cineromycinB_QMenergies.dat'\n",
+    "energies = np.loadtxt(energies_filename)*627.509  # convert from hartrees to kcal/mol\n",
+    "energies = energies/0.5959   # convert to reduced free energies F = f/kT\n",
+    "energies -= energies.min()  # set ground state to zero, just in case\n",
+    "outdir = 'results_ref_normal'\n",
+    "\n",
+    "# Make a new directory if we have to\n",
+    "if not os.path.exists(outdir):\n",
+    "    os.mkdir(outdir)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "nsteps = 1000000 # number of steps of MCMC simulation"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Print what experimental observables are included in BICePs sampling. This is optional and provides a chance for double check before running BICePs sampling.\n",
+    "\n",
+    "In this tutorial, we used both J couplings and NOE (pairwise distances) in BICePs sampling. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "lambda_values = [0.0,0.5,1.0]\n",
+    "res = biceps.list_res(data)\n",
+    "print res"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Another key parameter for BICePs set-up is the type of reference potential for each experimental observables. More information of reference potential can be found [here](https://biceps.readthedocs.io/en/latest/theory.html).\n",
+    "\n",
+    "Three reference potentials are supported in BICePs: uniform ('uniform'), exponential ('exp'), Gaussian ('gau').  \n",
+    "\n",
+    "As we found in previous research, exponential reference potential is useful in most cases. Some higher level task may require more in reference potential selection (e.g [force field parametrization](https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871)).\n",
+    "\n",
+    "(Noet: It will be helpful to print out what is the order of experimental observables included in BICePs sampling as shown above.)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ref=['uniform','exp']\n",
+    "uncern=[[0.05,20.0,1.02],[0.05,5.0,1.02]]\n",
+    "gamma = [0.2,5.0,1.01]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "If you want, you can specify nuisance parameters (uncertainty in experiments) range but it's not required. Our default parameters range is broad enough.\n",
+    "\"gamma\" is a scaling factor converting distances to NOE intensity in experiments. It is only used when NOE restraint is ued in BICePs sampling.\n",
+    "\n",
+    "Now we need to set up BICePs samplings and feed arguments using variables we defined above. In most cases, you don't need to modify this part as long as you defined all these parameters shown above. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for j in lambda_values:\n",
+    "    verbose = False # True\n",
+    "    lam = j\n",
+    "    # We will instantiate a number of Structure() objects to construct the ensemble\n",
+    "    ensemble = []\n",
+    "    for i in range(energies.shape[0]):\n",
+    "        if verbose:\n",
+    "            print '\\n#### STRUCTURE %d ####'%i\n",
+    "        ensemble.append([])\n",
+    "        for k in range(len(data[0])):\n",
+    "            File = data[i][k]\n",
+    "            if verbose:\n",
+    "                print File\n",
+    "            R = biceps.init_res('cineromycinB_pdbs/0.fixed.pdb',\n",
+    "                              lam,energies[i],File,ref[k],uncern[k],gamma)\n",
+    "            ensemble[-1].append(R)\n",
+    "    print ensemble\n",
+    "\n",
+    "    ##########################################\n",
+    "    # Next, let's do some posterior sampling\n",
+    "    ########## Posterior Sampling ############\n",
+    "    \n",
+    "    sampler = biceps.PosteriorSampler(ensemble)\n",
+    "    sampler.compile_nuisance_parameters()\n",
+    "\n",
+    "    sampler.sample(nsteps)  # number of steps\n",
+    "\n",
+    "    print 'Processing trajectory...',\n",
+    "    print 'Writing results...',\n",
+    "    sampler.traj.process_results(os.path.join(outdir,'traj_lambda%2.2f.npz'%lam))  # compute averages, etc.\n",
+    "    print '...Done.'\n",
+    "    \n",
+    "    sampler.traj.read_results(os.path.join(outdir,'traj_lambda%2.2f.npz'%lam))\n",
+    "\n",
+    "    print 'Pickling the sampler object ...',\n",
+    "    outfilename = 'sampler_lambda%2.2f.pkl'%lam\n",
+    "    print outfilename,\n",
+    "    fout = open(os.path.join(outdir, outfilename), 'wb')\n",
+    "    # Pickle dictionary using protocol 0.\n",
+    "    cPickle.dump(sampler, fout)\n",
+    "    fout.close()\n",
+    "    print '...Done.'"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Then, we need to run functions in [Analysis](https://biceps.readthedocs.io/en/latest/api.html#analysis) to get predicted populations of each conformational states and BICePs score. A figure of posterior distribution of populations and nuisance parameters will be plotted as well. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#########################################\n",
+    "# Let's do analysis using MBAR and plot figures\n",
+    "############ MBAR and Figures ###########\n",
+    "# Specify necessary argument values\n",
+    "A = biceps.Analysis(states, outdir) \n",
+    "A.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The output files include: population information (\"populations.dat\"), figure of sampled parameters distribution (\"BICePs.pdf\"), BICePs score information (\"BS.dat\").\n",
+    "\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "First, let's take a look at the populations file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fin = open('populations.dat','r')\n",
+    "text = fin.read()\n",
+    "fin.close()\n",
+    "print text"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "There are 100 rows corresponding to 100 clustered states. 6 columns corresponding to populations of each state (row) for 3 lambda values (first 3 columns) and population change (last 3 columns). \n",
+    "\n",
+    "Then let's take a look at the output figure (\"BICePs.pdf\").\n",
+    "\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The top left panel shows the population of each states in the presence (y-axis) and absense (x-axis) of computational modeling prior information. You can find some states (e.g state 38, 59) get awarded after including computational prior information. If you check [this work](https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738) you will see how misleading the results will be if we only use experimental restraints without computational prior information. \n",
+    "The other three panels show the distribution of nuisance parameters in the presence or absence of computational modeling information. It may not be clear in this example due to the limit of finite sampling, but based on our experience, including prior information from our simulations will lower the nuisance parameters than only using experimental restraints."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<h6 style=\"align: justify;font-size: 12pt\"># <span style=\"color:red;\">NOTE</span>: The following cell is for pretty notebook rendering</h6>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "\n",
+       "<style>\n",
+       "    @font-face {\n",
+       "        font-family: \"Computer Modern\";\n",
+       "        src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunss.otf');\n",
+       "    }\n",
+       "    #notebook { /* centers the page content */\n",
+       "    padding-left:8%;\n",
+       "    padding-right:9%;\n",
+       "    }\n",
+       "    #ipython-main-app {\n",
+       "        position: relative;\n",
+       "    }\n",
+       "    #jupyter-main-app {\n",
+       "        position: relative;\n",
+       "    }\n",
+       "    div.cell{\n",
+       "        width:98%;\n",
+       "        margin-left:4% !important;*/\n",
+       "        margin-right:4%;\n",
+       "    }\n",
+       "    h1 {\n",
+       "        font-family: \"Charis SIL\", Palatino, serif;\n",
+       "        text-align: center;\n",
+       "    }\n",
+       "    h4{\n",
+       "        margin-top:12px;\n",
+       "        margin-bottom: 3px;\n",
+       "       }\n",
+       "    div.text_cell_render{\n",
+       "        font-family: Computer Modern, \"Helvetica Neue\", Arial, Helvetica, Geneva, sans-serif;\n",
+       "        line-height: 145%;\n",
+       "        font-size: 12pt;\n",
+       "        width:99%;\n",
+       "        margin-left:auto;\n",
+       "        margin-right:auto;\n",
+       "    }\n",
+       "    .output_png {\n",
+       "        display: block;/*table-cell;*/\n",
+       "        text-align: center;\n",
+       "        align: center;\n",
+       "        vertical-align: middle;\n",
+       "        margin-left: auto;\n",
+       "        margin-right: auto;\n",
+       "        width: 100%;\n",
+       "    }\n",
+       "    div.output_area pre {font-weight: normal; text-align: justify; }\n",
+       "    .warning{\n",
+       "        color: rgb( 240, 20, 20 )\n",
+       "        }\n",
+       "    .CodeMirror{\n",
+       "            font-family: \"Source Code Pro\", source-code-pro,Consolas, monospace;\n",
+       "    }\n",
+       "    .prompt{\n",
+       "        display: None;\n",
+       "    }\n",
+       "    .text_cell_render h5 {\n",
+       "        font-weight: 300;\n",
+       "        font-size: 16pt;\n",
+       "        color: #4057A1;\n",
+       "        font-style: italic;\n",
+       "        margin-bottom: .5em;\n",
+       "        margin-top: 0.5em;\n",
+       "        display: block;\n",
+       "    }\n",
+       "    /* override table width restrictions as found on https://github.com/getpelican/pelican/issues/1311 */\n",
+       "    .wy-table-responsive table td, .wy-table-responsive table th {\n",
+       "        /* !important prevents the common CSS stylesheets from\n",
+       "           overriding this as on RTD they are loaded after this stylesheet */\n",
+       "        white-space: normal !important;\n",
+       "    }\n",
+       "\n",
+       "    .wy-table-responsive {\n",
+       "        overflow: visible !important;\n",
+       "    }\n",
+       "</style>\n",
+       "\n",
+       "<!-- MathJax configuration -->\n",
+       "<script type=\"text/x-mathjax-config\">\n",
+       "    src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\">\n",
+       "    MathJax.Hub.Config({\n",
+       "                        TeX: {\n",
+       "                           extensions: [\"AMSmath.js\"]\n",
+       "                           },\n",
+       "                tex2jax: {\n",
+       "                    inlineMath: [ ['$','$'], [\"\\\\(\",\"\\\\)\"] ],\n",
+       "                    displayMath: [ ['$$','$$'], [\"\\\\[\",\"\\\\]\"] ]\n",
+       "                },\n",
+       "                displayAlign: 'center', // Change this to 'center' to center equations.\n",
+       "                \"HTML-CSS\": {\n",
+       "                    styles: {'.MathJax_Display': {\"margin\": 4}},\n",
+       "                    linebreaks: { automatic: true }}\n",
+       "        });\n",
+       "</script>\n"
+      ],
+      "text/plain": [
+       "<IPython.core.display.HTML object>"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from IPython.core.display import HTML\n",
+    "def css_styling():\n",
+    "    styles = open(\"../../theme.css\", \"r\").read()\n",
+    "    return HTML(styles)\n",
+    "css_styling()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 2",
+   "language": "python",
+   "name": "python2"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 2
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython2",
+   "version": "2.7.16"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

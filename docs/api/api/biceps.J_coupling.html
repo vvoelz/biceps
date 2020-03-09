@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>biceps.J_coupling &mdash; BICePs 2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../biceps.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">biceps.J_coupling</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/biceps.J_coupling.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-biceps.J_coupling">
+<span id="biceps-j-coupling"></span><h1><code class="docutils literal notranslate"><span class="pre">biceps.J_coupling</span></code><a class="headerlink" href="#module-biceps.J_coupling" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="biceps.J_coupling.compute_J3_HN_HA">
+<code class="sig-prename descclassname">biceps.J_coupling.</code><code class="sig-name descname">compute_J3_HN_HA</code><span class="sig-paren">(</span><em class="sig-param">traj</em>, <em class="sig-param">model='Bax2007'</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.J_coupling.compute_J3_HN_HA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the scalar coupling between HN and H_alpha.
+This function does not take into account periodic boundary conditions (it
+will give spurious results if the three atoms which make up any angle jump
+across a PBC (are not “wholed”))</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traj</strong> (<em>mdtraj.Trajectory</em>) – Trajectory to compute J3_HN_HA for</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>:param  string, optional, default=”Bax2007” model :</dt><dd><p>Which scalar coupling model to use.  Must be one of Bax2007, Bax1999, or Ruterjans1999</p>
+</dd>
+<dt>:return np.ndarray, shape=(n_phi, 4), dtype=int indices :</dt><dd><p>Atom indices (zero-based) of the phi dihedrals</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Return np.ndarray, shape=(n_frames, n_phi) J</dt>
+<dd class="field-odd"><p>Scalar couplings (J3_HN_HA, in [Hz]) of this trajectory.
+<cite>J[k]</cite> corresponds to the phi dihedral associated with
+atoms <cite>indices[k]</cite></p>
+</dd>
+</dl>
+<p>The coefficients are taken from the references below–please cite them.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><p>Schmidt, J. M., Blümel, M., Löhr, F., &amp; Rüterjans, H.
+“Self-consistent 3J coupling analysis for the joint calibration
+of Karplus coefficients and evaluation of torsion angles.”
+J. Biomol. NMR, 14, 1 1-12 (1999)</p>
+</dd>
+<dt class="label" id="id2"><span class="brackets">2</span></dt>
+<dd><p>Vögeli, B., Ying, J., Grishaev, A., &amp; Bax, A.
+“Limits on variations in protein backbone dynamics from precise
+measurements of scalar couplings.”
+J. Am. Chem. Soc., 129(30), 9377-9385 (2007)</p>
+</dd>
+<dt class="label" id="id3"><span class="brackets">3</span></dt>
+<dd><p>Hu, J. S., &amp; Bax, A.
+“Determination of ϕ and ξ1 Angles in Proteins from 13C-13C
+Three-Bond J Couplings Measured by Three-Dimensional Heteronuclear NMR.
+How Planar Is the Peptide Bond?.”
+J. Am. Chem. Soc., 119(27), 6360-6368 (1997)</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets">4</span></dt>
+<dd><p>Habeck, M.; Rieping, W.; Nilges, M. Bayesian Estimation of Karplus</p>
+</dd>
+</dl>
+<p>Parameters and Torsion Angles from Three-Bond Scalar Couplings Constants.
+J. Magn. Reson. 2005, 177 (1), 160–165.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id5"><span class="brackets">5</span></dt>
+<dd><p>Vuister, G. W.; Bax, A. Quantitative J Correlation: A New Approach for</p>
+</dd>
+</dl>
+<p>Measuring Homonuclear Three-Bond JHN,Hα Coupling Constants in 15N-Enriched
+Proteins. J. Am. Chem. Soc. 1993, 115 (17), 7772–7777.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id6"><span class="brackets">6</span></dt>
+<dd><p>Pardi, A.; Billeter, M.; Wüthrich, K. Calibration of the Angular</p>
+</dd>
+</dl>
+<p>Dependence of the Amide Proton-C Alpha Proton Coupling Constants,
+3JHN Alpha, in a Globular Protein. Use of 3JHN Alpha for Identification
+of Helical Secondary Structure. J. Mol. Biol. 1984, 180 (3), 741–751.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

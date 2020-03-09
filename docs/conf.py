@@ -18,8 +18,9 @@ extensions = [
 ## Document Python Code
 autoapi_type = 'python'
 autoapi_dirs = ['../biceps'] # Directory of Source Code    (directory of source code)
-autoapi_root = 'api'
+autoapi_root = './api'
 
+#autodoc_default_flags = ['members', 'inherited-members', 'classes']
 autodoc_default_flags = ['members', 'inherited-members']
 #autodoc_default_flags = ['members']
 
@@ -30,11 +31,12 @@ todo_include_todos = False
 autoapi_modules = {
         'biceps': {
             'override': False,
-            'output': 'auto'
+            'output': autoapi_root
     }
 }
 
 numpydoc_class_members_toctree = False
+#numpydoc_class_members_toctree = True
 
 # concatenate both class and __init__ docstrings when generating autodoc class
 # docs

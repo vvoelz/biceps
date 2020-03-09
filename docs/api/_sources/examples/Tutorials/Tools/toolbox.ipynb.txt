@@ -1,0 +1,357 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<h1 style=\"align: center;font-size: 18pt;\">Toolbox</h1>\n",
+    "<hr style=\"height:2.5px\">\n",
+    "\n",
+    "This tutorial shows the user what `biceps.toolbox` has to offer.  \n",
+    "\n",
+    "<hr style=\"height:2.5px\">"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "BICePs - Bayesian Inference of Conformational Populations, Version 2.0\n"
+     ]
+    }
+   ],
+   "source": [
+    "import numpy as np\n",
+    "import biceps"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Convert populations to energy"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[5.583336321580334, 9.721165995742174, 9.115030192171858, 9.433483923290392, 6.495645628155304, 11.107460356862065, 6.094605306027495, 10.126631103850338, 8.8387768155437, 9.721165995742174]\n"
+     ]
+    }
+   ],
+   "source": [
+    "pop_filename = 'population.txt'\n",
+    "# convert from population to energy(kT): E = -kT*log(P) \n",
+    "out = biceps.toolbox.convert_pop_to_energy(pop_filename)\n",
+    "print(out[::100]) # printing every 100"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Compute J coupling constants for natural amino acids"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "saving output file...\n",
+      "Done!\n",
+      "saving output file...\n",
+      "Done!\n",
+      "saving output file...\n",
+      "Done!\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Compute J3_HN_HA for frames in trajectories\n",
+    "# for only 1 *gro/*pdb file\n",
+    "J = biceps.toolbox.get_J3_HN_HA('J3/example.gro',\n",
+    "                                model = \"Habeck\", outname='J3_out.npy')\n",
+    "# for 1 trajectory\n",
+    "J = biceps.toolbox.get_J3_HN_HA(traj='J3/example.xtc',top='J3/example.gro',\n",
+    "                                model = \"Habeck\", outname='J3_out.npy')\n",
+    "# for 1 trajectory with selected frames\n",
+    "frames = [0,1,3,5,7,9]\n",
+    "J = biceps.toolbox.get_J3_HN_HA(traj='J3/example.xtc',top='J3/example.gro',\n",
+    "                                frame = frames, model = \"Habeck\", outname='J3_out.npy')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Compute J coupling constants for non-natural amino acids"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[[11.59929633 11.5908202   3.77981085  3.06534659 11.46025735  0.61495801\n",
+      "  10.80616333  2.94538664  1.24030298  2.77752424  1.3801523  10.88224604]]\n",
+      "[[11.59359379 11.58796156 11.5994007  10.86025507  4.40292064 12.30620068\n",
+      "   3.43600049 10.7195684   1.07170021  2.98419957 10.8572357   1.18375748]]\n",
+      "[[11.58811557 11.58931135 10.49392263  4.02871242 11.33110466 12.59204923\n",
+      "  10.9224119   2.64105364  1.43223646  2.05262705 10.99946341  1.99195757]]\n",
+      "[[11.59995984 11.59170756 11.34322617 10.98300376  2.75242845  0.56631515\n",
+      "   1.14966803 10.75983707  3.06268945  2.78762916  1.35818234 10.85199877]]\n",
+      "[[11.58991007 11.58508194 10.75085679  3.20760985 11.53892434  0.03746871\n",
+      "  10.9185836   2.76861831  1.46725946  2.17715562 10.99202389  1.80701938]]\n"
+     ]
+    }
+   ],
+   "source": [
+    "biceps.toolbox.mkdir(\"J_coupling\")\n",
+    "# compute J coupling constants of non-natural amino acids\n",
+    "# Karplus relations need to be determined \n",
+    "index = np.load('ind.npy') # atom indices\n",
+    "karplus_key = np.load('Karplus.npy').astype(str) # Karplus relation for each J coupling constant\n",
+    "for i in range(100):\n",
+    "    J = biceps.toolbox.compute_nonaa_Jcoupling('top/%d.pdb'%i, index=index, karplus_key=karplus_key)\n",
+    "    if i<5:\n",
+    "        print(J)  # print the first 5\n",
+    "    np.savetxt('J_coupling/%d.txt'%i,J)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<hr>\n",
+    "\n",
+    "### Tools to be used after BICePs sampling"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<!--\n",
+    "#### Plot reference potential for each experimental restraints\n",
+    "-->"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true
+   },
+   "source": [
+    "<!--\n",
+    "%matplotlib inline\n",
+    "outdir = 'results/traj_lambda0.00.npz'\n",
+    "p = biceps.toolbox.plot_ref(outdir)\n",
+    "-->"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Convert `biceps` trajectory file to Pandas DataFrame"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   step           E  accept  state           para_index\n",
+      "0     0  135.228336       1     25   [[151], [116, 81]]\n",
+      "1   100   43.798846       1     58   [[170], [108, 92]]\n",
+      "2   200   35.797135       0     84   [[172], [110, 94]]\n",
+      "3   300   24.634310       0     79   [[176], [114, 95]]\n",
+      "4   400   19.433472       0     79   [[183], [113, 97]]\n",
+      "5   500   12.780269       0     87   [[187], [112, 98]]\n",
+      "6   600    8.845128       1     87   [[196], [117, 98]]\n",
+      "7   700    9.259623       0     87  [[194], [118, 100]]\n",
+      "8   800   10.022916       0     87   [[190], [124, 95]]\n",
+      "9   900   10.252859       1     87   [[193], [117, 96]]\n"
+     ]
+    }
+   ],
+   "source": [
+    "file  = \"results/traj_lambda0.00.npz\"\n",
+    "df = biceps.toolbox.npz_to_DataFrame(file)\n",
+    "print(df)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<h6 style=\"align: justify;font-size: 12pt\"># <span style=\"color:red;\">NOTE</span>: The following cell is for pretty notebook rendering</h6>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "\n",
+       "<style>\n",
+       "    @font-face {\n",
+       "        font-family: \"Computer Modern\";\n",
+       "        src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunss.otf');\n",
+       "    }\n",
+       "    #notebook { /* centers the page content */\n",
+       "    padding-left:8%;\n",
+       "    padding-right:9%;\n",
+       "    }\n",
+       "    #ipython-main-app {\n",
+       "        position: relative;\n",
+       "    }\n",
+       "    #jupyter-main-app {\n",
+       "        position: relative;\n",
+       "    }\n",
+       "    div.cell{\n",
+       "        width:98%;\n",
+       "        margin-left:4% !important;*/\n",
+       "        margin-right:4%;\n",
+       "    }\n",
+       "    h1 {\n",
+       "        font-family: \"Charis SIL\", Palatino, serif;\n",
+       "        text-align: center;\n",
+       "    }\n",
+       "    h4{\n",
+       "        margin-top:12px;\n",
+       "        margin-bottom: 3px;\n",
+       "       }\n",
+       "    div.text_cell_render{\n",
+       "        font-family: Computer Modern, \"Helvetica Neue\", Arial, Helvetica, Geneva, sans-serif;\n",
+       "        line-height: 145%;\n",
+       "        font-size: 12pt;\n",
+       "        width:99%;\n",
+       "        margin-left:auto;\n",
+       "        margin-right:auto;\n",
+       "    }\n",
+       "    .output_png {\n",
+       "        display: block;/*table-cell;*/\n",
+       "        text-align: center;\n",
+       "        align: center;\n",
+       "        vertical-align: middle;\n",
+       "        margin-left: auto;\n",
+       "        margin-right: auto;\n",
+       "        width: 100%;\n",
+       "    }\n",
+       "    div.output_area pre {font-weight: normal; text-align: justify; }\n",
+       "    .warning{\n",
+       "        color: rgb( 240, 20, 20 )\n",
+       "        }\n",
+       "    .CodeMirror{\n",
+       "            font-family: \"Source Code Pro\", source-code-pro,Consolas, monospace;\n",
+       "    }\n",
+       "    .prompt{\n",
+       "        display: None;\n",
+       "    }\n",
+       "    .text_cell_render h5 {\n",
+       "        font-weight: 300;\n",
+       "        font-size: 16pt;\n",
+       "        color: #4057A1;\n",
+       "        font-style: italic;\n",
+       "        margin-bottom: .5em;\n",
+       "        margin-top: 0.5em;\n",
+       "        display: block;\n",
+       "    }\n",
+       "    /* override table width restrictions as found on https://github.com/getpelican/pelican/issues/1311 */\n",
+       "    .wy-table-responsive table td, .wy-table-responsive table th {\n",
+       "        /* !important prevents the common CSS stylesheets from\n",
+       "           overriding this as on RTD they are loaded after this stylesheet */\n",
+       "        white-space: normal !important;\n",
+       "    }\n",
+       "\n",
+       "    .wy-table-responsive {\n",
+       "        overflow: visible !important;\n",
+       "    }\n",
+       "</style>\n",
+       "\n",
+       "<!-- MathJax configuration -->\n",
+       "<script type=\"text/x-mathjax-config\">\n",
+       "    src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\">\n",
+       "    MathJax.Hub.Config({\n",
+       "                        TeX: {\n",
+       "                           extensions: [\"AMSmath.js\"]\n",
+       "                           },\n",
+       "                tex2jax: {\n",
+       "                    inlineMath: [ ['$','$'], [\"\\\\(\",\"\\\\)\"] ],\n",
+       "                    displayMath: [ ['$$','$$'], [\"\\\\[\",\"\\\\]\"] ]\n",
+       "                },\n",
+       "                displayAlign: 'center', // Change this to 'center' to center equations.\n",
+       "                \"HTML-CSS\": {\n",
+       "                    styles: {'.MathJax_Display': {\"margin\": 4}},\n",
+       "                    linebreaks: { automatic: true }}\n",
+       "        });\n",
+       "</script>\n"
+      ],
+      "text/plain": [
+       "<IPython.core.display.HTML object>"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from IPython.core.display import HTML\n",
+    "def css_styling():\n",
+    "    styles = open(\"../../../theme.css\", \"r\").read()\n",
+    "    return HTML(styles)\n",
+    "css_styling()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}

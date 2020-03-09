@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>biceps.KarplusRelation &mdash; BICePs 2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../biceps.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">biceps.KarplusRelation</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/biceps.KarplusRelation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-biceps.KarplusRelation">
+<span id="biceps-karplusrelation"></span><h1><code class="docutils literal notranslate"><span class="pre">biceps.KarplusRelation</span></code><a class="headerlink" href="#module-biceps.KarplusRelation" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="biceps.KarplusRelation.KarplusRelation">
+<em class="property">class </em><code class="sig-prename descclassname">biceps.KarplusRelation.</code><code class="sig-name descname">KarplusRelation</code><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class containing formulae giving J-coupling values from dihedral angle.</p>
+<p>Initialize the KarplusRelation class.</p>
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.J">
+<code class="sig-name descname">J</code><span class="sig-paren">(</span><em class="sig-param">angle</em>, <em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.J" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the predicted J-coupling constant given an angle in degrees, and a key ‘Karplus_HH’, e.g.&gt;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.Karplus_HH">
+<code class="sig-name descname">Karplus_HH</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.Karplus_HH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns predicted J-coupling constant given an angle in degrees.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.Karplus_HH_appO">
+<code class="sig-name descname">Karplus_HH_appO</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.Karplus_HH_appO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns predicted J-coupling constant given an angle in degrees,
+for sp3-single bond HH where there is an antiperiplanar Oxygen</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.Allylic">
+<code class="sig-name descname">Allylic</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.Allylic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns predicted J-coupling constant given an angle in degrees,
+for an allylic sp3-sp2 bond</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.BothnerBy_HH">
+<code class="sig-name descname">BothnerBy_HH</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.BothnerBy_HH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns predicted J-coupling constant given an angle in degrees.
+NOTES: good for cycloalkanes.  Bothner-By, 1965 (14)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.Altona_HH">
+<code class="sig-name descname">Altona_HH</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.Altona_HH" title="Permalink to this definition">¶</a></dt>
+<dd><p>NOTES: From: <a class="reference external" href="http://janocchio.sourceforge.net/janocchio.docbook/ch04s03.html">http://janocchio.sourceforge.net/janocchio.docbook/ch04s03.html</a>
+Altona is good if the protons are attached to two sp3 carbons. This equation
+takes into account the electronegativity of all adjacent atoms.</p>
+<p>Haasnoot, C., de Leeuw, FA, Altona, C (1980). Tetrahedron 36(19), 2783-2792</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.Karplus2_HH">
+<code class="sig-name descname">Karplus2_HH</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.Karplus2_HH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns predicted J-coupling constant given an angle in degrees.
+NOTES: A simple Karplus relation from the Janocchio documentation.</p>
+<p>Magnetic Resonance in Chemistry, 45(7), 595-600. doi:10.1002/mrc/2016</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.Wasylichen_HC">
+<code class="sig-name descname">Wasylichen_HC</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.Wasylichen_HC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns predicted J-coupling constant given an angle in degrees.
+NOTES: Recommended for general use (Can J Chem (1973) 51 961.)
+See also Janocchio paper</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.Tvaroska_HC">
+<code class="sig-name descname">Tvaroska_HC</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.Tvaroska_HC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns predicted J-coupling constant given an angle in degrees.
+NOTES: Adv. Carbohydrate Chem. Biochem. (1995) 51, 15-61
+See also Janocchio paper</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.KarplusRelation.KarplusRelation.Aydin_HC">
+<code class="sig-name descname">Aydin_HC</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.KarplusRelation.KarplusRelation.Aydin_HC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns predicted J-coupling constant given an angle in degrees.
+NOTES: Mag. Res. Chem. (1990) 28, 448-457
+See also Janocchio paper</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

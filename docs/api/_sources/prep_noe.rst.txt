@@ -1,7 +1,0 @@
-prep\_noe module
-================
-
-.. automodule:: prep_noe
-    :members:
-    :undoc-members:
-    :show-inheritance:

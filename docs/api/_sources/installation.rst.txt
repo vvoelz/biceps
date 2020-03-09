@@ -3,35 +3,61 @@
 Installation
 ============
 
-We recommend that you install ``BICePs`` with ``conda``. ::
+.. raw:: html
 
-  $ conda install -c conda-forge BICePs
+    <hr style="height:2.5px">
 
-You can install also ``BICePs`` with ``pip``, if you prefer. ::
+.. raw:: html
 
-  $ pip install BICePs
+    <h3 style="align: justify;font-size: 12pt"> We recommend that you install
+    <code>BICePs</code> with <code>pip</code>.<h3>
+
+    <div class="highlight-default notranslate">
+        <div class="highlight">
+        <pre>$ pip install biceps</pre>
+        </div>
+    </div>
+
+    <h3 style="align: justify;font-size: 12pt"> Coming soon: </h3>
+
+    <div class="highlight-default notranslate">
+        <div class="highlight">
+        <pre>$ conda install -c conda-forge biceps</pre>
+        </div>
+    </div>
 
 
-Conda is a cross-platform package manager built especially for scientific
-python. It will install ``BICePs`` along with all dependencies from a
-pre-compiled binary. If you don't have Python or the ``conda`` package
-manager, we recommend starting with the `Anaconda Scientific Python
-distribution <https://store.continuum.io/cshop/anaconda/>`_, which comes
-pre-packaged with many of the core scientific python packages that BICePs
-uses (see below), or with the `Miniconda Python distribution <http://conda.pydata.org/miniconda.html>`_,
-which is a bare-bones Python installation.
 
-BICePs supports Python 2.7 or Python 3.4+ (coming soon) on Mac, Linux, and
-Windows.
+
+.. raw:: html
+
+    <h3 style="text-align: justify;font-size: 12pt">
+    Conda is a cross-platform package manager built especially for scientific
+    python. It will install <code>BICePs</code> along with all dependencies from a
+    pre-compiled binary. If you don't have Python or the <code>conda</code> package
+    manager, we recommend starting with the
+    <a href="https://store.continuum.io/cshop/anaconda/">
+    Anaconda Scientific Python distribution</a>, which comes
+    pre-packaged with many of the core scientific python packages that BICePs
+    uses (see below), or with the <a href="http://conda.pydata.org/miniconda.html">
+    Miniconda Python distribution</a>, which is a bare-bones Python installation.
+    </h3>
+    <!--<a href=""> </a>-->
+    <br>
+    <h3 style="text-align: justify;font-size: 12pt"> BICePs supports
+    Python 2.7 or Python 3.4+ (coming soon) on Mac, Linux, and Windows.</h3>
+
+
 
 Dependencies of BICePs
 ----------------------
 
- - Pymbar 	-->  3.0 or later
- - MDTraj 	-->  1.9 or later
- - Yaml   	-->  0.1.7 or later
- - Matplotlib 	-->  2.1.2 or later
- - Numpy 	-->  1.14.0 or later
+ - pymbar>=3.0
+ - mdtraj>=1.5.0
+ - PyYaml
+ - matplotlib>=2.1.2
+ - numpy>=1.14.0
+
 
 Testing Your Installation
 -------------------------

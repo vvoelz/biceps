@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Workflow &mdash; BICePs 2.0-beta documentation</title>
+  <title>Workflow &mdash; BICePs 2.0 documentation</title>
   
 
   
@@ -17,35 +17,40 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tutorials" href="tutorials/index.html" />
+    <link rel="next" title="Tutorials &amp; Examples" href="examples/index.html" />
     <link rel="prev" title="Theory" href="theory.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +64,7 @@
             
             
               <div class="version">
-                2.0-beta
+                2.0
               </div>
             
           
@@ -93,9 +98,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#analysis">Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biceps.html">API Reference</a></li>
 </ul>
 
             
@@ -165,13 +169,13 @@
 /* CSS overrides for sphinx_rtd_theme */
 
 /* 24px margin */
-.nbinput.nblast,
-.nboutput.nblast {
+.nbinput.nblast.container,
+.nboutput.nblast.container {
     margin-bottom: 19px;  /* padding has already 5px */
 }
 
 /* ... except between code cells! */
-.nblast + .nbinput {
+.nblast.container + .nbinput.container {
     margin-top: -19px;
 }
 
@@ -186,27 +190,52 @@
 </style>
 <div class="section" id="workflow">
 <h1>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h1>
-<p>A typical BICePs sampling includes four core steps: <a class="reference internal" href="api.html#biceps.Preparation" title="biceps.Preparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Preparation</span></code></a>, <a class="reference internal" href="api.html#biceps.Restraint" title="biceps.Restraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Restraint</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Posteriorsampler</span></code> and <a class="reference internal" href="api.html#biceps.Analysis" title="biceps.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Analysis</span></code></a>.</p>
-<div class="section" id="preparation">
+<hr style="height:2.5px">
+
+<h3 style="align: justify;font-size: 12pt">A typical BICePs sampling
+includes four core steps: <code><a href="api.html#preparation">biceps.Preparation</a></code>,
+<code><a href="api.html#restraint">biceps.Restraint</a></code>,
+<code><a href="api.html#posteriorsampler">biceps.PosteriorSampler</a></code> and
+<code><a href="api.html#analysis">biceps.Analysis</a></code>.
+</h3><div class="section" id="preparation">
 <h2>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="api.html#biceps.Preparation" title="biceps.Preparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Preparation</span></code></a> class converts all raw data to  BICePs readable format. It asks for experimental data as well as correspondingly precomputed experimental observables from simulation. We recommend users to use <a class="reference external" href="http://mdtraj.org">MDTraj</a> to compute all necessary experimental quantities from simulation or use our prepared functions in the <cite>toolbox &lt;api/toolbox&gt;</cite>. Check more details in the <span class="xref std std-ref">examples</span> page.</p>
-</div>
+<h3 style="align: justify;font-size: 12pt">The
+<code><a href="api.html#preparation">biceps.Preparation</a></code> class
+converts all raw data to  BICePs readable format. It asks for experimental
+data as well as correspondingly precomputed experimental observables from simulation.
+We recommend users to use <a href="http://mdtraj.org">MDTraj</a> to compute all
+necessary experimental quantities from simulation or use our prepared
+functions in the <code><a href="api.html#toolbox">toolbox</a></code>.
+Check more details in the <a href="examples/index.html">examples</a> page.
+</h3></div>
 <div class="section" id="restraint">
 <h2>Restraint<a class="headerlink" href="#restraint" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="api.html#biceps.Restraint" title="biceps.Restraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Restraint</span></code></a> class initializes all necessary functions to construct numpy array containing information for BICePs sampling. As a parent class, it also includes child classes for different experimental restraints.</p>
-</div>
+<h3 style="align: justify;font-size: 12pt">
+The <code><a href="api.html#restraint">biceps.Restraint</a></code> class
+initializes all necessary functions to construct numpy array containing
+information for BICePs sampling. As a parent class, it also includes child
+classes for different experimental restraints.
+</h3></div>
 <div class="section" id="posteriorsampler">
 <h2>PosteriorSampler<a class="headerlink" href="#posteriorsampler" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="api.html#biceps.PosteriorSampler" title="biceps.PosteriorSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.PosteriorSampler</span></code></a> class is closely working with the <a class="reference internal" href="api.html#biceps.Restraint" title="biceps.Restraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Restraint</span></code></a> class. A Markov chain Monte Carlo sampling is performed based on the <a class="reference external" href="https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm">Metroplis-Hastings criterion</a> .</p>
-</div>
+<h3 style="align: justify;font-size: 12pt">
+The <code><a href="api.html#posteriorsampler">biceps.PosteriorSampler</a></code>
+class is closely working with the
+<code><a href="api.html#restraint">biceps.Restraint</a></code> class.
+A Markov chain Monte Carlo sampling is performed based on the
+<a hre="https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm">Metroplis-Hastings criterion </a>.
+</h3></div>
 <div class="section" id="analysis">
 <h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="api.html#biceps.Analysis" title="biceps.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">biceps.Analysis</span></code></a> is consist of two parts:</p>
-<ol class="arabic simple">
-<li>Using <a class="reference external" href="https://pymbar.readthedocs.io/en/master/index.html">MBAR</a> algorithm to compute populations and <a class="reference internal" href="theory.html#theory"><span class="std std-ref">BICePs scores</span></a></li>
-<li>Plot the figures to show population and <a class="reference internal" href="theory.html#theory"><span class="std std-ref">nuisance parameters</span></a>.</li>
-</ol>
-</div>
+<h3 style="align: justify;font-size: 12pt">
+The <code><a href="api.html#analysis">biceps.Analysis</a></code> is consist of two parts:
+<br>
+1. Using <code><a href="https://pymbar.readthedocs.io/en/master/index.html">MBAR</a></code>
+algorithm to compute populations and <code><a href="theory.html">BICePs scores</a></code>.
+<br>
+2. Plot the figures to show population and <code><a href="theory.html">nuisance parameters</a></code>.
+
+</h3></div>
 </div>
 
 
@@ -217,10 +246,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tutorials/index.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="examples/index.html" class="btn btn-neutral float-right" title="Tutorials &amp; Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="theory.html" class="btn btn-neutral" title="Theory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="theory.html" class="btn btn-neutral float-left" title="Theory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -229,7 +258,8 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Temple University
+        &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
     </p>
   </div>
@@ -246,28 +276,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"processClass": "math|output_area", "processEscapes": true, "ignoreClass": "document", "inlineMath": [["$", "$"], ["\\(", "\\)"]]}})</script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

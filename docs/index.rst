@@ -33,6 +33,7 @@ BICePs - Bayesian Inference of Conformational Populations
     All raw source code and examples/data are available <a href="https://github.com/vvoelz/biceps/">here</a>.</h3>
     <hr style="height:2.5px">
     <h3 style="align: justify;font-size: 10pt">
+
 .. toctree::
    :maxdepth: 4
    :glob:
@@ -41,7 +42,7 @@ BICePs - Bayesian Inference of Conformational Populations
    theory
    workflow
    examples/index
-   api
+   biceps
    </h3>
 
 

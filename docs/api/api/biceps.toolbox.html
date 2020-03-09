@@ -1,0 +1,573 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>biceps.toolbox &mdash; BICePs 2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../biceps.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">biceps.toolbox</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/biceps.toolbox.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-biceps.toolbox">
+<span id="biceps-toolbox"></span><h1><code class="docutils literal notranslate"><span class="pre">biceps.toolbox</span></code><a class="headerlink" href="#module-biceps.toolbox" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="biceps.toolbox.sort_data">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">sort_data</code><span class="sig-paren">(</span><em class="sig-param">dataFiles</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.sort_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorting the data by extension into lists. Data can be located in various
+directories.  Provide a list of paths where the data can be found.
+Some examples of fileextensions: {.noe,.J,.cs_H,.cs_Ha}.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataFiles</strong> (<em>list</em>) – list of strings where the data can be found</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if the data directory does not exist</p>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">sort_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.list_res">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">list_res</code><span class="sig-paren">(</span><em class="sig-param">input_data</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.list_res" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine what scheme is included in sampling</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">list_res</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.list_possible_restraints">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">list_possible_restraints</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.list_possible_restraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function will return a list of all possible restraint classes in Restraint.py.
+&gt;&gt;&gt; biceps.toolbox.list_possible_restraints()</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.list_possible_extensions">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">list_possible_extensions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.list_possible_extensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function will return a list of all possible input data file extensions.
+&gt;&gt;&gt; biceps.toolbox.list_possible_extensions()</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.mkdir">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">mkdir</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.mkdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function will create a directory if given path does not exist.
+&gt;&gt;&gt; toolbox.mkdir(“./doctest”)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.write_results">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">write_results</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">outfilename</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.write_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a compact file of several arrays into binary format.
+Standardized: Yes ; Binary: Yes; Human Readable: No;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>outfilename</strong> (<em>str</em>) – name of the output file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy compressed filetype</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.read_results">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">read_results</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.read_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a numpy compressed filetype(<a href="#id1"><span class="problematic" id="id2">*</span></a>.npz) file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.plot_ref">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">plot_ref</code><span class="sig-paren">(</span><em class="sig-param">traj</em>, <em class="sig-param">debug=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.plot_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot reference potential for each observables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traj</strong> – output trajectory from BICePs sampling</p>
+</dd>
+<dt class="field-even">Return figure</dt>
+<dd class="field-even"><p>A figure of reference potential and distribution of model observables</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.get_state_populations">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">get_state_populations</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.get_state_populations" title="Permalink to this definition">¶</a></dt>
+<dd><p>populations.dat file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.print_scores">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">print_scores</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.print_scores" title="Permalink to this definition">¶</a></dt>
+<dd><p>BS.dat file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.npz_to_DataFrame">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">npz_to_DataFrame</code><span class="sig-paren">(</span><em class="sig-param">file</em>, <em class="sig-param">out_filename='traj_lambda0.00.pkl'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.npz_to_DataFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts numpy Z compressed file to Pandas DataFrame (<a href="#id3"><span class="problematic" id="id4">*</span></a>.pkl)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">npz_to_DataFrame</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="s2">&quot;traj_lambda0.00.pkl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.convert_pop_to_energy">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">convert_pop_to_energy</code><span class="sig-paren">(</span><em class="sig-param">pop_filename</em>, <em class="sig-param">out_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.convert_pop_to_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert population to energy for each state using the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">U</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_filename</strong> (<em>str</em>) – name of file for populations</p></li>
+<li><p><strong>out_filename</strong> (<em>str</em>) – output file name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return list</dt>
+<dd class="field-even"><p>A list of converted energy for each conformational state</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.get_J3_HN_HA">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">get_J3_HN_HA</code><span class="sig-paren">(</span><em class="sig-param">top</em>, <em class="sig-param">traj=None</em>, <em class="sig-param">frame=None</em>, <em class="sig-param">model='Habeck'</em>, <em class="sig-param">outname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.get_J3_HN_HA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute J3_HN_HA for frames in a trajectories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>traj</strong> (<em>mdtraj.Trajectory</em>) – Trajectory</p></li>
+<li><p><strong>top</strong> (<em>mdtraj.Topology</em>) – topology file</p></li>
+<li><p><strong>frame</strong> (<em>list</em>) – specific frame for computing</p></li>
+<li><p><strong>model</strong> (<em>str</em>) – Karplus coefficient models
+[“Ruterjans1999”,”Bax2007”,”Bax1997”,”Habeck” ,”Vuister”,”Pardi”]</p></li>
+<li><p><strong>outname</strong> (<em>str</em>) – if not None, the output will be saved and a
+file name (in the format of string) is required.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.dihedral_angle">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">dihedral_angle</code><span class="sig-paren">(</span><em class="sig-param">x0</em>, <em class="sig-param">x1</em>, <em class="sig-param">x2</em>, <em class="sig-param">x3</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.dihedral_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the signed dihedral angle between 4 positions. Result is in degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>float</em>) – </p></li>
+<li><p><strong>x1</strong> (<em>float</em>) – </p></li>
+<li><p><strong>x2</strong> (<em>float</em>) – </p></li>
+<li><p><strong>x3</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return float phi</dt>
+<dd class="field-even"><p>dihedral angle in degrees</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.compute_nonaa_Jcoupling">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">compute_nonaa_Jcoupling</code><span class="sig-paren">(</span><em class="sig-param">traj</em>, <em class="sig-param">index</em>, <em class="sig-param">karplus_key</em>, <em class="sig-param">top=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.compute_nonaa_Jcoupling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute J couplings for small molecules.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>traj</strong> (<em>mdtraj.Trajectory</em>) – Trajectory or <em>.pdb/</em>.gro files</p></li>
+<li><p><strong>index</strong> (<em>int</em>) – index file for atoms</p></li>
+<li><p><strong>karplus_key</strong> (<em>list</em>) – karplus relation for each J coupling</p></li>
+<li><p><strong>default=None top</strong> (<em>mdtraj.Topology</em>) – topology file (only required if a trajectory is loaded)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.get_rest_type">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">get_rest_type</code><span class="sig-paren">(</span><em class="sig-param">traj</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.get_rest_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get types of experimental restraints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traj</strong> – output trajectory from BICePs sampling</p>
+</dd>
+<dt class="field-even">Return list</dt>
+<dd class="field-even"><p>A list of types of experimental restraints</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.get_allowed_parameters">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">get_allowed_parameters</code><span class="sig-paren">(</span><em class="sig-param">traj</em>, <em class="sig-param">rest_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.get_allowed_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get nuisance parameters range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traj</strong> – output trajectory from BICePs sampling</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><p><strong>rest_type</strong> (<em>default=None</em>) – experimental restraint type</p>
+</dd>
+<dt class="field-odd">Return list</dt>
+<dd class="field-odd"><p>A list of all nuisance parameters range</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.get_sampled_parameters">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">get_sampled_parameters</code><span class="sig-paren">(</span><em class="sig-param">traj</em>, <em class="sig-param">rest_type=None</em>, <em class="sig-param">allowed_parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.get_sampled_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get sampled parameters along time (steps).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traj</strong> – output trajectory from BICePs sampling</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><p><strong>rest_type</strong> (<em>default=None</em>) – experimental restraint type</p>
+</dd>
+<dt class="field-odd">Return list</dt>
+<dd class="field-odd"><p>A list of all nuisance paramters sampled</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.g">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">g</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">max_tau=10000</em>, <em class="sig-param">normalize=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.g" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the autocorrelaton function for a time-series f(t).
+INPUT
+f         - a 1D numpy array containing the time series f(t)</p>
+<p>PARAMETERS
+max_tau   - the maximum autocorrelation time to consider.
+normalize - if True, return g(tau)/g[0]</p>
+<p>RETURNS
+result    - a numpy array of size (max_tau+1,) containing g(tau).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.exponential_fit">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">exponential_fit</code><span class="sig-paren">(</span><em class="sig-param">ac</em>, <em class="sig-param">use_function='single'</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.exponential_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a single- or double- exponential fit on an autocorrelation curve.</p>
+<p>RETURNS
+yFit  - the y-values of the fit curve.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.autocorr_valid">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">autocorr_valid</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">tau</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.autocorr_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cross-correlation of two 1-dimensional sequences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – 1-dimensional sequence</p></li>
+<li><p><strong>tau</strong> – lagtime</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.compute_ac">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">compute_ac</code><span class="sig-paren">(</span><em class="sig-param">traj</em>, <em class="sig-param">tau</em>, <em class="sig-param">rest_type=None</em>, <em class="sig-param">allowed_parameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.compute_ac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute auto-correlation time for sampled trajectory of nuisance parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traj</strong> – output trajectory from BICePs sampling</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>tau</strong> – lagtime</p></li>
+<li><p><strong>rest_type</strong> (<em>default=None</em>) – experimental restraint type</p></li>
+<li><p><strong>allowed_parameters</strong> (<em>default=None</em>) – nuisacne parameters range</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return list</dt>
+<dd class="field-odd"><p>a list of auto-correlation results for all nuisacne parameters</p>
+</dd>
+<dt class="field-even">Return figure</dt>
+<dd class="field-even"><p>A figure of auto-correlation results for all nuisance parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.plot_ac">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">plot_ac</code><span class="sig-paren">(</span><em class="sig-param">ac_paramters</em>, <em class="sig-param">rest_type</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.plot_ac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot auto-correlation results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ac_parameters</strong> – computed auto-correlation results</p></li>
+<li><p><strong>rest_type</strong> – experimental restraint type</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return figure</dt>
+<dd class="field-even"><p>A figure of auto-correlation results for all nuisance parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.compute_JSD">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">compute_JSD</code><span class="sig-paren">(</span><em class="sig-param">T1</em>, <em class="sig-param">T2</em>, <em class="sig-param">T_total</em>, <em class="sig-param">rest_type</em>, <em class="sig-param">allowed_parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.compute_JSD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute JSD for a given part of trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T2</strong><strong>, </strong><strong>T_total</strong> (<em>T1</em><em>,</em>) – part 1, part2 and total (part1 + part2)</p></li>
+<li><p><strong>rest_type</strong> – experimental restraint type</p></li>
+<li><p><strong>allowed_parameters</strong> – nuisacne parameters range</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return float</dt>
+<dd class="field-even"><p>Jensen–Shannon divergence</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.plot_conv">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">plot_conv</code><span class="sig-paren">(</span><em class="sig-param">all_JSD</em>, <em class="sig-param">all_JSDs</em>, <em class="sig-param">rest_type</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.plot_conv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot Jensen–Shannon divergence (JSD) distribution for convergence check.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_JSD</strong> – JSDs for different amount of total dataset</p></li>
+<li><p><strong>all_JSDs</strong> – JSDs for different amount of total dataset from bootstrapping</p></li>
+<li><p><strong>rest_type</strong> – experimental restraint type</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return figure</dt>
+<dd class="field-even"><p>A figure of JSD and JSDs distribution</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.toolbox.plot_grid">
+<code class="sig-prename descclassname">biceps.toolbox.</code><code class="sig-name descname">plot_grid</code><span class="sig-paren">(</span><em class="sig-param">traj</em>, <em class="sig-param">rest_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.toolbox.plot_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot acceptance ratio for each nuisance parameters jump during MCMC sampling.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,294 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>biceps.prep_pf &mdash; BICePs 2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../biceps.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">biceps.prep_pf</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/biceps.prep_pf.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-biceps.prep_pf">
+<span id="biceps-prep-pf"></span><h1><code class="docutils literal notranslate"><span class="pre">biceps.prep_pf</span></code><a class="headerlink" href="#module-biceps.prep_pf" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="biceps.prep_pf.biceps_restraint_line_pf_precomputed">
+<code class="sig-prename descclassname">biceps.prep_pf.</code><code class="sig-name descname">biceps_restraint_line_pf_precomputed</code><span class="sig-paren">(</span><em class="sig-param">restraint_index</em>, <em class="sig-param">i</em>, <em class="sig-param">topology</em>, <em class="sig-param">exp_pf</em>, <em class="sig-param">protection_factor</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.prep_pf.biceps_restraint_line_pf_precomputed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a formatted string for a line in protectionfactor restraint file.</p>
+<p>0             restraint_index
+1             atom index 1
+2             residue 1
+3             exp_data
+4             protection factor</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.prep_pf.biceps_restraint_line_pf_precomputed_header">
+<code class="sig-prename descclassname">biceps.prep_pf.</code><code class="sig-name descname">biceps_restraint_line_pf_precomputed_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.prep_pf.biceps_restraint_line_pf_precomputed_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a header string the the protectionfactor restraint file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.prep_pf.biceps_restraint_line_pf">
+<code class="sig-prename descclassname">biceps.prep_pf.</code><code class="sig-name descname">biceps_restraint_line_pf</code><span class="sig-paren">(</span><em class="sig-param">restraint_index</em>, <em class="sig-param">i</em>, <em class="sig-param">exp_pf</em>, <em class="sig-param">topology</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.prep_pf.biceps_restraint_line_pf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a formatted string for a line in protectionfactor restraint file.</p>
+<p>0             restraint_index
+1             atom index 1
+2             residue 1
+3             exp_pf</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="biceps.prep_pf.biceps_restraint_line_pf_header">
+<code class="sig-prename descclassname">biceps.prep_pf.</code><code class="sig-name descname">biceps_restraint_line_pf_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.prep_pf.biceps_restraint_line_pf_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a header string the the protectionfactor restraint file.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.prep_pf.prep_pf">
+<em class="property">class </em><code class="sig-prename descclassname">biceps.prep_pf.</code><code class="sig-name descname">prep_pf</code><span class="sig-paren">(</span><em class="sig-param">filename=None</em>, <em class="sig-param">precomputed_pf=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.prep_pf.prep_pf" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class containing input/output methods for writing protectionfactor Restaint Files.</p>
+<p>Initialize the RestraintFile_cs class.</p>
+<dl class="method">
+<dt id="biceps.prep_pf.prep_pf.read">
+<code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.prep_pf.prep_pf.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a protectionfactor restraint file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.prep_pf.prep_pf.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.prep_pf.prep_pf.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write stored protectionfactor restraint information to file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.prep_pf.prep_pf.add_line">
+<code class="sig-name descname">add_line</code><span class="sig-paren">(</span><em class="sig-param">restraint_index</em>, <em class="sig-param">i</em>, <em class="sig-param">topology</em>, <em class="sig-param">exp_pf</em>, <em class="sig-param">protection_factor=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.prep_pf.prep_pf.add_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a line to the protection_factor file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.prep_pf.prep_pf.parse_line">
+<code class="sig-name descname">parse_line</code><span class="sig-paren">(</span><em class="sig-param">line</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.prep_pf.prep_pf.parse_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a protectionfactor data line and return the values</p>
+<p>RETURNS
+restraint_index, atom_index1, res1, protectionfactor</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

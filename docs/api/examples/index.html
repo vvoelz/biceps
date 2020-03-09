@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Examples &mdash; BICePs 2.0-beta documentation</title>
+  <title>Tutorials &amp; Examples &mdash; BICePs 2.0 documentation</title>
   
 
   
@@ -17,35 +17,40 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API Reference" href="../api.html" />
-    <link rel="prev" title="Tutorials" href="../tutorials/index.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+    <link rel="next" title="API Reference" href="../biceps.html" />
+    <link rel="prev" title="Workflow" href="../workflow.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +64,7 @@
             
             
               <div class="version">
-                2.0-beta
+                2.0
               </div>
             
           
@@ -87,9 +92,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../biceps.html">API Reference</a></li>
 </ul>
 
             
@@ -135,7 +139,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Examples</li>
+      <li>Tutorials &amp; Examples</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -159,13 +163,13 @@
 /* CSS overrides for sphinx_rtd_theme */
 
 /* 24px margin */
-.nbinput.nblast,
-.nboutput.nblast {
+.nbinput.nblast.container,
+.nboutput.nblast.container {
     margin-bottom: 19px;  /* padding has already 5px */
 }
 
 /* ... except between code cells! */
-.nblast + .nbinput {
+.nblast.container + .nbinput.container {
     margin-top: -19px;
 }
 
@@ -178,14 +182,64 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="examples">
-<span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
-<p>A series of examples are provided on this page and each of them is based on a previously published work. Each of them is written in a jupyter notebook which can be downloaded for free from <a class="reference external" href="https://github.com/vvoelz/biceps/tree/master/doc/source/examples">here</a>.</p>
-<ul class="simple">
-<li><a class="reference internal" href="albo/alternative.html"><span class="doc">Albocycline</span></a></li>
-</ul>
-<p>You are welcome to contribute your own examples and please let us know by simply submit a pull request on our <a class="reference external" href="https://github.com/vvoelz/biceps">GitHub</a>!</p>
-</div>
+<div class="section" id="tutorials-examples">
+<span id="tutorials-and-examples"></span><h1>Tutorials &amp; Examples<a class="headerlink" href="#tutorials-examples" title="Permalink to this headline">¶</a></h1>
+<h3 style="align: justify;font-size: 12pt"># <span
+style="color:red;">NOTE</span>: Each of of the following jupyter notebooks can be downloaded
+<a href="https://github.com/vvoelz/biceps/tree/master/doc/source/examples">here</a>.</h3>
+<hr style="height:2.5px"> <h1 style="font-size: 16pt;">Tutorials: understanding the workflow</h1>
+
+ <h3 style="align: justify;font-size: 12pt">
+ <ul>
+     <li style="list-style-type: none;font-size: 12pt;">
+         <a href="Tutorials/Prep_Rest_Post_Ana/preparation.html">Preparation</a> - prepare input files for `biceps`
+     </li>
+     <li style="list-style-type: none;font-size: 12pt;">
+         <a href="Tutorials/Prep_Rest_Post_Ana/restraint.html">Restraint</a> - constructing the ensemble using experimental restraints
+     </li>
+     <li style="list-style-type: none;font-size: 12pt;">
+         <a href="Tutorials/Prep_Rest_Post_Ana/posteriorsampler.html">PosterSampler</a> - sampling of the posterior distribution of a given ensemble
+     </li>
+     <li style="list-style-type: none;font-size: 12pt;">
+         <a href="Tutorials/Prep_Rest_Post_Ana/analysis.html">Analysis</a> - predicted populations of each conformational states and compute BICePs score
+     </li>
+     <li style="list-style-type: none;font-size: 12pt;">
+         <a href="Tutorials/Convergence/convergence.html">Convergence</a> - check the convergence of MCMC sampling
+     </li>
+     <li style="list-style-type: none;font-size: 12pt;">
+         <a href="Tutorials/MP_Lambdas/mp_lambdas.html">Multiprocessing Lambdas</a> - run biceps in a fraction of the time by parallelizing lambda values
+     </li>
+     <li style="list-style-type: none;font-size: 12pt;">
+         <a href="Tutorials/Tools/toolbox.html">Toolbox</a> - collection
+         of methods outside the typical `biceps` workflow
+     </li>
+ </ul>
+ </h3>
+ <hr style="height:2.5px">
+ <h1 style="font-size: 16pt;">Full Examples</h1>
+ <h3 style="align: justify;font-size: 12pt">Each of the following examples
+ is .
+ </h3>
+ <ul>
+     <li style="list-style-type: none;font-size: 12pt;">
+         <a href="full_examples/cineromycinB/CineromycinB.html">Cineromycin B</a> -
+         determine the solution-state conformational populations of a 14-membered macrolide
+         antibiotic. This example is based on previous work (DOI: <a href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738">10.1002/jcc.23738</a>).</li>
+     </li>
+     <li style="list-style-type: none;font-size: 12pt;">
+         <a href="full_examples/albocycline/albocycline.html">Albocycline</a> -
+         compute conforamtional populations of a 14-membered macrolactone. Multiprocess
+         lambda values and sample the posterior distribution for each simultaneously.
+         This example is based on a previously published work (DOI: <a href="https://www.sciencedirect.com/science/article/pii/S0968089618303389">10.1016/j.bmc.2018.05.017</a>)</li>
+     </li>
+
+ </ul>
+ <br>
+ </h3>
+
+ <h3 style="align: justify;font-size: 12pt">
+You are welcome to contribute your own examples and please let us know
+by simply submit a pull request on our <a href="https://github.com/vvoelz/biceps">Github</a>!</h3></div>
 
 
            </div>
@@ -195,10 +249,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../api.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../biceps.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../tutorials/index.html" class="btn btn-neutral" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../workflow.html" class="btn btn-neutral float-left" title="Workflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -207,7 +261,8 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Temple University
+        &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
     </p>
   </div>
@@ -224,28 +279,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"processClass": "math|output_area", "processEscapes": true, "ignoreClass": "document", "inlineMath": [["$", "$"], ["\\(", "\\)"]]}})</script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

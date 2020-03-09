@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Theory &mdash; BICePs 2.0-beta documentation</title>
+  <title>Theory &mdash; BICePs 2.0 documentation</title>
   
 
   
@@ -17,13 +17,23 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -31,21 +41,16 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Workflow" href="workflow.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +64,7 @@
             
             
               <div class="version">
-                2.0-beta
+                2.0
               </div>
             
           
@@ -94,9 +99,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biceps.html">API Reference</a></li>
 </ul>
 
             
@@ -166,13 +170,13 @@
 /* CSS overrides for sphinx_rtd_theme */
 
 /* 24px margin */
-.nbinput.nblast,
-.nboutput.nblast {
+.nbinput.nblast.container,
+.nboutput.nblast.container {
     margin-bottom: 19px;  /* padding has already 5px */
 }
 
 /* ... except between code cells! */
-.nblast + .nbinput {
+.nblast.container + .nbinput.container {
     margin-top: -19px;
 }
 
@@ -234,7 +238,7 @@ ensemble-averaged experimental observables
 <span class="math notranslate nohighlight">\(\mathbf{r} = (r_1, r_2, ..., r_N)\)</span>. Such observables are
 low-dimensional projections of some high-dimensional state space
 <span class="math notranslate nohighlight">\(X\)</span>, and therefore these restraints in the space of observables
-need to be treated as <em>potentials of mean force</em>. <a class="footnote-reference" href="#f1" id="id2">[1]</a> <a class="footnote-reference" href="#f2" id="id3">[2]</a> <a class="footnote-reference" href="#f3" id="id4">[3]</a></p>
+need to be treated as <em>potentials of mean force</em>. <a class="footnote-reference brackets" href="#f1" id="id2">1</a> <a class="footnote-reference brackets" href="#f2" id="id3">2</a> <a class="footnote-reference brackets" href="#f3" id="id4">3</a></p>
 <div class="math notranslate nohighlight">
 \[P(X | D) \propto \bigg[ \frac{Q(\mathbf{r}(X)|D)}{Q_{\text{ref}}(\mathbf{r}(X))} \bigg] P(X)\]</div>
 <p>The bracketed weighting function is now a ratio, with the numerator
@@ -263,7 +267,7 @@ small distances where the reference potential
 <span class="math notranslate nohighlight">\(Q_{\text{ref}}(\mathbf{r})\)</span> is small.</p>
 <div class="figure align-center" id="id7">
 <img alt="_images/Figure1.pdf" src="_images/Figure1.pdf" />
-<p class="caption"><span class="caption-text">Figure 1.</span></p>
+<p class="caption"><span class="caption-text">Figure 1.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="biceps-scores-for-quantitative-model-selection">
@@ -297,7 +301,7 @@ matches the likelihood distribution <span class="math notranslate nohighlight">\
 experimental restraints.</p>
 <div class="figure align-center" id="id8">
 <img alt="_images/Figure2.pdf" src="_images/Figure2.pdf" />
-<p class="caption"><span class="caption-text">Figure 2.</span></p>
+<p class="caption"><span class="caption-text">Figure 2.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </div>
 <p>In Bayesian statistics, the so-called Bayes factor,
 <span class="math notranslate nohighlight">\(Z^{(1)}/Z^{(2)}\)</span> is a likelihood ratio that can be used to choose
@@ -325,56 +329,43 @@ by a theoretical model.</p>
 <p>To put the BICePs algorithm in a larger context, we summarize the its
 key advantages as follows:</p>
 <ul class="simple">
-<li>BICePs can be used with molecular dynamics (MD) or quantum mechanics
+<li><p>BICePs can be used with molecular dynamics (MD) or quantum mechanics
 (QM) methods. Conformational states can be individual conformations
 (like single-point QM minima) or collections of conformations (e.g.
 from clustering of trajectory data), as long as experimental
-observables can be attached to each conformational state.</li>
-<li>BICePs performs reweighting of conformational states derived from
+observables can be attached to each conformational state.</p></li>
+<li><p>BICePs performs reweighting of conformational states derived from
 modeling; it is currently a post-processing algorithm (MCMC) with no
-additional MD or QM required.</li>
-<li>Bayesian inference offers a rigorous statistical framework for
+additional MD or QM required.</p></li>
+<li><p>Bayesian inference offers a rigorous statistical framework for
 achieving the correct balance of theoretical modeling and
-experimental data.</li>
-<li>BICePs correctly uses reference potentials, which is essential to
-proper weighing of experimental restraints</li>
-<li>With proper reference potentials, BICePs scores can be used for
-unambiguous, objective model selection.</li>
+experimental data.</p></li>
+<li><p>BICePs correctly uses reference potentials, which is essential to
+proper weighing of experimental restraints</p></li>
+<li><p>With proper reference potentials, BICePs scores can be used for
+unambiguous, objective model selection.</p></li>
 </ul>
-<p>For more details about theory beneath BICePs, please check these work. <a class="footnote-reference" href="#f4" id="id5">[4]</a> <a class="footnote-reference" href="#f5" id="id6">[5]</a></p>
+<p>For more details about theory beneath BICePs, please check these work. <a class="footnote-reference brackets" href="#f4" id="id5">4</a> <a class="footnote-reference brackets" href="#f5" id="id6">5</a></p>
 </div>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<table class="docutils footnote" frame="void" id="f1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>Olsson, S.; Frellsen, J.; Boomsma, W.; Mardia, K. V.; Hamelryck, T. <a class="reference external" href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0079439">Inference of Structure Ensembles of Flexible Biomolecules from Sparse, Averaged Data.</a> PLoS One 2013, 8, e79439</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td>Olsson, S.; Boomsma, W.; Frellsen, J.; Bottaro, S.; Harder, T.; Ferkinghoff-Borg, J.; Hamelryck, T. <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1090780711003090?via%3Dihub">Generative Probabilistic Models Extend the Scope of Inferential Structure Determination.</a> J. Magn. Reson. 2011, 213, 182−186.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td>Hamelryck, T.; Borg, M.; Paluszewski, M.; Paulsen, J.; Frellsen, J.; Andreetta, C.; Boomsma, W.; Bottaro, S.; Ferkinghoff-Borg, J. <a class="reference external" href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0013714">Potentials of Mean Force for Protein Structure Prediction Vindicated, Formalized and Generalized.</a> PLoS One 2010, 5, e13714.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f4" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td>Voelz, V. A.; Zhou, G. <a class="reference external" href="https://onlinelibrary.wiley.com/doi/abs/10.1002/jcc.23738">Bayesian Inference of Conformational State Populations from Computational Models and Sparse Exper- imental Observables.</a> J. Comput. Chem. 2014, 35, 2215−2224.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f5" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[5]</a></td><td>Yunhui Ge and Vincent A. Voelz, <a class="reference external" href="https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871">Model selection using BICePs: A Bayesian approach to force field validation and parameterization</a> Journal of Physical Chemistry B (2018) 122 (21): 5610–5622</td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="f1"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
+<dd><p>Olsson, S.; Frellsen, J.; Boomsma, W.; Mardia, K. V.; Hamelryck, T. <a class="reference external" href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0079439">Inference of Structure Ensembles of Flexible Biomolecules from Sparse, Averaged Data.</a> PLoS One 2013, 8, e79439</p>
+</dd>
+<dt class="label" id="f2"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd><p>Olsson, S.; Boomsma, W.; Frellsen, J.; Bottaro, S.; Harder, T.; Ferkinghoff-Borg, J.; Hamelryck, T. <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1090780711003090?via%3Dihub">Generative Probabilistic Models Extend the Scope of Inferential Structure Determination.</a> J. Magn. Reson. 2011, 213, 182−186.</p>
+</dd>
+<dt class="label" id="f3"><span class="brackets"><a class="fn-backref" href="#id4">3</a></span></dt>
+<dd><p>Hamelryck, T.; Borg, M.; Paluszewski, M.; Paulsen, J.; Frellsen, J.; Andreetta, C.; Boomsma, W.; Bottaro, S.; Ferkinghoff-Borg, J. <a class="reference external" href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0013714">Potentials of Mean Force for Protein Structure Prediction Vindicated, Formalized and Generalized.</a> PLoS One 2010, 5, e13714.</p>
+</dd>
+<dt class="label" id="f4"><span class="brackets"><a class="fn-backref" href="#id5">4</a></span></dt>
+<dd><p>Voelz, V. A.; Zhou, G. <a class="reference external" href="https://onlinelibrary.wiley.com/doi/abs/10.1002/jcc.23738">Bayesian Inference of Conformational State Populations from Computational Models and Sparse Exper- imental Observables.</a> J. Comput. Chem. 2014, 35, 2215−2224.</p>
+</dd>
+<dt class="label" id="f5"><span class="brackets"><a class="fn-backref" href="#id6">5</a></span></dt>
+<dd><p>Yunhui Ge and Vincent A. Voelz, <a class="reference external" href="https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871">Model selection using BICePs: A Bayesian approach to force field validation and parameterization</a> Journal of Physical Chemistry B (2018) 122 (21): 5610–5622</p>
+</dd>
+</dl>
 </div>
 </div>
 
@@ -389,7 +380,7 @@ unambiguous, objective model selection.</li>
         <a href="workflow.html" class="btn btn-neutral float-right" title="Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -398,7 +389,8 @@ unambiguous, objective model selection.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Temple University
+        &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
     </p>
   </div>
@@ -415,28 +407,16 @@ unambiguous, objective model selection.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"processClass": "math|output_area", "processEscapes": true, "ignoreClass": "document", "inlineMath": [["$", "$"], ["\\(", "\\)"]]}})</script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

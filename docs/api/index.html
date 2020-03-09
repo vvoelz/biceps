@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>BICePs - Bayesian Inference of Conformational Populations &mdash; BICePs 2.0-beta documentation</title>
+  <title>BICePs - Bayesian Inference of Conformational Populations &mdash; BICePs 2.0 documentation</title>
   
 
   
@@ -17,34 +17,39 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -58,7 +63,7 @@
             
             
               <div class="version">
-                2.0-beta
+                2.0
               </div>
             
           
@@ -86,9 +91,8 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biceps.html">API Reference</a></li>
 </ul>
 
             
@@ -158,13 +162,13 @@
 /* CSS overrides for sphinx_rtd_theme */
 
 /* 24px margin */
-.nbinput.nblast,
-.nboutput.nblast {
+.nbinput.nblast.container,
+.nboutput.nblast.container {
     margin-bottom: 19px;  /* padding has already 5px */
 }
 
 /* ... except between code cells! */
-.nblast + .nbinput {
+.nblast.container + .nbinput.container {
     margin-top: -19px;
 }
 
@@ -179,19 +183,32 @@
 </style>
 <div class="section" id="biceps-bayesian-inference-of-conformational-populations">
 <h1>BICePs - Bayesian Inference of Conformational Populations<a class="headerlink" href="#biceps-bayesian-inference-of-conformational-populations" title="Permalink to this headline">¶</a></h1>
-<p>The BICePs algorithm (Bayesian Inference of Conformational Populations) is a statistically rigorous Bayesian inference method to reconcile theoretical predictions of conformational state populations with sparse and/or noisy experimental measurements and objectively compare different models.
-Supported experimental observables include:</p>
-<blockquote>
-<div><ul class="simple">
-<li><a class="reference external" href="https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect">NMR nuclear Overhauser effect (NOE)</a>.</li>
-<li><a class="reference external" href="https://en.wikipedia.org/wiki/Chemical_shift">NMR chemical shifts</a> (<code class="docutils literal notranslate"><span class="pre">HA</span></code>, <code class="docutils literal notranslate"><span class="pre">NH</span></code>, <code class="docutils literal notranslate"><span class="pre">CA</span></code> and <code class="docutils literal notranslate"><span class="pre">N</span></code>).</li>
-<li><a class="reference external" href="https://en.wikipedia.org/wiki/J-coupling">J couplings</a> (both small molecules and amino acids)</li>
-<li><a class="reference external" href="https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange">Hydrogen–deuterium exchange (HDX)</a>.</li>
+<hr style="height:2.5px"><h3 style="align: justify;font-size: 12pt">The BICePs algorithm (Bayesian
+Inference of Conformational Populations) is a statistically rigorous
+Bayesian inference method to reconcile theoretical predictions of
+conformational state populations with sparse and/or noisy experimental
+measurements and objectively compare different models.
+Supported experimental observables include:
+<br>
+<br>
+<ul>
+    <li style="list-style-type: none;font-size: 12pt;">
+        <a href="https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect">NMR nuclear Overhauser effect (NOE)</a>
+    </li>
+    <li style="list-style-type: none;font-size: 12pt;">
+        <a href="https://en.wikipedia.org/wiki/Chemical_shift">NMR chemical shifts</a> (HA, NH, CA and N)
+    </li>
+    <li style="list-style-type: none;font-size: 12pt;">
+        <a href="https://en.wikipedia.org/wiki/J-coupling">J couplings</a> (both small molecules and amino acids)
+    </li>
+    <li style="list-style-type: none;font-size: 12pt;">
+        <a href="https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange">Hydrogen–deuterium exchange (HDX)</a>
+    </li>
 </ul>
-</div></blockquote>
-<p>All source codes and examples are available here: <a class="reference external" href="https://github.com/vvoelz/biceps/">GitHub Repository for BICePs</a></p>
-<hr class="docutils" />
-<div class="toctree-wrapper compound">
+<br>
+All raw source code and examples/data are available <a href="https://github.com/vvoelz/biceps/">here</a>.</h3>
+<hr style="height:2.5px">
+<h3 style="align: justify;font-size: 10pt"><div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies-of-biceps">Dependencies of BICePs</a></li>
@@ -213,15 +230,15 @@ Supported experimental observables include:</p>
 <li class="toctree-l2"><a class="reference internal" href="workflow.html#analysis">Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#preparation">Preparation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#observables">Observables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#restraint">Restraint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#posteriorsampler">PosteriorSampler</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#analysis">Analysis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#toolbox">toolbox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biceps.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="biceps.html#preparation">Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="biceps.html#module-biceps.Observable">Observable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="biceps.html#module-biceps.Restraint">Restraint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="biceps.html#module-biceps.PosteriorSampler">PosteriorSampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="biceps.html#analysis">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="biceps.html#convergence">Convergence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="biceps.html#module-biceps.toolbox">toolbox</a></li>
 </ul>
 </li>
 </ul>
@@ -265,7 +282,8 @@ Supported experimental observables include:</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Temple University
+        &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
     </p>
   </div>
@@ -282,28 +300,16 @@ Supported experimental observables include:</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"processClass": "math|output_area", "processEscapes": true, "ignoreClass": "document", "inlineMath": [["$", "$"], ["\\(", "\\)"]]}})</script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

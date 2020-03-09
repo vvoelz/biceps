@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>biceps.Observable &mdash; BICePs 2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BICePs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Tutorials &amp; Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../biceps.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BICePs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">biceps.Observable</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/biceps.Observable.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-biceps.Observable">
+<span id="biceps-observable"></span><h1><code class="docutils literal notranslate"><span class="pre">biceps.Observable</span></code><a class="headerlink" href="#module-biceps.Observable" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="biceps.Observable.NMR_Chemicalshift">
+<em class="property">class </em><code class="sig-prename descclassname">biceps.Observable.</code><code class="sig-name descname">NMR_Chemicalshift</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">exp</em>, <em class="sig-param">model</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Observable.NMR_Chemicalshift" title="Permalink to this definition">¶</a></dt>
+<dd><p>A data containter class to store a datum for NMR chemical shift information.</p>
+<p>Initialize the derived NMR_Chemicalshift class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – atom indices from the conformation defining this chemical shift</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>exp</strong> – the experimental chemical shift</p></li>
+<li><p><strong>model</strong> – the model chemical shift in this structure (in ppm)</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">biceps</span><span class="o">.</span><span class="n">Observable</span><span class="o">.</span><span class="n">NMR_Chemicalshift</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.Observable.NMR_Dihedral">
+<em class="property">class </em><code class="sig-prename descclassname">biceps.Observable.</code><code class="sig-name descname">NMR_Dihedral</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">j</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em>, <em class="sig-param">exp</em>, <em class="sig-param">model</em>, <em class="sig-param">equivalency_index=None</em>, <em class="sig-param">ambiguity_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Observable.NMR_Dihedral" title="Permalink to this definition">¶</a></dt>
+<dd><p>A data containter class to store a datum for NMR dihedral information.</p>
+<p>Initialize NMR_Dihedral container class</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param int i,j,k,l</dt>
+<dd class="field-odd"><p>atom indices from the conformation defining this dihedral</p>
+</dd>
+<dt class="field-even">var exp</dt>
+<dd class="field-even"><p>the experimental J-coupling constant</p>
+</dd>
+<dt class="field-odd">var model</dt>
+<dd class="field-odd"><p>the model distance in this structure (in Angstroms)</p>
+</dd>
+<dt class="field-even">var equivalency_index</dt>
+<dd class="field-even"><p>the index of the equivalency group (i.e. a tag for equivalent H’s)</p>
+</dd>
+<dt class="field-odd">var ambiguity_index</dt>
+<dd class="field-odd"><p>the index of the ambiguity group</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>(i.e. some groups distances                have distant values, but ambiguous assignments.  Posterior sampling can be performed over these values)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">biceps</span><span class="o">.</span><span class="n">Observable</span><span class="o">.</span><span class="n">NMR_Dihedral</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span>  <span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.Observable.NMR_Distance">
+<em class="property">class </em><code class="sig-prename descclassname">biceps.Observable.</code><code class="sig-name descname">NMR_Distance</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">j</em>, <em class="sig-param">exp</em>, <em class="sig-param">model</em>, <em class="sig-param">equivalency_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Observable.NMR_Distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to store NMR noe information.</p>
+<p>Initialize NMR_Distance container class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong><strong>,</strong><strong>j</strong> (<em>int</em>) – atom indices from the conformation defining this noe</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>exp</strong> – the experimental NOE noe (in Angstroms)</p></li>
+<li><p><strong>model</strong> – the model noe in this structure (in Angstroms)</p></li>
+<li><p><strong>equivalency_index</strong> – the index of the equivalency group (i.e. a tag for equivalent H’s)</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">biceps</span><span class="o">.</span><span class="n">Observable</span><span class="o">.</span><span class="n">NMR_Distance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span>  <span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="biceps.Observable.NMR_Protectionfactor">
+<em class="property">class </em><code class="sig-prename descclassname">biceps.Observable.</code><code class="sig-name descname">NMR_Protectionfactor</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">exp</em>, <em class="sig-param">model</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Observable.NMR_Protectionfactor" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to store NMR protection factor information.</p>
+<p>Initialize NMR_Protectionfactor container class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – atom indices from the conformation defining this protection factor</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>exp</strong> – the experimental protection factor</p></li>
+<li><p><strong>model</strong> – the model protection factor in this structure</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">biceps</span><span class="o">.</span><span class="n">Observable</span><span class="o">.</span><span class="n">NMR_Protectionfactor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span>  <span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
