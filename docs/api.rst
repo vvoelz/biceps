@@ -22,19 +22,15 @@ Observables
 
 .. autoclass:: NMR_Chemicalshift
 
-   .. rubric:: Methods
-
    .. autosummary::
 
        ~Observable.NMR_Chemicalshift.__init__
 
 .. autoclass:: NMR_Dihedral
 
-   .. rubric:: Methods
-
    .. autosummary::
 
-       ~Observable.NMR_Dihedral.__init__
+       ~Observable.NMR_Dihedral
 
 .. autoclass:: NMR_Distance
 
