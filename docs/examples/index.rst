@@ -50,20 +50,20 @@ Tutorials & Examples
     </h3>
     <ul>
         <li style="list-style-type: none;font-size: 12pt;">
-            <a href="full_examples/cineromycinB/CineromycinB.html">Cineromycin B</a> - determine the solution-state conformational populations of a 14-membered macrolide antibiotic. This example is based on previous work (DOI: <a href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738>10.1002/jcc.23738</a>).
+            <a href="full_examples/cineromycinB/CineromycinB.html">Cineromycin B</a> -
+            determine the solution-state conformational populations of a 14-membered macrolide
+            antibiotic. This example is based on previous work (DOI: <a href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738">10.1002/jcc.23738</a>).</li>
         </li>
         <li style="list-style-type: none;font-size: 12pt;">
-            <a href="full_examples/albocycline/albocycline.html">Albocycline</a> - compute conforamtional populations of a 14-membered macrolactone. Multiprocess lambda values and sample the posterior distribution for each simultaneously. This example is based on a previously published work (DOI: <a href="https://www.sciencedirect.com/science/article/pii/S0968089618303389>10.1016/j.bmc.2018.05.017</a>)
+            <a href="full_examples/albocycline/albocycline.html">Albocycline</a> -
+            compute conforamtional populations of a 14-membered macrolactone. Multiprocess
+            lambda values and sample the posterior distribution for each simultaneously.
+            This example is based on a previously published work (DOI: <a href="https://www.sciencedirect.com/science/article/pii/S0968089618303389">10.1016/j.bmc.2018.05.017</a>)</li>
         </li>
 
     </ul>
     <br>
     </h3>
-    <!--• `Albocycline`_
-    .. _Albocycline: albo/alternative.ipynb
-    • `Cineromycin_B`_
-    .. _Cineromycin_B: cineromycin_B/cineromycin_B.ipynb
-    -->
 
     <h3 style="align: justify;font-size: 12pt">
    You are welcome to contribute your own examples and please let us know
