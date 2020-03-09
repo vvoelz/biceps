@@ -10,6 +10,7 @@ from biceps.prep_noe import *   # Creates NOE (Nuclear Overhauser effect) restra
 from biceps.prep_pf import *    # Prepare functions for protection factors restraint file
 import biceps.Observable as Observable
 
+
 class Restraint(object):
     """The parent class of all Restraint() objects.
 
@@ -740,6 +741,15 @@ class Restraint_pf(Restraint):
             self.neglog_gaussian_ref[j] = 0.5 * np.log(2.0*np.pi) + np.log(self.ref_sigma[j]) \
                       + (self.restraints[j].model - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
             self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
+
+
+
+
+if __name__ == "__main__":
+
+    import doctest
+    doctest.testmod()
+
 
 
 

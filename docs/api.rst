@@ -20,26 +20,38 @@ Observables
 -----------
 .. currentmodule:: biceps
 
-.. autoclass:: Observable
-
-   .. rubric:: Methods
-
-   .. autosummary::
-
-       ~Observable.__init__
-
 .. autoclass:: NMR_Chemicalshift
 
    .. rubric:: Methods
 
    .. autosummary::
 
+       ~Observable.NMR_Chemicalshift.__init__
 
 .. autoclass:: NMR_Dihedral
 
    .. rubric:: Methods
 
    .. autosummary::
+
+       ~Observable.NMR_Dihedral.__init__
+
+.. autoclass:: NMR_Distance
+
+   .. rubric:: Methods
+
+   .. autosummary::
+
+       ~Observable.NMR_Distance.__init__
+
+
+.. autoclass:: NMR_Protectionfactor
+
+   .. rubric:: Methods
+
+   .. autosummary::
+
+       ~Observable.NMR_Protectionfactor.__init__
 
 
 

@@ -8,12 +8,14 @@ class NMR_Chemicalshift(object):
     def __init__(self, i, exp, model):
         """Initialize the derived NMR_Chemicalshift class.
 
-        :param int i:
-        :var exp:
-        :var model:
+        :param int i: atom indices from the conformation defining this chemical shift
+        :var exp: the experimental chemical shift
+        :var model: the model chemical shift in this structure (in ppm)
+
+        >>> biceps.Observable.NMR_Chemicalshift(i, exp, model)
         """
 
-        # Atom indices from the Conformation() defining this chemical shift
+        # Atom indices from the conformation defining this chemical shift
         self.i = i
 
         # the model chemical shift in this structure (in ppm)
@@ -35,15 +37,17 @@ class NMR_Dihedral(object):
             equivalency_index=None, ambiguity_index=None):
         """Initialize NMR_Dihedral container class
 
-        :param int i,j,k,l:
-        :var exp:
-        :var model_angle:
-        :var model:
-        :var equivalency_index:
-        :var ambiguity_index:
+        :param int i,j,k,l: atom indices from the conformation defining this dihedral
+        :var exp: the experimental J-coupling constant
+        :var model:  the model distance in this structure (in Angstroms)
+        :var equivalency_index: the index of the equivalency group (i.e. a tag for equivalent H's)
+        :var ambiguity_index: the index of the ambiguity group \n (i.e. some groups distances\
+                have distant values, but ambiguous assignments.  Posterior sampling can be performed over these values)
+
+        >>> biceps.Observable.NMR_Dihedral(i, j, k, l, exp,  model)
         """
 
-        # Atom indices from the Conformation() defining this dihedral
+        # Atom indices from the conformation defining this dihedral
         self.i = i
         self.j = j
         self.k = k
@@ -72,13 +76,15 @@ class NMR_Distance(object):
     def __init__(self, i, j, exp, model, equivalency_index=None):
         """Initialize NMR_Distance container class
 
-        :param int i,j:
-        :var exp:
-        :var model:
-        :var equivalency_index:
+        :param int i,j: atom indices from the conformation defining this noe
+        :var exp: the experimental NOE noe (in Angstroms)
+        :var model: the model noe in this structure (in Angstroms)
+        :var equivalency_index: the index of the equivalency group (i.e. a tag for equivalent H's)
+
+        >>> biceps.Observable.NMR_Distance(i, j, exp,  model)
         """
 
-        # Atom indices from the Conformation() defining this noe
+        # Atom indices from the conformation defining this noe
         self.i = i
         self.j = j
 
@@ -101,12 +107,15 @@ class NMR_Protectionfactor(object):
     def __init__(self, i, exp, model):
         """Initialize NMR_Protectionfactor container class
 
-        :param int i:
-        :var exp:
-        :var model:
+        :param int i: atom indices from the conformation defining this protection factor
+        :var exp: the experimental protection factor
+        :var model: the model protection factor in this structure
+
+
+        >>> biceps.Observable.NMR_Protectionfactor(i, exp,  model)
         """
 
-        # Atom indices from the Conformation() defining this protection factor
+        # Atom indices from the conformation defining this protection factor
         self.i = i
 
         # the model protection factor in this structure (in ???)
@@ -119,6 +128,13 @@ class NMR_Protectionfactor(object):
         self.weight = 1.0 # default is N=1
 
 
+
+
+
+if __name__ == "__main__":
+
+    import doctest
+    doctest.testmod()
 
 
 

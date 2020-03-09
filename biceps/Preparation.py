@@ -48,7 +48,7 @@ class Preparation(object):
 
 
     def write(self, out_dir=None):
-        """write BICePs format input files.
+        """Write BICePs format input files for available experimental observables.
 
         :param str default=None out_dir: output directory
         """
