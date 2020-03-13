@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-import sys, os, glob
+import sys, os, glob, re, yaml, io
 import numpy as np
-import re
-import yaml, io
 import pandas as pd
 from biceps.J_coupling import *
 from biceps.KarplusRelation import KarplusRelation
@@ -65,6 +63,13 @@ def sort_data(dataFiles):
     Data = np.stack(data, axis=-1)
     data = Data.tolist()
     return data
+
+
+
+def get_files(path):
+    convert = lambda txt: int(txt) if txt.isdigit() else txt
+    return sorted(glob.glob(path), key=lambda x:[convert(s) for s in re.split("([0-9]+)",x)])
+
 
 
 def list_res(input_data):
@@ -724,6 +729,23 @@ def find_all_state_sampled_time(trace,nstates):
             init += 1
     return init, frac
 
+###############################################################################
+##############TODO: Place methods in observable class :TODO ###################
+###############################################################################
+def compute_distances(states, ind, outdir):
+    distances = []
+    ind = np.loadtxt(ind, dtype=int)
+    for i in range(len(states)):
+        d = md.compute_distances(md.load(states[i]), ind)*10. # convert nm to Å
+        np.savetxt(outdir+'/%d.txt'%i,d)
+    return distances
+
+def compute_chemicalshifts(states, ind, temp=300, pH=7, outdir):
+    for i in range(len(states)):
+        traj = md.load(states[i])
+        shifts = md.nmr.chemical_shifts_shiftx2(traj, pH, temperature)
+        #shifts.to_pickle("")
+        np.savetxt("cs_state%d.txt"%i, shifts.mean(axis=1))
 
 
 
