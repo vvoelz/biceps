@@ -1,0 +1,65 @@
+
+python mp_lambdas.py
+
+BICePs - Bayesian Inference of Conformational Populations, Version 2.0
+Possible input data extensions: ['H', 'Ca', 'N', 'J', 'noe', 'pf']
+Input data: ['J', 'noe']
+nSteps of sampling: 1000000
+Number of CPU's: 4
+
+Accepted 71.1255 %
+
+
+Accepted [32.6309 29.8987 29.8987  8.5959] %
+
+
+Accepted 64.3497 %
+
+
+Accepted [32.7566 29.9698 29.9698  1.6233] %
+
+
+Accepted 65.8764 %
+
+
+Accepted [32.6857 29.9479 29.9479  3.2428] %
+
+...Done.
+...Done.
+...Done.
+Loading trajectory file...
+Collecting rest_type...
+Collecting allowed_parameters...
+Collecting sampled parameters...
+Calculating autocorrelation ...
+Done!
+Calculating autocorrelation times...
+Done!
+Plotting autocorrelation curve ...
+Done!
+Plotting autocorrelation curve ...
+Done!
+Calculating JSDs ...
+Done!
+plotting JSDs ...
+Done
+Loading results/traj_lambda0.00.npz ...
+Loading results/traj_lambda0.50.npz ...
+Loading results/traj_lambda1.00.npz ...
+not all state sampled, these states [ 5 11 16 25 40 42 81 95 98] are not sampled
+not all state sampled, these states [ 4  5  9 11 13 14 15 16 18 22 23 24 25 26 27 28 29 34 36 40 41 42 48 51
+ 52 53 54 55 56 57 61 62 64 66 73 76 77 81 82 87 95 98 99] are not sampled
+Loading results/sampler_lambda0.00.pkl ...
+Loading results/sampler_lambda0.50.pkl ...
+Loading results/sampler_lambda1.00.pkl ...
+lam = [0.0, 0.5, 1.0]
+nstates 100
+Writing results/BS.dat...
+...Done.
+Writing results/populations.dat...
+...Done.
+python 'mp_lambdas.py'  754.32s user 22.41s system 269% cpu 4:48.12 total
+
+Press ENTER or type command to continue
+
+

@@ -46,8 +46,9 @@ def sort_data(dataFiles):
         else:
             dir_list.append(dataFiles+'/*')
 
+
     # list for every extension; 7 possible experimental observables supported
-    data = [[] for x in range(len(list_possible_restraints()))]
+    data = [[] for x in range(len(list_possible_extensions()))]
     # Sorting the data by extension into lists. Various directories is not an issue...
     for i in range(len(dir_list)):
         convert = lambda txt: int(txt) if txt.isdigit() else txt
@@ -56,7 +57,7 @@ def sort_data(dataFiles):
             if not any([j.endswith(ext) for ext in list_possible_extensions()]):
                 raise ValueError(f"Incompatible File extension. Use:{list_possible_extensions()}")
             else:
-                for k in range(len(list_possible_restraints())):
+                for k in range(len(list_possible_extensions())):
                     if j.endswith(list_possible_extensions()[k]):
                         data[k].append(j)
 
@@ -80,6 +81,9 @@ def list_res(input_data):
             scheme.append(i.split(".")[-1])
     return scheme
 
+def list_extensions(input_data):
+    return [ res.split("_")[-1] for res in list_res(input_data) ]
+
 
 def list_possible_restraints():
     """Function will return a list of all possible restraint classes in Restraint.py.
@@ -95,8 +99,9 @@ def list_possible_extensions():
     possible = list()
     for rest in restraint_classes:
         R = getattr(Restraint, rest)
+        for ext in getattr(R, "_ext"):
         #NOTE: can use _ext variable or the suffix of Restraint class
-        possible.append(getattr(R, "_ext"))
+            possible.append(ext)
     return possible
 
 

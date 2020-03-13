@@ -5,20 +5,16 @@ HEADER="""BICePs - Bayesian Inference of Conformational Populations, Version %s"
 print(HEADER)
 name = "biceps"
 
-import biceps.J_coupling
-import biceps.KarplusRelation
 import biceps.Observable
+from biceps.Restraint import Ensemble
+#import biceps.Restraint
 from biceps.PosteriorSampler import PosteriorSampler
-from biceps.Preparation import Preparation
-import biceps.Restraint
-from biceps.init_res import *
-#import biceps.prep_J
-#import biceps.prep_cs
-#import biceps.prep_noe
-#import biceps.prep_pf
-import biceps.toolbox
 from biceps.Analysis import Analysis
 from biceps.convergence import Convergence
+import biceps.toolbox
+
+import biceps.J_coupling
+import biceps.KarplusRelation
 
 
 
