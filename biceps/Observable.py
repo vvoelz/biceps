@@ -6,7 +6,7 @@ import biceps.toolbox
 
 class Preparation(object):
 
-    def __init__(self, nstates=0, indices=None, top=None, outdir="./"):
+    def __init__(self, nstates=0,  top=None, outdir="./"):
         """A parent class to prepare input files for BICePs calculation.
 
         :param str obs: type of experimental observables {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
@@ -17,7 +17,6 @@ class Preparation(object):
         """
 
         self.nstates = nstates
-        self.ind = np.loadtxt(indices, dtype=int)
         self.topology = md.load(top).topology
         self.data = list()
 
@@ -35,7 +34,7 @@ class Preparation(object):
         dfOut(filename)
 
     #TODO: needs to be checked
-    def prep_cs(self, exp_data, model_data, extension, outdir=None):
+    def prep_cs(self, exp_data, model_data, indices, extension, outdir=None):
         """A method containing input/output methods for writing chemicalshift
         Restaint Files."""
 
@@ -43,6 +42,7 @@ class Preparation(object):
                 'exp_cs (ppm)', 'model_cs (ppm)', 'comments')
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
+        self.ind = np.loadtxt(indices, dtype=int)
         if type(self.model_data) is not list or np.ndarray:
             self.model_data = biceps.toolbox.get_files(model_data)
         if int(len(self.model_data)) != int(self.nstates):
@@ -69,7 +69,7 @@ class Preparation(object):
 
 
 
-    def prep_noe(self, exp_data, model_data, extension=None, outdir=None, verbose=False):
+    def prep_noe(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
         """A method containing input/output methods for writing NOE
         Restaint Files."""
 
@@ -77,6 +77,7 @@ class Preparation(object):
                 'atom_index2', 'res2', 'atom_name2', 'exp_noe (A)', 'model_noe (A)', 'comments')
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
+        self.ind = np.loadtxt(indices, dtype=int)
         if type(self.model_data) is not list or np.ndarray:
             self.model_data = biceps.toolbox.get_files(model_data)
         if int(len(self.model_data)) != int(self.nstates):
@@ -106,16 +107,20 @@ class Preparation(object):
                 self.write_DataFrame(filename=outdir+filename)
 
 
-    def prep_J(self, exp_data, model_data, extension=None, outdir=None, verbose=False):
+    def prep_J(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
         """A method containing input/output methods for writing scalar coupling
         Restaint Files."""
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
                 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3',
-                'atom_index4', 'res4', 'atom_name4', 'exp_J_coupling (Hz)',
-                'model_J_coupling (Hz)', 'comments')
+                'atom_index4', 'res4', 'atom_name4', 'exp_J (Hz)',
+                'model_J (Hz)', 'comments')
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
+        if type(indices) is not str:
+            self.ind = indices
+        else:
+            self.ind = np.loadtxt(indices, dtype=int)
         if type(self.model_data) is not list or np.ndarray:
             self.model_data = biceps.toolbox.get_files(model_data)
         if int(len(self.model_data)) != int(self.nstates):
@@ -131,15 +136,15 @@ class Preparation(object):
                 dd['atom_index3'].append(a3);dd['atom_index4'].append(a4)
                 dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
                 dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
-                dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == ja2][0]))
+                dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
                 dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
                 dd['res3'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a3][0]))
                 dd['atom_name3'].append(str([atom.name for atom in self.topology.atoms if atom.index == a3][0]))
                 dd['res4'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a4][0]))
                 dd['atom_name4'].append(str([atom.name for atom in self.topology.atoms if atom.index == a4][0]))
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
-                dd['exp_J (A)'].append(np.float64(self.exp_data[i,1]))
-                dd['model_noe (A)'].append(np.float64(model_data[i]))
+                dd['exp_J (Hz)'].append(np.float64(self.exp_data[i,1]))
+                dd['model_J (Hz)'].append(np.float64(model_data[i]))
                 dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
@@ -150,7 +155,7 @@ class Preparation(object):
 
 
     # TODO: Needs to be checked
-    def prep_pf(self, exp_data, model_data=None, extension=None, outdir=None):
+    def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, outdir=None):
         """A method containing input/output methods for writing protection factor
         Restaint Files."""
 
@@ -160,6 +165,7 @@ class Preparation(object):
             self.header = ('restraint_index', 'atom_index1', 'res1','exp_pf', 'comments')
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
+        self.ind = np.loadtxt(indices, dtype=int)
         if type(self.model_data) is not list or np.ndarray or None:
             self.model_data = biceps.toolbox.get_files(model_data)
             if int(len(self.model_data)) != int(self.nstates):

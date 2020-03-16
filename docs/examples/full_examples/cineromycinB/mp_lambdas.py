@@ -17,12 +17,12 @@ print(f"Input data: {biceps.toolbox.list_extensions(data)}")
 outdir = 'results'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
-nsteps=1000000
+nsteps=100000
 print(f"nSteps of sampling: {nsteps}")
 maxtau = 1000
-n_lambdas = 3
+n_lambdas = 5
 lambda_values = np.linspace(0.0, 1.0, n_lambdas)
-ref = ['uniform', 'exp']
+ref = ['exp', 'exp']
 uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
 ####### Multiprocessing Lambda values #######
 def mp_lambdas(Lambda):
@@ -63,12 +63,15 @@ for job in jobs:
     job.join() # will wait until the execution is over...
 p.close()
 
+'''
 ####### Convergence Check #######
 C = biceps.Convergence(trajfile=outdir+"/traj_lambda0.00.npz", resultdir=outdir)
 C.get_autocorrelation_curves(method="normal", maxtau=maxtau)
 C.plot_auto_curve(fname="auto_curve.pdf", xlim=(0, maxtau))
 C.process(nblock=5, nfold=10, nround=100, savefile=True,
     plot=True, block=True, normalize=True)
+
+'''
 
 ####### Posterior Analysis #######
 A = biceps.Analysis(states=states, resultdir=outdir,

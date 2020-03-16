@@ -15,7 +15,7 @@ print(f"Input data: {biceps.toolbox.list_extensions(data)}")
 outdir = 'results_ref_normal'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
-nsteps=10000
+nsteps=100000
 maxtau = 1000
 lambda_values = [0.0, 0.5, 1.0]
 ref = ['uniform', 'exp', 'exp']
