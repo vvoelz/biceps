@@ -13,13 +13,15 @@ biceps.toolbox.mkdir(outdir)
 model_data = biceps.toolbox.compute_distances(states, ind, outdir)
 model_data = str(outdir+"*.txt")
 exp_data = data_dir+"noe_distance.txt"
-preparation = biceps.Observable.Preparation(nstates=nstates, indices=ind, top=states[0], precomputed=True)
-preparation.prep_cs(exp_data=exp_data, model_data=model_data, extension="H", outdir=outdir)
+preparation = biceps.Observable.Preparation(nstates=nstates, indices=ind, top=states[0])
+preparation.prep_noe(exp_data, model_data, outdir=outdir, verbose=False)
+#preparation.prep_cs(exp_data=exp_data, model_data=model_data, extension="H", outdir=outdir)
 exit()
 
 
 
 
+outdir = "J/"
 
 
 

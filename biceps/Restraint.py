@@ -299,6 +299,30 @@ class Restraint_cs(Restraint):
             pass
 
 
+    def NMR_Chemicalshift(self, i, exp, model):
+        """A data containter class to store a datum for NMR chemical shift information.
+
+        :param int i: atom indices from the conformation defining this chemical shift
+        :var exp: the experimental chemical shift
+        :var model: the model chemical shift in this structure (in ppm)
+
+        >>> biceps.Observable.NMR_Chemicalshift(i, exp, model)
+        """
+
+        # Atom indices from the conformation defining this chemical shift
+        self.i = i
+
+        # the model chemical shift in this structure (in ppm)
+        self.model = model
+
+        # the experimental chemical shift
+        self.exp = exp
+
+        # N equivalent chemical shift should only get 1/N f the weight when
+    #... computing chi^2 (not likely in this case but just in case we need it in the future)
+        self.weight = 1.0  #1.0/3.0 used in JCTC 2020 paper  # default is N=1
+
+
     def prep_observable(self, data, energy, lam, extension, verbose=False):
         """Observable is prepped by loading in cs_N restraints.
 
@@ -329,8 +353,7 @@ class Restraint_cs(Restraint):
         self.nObs = len(self.data)
         for entry in self.data:
             restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
-            Obs = biceps.Observable.NMR_Chemicalshift(i, exp, model)
-            self.add_restraint(Obs)
+            self.add_restraint(self.NMR_Chemicalshift(i, exp, model))
             if verbose:
                 print(entry)
             self.n += 1
@@ -341,6 +364,44 @@ class Restraint_J(Restraint):
     """A derived class of RestraintClass() for J coupling constant."""
 
     _ext = ['J']
+
+
+    def NMR_Dihedral(self, i, j, k, l, exp, model,
+            equivalency_index=None, ambiguity_index=None):
+        """NMR_Dihedral container class
+
+        :param int i,j,k,l: atom indices from the conformation defining this dihedral
+        :var exp: the experimental J-coupling constant
+        :var model:  the model distance in this structure (in Angstroms)
+        :var equivalency_index: the index of the equivalency group (i.e. a tag for equivalent H's)
+        :var ambiguity_index: the index of the ambiguity group \n (i.e. some groups distances\
+                have distant values, but ambiguous assignments.  Posterior sampling can be performed over these values)
+
+        >>> biceps.Observable.NMR_Dihedral(i, j, k, l, exp,  model)
+        """
+
+        # Atom indices from the conformation defining this dihedral
+        self.i = i
+        self.j = j
+        self.k = k
+        self.l = l
+
+        # the model distance in this structure (in Angstroms)
+        self.model = model
+
+        # the experimental J-coupling constant
+        self.exp = exp
+
+        # the index of the equivalency group (i.e. a tag for equivalent H's)
+        self.equivalency_index = equivalency_index
+
+        # N equivalent distances should only get 1/N of the weight when computing chi^2
+        self.weight = 1.0  # default is N=1
+
+        # the index of the ambiguity group (i.e. some groups distances have
+        # distant values, but ambiguous assignments.  We can do posterior sampling over these)
+        self.ambiguity_index = ambiguity_index
+
 
     def prep_observable(self,data,energy,lam,verbose=False):
         """Observable is prepped by loading in J coupling restraints.
@@ -369,10 +430,7 @@ class Restraint_J(Restraint):
         for entry in self.data:
             restraint_index, i, j, k, l, exp, model  = entry[0], entry[1],\
                     entry[4], entry[7], entry[10], entry[13], entry[14]
-
-            Obs = biceps.Observable.NMR_Dihedral(i,j,k,l,exp,model,
-                    equivalency_index=restraint_index)
-            self.add_restraint(Obs)
+            self.add_restraint(self.NMR_Dihedral(i,j,k,l,exp,model,equivalency_index=restraint_index))
             if verbose:
                 print(entry)
             self.n += 1
@@ -411,6 +469,36 @@ class Restraint_noe(Restraint):
     """A derived class of Restraint() for noe distance restraints."""
 
     _ext = ['noe']
+
+
+
+    def NMR_Distance(self, i, j, exp, model, equivalency_index=None):
+        """NMR_Distance container class
+
+        :param int i,j: atom indices from the conformation defining this noe
+        :var exp: the experimental NOE noe (in Angstroms)
+        :var model: the model noe in this structure (in Angstroms)
+        :var equivalency_index: the index of the equivalency group (i.e. a tag for equivalent H's)
+
+        >>> biceps.Observable.NMR_Distance(i, j, exp,  model)
+        """
+
+        # Atom indices from the conformation defining this noe
+        self.i = i
+        self.j = j
+
+        # the model noe in this structure (in Angstroms)
+        self.model = model
+
+        # the experimental NOE noe (in Angstroms)
+        self.exp = exp
+
+        # the index of the equivalency group (i.e. a tag for equivalent H's)
+        self.equivalency_index = equivalency_index
+
+        # N equivalent noe should only get 1/N of the weight when computing chi^2
+        self.weight = 1.0  # default is N=1
+
 
     def prep_observable(self, data, energy, lam, verbose=False,
             use_log_normal_noe=False, dloggamma=np.log(1.01),
@@ -461,8 +549,7 @@ class Restraint_noe(Restraint):
            # rj = self.conf.xyz[0,j,:]
            # dr = rj-ri
            # model = np.dot(dr,dr)**0.5
-            Obs = biceps.Observable.NMR_Distance(i, j, exp, model, equivalency_index=restraint_index)
-            self.add_restraint(Obs)
+            self.add_restraint(self.NMR_Distance(i, j, exp, model, equivalency_index=restraint_index))
             if verbose:
                 print(entry)
             self.n += 1
@@ -502,6 +589,30 @@ class Restraint_pf(Restraint):
     """A derived class of Restraint() for protection factor restraints."""
 
     _ext = ['pf']
+
+
+    def NMR_Protectionfactor(self, i, exp, model):
+        """Initialize NMR_Protectionfactor container class
+
+        :param int i: atom indices from the conformation defining this protection factor
+        :var exp: the experimental protection factor
+        :var model: the model protection factor in this structure
+
+        >>> biceps.Observable.NMR_Protectionfactor(i, exp,  model)
+        """
+
+        # Atom indices from the conformation defining this protection factor
+        self.i = i
+
+        # the model protection factor in this structure (in ???)
+        self.model = model
+
+        # the experimental protection factor
+        self.exp = exp
+
+        # N equivalent protection factor should only get 1/N f the weight when computing chi^2 (not likely in this case but just in case we need it in the future)
+        self.weight = 1.0 # default is N=1
+
 
     def prep_observable(self, lam, energy, data, precomputed=False,
             Ncs=None, Nhs=None,verbose=False, beta_c_min=0.05,beta_c_max=0.25,
@@ -588,7 +699,6 @@ class Restraint_pf(Restraint):
         # Reading the data from loading in filenames
         read = prep_pf(filename=data)
         self.load_data(read)
-
         self.n = 0
 
         # Extract the data corresponding to an observable and add a the restraint
@@ -599,8 +709,7 @@ class Restraint_pf(Restraint):
         if precomputed:
             for entry in self.data:
                 restraint_index, i, exp, model  = entry[0], entry[0], entry[3], entry[4]
-                Obs = biceps.Observable.NMR_Protectionfactor(i, exp, model)
-                self.add_restraint(Obs)
+                self.add_restraint(self.NMR_Protectionfactor(i, exp, model))
                 if verbose:
                     print(entry)
                 self.n += 1
@@ -608,8 +717,7 @@ class Restraint_pf(Restraint):
             for entry in self.data:
                 restraint_index, i, exp  = entry[0], entry[0], entry[3]
                 model = self.compute_PF_multi(self.Ncs[:,:,i], self.Nhs[:,:,i], debug=False)
-                Obs = biceps.Observable.NMR_Protectionfactor(i, exp, model)
-                self.add_restraint(Obs)
+                self.add_restraint(self.NMR_Protectionfactor(i, exp, model))
                 if verbose:
                     print(entry)
                 self.n += 1

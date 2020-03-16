@@ -740,7 +740,7 @@ def compute_distances(states, ind, outdir):
         np.savetxt(outdir+'/%d.txt'%i,d)
     return distances
 
-def compute_chemicalshifts(states, ind, temp=300, pH=7, outdir):
+def compute_chemicalshifts(states, ind, temp=300, pH=7, outdir="./"):
     for i in range(len(states)):
         traj = md.load(states[i])
         shifts = md.nmr.chemical_shifts_shiftx2(traj, pH, temperature)
