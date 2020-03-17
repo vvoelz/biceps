@@ -10,19 +10,19 @@ energies -= energies.min()  # set ground state to zero, just in case
 states = len(energies)
 top = '../../datasets/cineromycin_B/cineromycinB_pdbs/0.fixed.pdb'
 print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
-data = biceps.toolbox.sort_data('../../datasets/cineromycin_B/noe_J')
+data = biceps.toolbox.sort_data('J_NOE')
 res = biceps.toolbox.list_res(data)
 extensions = biceps.toolbox.list_extensions(data)
 print(f"Input data: {biceps.toolbox.list_extensions(data)}")
 outdir = 'results'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
-nsteps=100000
+nsteps=1000000
 print(f"nSteps of sampling: {nsteps}")
 maxtau = 1000
-n_lambdas = 5
+n_lambdas = 2
 lambda_values = np.linspace(0.0, 1.0, n_lambdas)
-ref = ['exp', 'exp']
+ref = ['uniform', 'exp']
 uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
 ####### Multiprocessing Lambda values #######
 def mp_lambdas(Lambda):

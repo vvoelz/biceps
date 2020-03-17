@@ -1,44 +1,39 @@
 import os, sys, pickle
 import numpy as np
 import biceps
+import multiprocessing as mp
 
 ####### Data and Output Directories #######
-energies = np.loadtxt('../../datasets/cineromycin_B/cineromycinB_QMenergies.dat', dtype=float)*627.509  # convert from hartrees to kcal/mol
+energies = np.loadtxt('../../datasets/cineromycin_B/cineromycinB_QMenergies.dat')*627.509  # convert from hartrees to kcal/mol
 energies = energies/0.5959   # convert to reduced free energies F = f/kT
 energies -= energies.min()  # set ground state to zero, just in case
-#NOTE:
-#print(biceps.toolbox.list_possible_extensions())
-data = biceps.toolbox.sort_data('../../datasets/cineromycin_B/noe_J')
-#print(data)
-#FIXME:
+states = len(energies)
+top = '../../datasets/cineromycin_B/cineromycinB_pdbs/0.fixed.pdb'
+print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
+#data = biceps.toolbox.sort_data('../../datasets/cineromycin_B/noe_J')
+data = biceps.toolbox.sort_data('J_NOE')
 res = biceps.toolbox.list_res(data)
-#print(res)
-
-#FIXME:
-res = biceps.toolbox.list_res(data)
-outdir = 'results_ref_normal'
+extensions = biceps.toolbox.list_extensions(data)
+print(f"Input data: {biceps.toolbox.list_extensions(data)}")
+outdir = 'results'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
-nsteps=10000
+nsteps=100000
+print(f"nSteps of sampling: {nsteps}")
 maxtau = 1000
-lambda_values = [0.0, 0.5, 1.0]
+n_lambdas = 2
+lambda_values = np.linspace(0.0, 1.0, n_lambdas)
+#ref = ['exp', 'exp']
 ref = ['uniform', 'exp']
 uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
-
-####### MCMC Simulations #######
 for lam in lambda_values:
-    ensemble = []
-    #TODO: cut down this for loop
-    for i in range(energies.shape[0]):
-        ensemble.append([])
-        for k in range(len(data[0])):
-            File = data[i][k]
-            R = biceps.Restraint.init_res(
-                    PDB_filename='../../datasets/cineromycin_B/cineromycinB_pdbs/0.fixed.pdb',
-                    lam=lam, energy=energies[i], ref=ref[k], data=File,
-                    uncern=uncern[k], gamma=[0.2, 5.0, 1.02])
-            ensemble[-1].append(R)
-    sampler = biceps.PosteriorSampler(ensemble)
+    #ensemble = biceps.Ensemble(lam, energies, top, verbose=True)
+    ensemble = biceps.Ensemble(lam, energies, top, verbose=False)
+    ensemble.initialize_restraints(exp_data=data, ref_pot=ref,
+            uncern=uncern, gamma=[0.2, 5.0, 1.02], extensions=extensions)
+    #print(ensemble.to_list())
+    #exit()
+    sampler = biceps.PosteriorSampler(ensemble.to_list())
     sampler.sample(nsteps=nsteps)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
     sampler.traj.read_results(os.path.join(outdir,
@@ -48,6 +43,7 @@ for lam in lambda_values:
     pickle.dump(sampler, fout)
     fout.close()
     print('...Done.')
+    exit()
 
 '''
 ####### Convergence Check #######
@@ -57,59 +53,15 @@ C.plot_auto_curve(fname="auto_curve.pdf", xlim=(0, maxtau))
 C.process(nblock=5, nfold=10, nround=100, savefile=True,
     plot=True, block=True, normalize=True)
 
+'''
+
 ####### Posterior Analysis #######
-A = biceps.Analysis(states=100, resultdir=outdir,
+A = biceps.Analysis(states=states, resultdir=outdir,
     BSdir='BS.dat', popdir='populations.dat',
     picfile='BICePs.pdf')
 A.plot()
-'''
 
 
-'''
-import mdtraj as md
-import numpy as np
-data_dir = "../../datasets/cineromycin_B/"
-ind=np.loadtxt(data_dir+'atom_indice_noe.txt')
-print("indices", ind)
-os.system(data_dir+'mkdir NOE')
-for i in range(100):    # 100 clustered states
-    t = md.load(data_dir+'cineromycinB_pdbs/%d.fixed.pdb'%i)
-    d=md.compute_distances(t,ind)*10.     # convert nm to Å
-    np.savetxt(data_dir+'NOE/%d.txt'%i,d)
-print("Done!")
-path = data_dir+'NOE/*txt'
-states = 100
-indices = data_dir+'atom_indice_noe.txt'
-exp_data = data_dir+'noe_distance.txt'
-top = data_dir+'cineromycinB_pdbs/0.fixed.pdb'
-out_dir = data_dir+'noe_J'
-p = biceps.Preparation('noe',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=path)   # 'noe' scheme is selected
-p.write(out_dir=out_dir)
-fin = open(data_dir+'noe_J/0.noe','r')
-text = fin.read()
-fin.close()
-print(text)
-
-ind=np.load(data_dir+'ind.npy')
-print('index', ind)
-karplus_key=np.loadtxt(data_dir+'Karplus.txt', dtype=str)
-print('Karplus relations', karplus_key)
-for i in range(100):    # 100 clustered states
-    J = biceps.toolbox.compute_nonaa_Jcoupling(data_dir+'cineromycinB_pdbs/%d.fixed.pdb'%i, index=ind, karplus_key=karplus_key)
-    np.savetxt(data_dir+'J_coupling/%d.txt'%i,J)
-path = data_dir+'J_coupling/*txt'
-states = 100
-indices = data_dir+'atom_indice_J.txt'
-exp_data = data_dir+'exp_Jcoupling.txt'
-top = data_dir+'cineromycinB_pdbs/0.fixed.pdb'
-out_dir = data_dir+'noe_J'
-p = biceps.Preparation('J',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=path)   # 'J' scheme is selected
-p.write(out_dir=out_dir)
-fin = open(data_dir+'noe_J/0.J','r')
-text = fin.read()
-fin.close()
-print(text)
-'''
 
 
 

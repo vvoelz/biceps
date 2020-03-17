@@ -36,10 +36,14 @@ class Preparation(object):
     #TODO: needs to be checked
     def prep_cs(self, exp_data, model_data, indices, extension, outdir=None):
         """A method containing input/output methods for writing chemicalshift
-        Restaint Files."""
+        Restaint Files.
+
+        exp (ppm)
+        model (ppm)
+        """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
-                'exp_cs (ppm)', 'model_cs (ppm)', 'comments')
+                'exp', 'model', 'comments')
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices, dtype=int)
@@ -58,8 +62,8 @@ class Preparation(object):
                 dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
                 dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
-                dd['exp_cs (A)'].append(np.float64(self.exp_data[i,1]))
-                dd['model_cs (A)'].append(np.float64(model_data[i]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                dd['model'].append(np.float64(model_data[i]))
                 dd['comments'].append(np.NaN)
             if verbose:
                 print(self.biceps_df)
@@ -71,10 +75,14 @@ class Preparation(object):
 
     def prep_noe(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
         """A method containing input/output methods for writing NOE
-        Restaint Files."""
+        Restaint Files.
+
+        'exp' (A)
+        'model' (A)
+        """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
-                'atom_index2', 'res2', 'atom_name2', 'exp_noe (A)', 'model_noe (A)', 'comments')
+                'atom_index2', 'res2', 'atom_name2', 'exp', 'model', 'comments')
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices, dtype=int)
@@ -96,8 +104,8 @@ class Preparation(object):
                 dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
                 dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
-                dd['exp_noe (A)'].append(np.float64(self.exp_data[i,1]))
-                dd['model_noe (A)'].append(np.float64(model_data[i]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                dd['model'].append(np.float64(model_data[i]))
                 dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
@@ -109,12 +117,16 @@ class Preparation(object):
 
     def prep_J(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
         """A method containing input/output methods for writing scalar coupling
-        Restaint Files."""
+        Restaint Files.
+
+        'exp_J (Hz)
+        'model_J (Hz)'
+        """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
                 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3',
-                'atom_index4', 'res4', 'atom_name4', 'exp_J (Hz)',
-                'model_J (Hz)', 'comments')
+                'atom_index4', 'res4', 'atom_name4', 'exp',
+                'model', 'comments')
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         if type(indices) is not str:
@@ -143,8 +155,8 @@ class Preparation(object):
                 dd['res4'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a4][0]))
                 dd['atom_name4'].append(str([atom.name for atom in self.topology.atoms if atom.index == a4][0]))
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
-                dd['exp_J (Hz)'].append(np.float64(self.exp_data[i,1]))
-                dd['model_J (Hz)'].append(np.float64(model_data[i]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                dd['model'].append(np.float64(model_data[i]))
                 dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
@@ -160,9 +172,9 @@ class Preparation(object):
         Restaint Files."""
 
         if model_data:
-            self.header = ('restraint_index', 'atom_index1', 'res1', 'exp_pf','model_pf', 'comments')
+            self.header = ('restraint_index', 'atom_index1', 'res1', 'exp','model', 'comments')
         else:
-            self.header = ('restraint_index', 'atom_index1', 'res1','exp_pf', 'comments')
+            self.header = ('restraint_index', 'atom_index1', 'res1','exp', 'comments')
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices, dtype=int)
@@ -182,9 +194,9 @@ class Preparation(object):
                 dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
                 dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
-                dd['exp_J (A)'].append(np.float64(self.exp_data[i,1]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
                 if model_data:
-                    dd['model_noe (A)'].append(np.float64(model_data[i]))
+                    dd['model'].append(np.float64(model_data[i]))
                 dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:

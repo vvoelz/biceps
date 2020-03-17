@@ -116,7 +116,7 @@ class PosteriorSampler(object):
         #print( 'Computing parameters for exponential reference potentials...')
 
         # collect distributions of observables r_j across all structures
-        n_observables  = self.ensemble[0][rest_index].nObs  # the number of (model,exp) data values in this restraint
+        n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
         #print('n_observables = ',n_observables)
 
         distributions = [[] for j in range(n_observables)]
@@ -154,7 +154,7 @@ class PosteriorSampler(object):
         #print( 'Computing parameters for Gaussian reference potentials...')
 
         # collect distributions of observables r_j across all structures
-        n_observables  = self.ensemble[0][rest_index].nObs  # the number of (model,exp) data values in this restraint
+        n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
         #print('n_observables = ',n_observables)
 
         distributions = [[] for j in range(n_observables)]
@@ -201,7 +201,7 @@ class PosteriorSampler(object):
         *** VAV: NOTE that this reference potential probably should NOT be used for protection factors, PF! ***"""
 
         # collect distributions of observables r_j across all structures
-        n_observables  = self.ensemble[0][rest_index].nObs  # the number of (model,exp) data values in this restraint
+        n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
         #print('n_observables = ',n_observables)
 
         for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
@@ -224,7 +224,7 @@ class PosteriorSampler(object):
         then use this information to compute a gaussian reference prior for each structure.
         *** VAV: NOTE that this reference potential probably should NOT be used for protection factors, PF! ***"""
         # collect distributions of observables r_j across all structures
-        n_observables  = self.ensemble[0][rest_index].nObs  # the number of (model,exp) data values in this restraint
+        n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
         #print('n_observables = ',n_observables)
         # Find the MLE mean (ref_mu_j) and std (ref_sigma_j) for each observable
         for s in self.ensemble:
@@ -404,22 +404,22 @@ class PosteriorSampler(object):
             # parameter_indices e.g. [[161], [142]]
             parameter_indices = _parameter_indices
 
-            """ the point of the following part is to convert 
-            the original parameters in the format of list of lists (e.g. [[1],[2,3]]) 
-            to a 1D list (e.g. [1,2,3] because the allowed_parameters (self.nuisance_para) 
-            is in the format of [a,b,c] where a,b,c represent parameters 
-            (which is different from parameter_indices). 
-            So the logic is to convert from list of lists to a 1D list 
-            and track the original index of each parameters to convert it back to the list of lists later. 
-            (The reason for that is because the way we coded up neglogP function requires that format). 
-            The code will randomly pick up one observable space (including state space) to sample 
-            and then propose a jump along each parameter space associated with that observable. 
-            Once we have the new index and parameter of that observable, 
+            """ the point of the following part is to convert
+            the original parameters in the format of list of lists (e.g. [[1],[2,3]])
+            to a 1D list (e.g. [1,2,3] because the allowed_parameters (self.nuisance_para)
+            is in the format of [a,b,c] where a,b,c represent parameters
+            (which is different from parameter_indices).
+            So the logic is to convert from list of lists to a 1D list
+            and track the original index of each parameters to convert it back to the list of lists later.
+            (The reason for that is because the way we coded up neglogP function requires that format).
+            The code will randomly pick up one observable space (including state space) to sample
+            and then propose a jump along each parameter space associated with that observable.
+            Once we have the new index and parameter of that observable,
             we convert all parameters/indices back to the original format (list of lists)
-            and feed them to neglogP function for energy calculation. 
-            I'm sure this part can be improved and I suggest people who are going to work on this 
-            read the code carefully and make sure you fully understand what is going on here 
-            and come up with your own way to make it better. 
+            and feed them to neglogP function for energy calculation.
+            I'm sure this part can be improved and I suggest people who are going to work on this
+            read the code carefully and make sure you fully understand what is going on here
+            and come up with your own way to make it better.
             This is the core part of BICePs so make sure you know what you are doing. --Yunhui Ge 03/2020)
             """
 
@@ -461,7 +461,7 @@ class PosteriorSampler(object):
             #ind1 = index
 
             # rolling a dice
-            dice = np.random.random() 
+            dice = np.random.random()
             #print('rolling dice', dice)
             #if np.random.random() < RAND:
 
@@ -472,7 +472,7 @@ class PosteriorSampler(object):
                 # Shift the index by +1, 0 or -1
                 temp_index = []
                 for ind in range(len(index)):
-                    temp_index.append(index[ind] + (np.random.randint(3)-1)) 
+                    temp_index.append(index[ind] + (np.random.randint(3)-1))
                 #print('temp_index',temp_index)
                 #index += (np.random.randint(3)-1)
 #                index = np.random.randint(len(nuisance_para))
@@ -640,7 +640,7 @@ class PosteriorSamplingTrajectory(object):
                 'allowed_parameters','sampled_parameters','model','ref','traces','state_trace']
 
         for rest_index in range(len(self.ensemble[0])):
-            n_observables  = self.ensemble[0][rest_index].nObs
+            n_observables  = self.ensemble[0][rest_index].n
             for n in range(n_observables):
                 model = []
                 for s in range(len(self.ensemble)):
