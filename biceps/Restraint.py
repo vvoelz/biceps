@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-import os, sys, glob
+import os, sys, glob, inspect
 import numpy as np
 import mdtraj
 from biceps.KarplusRelation import * # Returns J-coupling values from dihedral angles
 from biceps.toolbox import *
-from biceps.prep_cs import *    # Creates Chemical shift restraint file
-from biceps.prep_J import *     # Creates J-coupling const. restraint file
-from biceps.prep_noe import *   # Creates NOE (Nuclear Overhauser effect) restraint file
-from biceps.prep_pf import *    # Prepare functions for protection factors restraint file
-import biceps.Observable as Observable
+import biceps.Observable
 
 
 class Restraint(object):
@@ -69,21 +65,12 @@ class Restraint(object):
         self.sigma = self.allowed_sigma[self.sigma_index]
 
 
-    def load_data(self, prep, verbose=False):
-        """Load in the experimental chemical shift restraints from a known
-        file format.
+    def load_data(self, file, verbose=False):
+        """Load in the experimental restraints from a known
+        file format."""
 
-        :param file prep: prep the input data
-        """
-
-        # Read in the lines of the cs data file
-        read = prep
-        if verbose:
-            print(read.lines)
-        data = []
-        for line in read.lines:
-            data.append( read.parse_line(line) )
-        self.data = data
+        df = pd.read_pickle(file)
+        return df
 
 
     def add_restraint(self, restraint):
@@ -170,188 +157,174 @@ class Restraint(object):
             self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
 
 
-class Restraint_cs_Ca(Restraint):
-    """A derived class of RestraintClass() for C_alpha chemical shift restraints."""
+class Ensemble(object):
+    def __init__(self, lam, energies, top, verbose=False):
+        """Container of Restraint objects"""
 
-    _ext = 'cs_Ca'
+        self.ensemble = []
+        self.top = top
+        if not isinstance(lam, float):
+            raise ValueError("lambda should be a single number with type of 'float'")
+        else:
+            self.lam = lam
 
-    def prep_observable(self,data,energy,lam,verbose=False):
-        """Observable is prepped by loading in C_alpha restraints.
+        # TODO: check
+        if np.array(energies).dtype != float:
+            raise ValueError("Energies should be array with type of 'float'")
+        else:
+            self.energies = energies
 
-        :param str data: Experimental data file
-        :param float lam: Lambda value (between 0 and 1)
-        :param float energy: The (reduced) free energy of this conformation
+        self.verbose = verbose
 
-        >>> f = beta*F
-        """
-
-        # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        self.lam = lam
-        ##self.energy = energy
-        self.energy = np.float128(lam*energy)
-        self.Ndof = None
-        # Private variables to store specific restraint attributes in a list
-        self._nuisance_parameters = ['allowed_sigma']
-        self._parameters = ['sigma']
-        self._parameter_indices = ['sigma_index']
-        self._rest_type = ['sigma_cs_Ca']
-
-        # Reading the data from loading in filenames
-        read = prep_cs(filename=data)
-        self.load_data(read)
-
-        # Add the chemical shift restraints
-        self.n = 0
-
-        # Extract the data corresponding to an observable and add a the restraint
-        if verbose:
-            print('Loaded from', data, ':')
-        self.nObs = len(self.data)
-        for entry in self.data:
-            restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
-            Obs =  Observable.NMR_Chemicalshift(i, exp, model)
-            self.add_restraint(Obs)
-            if verbose:
-                print(entry)
-            self.n += 1
-        self.compute_sse(debug=False)
+    def to_list(self):
+        return self.ensemble
 
 
-class Restraint_cs_H(Restraint):
-    """A derived class of RestraintClass() for H chemical shift restraints."""
+    def initialize_restraints(self, exp_data, ref_pot=None, uncern=None,
+            gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None,
+            extensions=None):
+        """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
 
-    _ext = 'cs_H'
+        :param str PDB_filename: topology file name ('*.pdb')
+        :param float lam: lambdas
+        :param float energy: potential energy for each conformational state
+        :param str default=None ref: reference potential (if default, will use our suggested reference potential for each experimental observables)
+        :param str data: BICePs input files directory
+        :param list default=None uncern: nuisance parameters range (if default, will use our suggested broad range (may increase sampling requirement for convergence))
+        :param list default=None gamma: only for NOE, range of gamma (if default, will use our suggested broad range (may increase sampling requirement for convergence))"""
 
-    def prep_observable(self,data,energy,lam,verbose=False):
-        """Observable is prepped by loading in cs_H restraints.
+        verbose = self.verbose
+        uncertainties = uncern
+        lam = self.lam
+        for i in range(self.energies.shape[0]):
+            self.ensemble.append([])
+            for k in range(len(exp_data[0])):
+                data = exp_data[i][k]
+                energy = self.energies[i]
+                uncern = uncertainties[k]
+                extension = extensions[k]
 
-        :param str data: Experimental data file
-        :param float lam: Lambda value (between 0 and 1)
-        :param float energy: The (reduced) free energy of this conformation
-        """
+                if ref_pot[k] is not None and not isinstance(ref_pot[k], str):
+                    raise ValueError("Reference potential type must be a 'str'")
+                if uncern ==  None:
+                    sigma_min, sigma_max, dlogsigma=0.05, 20.0, np.log(1.02)
+                else:
+                    if len(uncern) != 3:
+                        raise ValueError("uncertainty should be a list of three items: sigma_min, sigma_max, dlogsigma")
+                    else:
+                        sigma_min, sigma_max, dlogsigma = uncern[0], uncern[1], np.log(uncern[2])
+                if gamma ==  None:
+                    gamma_min, gamma_max, dloggamma = 0.05, 20.0, np.log(1.02)
+                else:
+                    if len(gamma) != 3:
+                        raise ValueError("gamma should be a list of three items: gamma_min, gamma_max, dgamma")
+                    else:
+                        gamma_min, gamma_max, dloggamma = gamma[0], gamma[1], np.log(gamma[2])
 
-        # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        self.lam = lam
-        #self.energy = energy
-        self.energy = np.float128(lam*energy)
-        self.Ndof = None
-        # Private variables to store specific restraint attributes in a list
-        self._nuisance_parameters = ['allowed_sigma']
-        self._parameters = ['sigma']
-        self._parameter_indices = ['sigma_index']
-        self._rest_type = ['sigma_cs_H']
+                # TODO: Place in Protection factor observable or restraint
+                if data.endswith('pf'):
+                    if not precomputed:
+                        if Ncs_fi == None or Nhs_fi == None or state == None:
+                            raise ValueError("Ncs and Nhs and state numebr are needed!")
+                    # add uncern option here later
+                    # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
+                    beta_c_min, beta_c_max, dbeta_c = 0.05, 0.25, 0.01
+                    beta_h_min, beta_h_max, dbeta_h = 0.0, 5.2, 0.2
+                    beta_0_min, beta_0_max, dbeta_0 = -10.0, 0.0, 0.2
+                    xcs_min, xcs_max, dxcs = 5.0, 8.5, 0.5
+                    xhs_min, xhs_max, dxhs = 2.0, 2.7, 0.1
+                    bs_min, bs_max, dbs = 15.0, 16.0, 1.0
 
-        # Reading the data from loading in filenames
-        read = prep_cs(filename=data)
-        self.load_data(read)
-        self.n = 0
+                    allowed_xcs=np.arange(xcs_min,xcs_max,dxcs)
+                    allowed_xhs=np.arange(xhs_min,xhs_max,dxhs)
+                    allowed_bs=np.arange(bs_min,bs_max,dbs)
+                    # 107=residue numbers, Nc/Nh file names are hard coded for now. Yunhui 06/19
+                    Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
+                    Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
+                    for o in range(len(allowed_xcs)):
+                        for q in range(len(allowed_bs)):
+                            infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],state)
+                            Ncs[o,q,:] = (np.load(infile_Nc))
+                    for p in range(len(allowed_xhs)):
+                        for q in range(len(allowed_bs)):
+                            infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],state)
+                            Nhs[p,q,:] = (np.load(infile_Nh))
 
-        # Extract the data corresponding to an observable and add a the restraint
-        if verbose:
-            print('Loaded from', data, ':')
-        self.nObs = len(self.data)
-        for entry in self.data:
-            restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
-            Obs = Observable.NMR_Chemicalshift(i, exp, model)
-            self.add_restraint(Obs)
-            if verbose:
-                print(entry)
-            self.n += 1
-        self.compute_sse(debug=False)
+                if ref_pot[k] ==  None:
+                    # TODO: place the default ref_pot[k] inside the class
+                    ref_pot[k] = 'exp' # 'uniform'
 
-
-class Restraint_cs_Ha(Restraint):
-    """A derived class of RestraintClass() for Ha chemical shift restraints."""
-
-    _ext = 'cs_Ha'
-
-    def prep_observable(self,data,energy,lam,verbose=False):
-        """Observable is prepped by loading in cs_Ha restraints.
-
-        :param str data: Experimental data file
-        :param float lam: Lambda value (between 0 and 1)
-        :param float energy: The (reduced) free energy of this conformation
-        """
-
-        # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        self.lam = lam
-        #self.energy = energy
-        self.energy = np.float128(lam*energy)
-        self.Ndof = None
-        self._nuisance_parameters = ['allowed_sigma']
-        # Private variables to store specific restraint attributes in a list
-        self._nuisance_parameters = ['allowed_sigma']
-        self._parameters = ['sigma']
-        self._parameter_indices = ['sigma_index']
-        self._rest_type = ['sigma_cs_Ha']
-
-        # Reading the data from loading in filenames
-        read = prep_cs(filename=data)
-        self.load_data(read)
-        self.n = 0
-
-        # Extract the data corresponding to an observable and add a the restraint
-        if verbose:
-            print('Loaded from', data, ':')
-        self.nObs = len(self.data)
-        for entry in self.data:
-            restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
-            Obs = Observable.NMR_Chemicalshift(i, exp, model)
-            self.add_restraint(Obs)
-            if verbose:
-                print(entry)
-            self.n += 1
-        self.compute_sse(debug=False)
+                ext = data.split(".")[-1]
+                #restraint, extension = ext.split("_")
+                restraint, extension = ext.split("_")[0], ext.split("_")[-1]
+                # Find all Child Restraint classes in the current file
+                current_module = sys.modules[__name__]
+                # Pick the Restraint class upon file extension
+                _Restraint = getattr(current_module, "Restraint_%s"%(restraint))
+                # Initializing Restraint
+                R = _Restraint(PDB_filename=self.top, ref=ref_pot[k], dlogsigma=dlogsigma,
+                        sigma_min=sigma_min, sigma_max=sigma_max)
+                # Get all the arguments for the Child Restraint Class
+                args = {"%s"%key: val for key,val in locals().items()
+                        if key in inspect.getfullargspec(R.prep_observable)[0]
+                        if key != 'self'}
+                #print(f"args = {args}")
+                #print(f"Required args:{R.prep_observable.__code__.co_varnames}")
+                #print(f"Required args by inspect:{inspect.getfullargspec(R.prep_observable)[0]}")
+                #exit()
+                R.prep_observable(**args)
+                self.ensemble[-1].append(R)
 
 
-class Restraint_cs_N(Restraint):
+
+class Restraint_cs(Restraint):
     """A derived class of RestraintClass() for N chemical shift restraints."""
 
-    _ext = 'cs_N'
+    _ext = ["H", "Ca", "N"]
 
-    def prep_observable(self,data,energy,lam,verbose=False):
+    def __repr__(self):
+        if self.extension is not None:
+            return "<%s.Restraint_cs_%s>"%(str(__name__),str(self.extension))
+        else:
+            pass
+
+    def prep_observable(self, data, energy, lam, extension, verbose=False):
         """Observable is prepped by loading in cs_N restraints.
 
         :param str data: Experimental data file
         :param float lam: Lambda value (between 0 and 1)
         :param float energy: The (reduced) free energy of this conformation"""
 
+        self.extension = extension
+
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        #self.energy = energy
         self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
-        self._rest_type = ['sigma_cs_N']
+        self._rest_type = ['sigma_cs_%s'%self.extension]
 
         # Reading the data from loading in filenames
-        read = prep_cs(filename=data)
-        self.load_data(read)
-        self.n = 0
+        data = self.load_data(data)
+        self.n = len(data.values)
 
-        # Extract the data corresponding to an observable and add a the restraint
-        if verbose:
-            print('Loaded from', data, ':')
-        self.nObs = len(self.data)
-        for entry in self.data:
-            restraint_index, i, exp, model  = entry[0], entry[1], entry[4], entry[5]
-            Obs = Observable.NMR_Chemicalshift(i, exp, model)
-            self.add_restraint(Obs)
-            if verbose:
-                print(entry)
-            self.n += 1
+        # Group by keys
+        keys = ['atom_index1', 'exp', 'model']
+        grouped_data = data[keys]
+        for row in range(grouped_data.shape[0]):
+            self.add_restraint(grouped_data.iloc[row])
         self.compute_sse(debug=False)
 
 
 class Restraint_J(Restraint):
     """A derived class of RestraintClass() for J coupling constant."""
 
-    _ext = 'J'
+    _ext = ['J']
 
-    def prep_observable(self,data,energy,lam,verbose=False):
+    def prep_observable(self, data, energy, lam, verbose=False):
         """Observable is prepped by loading in J coupling restraints.
 
         :param str data: Experimental data file
@@ -360,8 +333,6 @@ class Restraint_J(Restraint):
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.lam = lam
-        #self.energy = energy
-        #print(type(energy))
         self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
@@ -371,37 +342,28 @@ class Restraint_J(Restraint):
         self._rest_type = ['sigma_J']
 
         # Reading the data from loading in filenames
-        read = prep_J(filename=data)
-        self.load_data(read)
+        data = self.load_data(data)
+        self.n = len(data.values)
 
-        self.n = 0
-
-        # Extract the data corresponding to an observable and add a the restraint
-        self.nObs = len(self.data)
-        for entry in self.data:
-            restraint_index, i, j, k, l, exp, model  = entry[0], entry[1],\
-                    entry[4], entry[7], entry[10], entry[13], entry[14]
-
-            Obs = Observable.NMR_Dihedral(i,j,k,l,exp,model,
-                    equivalency_index=restraint_index)
-            self.add_restraint(Obs)
-            if verbose:
-                print(entry)
-            self.n += 1
+        # Group by keys
+        keys = ['atom_index1', 'atom_index2', 'atom_index3', 'atom_index4',
+                'exp', 'model', 'restraint_index']
+        grouped_data = data[keys]
+        for row in range(grouped_data.shape[0]):
+            self.add_restraint(grouped_data.iloc[row])
 
         self.equivalency_groups = {}
-
         # Compile equivalency_groups from the list of NMR_Dihedral() objects
         for i in range(len(self.restraints)):
-            if 'NMR_Dihedral' in self.restraints[i].__str__():
-                d = self.restraints[i]
-                if d.equivalency_index != None:
-                    if d.equivalency_index not in self.equivalency_groups:
-                        self.equivalency_groups[d.equivalency_index] = []
-                    self.equivalency_groups[d.equivalency_index].append(i)
-
+            d = self.restraints[i]
+            if d.restraint_index != None:
+                if d.restraint_index not in self.equivalency_groups:
+                    self.equivalency_groups[d.restraint_index] = []
+                self.equivalency_groups[d.restraint_index].append(i)
         if verbose:
-            print('self.equivalency_groups', self.equivalency_groups)
+            print(f'grouped_data = {grouped_data}')
+            print(f'self.restraints[0] = {self.restraints[0]}')
+            print(f'self.equivalency_groups = {self.equivalency_groups}')
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
         self.compute_sse(debug=False)
@@ -414,15 +376,14 @@ class Restraint_J(Restraint):
         for group in list(self.equivalency_groups.values()):
             n = float(len(group))
             for i in group:
-                if 'NMR_Dihedral' in self.restraints[i].__str__():
-                    self.restraints[i].weight = 1.0/n
+                self.restraints[i].weight = 1.0/n
 
 
 
 class Restraint_noe(Restraint):
     """A derived class of Restraint() for noe distance restraints."""
 
-    _ext = 'noe'
+    _ext = ['noe']
 
     def prep_observable(self, data, energy, lam, verbose=False,
             use_log_normal_noe=False, dloggamma=np.log(1.01),
@@ -458,65 +419,48 @@ class Restraint_noe(Restraint):
         self._parameter_indices = ['sigma_index','gamma_index']
         self._rest_type = ['sigma_noe','gamma']
 
-
         # Reading the data from loading in filenames
-        read = prep_noe(filename=data)
-        self.load_data(read)
+        data = self.load_data(data)
+        self.n = len(data.values)
 
-        self.n = 0
-
-        # Extract the data corresponding to an observable and add a the restraint
-        self.nObs = len(self.data)
-        for entry in self.data:
-            restraint_index, i, j, exp, model = entry[0], entry[1], entry[4], entry[7], entry[8]
-           # ri = self.conf.xyz[0,i,:]
-           # rj = self.conf.xyz[0,j,:]
-           # dr = rj-ri
-           # model = np.dot(dr,dr)**0.5
-            Obs = Observable.NMR_Distance(i, j, exp, model, equivalency_index=restraint_index)
-            self.add_restraint(Obs)
-            if verbose:
-                print(entry)
-            self.n += 1
+        # Group by keys
+        keys = ['atom_index1', 'atom_index2', 'exp', 'model', 'restraint_index']
+        grouped_data = data[keys]
+        for row in range(grouped_data.shape[0]):
+            self.add_restraint(grouped_data.iloc[row])
 
         self.equivalency_groups = {}
-
-        #FIXME: equivalency groups & adjust weights is unfinished and edits need to be made
-
-        # Compile equivalency_groups from the list of NMR_Distance() objects
         for i in range(len(self.restraints)):
-            if 'NMR_Distance' in self.restraints[i].__str__():
-                d = self.restraints[i]
-                if d.equivalency_index != None:
-                    if d.equivalency_index not in self.equivalency_groups:
-                        self.equivalency_groups[d.equivalency_index] = []
-                    self.equivalency_groups[d.equivalency_index].append(i)
-
+            d = self.restraints[i]
+            if d.restraint_index != None:
+                if d.restraint_index not in self.equivalency_groups:
+                    self.equivalency_groups[d.restraint_index] = []
+                self.equivalency_groups[d.restraint_index].append(i)
         if verbose:
-            print('self.equivalency_groups', self.equivalency_groups)
-
+            print(f'grouped_data = {grouped_data}')
+            #print(f'self.restraints[0] = {self.restraints[0]}')
+            print(f'self.equivalency_groups = {self.equivalency_groups}')
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
         self.compute_sse(debug=False)
 
+
     def adjust_weights(self):
-        """Adjust the weights of distance restraints based on
+        """Adjust the weights of distance and dihedral restraints based on
         their equivalency group."""
 
         for group in list(self.equivalency_groups.values()):
             n = float(len(group))
             for i in group:
-                if 'NMR_Distance' in self.restraints[i].__str__():
-                    self.restraints[i].weight = 1.0/n
-
+                self.restraints[i].weight = 1.0/n
 
 
 class Restraint_pf(Restraint):
     """A derived class of Restraint() for protection factor restraints."""
 
-    _ext = 'pf'
+    _ext = ['pf']
 
-    def prep_observable(self,lam, energy, data, precomputed_pf = False,
+    def prep_observable(self, lam, energy, data, precomputed=False,
             Ncs=None, Nhs=None,verbose=False, beta_c_min=0.05,beta_c_max=0.25,
             dbeta_c=0.01,beta_h_min=0.0,beta_h_max=5.2,dbeta_h=0.2,
             beta_0_min=-10.0,beta_0_max=0.0,dbeta_0=0.2,xcs_min=5.0,xcs_max=8.5,
@@ -534,7 +478,7 @@ class Restraint_pf(Restraint):
         self.energy = np.float128(lam*energy)
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
-        if precomputed_pf:
+        if precomputed:
             self._nuisance_parameters = ['allowed_sigma']
             self._parameters = ['sigma']
             self._parameter_indices = ['sigma_index']
@@ -599,33 +543,22 @@ class Restraint_pf(Restraint):
 
 
         # Reading the data from loading in filenames
-        read = prep_pf(filename=data)
-        self.load_data(read)
+        data = self.load_data(data)
+        self.n = len(data.values)
 
-        self.n = 0
-
-        # Extract the data corresponding to an observable and add a the restraint
-        if verbose:
-            print('Loaded from', data, ':')
-
-        self.nObs = len(self.data)
-        if precomputed_pf:
-            for entry in self.data:
-                restraint_index, i, exp, model  = entry[0], entry[0], entry[3], entry[4]
-                Obs = Observable.NMR_Protectionfactor(i, exp, model)
-                self.add_restraint(Obs)
-                if verbose:
-                    print(entry)
-                self.n += 1
+        # Group by keys
+        if precomputed:
+            keys = ['atom_index1', 'exp', 'model']
         else:
-            for entry in self.data:
-                restraint_index, i, exp  = entry[0], entry[0], entry[3]
-                model = self.compute_PF_multi(self.Ncs[:,:,i], self.Nhs[:,:,i], debug=False)
-                Obs = Observable.NMR_Protectionfactor(i, exp, model)
-                self.add_restraint(Obs)
-                if verbose:
-                    print(entry)
-                self.n += 1
+            keys = ['atom_index1', 'exp']
+
+        grouped_data = data[keys]
+        for row in range(grouped_data.shape[0]):
+            #TODO: test to make sure that this conditional works:
+            if not precomputed:
+                model = self.compute_PF_multi(self.Ncs[:,:,row], self.Nhs[:,:,row], debug=False)
+                grouped_data.iloc[row]['model'] = model
+            self.add_restraint(grouped_data.iloc[row])
         self.compute_sse(debug=False)
 
 

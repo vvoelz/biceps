@@ -1,131 +1,210 @@
 # -*- coding: utf-8 -*-
-import os, sys
 import numpy as np
+import pandas as pd
+import mdtraj as md
+import biceps.toolbox
 
-class NMR_Chemicalshift(object):
-    """A data containter class to store a datum for NMR chemical shift information."""
+class Preparation(object):
 
-    def __init__(self, i, exp, model):
-        """Initialize the derived NMR_Chemicalshift class.
+    def __init__(self, nstates=0,  top=None, outdir="./"):
+        """A parent class to prepare input files for BICePs calculation.
 
-        :param int i: atom indices from the conformation defining this chemical shift
-        :var exp: the experimental chemical shift
-        :var model: the model chemical shift in this structure (in ppm)
-
-        >>> biceps.Observable.NMR_Chemicalshift(i, exp, model)
+        :param str obs: type of experimental observables {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
+        :param int default=0 nstates: number of states
+        :param str default=None indices: experimental observable index (*.txt file)
+        :param str default=None exp_data: experimental measuremnets (*.txt file)
+        :param str default=None top: topology file (*.pdb)
         """
 
-        # Atom indices from the conformation defining this chemical shift
-        self.i = i
+        self.nstates = nstates
+        self.topology = md.load(top).topology
+        self.data = list()
 
-        # the model chemical shift in this structure (in ppm)
-        self.model = model
+    def write_DataFrame(self, filename, to="pickle", verbose=True):
+        """Write Pandas DataFrame to user specified filetype."""
 
-        # the experimental chemical shift
-        self.exp = exp
+        #biceps.toolbox.mkdir(self.outdir)
+        #columns = { self.keys[i] : self.header[i] for i in range(len(self.keys)) }
+        #print(columns)
+        if verbose:
+            print('Writing %s as %s...'%(filename,to))
+        df = pd.DataFrame(self.biceps_df)
+        #dfOut = getattr(self.df.rename(columns=columns), "to_%s"%to)
+        dfOut = getattr(df, "to_%s"%to)
+        dfOut(filename)
 
-        # N equivalent chemical shift should only get 1/N f the weight when
-    #... computing chi^2 (not likely in this case but just in case we need it in the future)
-        self.weight = 1.0  #1.0/3.0 used in JCTC 2020 paper  # default is N=1
+    #TODO: needs to be checked
+    def prep_cs(self, exp_data, model_data, indices, extension, outdir=None):
+        """A method containing input/output methods for writing chemicalshift
+        Restaint Files.
 
-
-
-class NMR_Dihedral(object):
-    """A data containter class to store a datum for NMR dihedral information."""
-
-    def __init__(self, i, j, k, l, exp, model,
-            equivalency_index=None, ambiguity_index=None):
-        """Initialize NMR_Dihedral container class
-
-        :param int i,j,k,l: atom indices from the conformation defining this dihedral
-        :var exp: the experimental J-coupling constant
-        :var model:  the model distance in this structure (in Angstroms)
-        :var equivalency_index: the index of the equivalency group (i.e. a tag for equivalent H's)
-        :var ambiguity_index: the index of the ambiguity group \n (i.e. some groups distances\
-                have distant values, but ambiguous assignments.  Posterior sampling can be performed over these values)
-
-        >>> biceps.Observable.NMR_Dihedral(i, j, k, l, exp,  model)
+        exp (ppm)
+        model (ppm)
         """
 
-        # Atom indices from the conformation defining this dihedral
-        self.i = i
-        self.j = j
-        self.k = k
-        self.l = l
+        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
+                'exp', 'model', 'comments')
+        self.exp_data = np.loadtxt(exp_data)
+        self.model_data = model_data
+        self.ind = np.loadtxt(indices, dtype=int)
+        if type(self.model_data) is not list or np.ndarray:
+            self.model_data = biceps.toolbox.get_files(model_data)
+        if int(len(self.model_data)) != int(self.nstates):
+            raise ValueError("The number of states doesn't equal to file numbers")
+        if self.ind.shape[0] != self.exp_data.shape[0]:
+            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
+        for j in range(len(self.model_data)):
+            dd = { self.header[i]: [] for i in range(len(self.header)) }
+            model_data = np.loadtxt(self.model_data[j])
+            for i in range(self.ind.shape[0]):
+                a1 = int(self.ind[i,0])
+                dd['atom_index1'].append(a1)
+                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['restraint_index'].append(int(self.exp_data[i,0]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                dd['model'].append(np.float64(model_data[i]))
+                dd['comments'].append(np.NaN)
+            if verbose:
+                print(self.biceps_df)
+            filename = "%s.cs_%s"%(j, extension)
+            if outdir:
+                self.write_DataFrame(filename=outdir+filename)
 
-        # the model distance in this structure (in Angstroms)
-        self.model = model
-
-        # the experimental J-coupling constant
-        self.exp = exp
-
-        # the index of the equivalency group (i.e. a tag for equivalent H's)
-        self.equivalency_index = equivalency_index
-
-        # N equivalent distances should only get 1/N of the weight when computing chi^2
-        self.weight = 1.0  # default is N=1
-
-        # the index of the ambiguity group (i.e. some groups distances have
-        # distant values, but ambiguous assignments.  We can do posterior sampling over these)
-        self.ambiguity_index = ambiguity_index
 
 
-class NMR_Distance(object):
-    """A class to store NMR noe information."""
+    def prep_noe(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
+        """A method containing input/output methods for writing NOE
+        Restaint Files.
 
-    def __init__(self, i, j, exp, model, equivalency_index=None):
-        """Initialize NMR_Distance container class
-
-        :param int i,j: atom indices from the conformation defining this noe
-        :var exp: the experimental NOE noe (in Angstroms)
-        :var model: the model noe in this structure (in Angstroms)
-        :var equivalency_index: the index of the equivalency group (i.e. a tag for equivalent H's)
-
-        >>> biceps.Observable.NMR_Distance(i, j, exp,  model)
+        'exp' (A)
+        'model' (A)
         """
 
-        # Atom indices from the conformation defining this noe
-        self.i = i
-        self.j = j
+        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
+                'atom_index2', 'res2', 'atom_name2', 'exp', 'model', 'comments')
+        self.exp_data = np.loadtxt(exp_data)
+        self.model_data = model_data
+        self.ind = np.loadtxt(indices, dtype=int)
+        if type(self.model_data) is not list or np.ndarray:
+            self.model_data = biceps.toolbox.get_files(model_data)
+        if int(len(self.model_data)) != int(self.nstates):
+            raise ValueError("The number of states doesn't equal to file numbers")
+        if self.ind.shape[0] != self.exp_data.shape[0]:
+            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
+        for j in range(len(self.model_data)):
+            dd = { self.header[i]: [] for i in range(len(self.header)) }
+            model_data = np.loadtxt(self.model_data[j])
+            for i in range(self.ind.shape[0]):
+                a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
+                dd['atom_index1'].append(a1)
+                dd['atom_index2'].append(a2)
+                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
+                dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
+                dd['restraint_index'].append(int(self.exp_data[i,0]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                dd['model'].append(np.float64(model_data[i]))
+                dd['comments'].append(np.NaN)
+            self.biceps_df = pd.DataFrame(dd)
+            if verbose:
+                print(self.biceps_df)
+            filename = "%s.noe"%(j)
+            if outdir:
+                self.write_DataFrame(filename=outdir+filename)
 
-        # the model noe in this structure (in Angstroms)
-        self.model = model
 
-        # the experimental NOE noe (in Angstroms)
-        self.exp = exp
+    def prep_J(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
+        """A method containing input/output methods for writing scalar coupling
+        Restaint Files.
 
-        # the index of the equivalency group (i.e. a tag for equivalent H's)
-        self.equivalency_index = equivalency_index
-
-        # N equivalent noe should only get 1/N of the weight when computing chi^2
-        self.weight = 1.0  # default is N=1
-
-
-class NMR_Protectionfactor(object):
-    """A class to store NMR protection factor information."""
-
-    def __init__(self, i, exp, model):
-        """Initialize NMR_Protectionfactor container class
-
-        :param int i: atom indices from the conformation defining this protection factor
-        :var exp: the experimental protection factor
-        :var model: the model protection factor in this structure
-
-
-        >>> biceps.Observable.NMR_Protectionfactor(i, exp,  model)
+        'exp_J (Hz)
+        'model_J (Hz)'
         """
 
-        # Atom indices from the conformation defining this protection factor
-        self.i = i
+        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
+                'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3',
+                'atom_index4', 'res4', 'atom_name4', 'exp',
+                'model', 'comments')
+        self.exp_data = np.loadtxt(exp_data)
+        self.model_data = model_data
+        if type(indices) is not str:
+            self.ind = indices
+        else:
+            self.ind = np.loadtxt(indices, dtype=int)
+        if type(self.model_data) is not list or np.ndarray:
+            self.model_data = biceps.toolbox.get_files(model_data)
+        if int(len(self.model_data)) != int(self.nstates):
+            raise ValueError("The number of states doesn't equal to file numbers")
+        if self.ind.shape[0] != self.exp_data.shape[0]:
+            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
+        for j in range(len(self.model_data)):
+            dd = { self.header[i]: [] for i in range(len(self.header)) }
+            model_data = np.loadtxt(self.model_data[j])
+            for i in range(self.ind.shape[0]):
+                a1, a2, a3, a4   = int(self.ind[i,0]), int(self.ind[i,1]), int(self.ind[i,2]), int(self.ind[i,3])
+                dd['atom_index1'].append(a1);dd['atom_index2'].append(a2)
+                dd['atom_index3'].append(a3);dd['atom_index4'].append(a4)
+                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
+                dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
+                dd['res3'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a3][0]))
+                dd['atom_name3'].append(str([atom.name for atom in self.topology.atoms if atom.index == a3][0]))
+                dd['res4'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a4][0]))
+                dd['atom_name4'].append(str([atom.name for atom in self.topology.atoms if atom.index == a4][0]))
+                dd['restraint_index'].append(int(self.exp_data[i,0]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                dd['model'].append(np.float64(model_data[i]))
+                dd['comments'].append(np.NaN)
+            self.biceps_df = pd.DataFrame(dd)
+            if verbose:
+                print(self.biceps_df)
+            filename = "%s.J"%(j)
+            if outdir:
+                self.write_DataFrame(filename=outdir+filename)
 
-        # the model protection factor in this structure (in ???)
-        self.model = model
 
-        # the experimental protection factor
-        self.exp = exp
+    # TODO: Needs to be checked
+    def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, outdir=None):
+        """A method containing input/output methods for writing protection factor
+        Restaint Files."""
 
-        # N equivalent protection factor should only get 1/N f the weight when computing chi^2 (not likely in this case but just in case we need it in the future)
-        self.weight = 1.0 # default is N=1
+        if model_data:
+            self.header = ('restraint_index', 'atom_index1', 'res1', 'exp','model', 'comments')
+        else:
+            self.header = ('restraint_index', 'atom_index1', 'res1','exp', 'comments')
+        self.exp_data = np.loadtxt(exp_data)
+        self.model_data = model_data
+        self.ind = np.loadtxt(indices, dtype=int)
+        if type(self.model_data) is not list or np.ndarray or None:
+            self.model_data = biceps.toolbox.get_files(model_data)
+            if int(len(self.model_data)) != int(self.nstates):
+                raise ValueError("The number of states doesn't equal to file numbers")
+        if self.ind.shape[0] != self.exp_data.shape[0]:
+            raise ValueError('The number of atom pairs (%d) does not match the\
+                    number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
+        for j in range(len(self.model_data)):
+            dd = { self.header[i]: [] for i in range(len(self.header)) }
+            model_data = np.loadtxt(self.model_data[j])
+            for i in range(self.ind.shape[0]):
+                a1 = int(self.ind[i,0])
+                dd['atom_index1'].append(a1)
+                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['restraint_index'].append(int(self.exp_data[i,0]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                if model_data:
+                    dd['model'].append(np.float64(model_data[i]))
+                dd['comments'].append(np.NaN)
+            self.biceps_df = pd.DataFrame(dd)
+            if verbose:
+                print(self.biceps_df)
+            filename = "%s.pf"%(j)
+            if outdir:
+                self.write_DataFrame(filename=outdir+filename)
+
 
 
 
@@ -135,6 +214,7 @@ if __name__ == "__main__":
 
     import doctest
     doctest.testmod()
+
 
 
 
