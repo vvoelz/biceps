@@ -318,7 +318,24 @@ class Restraint_cs(Restraint):
         grouped_data = data[keys]
         for row in range(grouped_data.shape[0]):
             self.add_restraint(grouped_data.iloc[row])
+            # N equivalent chemical shift should only get 1/N f the weight when
+            #... computing chi^2 (not likely in this case but just in case we need it in the future)
+            self.restraints[-1].weight = 1.0  #1.0/3.0 used in JCTC 2020 paper  # default is N=1
         self.compute_sse(debug=False)
+
+    def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
+
+        result = 0
+        para,indices = parameters, parameter_indices
+        # Use with log-spaced sigma values
+        result += (self.Ndof)*np.log(para[index][0])
+        result += self.sse / (2.0*float(para[index][0])**2.0)
+        result += (self.Ndof)/2.0*ln2pi  # for normalization
+        if self.ref == "exp":
+            result -= self.sum_neglog_exp_ref
+        if self.ref == "gaussian":
+            result -= self.sum_neglog_gaussian_ref
+        return result
 
 
 class Restraint_J(Restraint):
@@ -379,6 +396,20 @@ class Restraint_J(Restraint):
             n = float(len(group))
             for i in group:
                 self.restraints[i].weight = 1.0/n
+
+    def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
+
+        result = 0
+        para,indices = parameters, parameter_indices
+        # Use with log-spaced sigma values
+        result += (self.Ndof)*np.log(para[index][0])
+        result += self.sse / (2.0*float(para[index][0])**2.0)
+        result += (self.Ndof)/2.0*ln2pi  # for normalization
+        if self.ref == "exp":
+            result -= self.sum_neglog_exp_ref
+        if self.ref == "gaussian":
+            result -= self.sum_neglog_gaussian_ref
+        return result
 
 
 
@@ -446,7 +477,6 @@ class Restraint_noe(Restraint):
         self.adjust_weights()
         self.compute_sse(debug=False)
 
-
     def adjust_weights(self):
         """Adjust the weights of distance and dihedral restraints based on
         their equivalency group."""
@@ -455,6 +485,22 @@ class Restraint_noe(Restraint):
             n = float(len(group))
             for i in group:
                 self.restraints[i].weight = 1.0/n
+
+    def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
+
+        result = 0
+        para,indices = parameters, parameter_indices
+        # Use with log-spaced sigma values
+        result += (self.Ndof)*np.log(para[index][0])
+        result += self.sse[int(indices[index][1])] / (2.0*para[index][0]**2.0)
+        result += (self.Ndof)/2.0*ln2pi  # for normalization
+        if self.ref == "exp":
+            result -= self.sum_neglog_exp_ref
+        if self.ref == "gaussian":
+            result -= self.sum_neglog_gaussian_ref
+        return result
+
+
 
 
 class Restraint_pf(Restraint):
@@ -675,6 +721,39 @@ class Restraint_pf(Restraint):
             self.neglog_gaussian_ref[j] = 0.5 * np.log(2.0*np.pi) + np.log(self.ref_sigma[j]) \
                       + (self.restraints[j].model - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
             self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
+
+
+    def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
+
+        result = 0
+        para,indices = parameters, parameter_indices
+        # Use with log-spaced sigma values
+        result += (self.Ndof)*np.log(para[index][0])
+        result += self.sse[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])] / (2.0*para[index][0]**2.0)
+        if self.pf_prior is not None:
+            result += self.pf_prior[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+        else:
+            result += self.sse / (2.0*float(para[index][0])**2.0)
+        result += (self.Ndof)/2.0*ln2pi  # for normalization
+        # Which reference potential was used for each restraint?
+        if self.allowed_beta_c:
+            if hasattr(s[index], 'sum_neglog_exp_ref'):
+                if isinstance(self.sum_neglog_exp_ref, float):   # check if it is 0.0
+                    result -= self.sum_neglog_exp_ref
+                else:
+                    result -= self.sum_neglog_exp_ref[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+            if hasattr(s[index], 'sum_neglog_gaussian_ref'):
+                if isinstance(self.sum_neglog_gaussian_ref, float):
+                    result -= self.sum_neglog_gaussian_ref
+                else:
+                    result -= self.sum_neglog_gaussian_ref[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+        else:
+            if hasattr(s[index], 'sum_neglog_exp_ref'):
+                result -= self.sum_neglog_exp_ref
+            if hasattr(s[index], 'sum_neglog_gaussian_ref'):
+                result -= self.sum_neglog_gaussian_ref
+        return result
+
 
 
 

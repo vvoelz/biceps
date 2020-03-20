@@ -8,7 +8,7 @@ energies = energies/0.5959   # convert to reduced free energies F = f/kT
 energies -= energies.min()  # set ground state to zero, just in case
 top = 'pdb/state0.pdb'
 print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
-data = biceps.toolbox.sort_data('CS')
+data = biceps.toolbox.sort_data('CS_test')
 res = biceps.toolbox.list_res(data)
 extensions = biceps.toolbox.list_extensions(data)
 print(f"Input data: {biceps.toolbox.list_extensions(data)}")
@@ -16,6 +16,7 @@ outdir = 'results'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
 nsteps=100000
+print(f"nSteps of sampling: {nsteps}")
 maxtau = 1000
 lambda_values = [0.0, 0.5, 1.0]
 ref = ['uniform', 'exp', 'exp']
@@ -36,6 +37,7 @@ for lam in lambda_values:
     pickle.dump(sampler, fout)
     fout.close()
     print('...Done.')
+    exit()
 
 '''
 ####### Convergence Check #######

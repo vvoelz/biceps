@@ -44,45 +44,30 @@ class PosteriorSampler(object):
         # keep track of what we sampled in a trajectory
         self.traj = PosteriorSamplingTrajectory(self.ensemble)
 
-        # Go through each restraint type, and construct the specified reference potential if needed
-
-        ## the list of Restraints should be the same for all structures in the ensemble -
-        ## ... use the first structure's list to determine what kind of reference potential each Restraint has
-        ref_types = [ R.ref for R in ensemble[0] ]
-
-        # for each Restraint, calculate global reference potential parameters by looking across all structures
-        for rest_index in range(len(ensemble[0])):
-            if 'allowed_beta_c' in ensemble[0][rest_index]._nuisance_parameters:
-                if ref_types[rest_index] == 'uniform':
-                    self.traj.ref[rest_index].append('Nan')
-                    pass
-                elif ref_types[rest_index] == 'exp':
-                    self.build_exp_ref_pf(rest_index)
-                    self.traj.ref[rest_index].append(self.betas)
-                elif ref_types[rest_index] == 'gaussian':
-                    self.build_gaussian_ref_pf(rest_index,
-                            use_global_ref_sigma=self.ensemble[0][rest_index].use_global_ref_sigma)
-                    self.traj.ref[rest_index].append(self.ref_mean)
-                    self.traj.ref[rest_index].append(self.ref_sigma)
+        # for each Restraint, calculate global reference potential parameters
+        # ..by looking across all structures
+        #
+        # TODO: can't this be more general?!?
+        for i,R in enumerate(ensemble[0]):
+            if R.ref == "uniform":
+                self.traj.ref[i].append('Nan')
+                pass
+            elif R.ref == 'exp':
+                if hasattr(R, 'allowed_beta_c'):
+                    self.build_exp_ref_pf(i)
                 else:
-                    raise ValueError('Please choose a reference potential of the following:\n \
-                        {%s,%s,%s}'%('uniform','exp','gaussian'))
-
+                    self.build_exp_ref(i)
+                self.traj.ref[i].append(self.betas)
+            elif R.ref == 'gaussian':
+                if hasattr(R, 'allowed_beta_c'):
+                    self.build_gaussian_ref_pf(i, use_global_ref_sigma=R.use_global_ref_sigma)
+                else:
+                    self.build_gaussian_ref(i, use_global_ref_sigma=R.use_global_ref_sigma)
+                self.traj.ref[i].append(self.ref_mean)
+                self.traj.ref[i].append(self.ref_sigma)
             else:
-                if ref_types[rest_index] == 'uniform':
-                    self.traj.ref[rest_index].append('Nan')
-                    pass
-                elif ref_types[rest_index] == 'exp':
-                    self.build_exp_ref(rest_index)
-                    self.traj.ref[rest_index].append(self.betas)
-                elif ref_types[rest_index] == 'gaussian':
-                    self.build_gaussian_ref(rest_index,
-                            use_global_ref_sigma=self.ensemble[0][rest_index].use_global_ref_sigma)
-                    self.traj.ref[rest_index].append(self.ref_mean)
-                    self.traj.ref[rest_index].append(self.ref_sigma)
-                else:
-                    raise ValueError('Please choose a reference potential of the following:\n \
-                            {%s,%s,%s}'%('uniform','exp','gaussian'))
+                raise ValueError('Please choose a reference potential of the following:\n \
+                    {%s,%s,%s}'%('uniform','exp','gaussian'))
 
         # Compute ref state logZ for the free energies to normalize.
         self.compute_logZ()
@@ -95,8 +80,6 @@ class PosteriorSampler(object):
         """Compute reference state logZ for the free energies to normalize."""
 
         Z = 0.0
-#        for rest_index in range(len(self.ensemble[0])):
-#            for s in self.ensemble[rest_index]:
         for s in self.ensemble:
             Z +=  np.exp( -np.array(s[0].energy, dtype=np.float128) )
         self.logZ = np.log(Z)
@@ -104,21 +87,18 @@ class PosteriorSampler(object):
 
 
     def build_exp_ref(self, rest_index, verbose=False):
-        """Look at all the structures to find the average observables r_j
+        """Look at all the structures to find the average observables r_j, then
+        store the reference potential info for all Restraints of this type for
+        each structure.
 
-        >>    beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
-
-        then store this reference potential info for all Restraints of this type for each structure
+        :math:`beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)`
 
         :param int rest_index: index of the restraint"""
 
-
         #print( 'Computing parameters for exponential reference potentials...')
-
         # collect distributions of observables r_j across all structures
         n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
         #print('n_observables = ',n_observables)
-
         distributions = [[] for j in range(n_observables)]
         for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
             for j in range(len(s[rest_index].restraints)):
@@ -128,14 +108,12 @@ class PosteriorSampler(object):
         if verbose == True:
             print('distributions',distributions)
         #print('distributions ,',distributions,np.array(distributions).shape)
-
         # Find the MLE average (i.e. beta_j) for each noe
         # calculate beta[j] for every observable r_j
         self.betas = np.zeros(n_observables)
         for j in range(n_observables):
             # the maximum likelihood exponential distribution fitting the data
             self.betas[j] =  np.array(distributions[j]).sum()/(len(distributions[j])+1.0)
-
         # store the beta information in each structure and compute/store the -log P_potential
         for s in self.ensemble:
             s[rest_index].betas = self.betas
@@ -152,11 +130,9 @@ class PosteriorSampler(object):
         """
 
         #print( 'Computing parameters for Gaussian reference potentials...')
-
         # collect distributions of observables r_j across all structures
         n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
         #print('n_observables = ',n_observables)
-
         distributions = [[] for j in range(n_observables)]
         for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
             for j in range(len(s[rest_index].restraints)):
@@ -165,7 +141,6 @@ class PosteriorSampler(object):
                 distributions[j].append( s[rest_index].restraints[j].model )
         if verbose == True:
             print('distributions',distributions)
-
         # Find the MLE mean (ref_mu_j) and std (ref_sigma_j) for each observable
         self.ref_mean  = np.zeros(n_observables)
         self.ref_sigma = np.zeros(n_observables)
@@ -174,10 +149,8 @@ class PosteriorSampler(object):
             squared_diffs = [ (d - self.ref_mean[j])**2.0 for d in distributions[j] ]
             self.ref_sigma[j] = np.sqrt( np.array(squared_diffs).sum() / (len(distributions[j])+1.0))
             #print(self.ref_sigma[j])
-
         #print('ref_mean',self.ref_mean)
         #print('ref_sigma',self.ref_sigma)
-
         if use_global_ref_sigma == True:
             # Use the variance across all ref_sigma[j] values to calculate a single value of ref_sigma for all observables
             global_ref_sigma = ( np.array([self.ref_sigma[j]**(-2.0) for j in range(n_observables)]).mean() )**-0.5
@@ -255,94 +228,31 @@ class PosteriorSampler(object):
 
         # Generate empty lists for each restraint to fill with nuisance parameters
         nuisance_para = [ ]
-
-        for rest_index in range(len(self.ensemble[0])):
-            s_r = self.ensemble[0][rest_index]
-
+        for R in self.ensemble[0]:
             # Get nuisance parameters for this specific restraint
-            for para in s_r._nuisance_parameters:
-                nuisance_para.append(
-                        np.array(getattr(s_r, para)))
-
+            for para in R._nuisance_parameters:
+                nuisance_para.append(np.array(getattr(R, para)))
         self.nuisance_para = np.array(nuisance_para)
+#        np.save('compiled_nuisance_parameters.npy',self.nuisance_para)
         # Construct the matrix converting all values to floats for C++
         if verbose == True:
             print(self.nuisance_para)
             print('Number of Restraints = ',len(self.nuisance_para))
-            print('Number of nuisance parameters for each:\n ')
-        #    for i in range(len(nuisance_para)):
-                #print(len(self.nuisance_para[i]))
-#        np.save('compiled_nuisance_parameters.npy',self.nuisance_para)
 
 
     def neglogP(self, new_state, parameters, parameter_indices, verbose=False):
         """Return -ln P of the current configuration.
 
-        :param int new_state:
-            the new conformational state from Sample()
-
-        :param list parameters:
-            a list of the new parameters for each of the restraints
-
+        :param int new_state: the new conformational state from Sample()
+        :param list parameters: a list of the new parameters for each of the restraints
         :param list parameter_indices: parameter indices that correspond to each restraint
         """
 
-        # Current Structure being sampled (list of restraint objects):
-        s = self.ensemble[int(new_state)]
-
-        # Grab the free energy of the state and normalize
-        result = s[0].energy + self.logZ
-        # Use the restraint index to get the corresponding sigma.
-        for rest_index in range(len(s)):
-
-            # Use with log-spaced sigma values
-            result += (s[rest_index].Ndof)*np.log(parameters[rest_index][0])
-
-            # Is gamma a parameter we need to consider?
-            if 'allowed_gamma' in s[rest_index]._nuisance_parameters:
-                result += s[rest_index].sse[int(parameter_indices[rest_index][1])] / (2.0*parameters[rest_index][0]**2.0)
-            elif 'allowed_beta_c' in s[rest_index]._nuisance_parameters:
-                result += s[rest_index].sse[int(parameter_indices[rest_index][1])][int(parameter_indices[rest_index][2])][int(parameter_indices[rest_index][3])][int(parameter_indices[rest_index][4])][int(parameter_indices[rest_index][5])][int(parameter_indices[rest_index][6])] / (2.0*parameters[rest_index][0]**2.0)
-                if self.pf_prior is not None:
-                    result += self.pf_prior[int(parameter_indices[rest_index][1])][int(parameter_indices[rest_index][2])][int(parameter_indices[rest_index][3])][int(parameter_indices[rest_index][4])][int(parameter_indices[rest_index][5])][int(parameter_indices[rest_index][6])]
-            else:
-                result += s[rest_index].sse / (2.0*float(parameters[rest_index][0])**2.0)
-
-            result += (s[rest_index].Ndof)/2.0*self.ln2pi  # for normalization
-
-            # Which reference potential was used for each restraint?
-            if 'allowed_beta_c' in s[rest_index]._nuisance_parameters:
-                if hasattr(s[rest_index], 'sum_neglog_exp_ref'):
-                    if isinstance(s[rest_index].sum_neglog_exp_ref, float):   # check if it is 0.0
-                        result -= s[rest_index].sum_neglog_exp_ref
-                    else:
-                        result -= s[rest_index].sum_neglog_exp_ref[int(parameter_indices[rest_index][1])][int(parameter_indices[rest_index][2])][int(parameter_indices[rest_index][3])][int(parameter_indices[rest_index][4])][int(parameter_indices[rest_index][5])][int(parameter_indices[rest_index][6])]
-                if hasattr(s[rest_index], 'sum_neglog_gaussian_ref'):
-                    if isinstance(s[rest_index].sum_neglog_gaussian_ref, float):
-                        result -= s[rest_index].sum_neglog_gaussian_ref
-                    else:
-                        result -= s[rest_index].sum_neglog_gaussian_ref[int(parameter_indices[rest_index][1])][int(parameter_indices[rest_index][2])][int(parameter_indices[rest_index][3])][int(parameter_indices[rest_index][4])][int(parameter_indices[rest_index][5])][int(parameter_indices[rest_index][6])]
-            else:
-                if hasattr(s[rest_index], 'sum_neglog_exp_ref'):
-                    result -= s[rest_index].sum_neglog_exp_ref
-                if hasattr(s[rest_index], 'sum_neglog_gaussian_ref'):
-                    result -= s[rest_index].sum_neglog_gaussian_ref
-
-            if verbose:
-                print('\nstep = ',int(self.total+1))
-                print('s[%s] = '%(rest_index),s[rest_index])
-                print('Result =',result)
-                print('state %s, f_sim %s, logZ %s'%(new_state, s[rest_index].energy, self.logZ))
-                if 'allowed_gamma' in s[rest_index]._nuisance_parameters:
-                    print('s[%s].sse[%s]'%(rest_index,int(parameter_indices[rest_index][1])), s[rest_index].sse[int(parameter_indices[rest_index][1])], 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
-                else:
-                    print('s[%s].sse'%rest_index, s[rest_index].sse, 's[%s].Ndof'%rest_index, s[rest_index].Ndof)
-                if hasattr(s[rest_index], 'sum_neglog_exp_ref'):
-                    print('s[%s].sum_neglog_exp_ref'%rest_index, s[rest_index].sum_neglog_exp_ref)
-                if hasattr(s[rest_index], 'sum_neglog_gaussian_ref'):
-                    print('s[%s].sum_neglog_gaussian_ref'%rest_index, s[rest_index].sum_neglog_gaussian_ref)
-        if verbose:
-            print('######################################################')
+        s = self.ensemble[int(new_state)] # Current Structure (list of restraints)
+        ln2pi = self.ln2pi                # for normalization
+        result = s[0].energy + self.logZ  # Grab the free energy of the state and normalize
+        for index,R in enumerate(s):
+            result += R.compute_neglogP(index, parameters, parameter_indices, ln2pi)
         return result
 
     def sample(self, nsteps, verbose=False):
@@ -351,7 +261,6 @@ class PosteriorSampler(object):
 
         :param int nsteps: number of steps of sampling.
         See :class:`neglogP`."""
-
 
         # Generate a matrix of nuisance parameters
         self.compile_nuisance_parameters()
