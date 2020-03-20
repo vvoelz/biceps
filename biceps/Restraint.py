@@ -1,10 +1,131 @@
 # -*- coding: utf-8 -*-
-import os, sys, glob, inspect
+import sys, inspect
 import numpy as np
-import mdtraj
+import pandas as pd
+import mdtraj as md
+import biceps
 from biceps.KarplusRelation import * # Returns J-coupling values from dihedral angles
 from biceps.toolbox import *
-import biceps.Observable
+
+class Ensemble(object):
+    def __init__(self, lam, energies, top, verbose=False):
+        """Container of Restraint objects"""
+
+        self.ensemble = []
+        self.top = top
+        if not isinstance(lam, float):
+            raise ValueError("lambda should be a single number with type of 'float'")
+        else:
+            self.lam = lam
+
+        # TODO: check
+        if np.array(energies).dtype != float:
+            raise ValueError("Energies should be array with type of 'float'")
+        else:
+            self.energies = energies
+
+        self.verbose = verbose
+
+    def to_list(self):
+        return self.ensemble
+
+    def initialize_restraints(self, exp_data, ref_pot=None, uncern=None,
+            gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None,
+            extensions=None):
+        """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
+
+        :param str PDB_filename: topology file name ('*.pdb')
+        :param float lam: lambdas
+        :param float energy: potential energy for each conformational state
+        :param str default=None ref: reference potential (if default, will use our suggested reference potential for each experimental observables)
+        :param str data: BICePs input files directory
+        :param list default=None uncern: nuisance parameters range (if default, will use our suggested broad range (may increase sampling requirement for convergence))
+        :param list default=None gamma: only for NOE, range of gamma (if default, will use our suggested broad range (may increase sampling requirement for convergence))"""
+
+        verbose = self.verbose
+        uncertainties = uncern
+        lam = self.lam
+        for i in range(self.energies.shape[0]):
+            self.ensemble.append([])
+            for k in range(len(exp_data[0])):
+                data = exp_data[i][k]
+                energy = self.energies[i]
+                uncern = uncertainties[k]
+                extension = extensions[k]
+
+                if ref_pot[k] is not None and not isinstance(ref_pot[k], str):
+                    raise ValueError("Reference potential type must be a 'str'")
+                if uncern ==  None:
+                    sigma_min, sigma_max, dlogsigma=0.05, 20.0, np.log(1.02)
+                else:
+                    if len(uncern) != 3:
+                        raise ValueError("uncertainty should be a list of three items: sigma_min, sigma_max, dlogsigma")
+                    else:
+                        sigma_min, sigma_max, dlogsigma = uncern[0], uncern[1], np.log(uncern[2])
+                if gamma ==  None:
+                    gamma_min, gamma_max, dloggamma = 0.05, 20.0, np.log(1.02)
+                else:
+                    if len(gamma) != 3:
+                        raise ValueError("gamma should be a list of three items: gamma_min, gamma_max, dgamma")
+                    else:
+                        gamma_min, gamma_max, dloggamma = gamma[0], gamma[1], np.log(gamma[2])
+
+                # TODO: Place in Protection factor observable or restraint
+                if data.endswith('pf'):
+                    if not precomputed:
+                        if Ncs_fi == None or Nhs_fi == None or state == None:
+                            raise ValueError("Ncs and Nhs and state numebr are needed!")
+                    # add uncern option here later
+                    # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
+                    beta_c_min, beta_c_max, dbeta_c = 0.05, 0.25, 0.01
+                    beta_h_min, beta_h_max, dbeta_h = 0.0, 5.2, 0.2
+                    beta_0_min, beta_0_max, dbeta_0 = -10.0, 0.0, 0.2
+                    xcs_min, xcs_max, dxcs = 5.0, 8.5, 0.5
+                    xhs_min, xhs_max, dxhs = 2.0, 2.7, 0.1
+                    bs_min, bs_max, dbs = 15.0, 16.0, 1.0
+
+                    allowed_xcs=np.arange(xcs_min,xcs_max,dxcs)
+                    allowed_xhs=np.arange(xhs_min,xhs_max,dxhs)
+                    allowed_bs=np.arange(bs_min,bs_max,dbs)
+                    # 107=residue numbers, Nc/Nh file names are hard coded for now. Yunhui 06/19
+                    Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
+                    Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
+                    for o in range(len(allowed_xcs)):
+                        for q in range(len(allowed_bs)):
+                            infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],state)
+                            Ncs[o,q,:] = (np.load(infile_Nc))
+                    for p in range(len(allowed_xhs)):
+                        for q in range(len(allowed_bs)):
+                            infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],state)
+                            Nhs[p,q,:] = (np.load(infile_Nh))
+
+                if ref_pot[k] ==  None:
+                    # TODO: place the default ref_pot[k] inside the class
+                    ref_pot[k] = 'exp' # 'uniform'
+
+                ext = data.split(".")[-1]
+                #restraint, extension = ext.split("_")
+                restraint, extension = ext.split("_")[0], ext.split("_")[-1]
+                # Find all Child Restraint classes in the current file
+                current_module = sys.modules[__name__]
+                # Pick the Restraint class upon file extension
+                _Restraint = getattr(current_module, "Restraint_%s"%(restraint))
+                # Initializing Restraint
+                R = _Restraint(PDB_filename=self.top, ref=ref_pot[k], dlogsigma=dlogsigma,
+                        sigma_min=sigma_min, sigma_max=sigma_max)
+                # Get all the arguments for the Child Restraint Class
+                args = {"%s"%key: val for key,val in locals().items()
+                        if key in inspect.getfullargspec(R.init_restraint)[0]
+                        if key != 'self'}
+                #print(f"args = {args}")
+                #print(f"Required args:{R.init_restraint.__code__.co_varnames}")
+                #print(f"Required args by inspect:{inspect.getfullargspec(R.init_restraint)[0]}")
+                #exit()
+                R.init_restraint(**args)
+                self.ensemble[-1].append(R)
+
+
+
 
 
 class Restraint(object):
@@ -34,7 +155,7 @@ class Restraint(object):
 
         # Conformational Information
         self.PDB_filename = PDB_filename
-        self.conf = mdtraj.load_pdb(PDB_filename)
+        self.conf = md.load_pdb(PDB_filename)
 
         # Convert the coordinates from nm to Angstrom units
         self.conf.xyz = self.conf.xyz*10.0
@@ -157,125 +278,6 @@ class Restraint(object):
             self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
 
 
-class Ensemble(object):
-    def __init__(self, lam, energies, top, verbose=False):
-        """Container of Restraint objects"""
-
-        self.ensemble = []
-        self.top = top
-        if not isinstance(lam, float):
-            raise ValueError("lambda should be a single number with type of 'float'")
-        else:
-            self.lam = lam
-
-        # TODO: check
-        if np.array(energies).dtype != float:
-            raise ValueError("Energies should be array with type of 'float'")
-        else:
-            self.energies = energies
-
-        self.verbose = verbose
-
-    def to_list(self):
-        return self.ensemble
-
-
-    def initialize_restraints(self, exp_data, ref_pot=None, uncern=None,
-            gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None,
-            extensions=None):
-        """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
-
-        :param str PDB_filename: topology file name ('*.pdb')
-        :param float lam: lambdas
-        :param float energy: potential energy for each conformational state
-        :param str default=None ref: reference potential (if default, will use our suggested reference potential for each experimental observables)
-        :param str data: BICePs input files directory
-        :param list default=None uncern: nuisance parameters range (if default, will use our suggested broad range (may increase sampling requirement for convergence))
-        :param list default=None gamma: only for NOE, range of gamma (if default, will use our suggested broad range (may increase sampling requirement for convergence))"""
-
-        verbose = self.verbose
-        uncertainties = uncern
-        lam = self.lam
-        for i in range(self.energies.shape[0]):
-            self.ensemble.append([])
-            for k in range(len(exp_data[0])):
-                data = exp_data[i][k]
-                energy = self.energies[i]
-                uncern = uncertainties[k]
-                extension = extensions[k]
-
-                if ref_pot[k] is not None and not isinstance(ref_pot[k], str):
-                    raise ValueError("Reference potential type must be a 'str'")
-                if uncern ==  None:
-                    sigma_min, sigma_max, dlogsigma=0.05, 20.0, np.log(1.02)
-                else:
-                    if len(uncern) != 3:
-                        raise ValueError("uncertainty should be a list of three items: sigma_min, sigma_max, dlogsigma")
-                    else:
-                        sigma_min, sigma_max, dlogsigma = uncern[0], uncern[1], np.log(uncern[2])
-                if gamma ==  None:
-                    gamma_min, gamma_max, dloggamma = 0.05, 20.0, np.log(1.02)
-                else:
-                    if len(gamma) != 3:
-                        raise ValueError("gamma should be a list of three items: gamma_min, gamma_max, dgamma")
-                    else:
-                        gamma_min, gamma_max, dloggamma = gamma[0], gamma[1], np.log(gamma[2])
-
-                # TODO: Place in Protection factor observable or restraint
-                if data.endswith('pf'):
-                    if not precomputed:
-                        if Ncs_fi == None or Nhs_fi == None or state == None:
-                            raise ValueError("Ncs and Nhs and state numebr are needed!")
-                    # add uncern option here later
-                    # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
-                    beta_c_min, beta_c_max, dbeta_c = 0.05, 0.25, 0.01
-                    beta_h_min, beta_h_max, dbeta_h = 0.0, 5.2, 0.2
-                    beta_0_min, beta_0_max, dbeta_0 = -10.0, 0.0, 0.2
-                    xcs_min, xcs_max, dxcs = 5.0, 8.5, 0.5
-                    xhs_min, xhs_max, dxhs = 2.0, 2.7, 0.1
-                    bs_min, bs_max, dbs = 15.0, 16.0, 1.0
-
-                    allowed_xcs=np.arange(xcs_min,xcs_max,dxcs)
-                    allowed_xhs=np.arange(xhs_min,xhs_max,dxhs)
-                    allowed_bs=np.arange(bs_min,bs_max,dbs)
-                    # 107=residue numbers, Nc/Nh file names are hard coded for now. Yunhui 06/19
-                    Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
-                    Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
-                    for o in range(len(allowed_xcs)):
-                        for q in range(len(allowed_bs)):
-                            infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],state)
-                            Ncs[o,q,:] = (np.load(infile_Nc))
-                    for p in range(len(allowed_xhs)):
-                        for q in range(len(allowed_bs)):
-                            infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],state)
-                            Nhs[p,q,:] = (np.load(infile_Nh))
-
-                if ref_pot[k] ==  None:
-                    # TODO: place the default ref_pot[k] inside the class
-                    ref_pot[k] = 'exp' # 'uniform'
-
-                ext = data.split(".")[-1]
-                #restraint, extension = ext.split("_")
-                restraint, extension = ext.split("_")[0], ext.split("_")[-1]
-                # Find all Child Restraint classes in the current file
-                current_module = sys.modules[__name__]
-                # Pick the Restraint class upon file extension
-                _Restraint = getattr(current_module, "Restraint_%s"%(restraint))
-                # Initializing Restraint
-                R = _Restraint(PDB_filename=self.top, ref=ref_pot[k], dlogsigma=dlogsigma,
-                        sigma_min=sigma_min, sigma_max=sigma_max)
-                # Get all the arguments for the Child Restraint Class
-                args = {"%s"%key: val for key,val in locals().items()
-                        if key in inspect.getfullargspec(R.prep_observable)[0]
-                        if key != 'self'}
-                #print(f"args = {args}")
-                #print(f"Required args:{R.prep_observable.__code__.co_varnames}")
-                #print(f"Required args by inspect:{inspect.getfullargspec(R.prep_observable)[0]}")
-                #exit()
-                R.prep_observable(**args)
-                self.ensemble[-1].append(R)
-
-
 
 class Restraint_cs(Restraint):
     """A derived class of RestraintClass() for N chemical shift restraints."""
@@ -288,7 +290,7 @@ class Restraint_cs(Restraint):
         else:
             pass
 
-    def prep_observable(self, data, energy, lam, extension, verbose=False):
+    def init_restraint(self, data, energy, lam, extension, verbose=False):
         """Observable is prepped by loading in cs_N restraints.
 
         :param str data: Experimental data file
@@ -324,7 +326,7 @@ class Restraint_J(Restraint):
 
     _ext = ['J']
 
-    def prep_observable(self, data, energy, lam, verbose=False):
+    def init_restraint(self, data, energy, lam, verbose=False):
         """Observable is prepped by loading in J coupling restraints.
 
         :param str data: Experimental data file
@@ -385,7 +387,7 @@ class Restraint_noe(Restraint):
 
     _ext = ['noe']
 
-    def prep_observable(self, data, energy, lam, verbose=False,
+    def init_restraint(self, data, energy, lam, verbose=False,
             use_log_normal_noe=False, dloggamma=np.log(1.01),
             gamma_min=0.2, gamma_max=10.0):
         """Observable is prepped by loading in noe distance restraints.
@@ -460,7 +462,7 @@ class Restraint_pf(Restraint):
 
     _ext = ['pf']
 
-    def prep_observable(self, lam, energy, data, precomputed=False,
+    def init_restraint(self, lam, energy, data, precomputed=False,
             Ncs=None, Nhs=None,verbose=False, beta_c_min=0.05,beta_c_max=0.25,
             dbeta_c=0.01,beta_h_min=0.0,beta_h_max=5.2,dbeta_h=0.2,
             beta_0_min=-10.0,beta_0_max=0.0,dbeta_0=0.2,xcs_min=5.0,xcs_max=8.5,
@@ -516,7 +518,6 @@ class Restraint_pf(Restraint):
             self.bs_max = bs_max
             self.allowed_bs = np.arange(self.bs_min, self.bs_max, self.dbs)
             #print "self.allowed_beta_c", len(self.allowed_beta_c), "self.allowed_beta_h", len(self.allowed_beta_h), "self.allowed_beta_0", len(self.allowed_beta_0), "self.allowed_xcs", len(self.allowed_xcs), "self.allowed_xhs", len(self.allowed_xhs), "self.allowed_bs", len(self.allowed_bs)
-            #sys.exit()
             self.beta_c_index = int(len(self.allowed_beta_c)/2)
             self.beta_c = self.allowed_beta_c[self.beta_c_index]
 
@@ -674,6 +675,213 @@ class Restraint_pf(Restraint):
             self.neglog_gaussian_ref[j] = 0.5 * np.log(2.0*np.pi) + np.log(self.ref_sigma[j]) \
                       + (self.restraints[j].model - self.ref_mean[j])**2.0/(2.0*self.ref_sigma[j]**2.0)
             self.sum_neglog_gaussian_ref += self.restraints[j].weight * self.neglog_gaussian_ref[j]
+
+
+
+
+class Preparation(object):
+
+    def __init__(self, nstates=0,  top=None, outdir="./"):
+        """A parent class to prepare input files for BICePs calculation.
+
+        :param str obs: type of experimental observables {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
+        :param int default=0 nstates: number of states
+        :param str default=None indices: experimental observable index (*.txt file)
+        :param str default=None exp_data: experimental measuremnets (*.txt file)
+        :param str default=None top: topology file (*.pdb)
+        """
+
+        self.nstates = nstates
+        self.topology = md.load(top).topology
+        self.data = list()
+
+    def write_DataFrame(self, filename, to="pickle", verbose=True):
+        """Write Pandas DataFrame to user specified filetype."""
+
+        #biceps.toolbox.mkdir(self.outdir)
+        #columns = { self.keys[i] : self.header[i] for i in range(len(self.keys)) }
+        #print(columns)
+        if verbose:
+            print('Writing %s as %s...'%(filename,to))
+        df = pd.DataFrame(self.biceps_df)
+        #dfOut = getattr(self.df.rename(columns=columns), "to_%s"%to)
+        dfOut = getattr(df, "to_%s"%to)
+        dfOut(filename)
+
+    #TODO: needs to be checked
+    def prep_cs(self, exp_data, model_data, indices, extension, outdir=None, verbose=False):
+        """A method containing input/output methods for writing chemicalshift
+        Restaint Files.
+
+        exp (ppm)
+        model (ppm)
+        """
+
+        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
+                'exp', 'model', 'comments')
+        self.exp_data = np.loadtxt(exp_data)
+        self.model_data = model_data
+        self.ind = np.loadtxt(indices)
+        self.ind = np.array(self.ind).astype(int)
+
+        if type(self.model_data) is not list or np.ndarray:
+            self.model_data = biceps.toolbox.get_files(model_data)
+        if int(len(self.model_data)) != int(self.nstates):
+            raise ValueError("The number of states doesn't equal to file numbers")
+        if self.ind.shape[0] != self.exp_data.shape[0]:
+            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
+        for j in range(len(self.model_data)):
+            dd = { self.header[i]: [] for i in range(len(self.header)) }
+            model_data = np.loadtxt(self.model_data[j])
+            for i in range(self.ind.shape[0]):
+                a1 = int(self.ind[i])
+                dd['atom_index1'].append(a1)
+                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['restraint_index'].append(int(self.exp_data[i,0]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                dd['model'].append(np.float64(model_data[i]))
+                dd['comments'].append(np.NaN)
+            self.biceps_df = pd.DataFrame(dd)
+            if verbose:
+                print(self.biceps_df)
+            filename = "%s.cs_%s"%(j, extension)
+            if outdir:
+                self.write_DataFrame(filename=outdir+filename)
+
+
+
+    def prep_noe(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
+        """A method containing input/output methods for writing NOE
+        Restaint Files.
+
+        'exp' (A)
+        'model' (A)
+        """
+
+        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
+                'atom_index2', 'res2', 'atom_name2', 'exp', 'model', 'comments')
+        self.exp_data = np.loadtxt(exp_data)
+        self.model_data = model_data
+        self.ind = np.loadtxt(indices, dtype=int)
+        if type(self.model_data) is not list or np.ndarray:
+            self.model_data = biceps.toolbox.get_files(model_data)
+        if int(len(self.model_data)) != int(self.nstates):
+            raise ValueError("The number of states doesn't equal to file numbers")
+        if self.ind.shape[0] != self.exp_data.shape[0]:
+            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
+        for j in range(len(self.model_data)):
+            dd = { self.header[i]: [] for i in range(len(self.header)) }
+            model_data = np.loadtxt(self.model_data[j])
+            for i in range(self.ind.shape[0]):
+                a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
+                dd['atom_index1'].append(a1)
+                dd['atom_index2'].append(a2)
+                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
+                dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
+                dd['restraint_index'].append(int(self.exp_data[i,0]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                dd['model'].append(np.float64(model_data[i]))
+                dd['comments'].append(np.NaN)
+            self.biceps_df = pd.DataFrame(dd)
+            if verbose:
+                print(self.biceps_df)
+            filename = "%s.noe"%(j)
+            if outdir:
+                self.write_DataFrame(filename=outdir+filename)
+
+
+    def prep_J(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
+        """A method containing input/output methods for writing scalar coupling
+        Restaint Files.
+
+        'exp_J (Hz)
+        'model_J (Hz)'
+        """
+
+        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
+                'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3',
+                'atom_index4', 'res4', 'atom_name4', 'exp',
+                'model', 'comments')
+        self.exp_data = np.loadtxt(exp_data)
+        self.model_data = model_data
+        if type(indices) is not str:
+            self.ind = indices
+        else:
+            self.ind = np.loadtxt(indices, dtype=int)
+        if type(self.model_data) is not list or np.ndarray:
+            self.model_data = biceps.toolbox.get_files(model_data)
+        if int(len(self.model_data)) != int(self.nstates):
+            raise ValueError("The number of states doesn't equal to file numbers")
+        if self.ind.shape[0] != self.exp_data.shape[0]:
+            raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
+        for j in range(len(self.model_data)):
+            dd = { self.header[i]: [] for i in range(len(self.header)) }
+            model_data = np.loadtxt(self.model_data[j])
+            for i in range(self.ind.shape[0]):
+                a1, a2, a3, a4   = int(self.ind[i,0]), int(self.ind[i,1]), int(self.ind[i,2]), int(self.ind[i,3])
+                dd['atom_index1'].append(a1);dd['atom_index2'].append(a2)
+                dd['atom_index3'].append(a3);dd['atom_index4'].append(a4)
+                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
+                dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
+                dd['res3'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a3][0]))
+                dd['atom_name3'].append(str([atom.name for atom in self.topology.atoms if atom.index == a3][0]))
+                dd['res4'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a4][0]))
+                dd['atom_name4'].append(str([atom.name for atom in self.topology.atoms if atom.index == a4][0]))
+                dd['restraint_index'].append(int(self.exp_data[i,0]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                dd['model'].append(np.float64(model_data[i]))
+                dd['comments'].append(np.NaN)
+            self.biceps_df = pd.DataFrame(dd)
+            if verbose:
+                print(self.biceps_df)
+            filename = "%s.J"%(j)
+            if outdir:
+                self.write_DataFrame(filename=outdir+filename)
+
+
+    # TODO: Needs to be checked
+    def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, outdir=None, verbose=False):
+        """A method containing input/output methods for writing protection factor
+        Restaint Files."""
+
+        if model_data:
+            self.header = ('restraint_index', 'atom_index1', 'res1', 'exp','model', 'comments')
+        else:
+            self.header = ('restraint_index', 'atom_index1', 'res1','exp', 'comments')
+        self.exp_data = np.loadtxt(exp_data)
+        self.model_data = model_data
+        self.ind = np.loadtxt(indices, dtype=int)
+        if type(self.model_data) is not list or np.ndarray or None:
+            self.model_data = biceps.toolbox.get_files(model_data)
+            if int(len(self.model_data)) != int(self.nstates):
+                raise ValueError("The number of states doesn't equal to file numbers")
+        if self.ind.shape[0] != self.exp_data.shape[0]:
+            raise ValueError('The number of atom pairs (%d) does not match the\
+                    number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
+        for j in range(len(self.model_data)):
+            dd = { self.header[i]: [] for i in range(len(self.header)) }
+            model_data = np.loadtxt(self.model_data[j])
+            for i in range(self.ind.shape[0]):
+                a1 = int(self.ind[i,0])
+                dd['atom_index1'].append(a1)
+                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                dd['restraint_index'].append(int(self.exp_data[i,0]))
+                dd['exp'].append(np.float64(self.exp_data[i,1]))
+                if model_data:
+                    dd['model'].append(np.float64(model_data[i]))
+                dd['comments'].append(np.NaN)
+            self.biceps_df = pd.DataFrame(dd)
+            if verbose:
+                print(self.biceps_df)
+            filename = "%s.pf"%(j)
+            if outdir:
+                self.write_DataFrame(filename=outdir+filename)
 
 
 

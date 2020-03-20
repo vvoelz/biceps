@@ -5,9 +5,8 @@ HEADER="""BICePs - Bayesian Inference of Conformational Populations, Version %s"
 print(HEADER)
 name = "biceps"
 
-import biceps.Observable
+from biceps.Restraint import Preparation
 from biceps.Restraint import Ensemble
-#import biceps.Restraint
 from biceps.PosteriorSampler import PosteriorSampler
 from biceps.Analysis import Analysis
 from biceps.convergence import Convergence

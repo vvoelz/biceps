@@ -12,7 +12,7 @@ data = biceps.toolbox.sort_data('CS')
 res = biceps.toolbox.list_res(data)
 extensions = biceps.toolbox.list_extensions(data)
 print(f"Input data: {biceps.toolbox.list_extensions(data)}")
-outdir = 'results_ref_normal'
+outdir = 'results'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
 nsteps=100000
@@ -51,54 +51,5 @@ A = biceps.Analysis(states=100, resultdir=outdir,
     picfile='BICePs.pdf')
 A.plot()
 '''
-
-
-'''
-import mdtraj as md
-import numpy as np
-data_dir = "../../datasets/cineromycin_B/"
-ind=np.loadtxt(data_dir+'atom_indice_noe.txt')
-print("indices", ind)
-os.system(data_dir+'mkdir NOE')
-for i in range(100):    # 100 clustered states
-    t = md.load(data_dir+'cineromycinB_pdbs/%d.fixed.pdb'%i)
-    d=md.compute_distances(t,ind)*10.     # convert nm to Å
-    np.savetxt(data_dir+'NOE/%d.txt'%i,d)
-print("Done!")
-path = data_dir+'NOE/*txt'
-states = 100
-indices = data_dir+'atom_indice_noe.txt'
-exp_data = data_dir+'noe_distance.txt'
-top = data_dir+'cineromycinB_pdbs/0.fixed.pdb'
-out_dir = data_dir+'noe_J'
-p = biceps.Preparation('noe',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=path)   # 'noe' scheme is selected
-p.write(out_dir=out_dir)
-fin = open(data_dir+'noe_J/0.noe','r')
-text = fin.read()
-fin.close()
-print(text)
-
-ind=np.load(data_dir+'ind.npy')
-print('index', ind)
-karplus_key=np.loadtxt(data_dir+'Karplus.txt', dtype=str)
-print('Karplus relations', karplus_key)
-for i in range(100):    # 100 clustered states
-    J = biceps.toolbox.compute_nonaa_Jcoupling(data_dir+'cineromycinB_pdbs/%d.fixed.pdb'%i, index=ind, karplus_key=karplus_key)
-    np.savetxt(data_dir+'J_coupling/%d.txt'%i,J)
-path = data_dir+'J_coupling/*txt'
-states = 100
-indices = data_dir+'atom_indice_J.txt'
-exp_data = data_dir+'exp_Jcoupling.txt'
-top = data_dir+'cineromycinB_pdbs/0.fixed.pdb'
-out_dir = data_dir+'noe_J'
-p = biceps.Preparation('J',states=states,indices=indices,exp_data=exp_data,top=top,data_dir=path)   # 'J' scheme is selected
-p.write(out_dir=out_dir)
-fin = open(data_dir+'noe_J/0.J','r')
-text = fin.read()
-fin.close()
-print(text)
-'''
-
-
 
 

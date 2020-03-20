@@ -15,7 +15,7 @@ data = biceps.toolbox.sort_data('J_NOE')
 res = biceps.toolbox.list_res(data)
 extensions = biceps.toolbox.list_extensions(data)
 print(f"Input data: {biceps.toolbox.list_extensions(data)}")
-outdir = 'results'
+outdir = 'results_test'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
 nsteps=100000

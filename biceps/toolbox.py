@@ -264,103 +264,6 @@ def convert_pop_to_energy(pop_filename, out_filename=None):
 
     return energy
 
-def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
-    '''Compute J3_HN_HA for frames in a trajectories.
-
-    :param mdtraj.Trajectory traj: Trajectory
-    :param mdtraj.Topology top: topology file
-    :param list frame: specific frame for computing
-    :param str model: Karplus coefficient models
-      ["Ruterjans1999","Bax2007","Bax1997","Habeck" ,"Vuister","Pardi"]
-    :param str outname: if not None, the output will be saved and a
-      file name (in the format of string) is required.'''
-
-    J=[]
-    if traj is not None:
-        if frame is None:
-            t = md.load(traj,top=top)
-            J = compute_J3_HN_HA(t, model = model)
-        elif frame is not None:
-            for i in range(len(frame)):
-                t = md.load(traj,top=top)[frame[i]]
-                d = compute_J3_HN_HA(t, model = model)
-                if i == 0:
-                    J.append(d[0])
-                    J.append(d[1])
-                else:
-                    J.append(d[1])
-    else:
-        t = md.load(top)
-        J = compute_J3_HN_HA(t, model = model)
-    if outname is not None:
-        print('saving output file...')
-        np.save(outname, J)
-        print('Done!')
-    else:
-        print('saving output file ...')
-        np.save('J3_coupling',J)
-        print('Done!')
-    return J
-
-def dihedral_angle(x0, x1, x2, x3):
-    """Calculate the signed dihedral angle between 4 positions. Result is in degrees.
-
-    :param float x0:
-    :param float x1:
-    :param float x2:
-    :param float x3:
-    :return float phi: dihedral angle in degrees
-    """
-
-    #Calculate Bond Vectors b1, b2, b3
-    b1=x1-x0
-    b2=x2-x1
-    b3=x3-x2
-
-    #Calculate Normal Vectors c1,c2.  This numbering scheme is idiotic, so care.
-    c1=np.cross(b2,b3)
-    c2=np.cross(b1,b2)
-
-    Arg1=np.dot(b1,c1)
-    Arg1*=np.linalg.norm(b2)
-    Arg2=np.dot(c2,c1)
-    phi=np.arctan2(Arg1,Arg2)
-
-    # return the angle in degrees
-    phi*=180./np.pi
-    return(phi)
-
-def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
-    """Compute J couplings for small molecules.
-
-    :param mdtraj.Trajectory traj: Trajectory or *.pdb/*.gro files
-    :param int index: index file for atoms
-    :param list karplus_key: karplus relation for each J coupling
-    :param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)"""
-
-
-    if [type(key) for key in karplus_key if type(key)==str] == [str for i in range(len(karplus_key))]:
-        raise TypeError("Each karplus key must be a string. You provided: \n%s"%(
-            [type(key) for key in karplus_key if type(key)==str]))
-    if len(karplus_key) != len(index):
-        raise ValueError("The number of index must equale the number of karplus_key.")
-    if traj.endswith('.gro'):
-        conf = md.load(traj)
-    elif traj.endswith('.pdb'):
-        conf = md.load(traj)
-    else:
-        if top == None:
-            raise TypeError("To load a trajectory file, a topology file must be provided.")
-        conf = md.load(traj,top=top)
-    J = np.zeros((len(conf),len(index)))
-    karplus = KarplusRelation()
-    for i in range(len(J)):
-        for j in range(len(index)):
-            ri, rj, rk, rl = [conf.xyz[0,x,:] for x in index[j]]
-            model_angle = dihedral_angle(ri, rj, rk, rl)
-            J[i,j] = karplus.J(angle=model_angle, key=karplus_key[j])
-    return J
-
 
 def get_rest_type(traj):
     """Get types of experimental restraints.
@@ -740,12 +643,226 @@ def compute_distances(states, ind, outdir):
         np.savetxt(outdir+'/%d.txt'%i,d)
     return distances
 
-def compute_chemicalshifts(states, ind, temp=300, pH=7, outdir="./"):
+def compute_chemicalshifts(states, temp=298.0, pH=5.0, outdir="./"):
+    states = get_files(states)
     for i in range(len(states)):
-        traj = md.load(states[i])
-        shifts = md.nmr.chemical_shifts_shiftx2(traj, pH, temperature)
-        #shifts.to_pickle("")
-        np.savetxt("cs_state%d.txt"%i, shifts.mean(axis=1))
+        print(f"Loading {states[i]} ...")
+        state = md.load(states[i], top=states[0])
+        shifts = md.nmr.chemical_shifts_shiftx2(state, pH, temp)
+        out = outdir+"cs_state%d.txt"%i
+        np.savetxt(out, shifts.mean(axis=1))
+        print(f"Saving {out} ...")
+        #out = out.replace(".txt", ".pkl")
+        #shifts.to_pickle(out)
+
+
+def compute_nonaa_scalar_coupling(states, index, karplus_key, outdir="./", top=None):
+    """Compute J couplings for small molecules.
+
+    :param mdtraj.Trajectory traj: Trajectory or *.pdb/*.gro files
+    :param int index: index file for atoms
+    :param list karplus_key: karplus relation for each J coupling
+    :param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)"""
+
+
+    #ind = np.loadtxt(index, dtype=int)
+    if [type(key) for key in karplus_key if type(key)==str] == [str for i in range(len(karplus_key))]:
+        raise TypeError("Each karplus key must be a string. You provided: \n%s"%(
+            [type(key) for key in karplus_key if type(key)==str]))
+    if len(karplus_key) != len(index):
+        raise ValueError("The number of index must equale the number of karplus_key.")
+    states = get_files(states)
+    nstates = len(states)
+    for state in range(nstates):
+        conf = md.load(states[state], index)
+        J = np.zeros((len(conf),len(index)))
+        karplus = KarplusRelation()
+        for i in range(len(J)):
+            for j in range(len(index)):
+                ri, rj, rk, rl = [conf.xyz[0,x,:] for x in index[j]]
+                model_angle = dihedral_angle(ri, rj, rk, rl)
+                J[i,j] = karplus.J(angle=model_angle, key=karplus_key[j])
+
+        np.savetxt(outdir+'%d.txt'%state,J)
+    #return J
+
+
+
+
+
+def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
+    '''Compute J3_HN_HA for frames in a trajectories.
+
+    :param mdtraj.Trajectory traj: Trajectory
+    :param mdtraj.Topology top: topology file
+    :param list frame: specific frame for computing
+    :param str model: Karplus coefficient models
+      ["Ruterjans1999","Bax2007","Bax1997","Habeck" ,"Vuister","Pardi"]
+    :param str outname: if not None, the output will be saved and a
+      file name (in the format of string) is required.'''
+
+    J=[]
+    if traj is not None:
+        if frame is None:
+            t = md.load(traj,top=top)
+            J = compute_J3_HN_HA(t, model = model)
+        elif frame is not None:
+            for i in range(len(frame)):
+                t = md.load(traj,top=top)[frame[i]]
+                d = compute_J3_HN_HA(t, model = model)
+                if i == 0:
+                    J.append(d[0])
+                    J.append(d[1])
+                else:
+                    J.append(d[1])
+    else:
+        t = md.load(top)
+        J = compute_J3_HN_HA(t, model = model)
+    if outname is not None:
+        print('saving output file...')
+        np.save(outname, J)
+        print('Done!')
+    else:
+        print('saving output file ...')
+        np.save('J3_coupling',J)
+        print('Done!')
+    return J
+
+def dihedral_angle(x0, x1, x2, x3):
+    """Calculate the signed dihedral angle between 4 positions. Result is in degrees.
+
+    :param float x0:
+    :param float x1:
+    :param float x2:
+    :param float x3:
+    :return float phi: dihedral angle in degrees
+    """
+
+    #Calculate Bond Vectors b1, b2, b3
+    b1=x1-x0
+    b2=x2-x1
+    b3=x3-x2
+
+    #Calculate Normal Vectors c1,c2.  This numbering scheme is idiotic, so care.
+    c1=np.cross(b2,b3)
+    c2=np.cross(b1,b2)
+
+    Arg1=np.dot(b1,c1)
+    Arg1*=np.linalg.norm(b2)
+    Arg2=np.dot(c2,c1)
+    phi=np.arctan2(Arg1,Arg2)
+
+    # return the angle in degrees
+    phi*=180./np.pi
+    return(phi)
+
+def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
+    """Compute J couplings for small molecules.
+
+    :param mdtraj.Trajectory traj: Trajectory or *.pdb/*.gro files
+    :param int index: index file for atoms
+    :param list karplus_key: karplus relation for each J coupling
+    :param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)"""
+
+
+    if [type(key) for key in karplus_key if type(key)==str] == [str for i in range(len(karplus_key))]:
+        raise TypeError("Each karplus key must be a string. You provided: \n%s"%(
+            [type(key) for key in karplus_key if type(key)==str]))
+    if len(karplus_key) != len(index):
+        raise ValueError("The number of index must equale the number of karplus_key.")
+    if traj.endswith('.gro'):
+        conf = md.load(traj)
+    elif traj.endswith('.pdb'):
+        conf = md.load(traj)
+    else:
+        if top == None:
+            raise TypeError("To load a trajectory file, a topology file must be provided.")
+        conf = md.load(traj,top=top)
+    J = np.zeros((len(conf),len(index)))
+    karplus = KarplusRelation()
+    for i in range(len(J)):
+        for j in range(len(index)):
+            ri, rj, rk, rl = [conf.xyz[0,x,:] for x in index[j]]
+            model_angle = dihedral_angle(ri, rj, rk, rl)
+            J[i,j] = karplus.J(angle=model_angle, key=karplus_key[j])
+    return J
+
+
+
+
+def get_indices(traj, top, selection_expression=None, code_expression=None,
+        out=None,debug=True):
+    """Get atom indices from residue index list"""
+
+    if out == None:
+        out = 'indices.dat'
+
+    # Load in the first trajectory
+    print('Reading trajectory:' '%s'%(traj))
+    if not (os.path.exists(traj)):
+        print('File not found! Exit...')
+        exit(1)
+    t = md.load(traj, top=top)
+    print('done.')
+
+    # Get the topology python object and set it as a variable for the eval(selection)
+    topology = t.topology
+    #selection = t.topology.select_expression(selection_expression)
+    # Your new selection (sel) in a list
+    #sel = eval(selection)
+    if selection_expression:
+        sel = t.topology.select(selection_expression)
+    if code_expression:
+        sel = eval(t.topology.select_expression(code_expression))
+
+    #sel = eval(t.topology.select_expression(selection_expression))
+    #print(sel)
+    if debug:
+        print("selection_expression = %s"%selection_expression)
+        print("selection = %s"%sel)
+        df = t.topology.to_dataframe()[0]
+        print(df.items())
+        N = 0
+        for i in sel:
+            print("%s %s: atom  %s"%(df.resName[i],df.resSeq[i],i))
+            N+=1
+        print("%s atoms selected"%N)
+
+        exit()
+
+    # topology to dataframe
+    table = t.topology.to_dataframe()
+
+    # Get a selection for chimera
+    atoms,chimera,chain = [],[],[]
+    atom = 0
+    # Use the dataframe table from mdtraj to match the residue labels
+  #... with their corresponding chain
+    for ind in sel:
+        atoms.append(t.topology.atom(int(ind)))
+        chain.append(table[0]['chainID'][int(ind)])
+        # Is it chain A or chain B?
+        if chain[atom] == 0:
+            chimera.append(str(atoms[atom]).replace("-",".A@")[3:])
+        elif chain[atom] == 1:
+            chimera.append(str(atoms[atom]).replace("-",".B@")[3:])
+        atom += 1
+
+    # Check to make sure that this is the selection you want.
+    if debug==True:
+        for i in range(0,len(sel)):
+            print(t.topology.atom(int(sel[i])))
+        response = int(input("Is this the correct selection? (True=1/False=0)\n"))
+        if response == 0:
+            print('Exit...')
+            exit(1)
+
+    np.savetxt('%s'%out,np.array(sel),fmt='%i')
+    np.savetxt('residues.txt',np.array(atoms),fmt='%s')
+    #np.savetxt('residues_chimera.txt',np.array(chimera),fmt='%s')
+
+
+
 
 
 
