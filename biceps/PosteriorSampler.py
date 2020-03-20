@@ -22,28 +22,21 @@ class PosteriorSampler(object):
 
         # Allow the ensemble to pass through the class
         self.ensemble = ensemble
-
         # Step frequencies to write trajectory info
         self.write_traj = freq_write_traj
-
         # Frequency of printing to the screen
         self.print_every = freq_print # debug
-
         # Frequency of storing trajectory samples
         self.traj_every = freq_save_traj
-
         # Ensemble is a list of Restraint objects
         self.nstates = len(ensemble)
-
         # The initial state of the structural ensemble we're sampling from
         self.state = 0    # index in the ensemble
         self.E = 1.0e99   # initial energy
         self.accepted = 0
         self.total = 0
-
         # keep track of what we sampled in a trajectory
         self.traj = PosteriorSamplingTrajectory(self.ensemble)
-
         # for each Restraint, calculate global reference potential parameters
         # ..by looking across all structures
         #
@@ -68,10 +61,8 @@ class PosteriorSampler(object):
             else:
                 raise ValueError('Please choose a reference potential of the following:\n \
                     {%s,%s,%s}'%('uniform','exp','gaussian'))
-
         # Compute ref state logZ for the free energies to normalize.
         self.compute_logZ()
-
         # load pf priors from training model
         if pf_prior is not None:
             self.pf_prior = np.load(pf_prior)
@@ -95,10 +86,8 @@ class PosteriorSampler(object):
 
         :param int rest_index: index of the restraint"""
 
-        #print( 'Computing parameters for exponential reference potentials...')
         # collect distributions of observables r_j across all structures
         n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
-        #print('n_observables = ',n_observables)
         distributions = [[] for j in range(n_observables)]
         for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
             for j in range(len(s[rest_index].restraints)):
@@ -107,7 +96,6 @@ class PosteriorSampler(object):
                 distributions[j].append( s[rest_index].restraints[j].model )
         if verbose == True:
             print('distributions',distributions)
-        #print('distributions ,',distributions,np.array(distributions).shape)
         # Find the MLE average (i.e. beta_j) for each noe
         # calculate beta[j] for every observable r_j
         self.betas = np.zeros(n_observables)
@@ -574,11 +562,6 @@ class PosteriorSamplingTrajectory(object):
         self.write(outfilename, self.results)
 
 
-    def logspaced_array(self, xmin, xmax, nsteps):
-        ymin, ymax = np.log(xmin), np.log(xmax)
-        dy = (ymax-ymin)/nsteps
-        return np.exp(np.arange(ymin, ymax, dy))
-
     def write(self, outfilename='traj.npz', *args, **kwds): # new
         """Writes a compact file of several arrays into binary format.
         Standardized: Yes ; Binary: Yes; Human Readable: No;
@@ -588,12 +571,6 @@ class PosteriorSamplingTrajectory(object):
         """
         np.savez_compressed(outfilename, *args, **kwds)
 
-
-    def read_results(self,filename):
-        """Reads a numpy compressed filetype
-         (npz) file"""
-
-        loaded = np.load(filename)
 
 
 
