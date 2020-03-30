@@ -77,9 +77,9 @@ class Analysis(object):
                     plt.ylabel('fractions')
                     plt.legend(loc='best')
                     plt.savefig(self.resultdir+'fractions.pdf')
-            else:
-                print('Error: Not all states are sampled in any of the lambda values')
-                exit()
+            #else:
+            #    print('Error: Not all states are sampled in any of the lambda values')
+            #    exit()
 
         # Load in cpickled sampler objects
         sampler_files = glob.glob( os.path.join(self.resultdir,'sampler_lambda*.pkl') )

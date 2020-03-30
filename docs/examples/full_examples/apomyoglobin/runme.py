@@ -24,14 +24,13 @@ uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02], [0.05, 5.0, 1.02]]
 
 ####### MCMC Simulations #######
 for lam in lambda_values:
+    print(f"lambda: {lam}")
     ensemble = biceps.Ensemble(lam, energies, top)
     ensemble.initialize_restraints(exp_data=data, ref_pot=ref,
             uncern=uncern, gamma=[0.2, 5.0, 1.02], extensions=extensions)
     sampler = biceps.PosteriorSampler(ensemble.to_list())
     sampler.sample(nsteps=nsteps)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
-    sampler.traj.read_results(os.path.join(outdir,
-        'traj_lambda%2.2f.npz'%lam))
     outfilename = 'sampler_lambda%2.2f.pkl'%(lam)
     fout = open(os.path.join(outdir, outfilename), 'wb')
     pickle.dump(sampler, fout)

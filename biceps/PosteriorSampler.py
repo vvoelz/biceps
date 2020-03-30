@@ -17,7 +17,7 @@ class PosteriorSampler(object):
     """
 
     def __init__(self, ensemble, freq_write_traj=100.,
-            freq_print=100., freq_save_traj=100., pf_prior = None):
+            freq_print=100., freq_save_traj=100.):
         """Initialize PosteriorSampler Class."""
 
         # Allow the ensemble to pass through the class
@@ -63,9 +63,6 @@ class PosteriorSampler(object):
                     {%s,%s,%s}'%('uniform','exp','gaussian'))
         # Compute ref state logZ for the free energies to normalize.
         self.compute_logZ()
-        # load pf priors from training model
-        if pf_prior is not None:
-            self.pf_prior = np.load(pf_prior)
 
     def compute_logZ(self):
         """Compute reference state logZ for the free energies to normalize."""
@@ -92,8 +89,8 @@ class PosteriorSampler(object):
         for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
             for j in range(len(s[rest_index].restraints)):
                 if verbose == True:
-                    print( s[rest_index].restraints[j].model)
-                distributions[j].append( s[rest_index].restraints[j].model )
+                    print( s[rest_index].restraints[j]['model'])
+                distributions[j].append( s[rest_index].restraints[j]['model'] )
         if verbose == True:
             print('distributions',distributions)
         # Find the MLE average (i.e. beta_j) for each noe
@@ -125,8 +122,8 @@ class PosteriorSampler(object):
         for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
             for j in range(len(s[rest_index].restraints)):
                 if verbose == True:
-                    print( s[rest_index].restraints[j].model)
-                distributions[j].append( s[rest_index].restraints[j].model )
+                    print( s[rest_index].restraints[j]['model'])
+                distributions[j].append( s[rest_index].restraints[j]['model'] )
         if verbose == True:
             print('distributions',distributions)
         # Find the MLE mean (ref_mu_j) and std (ref_sigma_j) for each observable
@@ -169,9 +166,9 @@ class PosteriorSampler(object):
             s[rest_index].betas = []
         # for each restraint, find the average model_protectionfactor (a 6-dim array in parameter space) across all structures
         for j in range(len(s[rest_index].restraints)):
-            running_total = np.zeros(self.ensemble[0][rest_index].restraints[j].model.shape)
+            running_total = np.zeros(self.ensemble[0][rest_index].restraints[j]['model'].shape)
             for s in self.ensemble:
-                running_total += s[rest_index].restraints[j].model
+                running_total += s[rest_index].restraints[j]['model']
             beta_pf_j = running_total/(len(s[rest_index].restraints)+1.0)
             for s in self.ensemble:
                 s[rest_index].betas.append(beta_pf_j)
@@ -193,13 +190,13 @@ class PosteriorSampler(object):
             s[rest_index].ref_sigma = []
         # for each restraint, find the average model_protectionfactor (a 6-dim array in parameter space) across all structures
         for j in range(len(s[rest_index].restraints)):
-            mean_PF_j  = np.zeros( self.ensemble[0][rest_index].restraints[j].model.shape )
-            sigma_PF_j = np.zeros( self.ensemble[0][rest_index].restraints[j].model.shape )
+            mean_PF_j  = np.zeros( self.ensemble[0][rest_index].restraints[j]['model'].shape )
+            sigma_PF_j = np.zeros( self.ensemble[0][rest_index].restraints[j]['model'].shape )
             for s in self.ensemble:
-                mean_PF_j += s[rest_index].restraints[j].model   # a 6-dim array
+                mean_PF_j += s[rest_index].restraints[j]['model']   # a 6-dim array
             mean_PF_j = mean_PF_j/(len(s[rest_index].restraints)+1.0)
             for s in self.ensemble:
-                sigma_PF_j += (s[rest_index].restraints[j].model - mean_PF_j)**2.0
+                sigma_PF_j += (s[rest_index].restraints[j]['model'] - mean_PF_j)**2.0
             sigma_PF_j = np.sqrt(sigma_PF_j/(len(s[rest_index].restraints)+1.0))
             for s in self.ensemble:
                 s[rest_index].ref_mean.append(mean_PF_j)
@@ -541,7 +538,7 @@ class PosteriorSamplingTrajectory(object):
             for n in range(n_observables):
                 model = []
                 for s in range(len(self.ensemble)):
-                    model.append(self.ensemble[s][rest_index].restraints[n].model)
+                    model.append(self.ensemble[s][rest_index].restraints[n]['model'])
                 self.model[rest_index].append(model)
 
         #TODO: Check to make sure that there hasn't been an update in Py3
