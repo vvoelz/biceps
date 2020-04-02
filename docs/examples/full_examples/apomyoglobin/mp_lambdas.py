@@ -1,38 +1,42 @@
 import os, sys, pickle
 import numpy as np
 import biceps
-import multiprocessing as mp
 
+####### Data and Output Directories #######
+print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
 T=[0,1,4,9,10,12,14,16,18,19,20,21,24]
 states=len(T)
-top='pdb/T1/state0.pdb'
-dataFiles = 'new_PF_CS'
-out_dir=dataFiles
+datadir="apomyoglobin/"
+top=datadir+'pdb/T1/state0.pdb'
+dataFiles = datadir+'new_CS_PF'
 data = biceps.toolbox.sort_data(dataFiles)
-#T = [0,1,4,9,10,12,14,16,18,19,20,21,24]
-energies_filename = 'energy_model_1.txt'
+res = biceps.toolbox.list_res(data)
+extensions = biceps.toolbox.list_extensions(data)
+print(f"Input data: {biceps.toolbox.list_extensions(data)}")
+energies_filename = datadir+'energy_model_1.txt'
 energies = np.loadtxt(energies_filename)
 energies -= energies.min() # set ground state to zero, just in case
 outdir = "results"
 biceps.toolbox.mkdir(outdir)
-nsteps = 10000000
+####### Parameters #######
+nsteps = 1000000
+print(f"nSteps of sampling: {nsteps}")
+maxtau = 1000
 ref=['exp','exp','exp','exp']
-lambda_values = [0.0,1.0]
-####### Multiprocessing Lambda values #######
+weights=[1/3, 1/3, 1/3, 1]
+n_lambdas = 2
+lambda_values = np.linspace(0.0, 1.0, n_lambdas)
+
+####### MCMC Simulations #######
 def mp_lambdas(Lambda):
     print(f"lambda: {Lambda}")
-    ensemble = []
-    for i in range(energies.shape[0]):
-        ensemble.append([])
-        for k in range(len(data[0])):
-            File = data[i][k]
-            R=biceps.init_res(PDB_filename=top,lam=Lambda,energy=energies[i],data=File,ref=ref[k],Ncs_fi='input/Nc', Nhs_fi='input/Nh',state=T[i])
-            ensemble[-1].append(R)
-    sampler = biceps.PosteriorSampler(ensemble,pf_prior = 'b15.npy')
-    sampler.sample(nsteps=nsteps)
+    ensemble = biceps.Ensemble(Lambda, energies, top, verbose=False)
+    ensemble.initialize_restraints(input_data=data, ref_pot=ref, pf_prior=datadir+'b15.npy',
+            Ncs_fi=datadir+'input/Nc', Nhs_fi=datadir+'input/Nh', state=T,
+            extensions=extensions, weights=weights, debug=False)
+    sampler = biceps.PosteriorSampler(ensemble.to_list())
+    sampler.sample(nsteps=nsteps, verbose=False)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(Lambda))
-    sampler.traj.read_results(os.path.join(outdir,
-      'traj_lambda%2.2f.npz'%Lambda))
     outfilename = 'sampler_lambda%2.2f.pkl'%(Lambda)
     fout = open(os.path.join(outdir, outfilename), 'wb')
     pickle.dump(sampler, fout)

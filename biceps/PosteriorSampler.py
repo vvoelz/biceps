@@ -17,7 +17,7 @@ class PosteriorSampler(object):
     """
 
     def __init__(self, ensemble, freq_write_traj=100.,
-            freq_print=100., freq_save_traj=100.):
+            freq_print=100., freq_save_traj=100., verbose=False):
         """Initialize PosteriorSampler Class."""
 
         # Allow the ensemble to pass through the class
@@ -40,19 +40,21 @@ class PosteriorSampler(object):
         # for each Restraint, calculate global reference potential parameters
         # ..by looking across all structures
         #
+
         # TODO: can't this be more general?!?
         for i,R in enumerate(ensemble[0]):
             if R.ref == "uniform":
                 self.traj.ref[i].append('Nan')
                 pass
             elif R.ref == 'exp':
-                if hasattr(R, 'allowed_beta_c'):
-                    self.build_exp_ref_pf(i)
+                if hasattr(R, 'precomputed'):
+                    if not R.precomputed:
+                        self.build_exp_ref_pf(i)
                 else:
                     self.build_exp_ref(i)
                 self.traj.ref[i].append(self.betas)
             elif R.ref == 'gaussian':
-                if hasattr(R, 'allowed_beta_c'):
+                if not R.precomputed:
                     self.build_gaussian_ref_pf(i, use_global_ref_sigma=R.use_global_ref_sigma)
                 else:
                     self.build_gaussian_ref(i, use_global_ref_sigma=R.use_global_ref_sigma)
@@ -61,8 +63,11 @@ class PosteriorSampler(object):
             else:
                 raise ValueError('Please choose a reference potential of the following:\n \
                     {%s,%s,%s}'%('uniform','exp','gaussian'))
+
         # Compute ref state logZ for the free energies to normalize.
         self.compute_logZ()
+
+        self.verbose = verbose
 
     def compute_logZ(self):
         """Compute reference state logZ for the free energies to normalize."""
@@ -235,17 +240,19 @@ class PosteriorSampler(object):
 
         s = self.ensemble[int(new_state)] # Current Structure (list of restraints)
         ln2pi = self.ln2pi                # for normalization
-        result = s[0].energy + self.logZ  # Grab the free energy of the state and normalize
+        _result = s[0].energy + self.logZ  # Grab the free energy of the state and normalize
         for index,R in enumerate(s):
-            result += R.compute_neglogP(index, parameters, parameter_indices, ln2pi)
-        return result
+            #print(index, R)
+            _result += R.compute_neglogP(index, parameters, parameter_indices, ln2pi)
+        return _result
+
 
     def sample(self, nsteps, verbose=False):
         """Perform n number of steps (nsteps) of posterior sampling, where Monte
         Carlo moves are accepted or rejected according to Metroplis criterion.
-
         :param int nsteps: number of steps of sampling.
         See :class:`neglogP`."""
+
 
         # Generate a matrix of nuisance parameters
         self.compile_nuisance_parameters()
@@ -479,6 +486,8 @@ class PosteriorSampler(object):
         #for g in range(len(grid)):
         #    self.traj.grid.append(grid[g]/sampled[g]*100.)
 
+
+
 class PosteriorSamplingTrajectory(object):
     """A container class to store and perform operations on the trajectories of
     sampling runs."""
@@ -503,6 +512,8 @@ class PosteriorSamplingTrajectory(object):
         s = self.ensemble[0]
 
         for rest_index in range(len(s)):
+            # TODO: Is there a better wat to call on these variables?
+            # right now it is a list of strings
             nuisance_parameters = getattr(s[rest_index], "_nuisance_parameters")
             for para in nuisance_parameters:
                 self.allowed_parameters.append(getattr(s[rest_index], para))
@@ -511,10 +522,13 @@ class PosteriorSamplingTrajectory(object):
         # Generate a list of the names of the parameter indices for the traj header
         parameter_indices = []
         for rest_index in range(len(s)):
+            # TODO: Is there a better wat to call on these variables?
+            # right now it is a list of strings
             parameter_indices.append( getattr(s[rest_index], '_parameter_indices') )
 
         self.rest_type = []
         for rest_index in range(len(s)):
+            # TODO: Is there a better wat to call on these variables?
             for rest_type in getattr(s[rest_index], '_rest_type'):
                 self.rest_type.append(rest_type)
 

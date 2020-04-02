@@ -4,17 +4,17 @@ import biceps
 import multiprocessing as mp
 
 ####### Data and Output Directories #######
-energies = np.loadtxt('../../datasets/cineromycin_B/cineromycinB_QMenergies.dat')*627.509  # convert from hartrees to kcal/mol
+energies = np.loadtxt('cineromycin_B/cineromycinB_QMenergies.dat')*627.509  # convert from hartrees to kcal/mol
 energies = energies/0.5959   # convert to reduced free energies F = f/kT
 energies -= energies.min()  # set ground state to zero, just in case
 states = len(energies)
-top = '../../datasets/cineromycin_B/cineromycinB_pdbs/0.fixed.pdb'
+top = 'cineromycin_B/cineromycinB_pdbs/0.fixed.pdb'
 print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
-data = biceps.toolbox.sort_data('J_NOE')
+data = biceps.toolbox.sort_data('cineromycin_B/J_NOE')
 res = biceps.toolbox.list_res(data)
 extensions = biceps.toolbox.list_extensions(data)
 print(f"Input data: {biceps.toolbox.list_extensions(data)}")
-outdir = 'results_testing'
+outdir = 'results_test'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
 nsteps=1000000
@@ -27,13 +27,11 @@ uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
 ####### Multiprocessing Lambda values #######
 def mp_lambdas(Lambda):
     ensemble = biceps.Ensemble(Lambda, energies, top)
-    ensemble.initialize_restraints(exp_data=data, ref_pot=ref,
+    ensemble.initialize_restraints(input_data=data, ref_pot=ref,
             uncern=uncern, gamma=[0.2, 5.0, 1.02], extensions=extensions)
     sampler = biceps.PosteriorSampler(ensemble.to_list())
     sampler.sample(nsteps=nsteps)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
-    sampler.traj.read_results(os.path.join(outdir,
-        'traj_lambda%2.2f.npz'%lam))
     outfilename = 'sampler_lambda%2.2f.pkl'%(lam)
     fout = open(os.path.join(outdir, outfilename), 'wb')
     pickle.dump(sampler, fout)
@@ -41,7 +39,7 @@ def mp_lambdas(Lambda):
     print('...Done.')
 # Check the number of CPU's available
 print("Number of CPU's: %s"%(mp.cpu_count()))
-p = mp.Pool(processes=mp.cpu_count()-1) # knows the number of CPU's to allocate
+p = mp.Pool(processes=n_lambdas) # knows the number of CPU's to allocate
 #p = mp.Pool(processes=mp.cpu_count()) # knows the number of CPU's to allocate
 #print("Process ID's: %s"%get_processes(p, n=lam))
 jobs = []

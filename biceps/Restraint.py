@@ -22,15 +22,14 @@ class Ensemble(object):
         if np.array(energies).dtype != float:
             raise ValueError("Energies should be array with type of 'float'")
         else:
-            self.energies = energies
-
+            self.energies = self.lam*energies # Scale the energies
         self.verbose = verbose
 
     def to_list(self):
         return self.ensemble
 
-    def initialize_restraints(self, exp_data, ref_pot=None, uncern=None, pf_prior=None,
-            gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None, state=None,
+    def initialize_restraints(self, input_data, ref_pot=None, uncern=None, pf_prior=None,
+            gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None, state=None, weights=None,
             extensions=None, debug=False):
         """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
 
@@ -47,14 +46,14 @@ class Ensemble(object):
         lam = self.lam
         for i in range(self.energies.shape[0]):
             self.ensemble.append([])
-            for k in range(len(exp_data[0])):
-                data = exp_data[i][k]
+            for k in range(len(input_data[0])):
+                data = input_data[i][k]
                 energy = self.energies[i]
                 extension = extensions[k]
                 if debug:
                     print(f"extension: {extension}")
                 if ref_pot[k] is not None and not isinstance(ref_pot[k], str):
-                    raise ValueError("Reference potential type must be a 'str'")
+                    raise ValueError("Reference potential must be a 'str'")
                 if uncern ==  None:
                     sigma_min, sigma_max, dlogsigma=0.05, 20.0, np.log(1.02)
                 else:
@@ -70,12 +69,12 @@ class Ensemble(object):
                     else:
                         gamma_min, gamma_max, dloggamma = gamma[0], gamma[1], np.log(gamma[2])
                 ##########################################################
-                # TODO: Place in Protection factor observable or restraint
+                # TODO: Place in Protection factor parameters in restraint
                 ##########################################################
                 if data.endswith('pf'):
                     if not precomputed:
                         if Ncs_fi == None or Nhs_fi == None or state[i] == None:
-                            raise ValueError("Ncs and Nhs and state numebr are needed!")
+                            raise ValueError("Ncs and Nhs and state number are needed!")
                     # add uncern option here later
                     # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
                     beta_c_min, beta_c_max, dbeta_c = 0.05, 0.25, 0.01
@@ -94,16 +93,20 @@ class Ensemble(object):
                     for o in range(len(allowed_xcs)):
                         for q in range(len(allowed_bs)):
                             infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],state[i])
+                            #print(f"infile_Nc = {infile_Nc}")
                             Ncs[o,q,:] = (np.load(infile_Nc))
                     for p in range(len(allowed_xhs)):
                         for q in range(len(allowed_bs)):
                             infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],state[i])
+                            #print(f"infile_Nh = {infile_Nh}")
                             Nhs[p,q,:] = (np.load(infile_Nh))
-
                 if ref_pot[k] ==  None:
                     # TODO: place the default ref_pot[k] inside the class
                     ref_pot[k] = 'exp' # 'uniform'
-
+                if weights == None:
+                    weight = 1
+                else:
+                    weight = weights[k]
                 ext = data.split(".")[-1]
                 #restraint, extension = ext.split("_")
                 restraint, extension = ext.split("_")[0], ext.split("_")[-1]
@@ -206,7 +209,6 @@ class Restraint(object):
         """
         self.restraints.append(restraint)
 
-
     def compute_neglog_exp_ref(self):
         """Uses the stored beta information (calculated across all structures)
         to calculate -log P_ref(observable[j]) for each observable j."""
@@ -242,7 +244,7 @@ class Restraint_cs(Restraint):
         else:
             pass
 
-    def init_restraint(self, data, energy, lam, extension, verbose=False):
+    def init_restraint(self, data, energy, extension, weight=1, verbose=False):
         """Observable is prepped by loading in cs_N restraints.
 
         :param str data: Experimental data file
@@ -252,8 +254,8 @@ class Restraint_cs(Restraint):
         self.extension = extension
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        self.lam = lam
-        self.energy = np.float128(lam*energy)
+        #self.energy = np.float128(lam*energy)
+        self.energy = energy
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
@@ -273,7 +275,8 @@ class Restraint_cs(Restraint):
             self.add_restraint(d)
             # N equivalent chemical shift should only get 1/N f the weight when
             #... computing chi^2 (not likely in this case but just in case we need it in the future)
-            self.restraints[-1]['weight'] = 1.0  #1.0/3.0 used in JCTC 2020 paper  # default is N=1
+            self.restraints[-1]['weight'] = weight  #1.0/3.0 used in JCTC 2020 paper  # default is N=1
+
         self.compute_sse()
 
     def compute_sse(self, debug=False):
@@ -291,6 +294,7 @@ class Restraint_cs(Restraint):
         self.Ndof = N
         if debug:
             print('self.sse', self.sse)
+        #print(self.sse)
 
 
     def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
@@ -313,7 +317,7 @@ class Restraint_J(Restraint):
 
     _ext = ['J']
 
-    def init_restraint(self, data, energy, lam, verbose=False):
+    def init_restraint(self, data, energy, weight=1, verbose=False):
         """Observable is prepped by loading in J coupling restraints.
 
         :param str data: Experimental data file
@@ -321,10 +325,12 @@ class Restraint_J(Restraint):
         :param float energy: The (reduced) free energy of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        self.lam = lam
-        self.energy = np.float128(lam*energy)
+        #self.lam = lam
+        #self.energy = np.float128(lam*energy)
+        self.energy = energy
         self.Ndof = None
-        # Private variables to store specific restraint attributes in a list
+        #####TODO: Remove these variables ... ##################################
+        ## Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma']
         self._parameters = ['sigma']
         self._parameter_indices = ['sigma_index']
@@ -383,6 +389,7 @@ class Restraint_J(Restraint):
         self.Ndof = N
         if debug:
             print('self.sse', self.sse)
+        #print(self.sse)
 
 
     def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
@@ -401,31 +408,12 @@ class Restraint_J(Restraint):
 
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
-
-        result = 0
-        para,indices = parameters, parameter_indices
-        # Use with log-spaced sigma values
-        result += (self.Ndof)*np.log(para[index][0])
-        result += self.sse[int(indices[index][1])] / (2.0*para[index][0]**2.0)
-        result += (self.Ndof)/2.0*ln2pi  # for normalization
-        if self.ref == "exp":
-            result -= self.sum_neglog_exp_ref
-        if self.ref == "gaussian":
-            result -= self.sum_neglog_gaussian_ref
-        return result
-
-
-
-
-
-
 class Restraint_noe(Restraint):
     """A derived class of Restraint() for noe distance restraints."""
 
     _ext = ['noe']
 
-    def init_restraint(self, data, energy, lam, verbose=False,
+    def init_restraint(self, data, energy, weight=1, verbose=False,
             use_log_normal_noe=False, dloggamma=np.log(1.01),
             gamma_min=0.2, gamma_max=10.0):
         """Observable is prepped by loading in noe distance restraints.
@@ -449,8 +437,9 @@ class Restraint_noe(Restraint):
         self.use_log_normal_noe = use_log_normal_noe
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        self.lam = lam
-        self.energy = np.float128(lam*energy)
+        #self.lam = lam
+        #self.energy = np.float128(lam*energy)
+        self.energy = energy
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
         self._nuisance_parameters = ['allowed_sigma','allowed_gamma']
@@ -513,6 +502,7 @@ class Restraint_noe(Restraint):
             for i in range(self.n):
                 print('---->', i, '%d'%self.restraints[i].i, end=' ')
                 print('      exp', self.restraints[i]['exp'], 'model', self.restraints[i]['model'])
+        #print(self.sse)
 
 
     def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
@@ -530,18 +520,16 @@ class Restraint_noe(Restraint):
         return result
 
 
-
-
 class Restraint_pf(Restraint):
     """A derived class of Restraint() for protection factor restraints."""
 
     _ext = ['pf']
 
-    def init_restraint(self, lam, energy, data, precomputed=False, pf_prior=None,
+    def init_restraint(self, energy, data, precomputed=False, pf_prior=None,
             Ncs=None, Nhs=None,verbose=False, beta_c_min=0.05,beta_c_max=0.25,
             dbeta_c=0.01,beta_h_min=0.0,beta_h_max=5.2,dbeta_h=0.2,
             beta_0_min=-10.0,beta_0_max=0.0,dbeta_0=0.2,xcs_min=5.0,xcs_max=8.5,
-            dxcs=0.5,xhs_min=2.0,xhs_max=2.7,dxhs=0.1,bs_min=15.0,bs_max=16.0,dbs=1.0):
+            dxcs=0.5,xhs_min=2.0,xhs_max=2.7,dxhs=0.1,bs_min=15.0,bs_max=16.0,dbs=1.0, weight=1):
         """Observable is prepped by loading in protection factor restraints.
 
         :param str data: Experimental data file
@@ -550,8 +538,9 @@ class Restraint_pf(Restraint):
         """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        self.lam = lam
-        self.energy = np.float128(lam*energy)
+        #self.lam = lam
+        #self.energy = np.float128(lam*energy)
+        self.energy = energy
         self.Ndof = None
         self.precomputed = precomputed
         # load pf priors from training model
@@ -638,12 +627,12 @@ class Restraint_pf(Restraint):
                 d = {key: grouped_data[key][row] for key in grouped_data.keys()}
                 d['model'] = self.compute_PF_multi(self.Ncs[:,:,row], self.Nhs[:,:,row], debug=False)
                 self.add_restraint(d)
-                self.restraints[-1]['weight'] = 1.0
+                self.restraints[-1]['weight'] = weight
         else:
             for row in range(len(grouped_data[keys[0]])):
                 d = {key: grouped_data[key][row] for key in grouped_data.keys()}
                 self.add_restraint(d)
-                self.restraints[-1]['weight'] = 1.0
+                self.restraints[-1]['weight'] = weight
         self.compute_sse(debug=verbose)
 
 
@@ -665,14 +654,15 @@ class Restraint_pf(Restraint):
                 print('self.sse', self.sse)
 
         else:
-            self.sse = np.zeros(  (len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0),
-                                                len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)))
+            self.sse = np.zeros( (len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0),
+                len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)) )
             self.Ndof = 0.
             for i in range(self.n):
                 err = self.restraints[i]['model'] - self.restraints[i]['exp']
                 self.sse += (self.restraints[i]['weight'] * err**2.0)
                 self.Ndof += self.restraints[i]['weight']
 
+        #print(self.sse)
 
 
     def compute_PF(self, beta_c, beta_h, beta_0, Nc, Nh):
@@ -784,9 +774,10 @@ class Restraint_pf(Restraint):
         para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
         result += (self.Ndof)*np.log(para[index][0])
-        result += self.sse[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])] / (2.0*para[index][0]**2.0)
-        if self.pf_prior is not None:
-            result += self.pf_prior[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+        if not self.precomputed:
+            result += self.sse[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])] / (2.0*para[index][0]**2.0)
+            if self.pf_prior is not None:
+                result += self.pf_prior[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
         else:
             result += self.sse / (2.0*float(para[index][0])**2.0)
         result += (self.Ndof)/2.0*ln2pi  # for normalization
@@ -796,7 +787,6 @@ class Restraint_pf(Restraint):
                 result -= self.sum_neglog_exp_ref
             else:
                 result -= self.sum_neglog_exp_ref[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
-
         if self.ref == "gaussian":
             if isinstance(self.sum_neglog_gaussian_ref, float):
                 result -= self.sum_neglog_gaussian_ref

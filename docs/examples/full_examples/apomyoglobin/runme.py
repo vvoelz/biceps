@@ -3,54 +3,50 @@ import numpy as np
 import biceps
 
 ####### Data and Output Directories #######
-energies = np.loadtxt('energy_test.txt', dtype=float)*627.509  # convert from hartrees to kcal/mol
-energies = energies/0.5959   # convert to reduced free energies F = f/kT
-energies -= energies.min()  # set ground state to zero, just in case
-top = 'pdb/state0.pdb'
 print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
-data = biceps.toolbox.sort_data('CS_test')
+T=[0,1,4,9,10,12,14,16,18,19,20,21,24]
+states=len(T)
+datadir="apomyoglobin/"
+top=datadir+'pdb/T1/state0.pdb'
+dataFiles = datadir+'new_CS_PF'
+data = biceps.toolbox.sort_data(dataFiles)
 res = biceps.toolbox.list_res(data)
 extensions = biceps.toolbox.list_extensions(data)
 print(f"Input data: {biceps.toolbox.list_extensions(data)}")
-outdir = 'results'
+energies_filename = datadir+'energy_model_1.txt'
+energies = np.loadtxt(energies_filename)
+energies -= energies.min() # set ground state to zero, just in case
+outdir = "results"
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
-nsteps=100000
+nsteps = 1000000
 print(f"nSteps of sampling: {nsteps}")
 maxtau = 1000
-lambda_values = [0.0, 0.5, 1.0]
-ref = ['uniform', 'exp', 'exp']
-uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02], [0.05, 5.0, 1.02]]
+ref=['exp','exp','exp','exp']
+weights=[1/3, 1/3, 1/3, 1]
+n_lambdas = 2
+lambda_values = np.linspace(0.0, 1.0, n_lambdas)
 
 ####### MCMC Simulations #######
 for lam in lambda_values:
     print(f"lambda: {lam}")
-    ensemble = biceps.Ensemble(lam, energies, top)
-    ensemble.initialize_restraints(exp_data=data, ref_pot=ref,
-            uncern=uncern, gamma=[0.2, 5.0, 1.02], extensions=extensions)
+    ensemble = biceps.Ensemble(lam, energies, top, verbose=False)
+    ensemble.initialize_restraints(input_data=data, ref_pot=ref, pf_prior=datadir+'b15.npy',
+            Ncs_fi=datadir+'input/Nc', Nhs_fi=datadir+'input/Nh', state=T,
+            extensions=extensions, weights=weights, debug=False)
     sampler = biceps.PosteriorSampler(ensemble.to_list())
-    sampler.sample(nsteps=nsteps)
+    sampler.sample(nsteps=nsteps, verbose=False)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
     outfilename = 'sampler_lambda%2.2f.pkl'%(lam)
     fout = open(os.path.join(outdir, outfilename), 'wb')
     pickle.dump(sampler, fout)
     fout.close()
     print('...Done.')
-    exit()
 
-'''
-####### Convergence Check #######
-C = biceps.Convergence(trajfile=outdir+"/traj_lambda0.00.npz", resultdir=outdir)
-C.get_autocorrelation_curves(method="normal", maxtau=maxtau)
-C.plot_auto_curve(fname="auto_curve.pdf", xlim=(0, maxtau))
-C.process(nblock=5, nfold=10, nround=100, savefile=True,
-    plot=True, block=True, normalize=True)
 
-####### Posterior Analysis #######
-A = biceps.Analysis(states=100, resultdir=outdir,
-    BSdir='BS.dat', popdir='populations.dat',
-    picfile='BICePs.pdf')
+A = biceps.Analysis(states=states, resultdir=outdir,
+  BSdir='BS.dat', popdir='populations.dat',
+  picfile='BICePs.pdf')
 A.plot()
-'''
 
 
