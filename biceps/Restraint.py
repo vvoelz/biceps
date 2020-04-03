@@ -254,7 +254,6 @@ class Restraint_cs(Restraint):
         self.extension = extension
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        #self.energy = np.float128(lam*energy)
         self.energy = energy
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
@@ -325,8 +324,6 @@ class Restraint_J(Restraint):
         :param float energy: The (reduced) free energy of this conformation"""
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        #self.lam = lam
-        #self.energy = np.float128(lam*energy)
         self.energy = energy
         self.Ndof = None
         #####TODO: Remove these variables ... ##################################
@@ -437,8 +434,6 @@ class Restraint_noe(Restraint):
         self.use_log_normal_noe = use_log_normal_noe
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        #self.lam = lam
-        #self.energy = np.float128(lam*energy)
         self.energy = energy
         self.Ndof = None
         # Private variables to store specific restraint attributes in a list
@@ -538,8 +533,6 @@ class Restraint_pf(Restraint):
         """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
-        #self.lam = lam
-        #self.energy = np.float128(lam*energy)
         self.energy = energy
         self.Ndof = None
         self.precomputed = precomputed
