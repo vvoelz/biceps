@@ -34,10 +34,8 @@ def mp_lambdas(Lambda):
     sampler = biceps.PosteriorSampler(ensemble.to_list())
     sampler.sample(nsteps=nsteps, verbose=False)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(Lambda))
-    outfilename = 'sampler_lambda%2.2f.pkl'%(Lambda)
-    fout = open(os.path.join(outdir, outfilename), 'wb')
-    pickle.dump(sampler, fout)
-    fout.close()
+    filename = outdir+'/sampler_lambda%2.2f.pkl'%(lam)
+    biceps.toolbox.save_object(sampler, filename)
     print('...Done.')
 
 # Check the number of CPU's available

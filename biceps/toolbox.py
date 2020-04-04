@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, os, glob, re, yaml, io
+import sys, os, glob, re, yaml, io, pickle
 import numpy as np
 import pandas as pd
 from biceps.J_coupling import *
@@ -860,6 +860,13 @@ def get_indices(traj, top, selection_expression=None, code_expression=None,
     np.savetxt('%s'%out,np.array(sel),fmt='%i')
     np.savetxt('residues.txt',np.array(atoms),fmt='%s')
     #np.savetxt('residues_chimera.txt',np.array(chimera),fmt='%s')
+
+
+def save_object(obj, filename):
+    """Saves python object as pkl file"""
+
+    with open(filename, 'wb') as output:  # Overwrites any existing file.
+        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
 
 
