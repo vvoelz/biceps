@@ -2,40 +2,40 @@ import os, sys, pickle
 import numpy as np
 import biceps
 
+# What possible experimental data does biceps accept?
+print(f"Possible data restraints: {biceps.toolbox.list_possible_restraints()}")
+print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
 ####### Data and Output Directories #######
-energies = np.loadtxt('albocycline_QMenergies.dat')
-data = biceps.toolbox.sort_data('noe_j')
+energies = np.loadtxt('albocycline/albocycline_QMenergies.dat')
+top = 'albocycline/pdbs/0.pdb'
+data = biceps.toolbox.sort_data('albocycline/noe_j')
+extensions = biceps.toolbox.list_extensions(data)
+print(f"Input data: {biceps.toolbox.list_extensions(data)}")
 res = biceps.toolbox.list_res(data)
-outdir = 'results_ref_normal'
+outdir = 'results'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
 nsteps=1000000
 maxtau = 1000
-lambda_values = [0.0, 0.5, 1.0]
+n_lambdas = 3
+lambda_values = np.linspace(0.0, 1.0, n_lambdas)
+print(lambda_values)
 ref = ['uniform', 'exp']
 uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
 ####### MCMC Simulations #######
 for lam in lambda_values:
-    ensemble = []
-    for i in range(energies.shape[0]):
-        ensemble.append([])
-        for k in range(len(data[0])):
-            File = data[i][k]
-            R = biceps.init_res(PDB_filename='pdbs/0.pdb', lam=lam,
-                energy=energies[i], ref=ref[k], data=File,
-                uncern=uncern[k], gamma=[0.2, 5.0, 1.02])
-            ensemble[-1].append(R)
-    sampler = biceps.PosteriorSampler(ensemble)
+    print(f"lambda: {lam}")
+    ensemble = biceps.Ensemble(lam, energies, top, verbose=False)
+    ensemble.initialize_restraints(exp_data=data, ref_pot=ref,
+            uncern=uncern, gamma=[0.2, 5.0, 1.02], extensions=extensions)
+    sampler = biceps.PosteriorSampler(ensemble.to_list())
     sampler.sample(nsteps=nsteps)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
-    sampler.traj.read_results(os.path.join(outdir,
-        'traj_lambda%2.2f.npz'%lam))
     outfilename = 'sampler_lambda%2.2f.pkl'%(lam)
     fout = open(os.path.join(outdir, outfilename), 'wb')
     pickle.dump(sampler, fout)
     fout.close()
     print('...Done.')
-
 
 ####### Convergence Check #######
 C = biceps.Convergence(trajfile=outdir+"/traj_lambda0.00.npz")
