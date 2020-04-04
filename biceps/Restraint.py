@@ -30,7 +30,7 @@ class Ensemble(object):
 
     def initialize_restraints(self, input_data, ref_pot=None, uncern=None, pf_prior=None,
             gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None, state=None, weights=None,
-            extensions=None, debug=False):
+            debug=False):
         """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
 
         :param str PDB_filename: topology file name ('*.pdb')
@@ -43,6 +43,7 @@ class Ensemble(object):
 
         verbose = self.verbose
         uncertainties = uncern
+        extensions = biceps.toolbox.list_extensions(input_data)
         lam = self.lam
         for i in range(self.energies.shape[0]):
             self.ensemble.append([])
@@ -804,7 +805,7 @@ class Preparation(object):
         self.topology = md.load(top).topology
         self.data = list()
 
-    def write_DataFrame(self, filename, As="pickle", verbose=True):
+    def write_DataFrame(self, filename, As="pickle", verbose=False):
         """Write Pandas DataFrame As user specified filetype.
         For more information about file formats:
         `https://pandas.pydata.org/pandas-docs/stable/reference/io.html`
@@ -858,7 +859,7 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.cs_%s"%(j, extension)
             if outdir:
-                self.write_DataFrame(filename=outdir+filename)
+                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
 
 
 
@@ -866,8 +867,8 @@ class Preparation(object):
         """A method containing input/output methods for writing NOE
         Restaint Files.
 
-        'exp' (A)
-        'model' (A)
+        'exp' ()
+        'model' ()
         """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
@@ -901,7 +902,7 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.noe"%(j)
             if outdir:
-                self.write_DataFrame(filename=outdir+filename)
+                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
 
 
     def prep_J(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
@@ -952,7 +953,7 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.J"%(j)
             if outdir:
-                self.write_DataFrame(filename=outdir+filename)
+                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
 
 
     def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, outdir=None, verbose=False):
@@ -991,7 +992,7 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.pf"%(j)
             if outdir:
-                self.write_DataFrame(filename=outdir+filename)
+                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
 
 
 

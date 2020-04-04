@@ -14,13 +14,13 @@ data = biceps.toolbox.sort_data('cineromycin_B/J_NOE')
 res = biceps.toolbox.list_res(data)
 extensions = biceps.toolbox.list_extensions(data)
 print(f"Input data: {biceps.toolbox.list_extensions(data)}")
-outdir = 'results_test'
+outdir = '_results_test'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
 nsteps=1000000
 print(f"nSteps of sampling: {nsteps}")
 maxtau = 1000
-n_lambdas = 3
+n_lambdas = 1
 lambda_values = np.linspace(0.0, 1.0, n_lambdas)
 ref = ['uniform', 'exp']
 uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
@@ -30,7 +30,7 @@ def mp_lambdas(Lambda):
     ensemble.initialize_restraints(input_data=data, ref_pot=ref,
             uncern=uncern, gamma=[0.2, 5.0, 1.02], extensions=extensions)
     sampler = biceps.PosteriorSampler(ensemble.to_list())
-    sampler.sample(nsteps=nsteps)
+    sampler.sample(nsteps=nsteps, print_freq=1000, verbose=True)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
     outfilename = 'sampler_lambda%2.2f.pkl'%(lam)
     fout = open(os.path.join(outdir, outfilename), 'wb')
@@ -40,6 +40,7 @@ def mp_lambdas(Lambda):
 # Check the number of CPU's available
 print("Number of CPU's: %s"%(mp.cpu_count()))
 p = mp.Pool(processes=n_lambdas) # knows the number of CPU's to allocate
+print("Number of processes: {n_lambdas}")
 #p = mp.Pool(processes=mp.cpu_count()) # knows the number of CPU's to allocate
 #print("Process ID's: %s"%get_processes(p, n=lam))
 jobs = []

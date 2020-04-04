@@ -16,16 +16,13 @@ class PosteriorSampler(object):
     :param int freq_save_traj: the frequency (in steps) to store the MCMC trajectory
     """
 
-    def __init__(self, ensemble, freq_write_traj=100.,
-            freq_print=100., freq_save_traj=100., verbose=False):
+    def __init__(self, ensemble, freq_write_traj=100., freq_save_traj=100., verbose=False):
         """Initialize PosteriorSampler Class."""
 
         # Allow the ensemble to pass through the class
         self.ensemble = ensemble
         # Step frequencies to write trajectory info
         self.write_traj = freq_write_traj
-        # Frequency of printing to the screen
-        self.print_every = freq_print # debug
         # Frequency of storing trajectory samples
         self.traj_every = freq_save_traj
         # Ensemble is a list of Restraint objects
@@ -247,12 +244,14 @@ class PosteriorSampler(object):
         return _result
 
 
-    def sample(self, nsteps, verbose=False):
+    def sample(self, nsteps, print_freq=1000, verbose=False, debug=False):
         """Perform n number of steps (nsteps) of posterior sampling, where Monte
         Carlo moves are accepted or rejected according to Metroplis criterion.
         :param int nsteps: number of steps of sampling.
+        :var int default=1000 print_freq: frequency of printing to the screen
+        :var bool verbose: print statements for output
+        :var bool debug: extra print statements for debugging
         See :class:`neglogP`."""
-
 
         # Generate a matrix of nuisance parameters
         self.compile_nuisance_parameters()
@@ -284,6 +283,10 @@ class PosteriorSampler(object):
                     [getattr(Restraint, para) for para in Restraint._parameter_indices])
             _parameters.append(
                     [getattr(Restraint, para) for para in Restraint._parameters])
+
+        if verbose:
+            header = """Step\t\tState\tPara Indices\t\tEnergy\t\tAcceptance (%)"""
+            print(header)
 
 
         # The new parameter index to use in initial step (this is for restraints with more than one nuisance parameters)
@@ -398,7 +401,7 @@ class PosteriorSampler(object):
                 ## Take a random step in state space
                 new_state = np.random.randint(self.nstates)
                 actual_sample_ind = [len(temp_parameters)]  # actual parameters being sampled, if it's state then it's the last one in the list
-            if verbose:
+            if debug:
                 print('*****************************************')
                 #print('new_rest_index ', new_rest_index )
                 #print('new_para_index ', new_para_index )
@@ -447,7 +450,7 @@ class PosteriorSampler(object):
                 #    grid[to_sample_ind][ind1,ind2] += 1.0
             self.total += 1.0
 
-            if verbose:
+            if debug:
                 if accept:
                     print('*****************************************')
                     print('self.E', self.E)
@@ -479,12 +482,20 @@ class PosteriorSampler(object):
                     int(accept), int(self.new_state), list(temp)])
                 self.traj.traces.append(np.concatenate(_parameters))
 
+            if verbose:
+                if step%print_freq == 0:
+                    output = """%i\t\t%i\t%s\t%.3f\t\t%.2f"""%(step,self.new_state,
+                            _parameter_indices,self.E,self.accepted/self.total*100.)
+                    print(output)
+
         print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
-        print('\nAccepted %s %% \n'%(sep_accepted/self.total*100.))
+        print('\nAccepted [ ...Nuisance paramters..., state] %')
+        print('Accepted %s %% \n'%(sep_accepted/self.total*100.))
         self.traj.sep_accept.append(sep_accepted/self.total*100.)    # separate accepted ratio
         self.traj.sep_accept.append(self.accepted/self.total*100.)   # the total accepted ratio
         #for g in range(len(grid)):
         #    self.traj.grid.append(grid[g]/sampled[g]*100.)
+
 
 
 

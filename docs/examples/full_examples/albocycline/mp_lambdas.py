@@ -43,6 +43,7 @@ def mp_lambdas(Lambda):
 # Check the number of CPU's available
 print("Number of CPU's: %s"%(mp.cpu_count()))
 p = mp.Pool(processes=len(lambda_values)) # knows the number of CPU's to allocate
+print("Number of processes: {n_lambdas}")
 #p = mp.Pool(processes=mp.cpu_count()) # knows the number of CPU's to allocate
 #print("Process ID's: %s"%get_processes(p, n=lam))
 jobs = []

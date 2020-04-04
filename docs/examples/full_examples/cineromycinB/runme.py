@@ -13,7 +13,6 @@ print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions
 #data = biceps.toolbox.sort_data('../../datasets/cineromycin_B/noe_J')
 data = biceps.toolbox.sort_data('cineromycin_B/J_NOE')
 res = biceps.toolbox.list_res(data)
-extensions = biceps.toolbox.list_extensions(data)
 print(f"Input data: {biceps.toolbox.list_extensions(data)}")
 outdir = 'results_test'
 biceps.toolbox.mkdir(outdir)
@@ -29,10 +28,10 @@ uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
 for lam in lambda_values:
     print(f"lambda: {lam}")
     ensemble = biceps.Ensemble(lam, energies, top, verbose=False)
-    ensemble.initialize_restraints(exp_data=data, ref_pot=ref,
-            uncern=uncern, gamma=[0.2, 5.0, 1.02], extensions=extensions)
+    ensemble.initialize_restraints(input_data=data, ref_pot=ref,
+            uncern=uncern, gamma=[0.2, 5.0, 1.02])
     sampler = biceps.PosteriorSampler(ensemble.to_list())
-    sampler.sample(nsteps=nsteps)
+    sampler.sample(nsteps=nsteps, verbose=True)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
     outfilename = 'sampler_lambda%2.2f.pkl'%(lam)
     fout = open(os.path.join(outdir, outfilename), 'wb')
