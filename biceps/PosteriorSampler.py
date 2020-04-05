@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, sys, glob, copy
 import numpy as np
-from scipy  import loadtxt, savetxt
 from .KarplusRelation import *     # Returns J-coupling values from dihedral angles
 from .Restraint import *
 from .toolbox import *

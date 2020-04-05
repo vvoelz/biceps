@@ -82,7 +82,7 @@ master_doc = 'index'
 project = u'BICePs'
 authors = u'Yunhui Ge, Robert M. Raddi, Vincent A. Voelz'
 date = datetime.now()
-copyright = """%s, Temple University, %s\n"""%(date.today().year,authors)
+copyright = """%s, Temple University, %s\n\n"""%(date.today().year,authors)
 version = biceps.__version__
 release = version
 

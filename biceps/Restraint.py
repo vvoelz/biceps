@@ -5,14 +5,12 @@ import pandas as pd
 import mdtraj as md
 import biceps
 from biceps.KarplusRelation import * # Returns J-coupling values from dihedral angles
-from biceps.toolbox import *
 
 class Ensemble(object):
-    def __init__(self, lam, energies, top, verbose=False):
+    def __init__(self, lam, energies, verbose=False):
         """Container of Restraint objects"""
 
         self.ensemble = []
-        self.top = top
         if not isinstance(lam, float):
             raise ValueError("lambda should be a single number with type of 'float'")
         else:
@@ -33,7 +31,6 @@ class Ensemble(object):
             debug=False):
         """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
 
-        :param str PDB_filename: topology file name ('*.pdb')
         :param float lam: lambdas
         :param float energy: potential energy for each conformational state
         :param str default=None ref: reference potential (if default, will use our suggested reference potential for each experimental observables)
@@ -116,7 +113,7 @@ class Ensemble(object):
                 # Pick the Restraint class upon file extension
                 _Restraint = getattr(current_module, "Restraint_%s"%(restraint))
                 # Initializing Restraint
-                R = _Restraint(PDB_filename=self.top, ref=ref_pot[k], dlogsigma=dlogsigma,
+                R = _Restraint(ref=ref_pot[k], dlogsigma=dlogsigma,
                         sigma_min=sigma_min, sigma_max=sigma_max, verbose=verbose)
                 # Get all the arguments for the Child Restraint Class
                 args = {"%s"%key: val for key,val in locals().items()
@@ -141,8 +138,8 @@ class Restraint(object):
     :param float sigma_max: default=20.0
     :param bool default=True use_global_ref_sigma: """
 
-    def __init__(self, PDB_filename, ref, dlogsigma=np.log(1.02),
-            sigma_min=0.05, sigma_max=20.0, use_global_ref_sigma=True, verbose=False):
+    def __init__(self, ref, dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0,
+            use_global_ref_sigma=True, verbose=False):
         """Initialize the Restraint class.
 
         :param str PDB_filename: A topology file (*.pdb)
@@ -155,13 +152,6 @@ class Restraint(object):
 
         # Store restraint info
         self.restraints = []   # a list of data container objects for each restraint (e.g. NMR_Chemicalshift_Ca())
-
-        # Conformational Information
-        self.PDB_filename = PDB_filename
-        self.conf = md.load_pdb(PDB_filename)
-
-        # Convert the coordinates from nm to Angstrom units
-        self.conf.xyz = self.conf.xyz*10.0
 
         # used for exponential reference potential
         self.betas = None

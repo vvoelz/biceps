@@ -10,7 +10,7 @@ Installation
 .. raw:: html
 
     <h3 style="align: justify;font-size: 12pt"> We recommend that you install
-    <code>BICePs</code> with <code>pip</code>.<h3>
+    <code>biceps</code> with <code>pip</code>.<h3>
 
     <div class="highlight-default notranslate">
         <div class="highlight">
@@ -31,32 +31,32 @@ Installation
 
 .. raw:: html
 
-    <h3 style="text-align: justify;font-size: 12pt">
+    <h3 style="text-align: justify;font-size: 10pt">
     Conda is a cross-platform package manager built especially for scientific
-    python. It will install <code>BICePs</code> along with all dependencies from a
-    pre-compiled binary. If you don't have Python or the <code>conda</code> package
+    python. It will install <code>biceps</code> along with all dependencies from a
+    pre-compiled binary. If you don't have Python or the <b>Anaconda</b> package
     manager, we recommend starting with the
     <a href="https://store.continuum.io/cshop/anaconda/">
     Anaconda Scientific Python distribution</a>, which comes
-    pre-packaged with many of the core scientific python packages that BICePs
+    pre-packaged with many of the core scientific python packages that biceps
     uses (see below), or with the <a href="http://conda.pydata.org/miniconda.html">
-    Miniconda Python distribution</a>, which is a bare-bones Python installation.
+    <b>Miniconda</b> Python distribution</a>, which is a bare-bones Python installation.
     </h3>
     <!--<a href=""> </a>-->
     <br>
-    <h3 style="text-align: justify;font-size: 12pt"> BICePs supports
+    <h3 style="text-align: justify;font-size: 12pt"> biceps supports
     Python 2.7 or Python 3.4+ (coming soon) on Mac, Linux, and Windows.</h3>
 
 
 
-Dependencies of BICePs
+Dependencies of biceps
 ----------------------
 
  - pymbar>=3.0
  - mdtraj>=1.5.0
- - PyYaml
  - matplotlib>=2.1.2
  - numpy>=1.14.0
+ - multiprocessing
 
 
 Testing Your Installation
