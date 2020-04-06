@@ -10,10 +10,25 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    'sphinx.ext.inheritance_diagram',
     'sphinx.ext.autosummary',
     'autoapi.sphinx',
+    'sphinxcontrib.napoleon'
 ]
+
+# Napoleon settings
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = False
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
+napoleon_use_keyword = True
+napoleon_custom_sections = None
 
 ## Document Python Code
 autoapi_type = 'python'
@@ -21,8 +36,8 @@ autoapi_dirs = ['../biceps'] # Directory of Source Code    (directory of source 
 autoapi_root = './api'
 
 #autodoc_default_flags = ['members', 'inherited-members', 'classes']
-autodoc_default_flags = ['members', 'inherited-members']
-#autodoc_default_flags = ['members']
+#autodoc_default_flags = ['members', 'inherited-members']
+autodoc_default_flags = ['members']
 
 autosummary_generate = True
 autodoc_member_order = 'bysource'

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Conclusion &mdash; BICePs 2.0 documentation</title>
+  <title>&lt;no title&gt; &mdash; BICePs 2.0 documentation</title>
   
 
   
@@ -36,7 +36,6 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -137,7 +136,7 @@
     
       <li><a href="../../../index.html">Docs</a> &raquo;</li>
         
-      <li>Conclusion</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -404,13 +403,15 @@ Interactive online version:
 <span class="raw-html"><a href="https://mybinder.org/v2/gh/spatialaudio/nbsphinx/2.0?filepath=doc/examples/Tutorials/Prep_Rest_Post_Ana/posteriorsampler.ipynb"><img alt="Binder badge" src="https://mybinder.org/badge.svg" style="vertical-align:text-bottom"></a></span></p>
 </div>
 <h1 style="align: center;font-size: 18pt;"><p>PosteriorSampler</p>
-</h1><hr style="height:2.5px"><p>In this tutorial, we will perform sampling when given an ensemble. Previously, in the <a class="reference external" href="https://biceps.readthedocs.io/en/latest/api.html#restraint">Restraint</a> tutorial we constructed an ensemble of a single lambda value and saved it as a pickle file. Please read the section <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Prep_Rest_Post_Ana/restraint.ipynb#Quick-note-on-lambda-values:">lambda values</a> in the previous tutorial for more information.</p>
+</h1><hr style="height:2.5px"><p>In this tutorial, we will perform sampling when given an ensemble. Previously, in the <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Prep_Rest_Post_Ana/restraint.html">Restraint</a> tutorial we constructed ensembles for two lambda values and saved them to pickle files. Please read the section <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Prep_Rest_Post_Ana/restraint.ipynb#Quick-note-on-lambda-values:">lambda values</a> in the previous tutorial for more information.</p>
 <hr style="height:2.5px"><div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">biceps</span>
 </pre></div>
 </div>
@@ -424,37 +425,40 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pickle</span>
-<span class="n">lam</span> <span class="o">=</span> <span class="mf">0.0</span>
-<span class="n">data_dir</span> <span class="o">=</span> <span class="s2">&quot;../../datasets/cineromycin_B/&quot;</span>
-<span class="n">outdir</span> <span class="o">=</span> <span class="s1">&#39;results&#39;</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s2">&quot;/ensemble_</span><span class="si">%s</span><span class="s2">.pkl&quot;</span><span class="o">%</span><span class="k">lam</span>,&#39;rb&#39;) as file:
-    <span class="n">ensemble</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span></span><span class="n">outdir</span> <span class="o">=</span> <span class="s1">&#39;results&#39;</span>
+<span class="n">n_lambdas</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">lambda_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">n_lambdas</span><span class="p">)</span>
+<span class="n">ensembles</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="n">lambda_values</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s2">&quot;/ensemble_</span><span class="si">%s</span><span class="s2">.pkl&quot;</span><span class="o">%</span><span class="k">lam</span>,&#39;rb&#39;) as file:
+        <span class="n">ensemble</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">ensembles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ensemble</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>Next, we need to specify number of steps for BICePs sampling. We recommend to run at least 1M steps for converged Monte Carlo samplings. Checking the convergence of the MCMC trajectory can be done simply using the submodule, <code class="docutils literal notranslate"><span class="pre">biceps.convergence</span></code>. More information can be found <a class="reference external" href="https://biceps.readthedocs.io/en/latest/api.html#convergence">here</a>.</p>
+<p>Using the first ensemble of the list of <code class="docutils literal notranslate"><span class="pre">ensembles</span></code>…</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">nsteps</span> <span class="o">=</span> <span class="mi">1000000</span> <span class="c1"># number of steps of MCMC simulation</span>
-<span class="n">sampler</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">PosteriorSampler</span><span class="p">(</span><span class="n">ensemble</span><span class="p">)</span>
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">PosteriorSampler</span><span class="p">(</span><span class="n">ensembles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
-<p>Then, we sample for 1M steps…</p>
+<p>Then, we sample for 1 M steps…</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nsteps</span><span class="p">)</span>  <span class="c1"># number of steps</span>
+<span></span><span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nsteps</span><span class="o">=</span><span class="n">nsteps</span><span class="p">,</span> <span class="n">print_freq</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -463,32 +467,125 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+Step    State   Para Indices            Energy          Acceptance (%)
+0       0       [[152], [116, 162]]     112.572         100.00
+10000   32      [[218], [136, 189]]     7.430           70.62
+20000   23      [[262], [157, 179]]     11.701          69.75
+30000   21      [[260], [126, 187]]     6.048           69.36
+40000   7       [[236], [123, 193]]     7.971           70.81
+50000   8       [[258], [138, 192]]     9.636           71.01
+60000   47      [[229], [154, 192]]     10.725          70.85
+70000   87      [[234], [137, 206]]     6.883           71.04
+80000   81      [[247], [147, 187]]     10.046          71.34
+90000   77      [[230], [143, 204]]     7.720           71.99
+100000  45      [[284], [142, 199]]     10.681          72.13
+110000  21      [[241], [123, 189]]     5.264           72.85
+120000  79      [[217], [131, 186]]     6.894           72.46
+130000  65      [[264], [150, 175]]     10.793          72.43
+140000  79      [[246], [135, 191]]     6.440           72.41
+150000  87      [[230], [147, 192]]     5.981           72.39
+160000  79      [[225], [145, 192]]     6.794           72.31
+170000  21      [[227], [124, 195]]     6.253           72.27
+180000  87      [[237], [135, 200]]     5.615           72.25
+190000  21      [[258], [118, 189]]     5.765           72.06
+200000  34      [[237], [142, 191]]     9.893           71.98
+210000  27      [[270], [127, 201]]     8.125           71.78
+220000  87      [[216], [135, 204]]     5.998           71.75
+230000  65      [[269], [131, 188]]     9.329           71.75
+240000  57      [[258], [133, 189]]     9.840           71.88
+250000  93      [[277], [156, 202]]     12.058          72.06
+260000  88      [[255], [142, 203]]     9.522           72.36
+270000  87      [[220], [128, 193]]     5.227           72.40
+280000  24      [[243], [165, 194]]     11.893          72.39
+290000  67      [[252], [147, 182]]     9.399           72.42
+300000  25      [[231], [133, 194]]     8.885           72.55
+310000  21      [[264], [120, 194]]     5.981           72.45
+320000  27      [[242], [132, 203]]     6.487           72.45
+330000  33      [[231], [138, 198]]     9.738           72.38
+340000  59      [[260], [133, 192]]     7.352           72.33
+350000  58      [[261], [133, 192]]     9.170           72.52
+360000  21      [[244], [126, 195]]     5.385           72.54
+370000  67      [[254], [141, 195]]     7.328           72.49
+380000  92      [[238], [126, 192]]     9.221           72.38
+390000  51      [[257], [145, 185]]     9.749           72.31
+400000  21      [[240], [117, 193]]     5.362           72.30
+410000  17      [[237], [140, 188]]     7.636           72.34
+420000  21      [[223], [129, 197]]     7.303           72.29
+430000  21      [[261], [116, 186]]     6.818           72.26
+440000  21      [[262], [152, 207]]     11.106          72.27
+450000  21      [[254], [139, 199]]     7.219           72.27
+460000  7       [[252], [133, 196]]     7.536           72.31
+470000  18      [[246], [145, 195]]     9.958           72.28
+480000  90      [[233], [124, 183]]     8.761           72.35
+490000  87      [[229], [132, 198]]     5.066           72.46
+500000  27      [[232], [139, 196]]     6.295           72.46
+510000  87      [[204], [145, 204]]     6.982           72.43
+520000  79      [[225], [136, 189]]     6.152           72.45
+530000  0       [[234], [122, 190]]     8.107           72.48
+540000  26      [[273], [141, 179]]     12.469          72.49
+550000  45      [[255], [128, 183]]     8.214           72.49
+560000  99      [[238], [157, 187]]     11.492          72.52
+570000  54      [[237], [128, 196]]     9.594           72.46
+580000  79      [[268], [130, 186]]     8.581           72.41
+590000  21      [[244], [126, 190]]     5.191           72.35
+600000  67      [[249], [133, 186]]     8.177           72.40
+610000  6       [[240], [137, 173]]     11.433          72.46
+620000  1       [[244], [119, 186]]     11.108          72.42
+630000  27      [[233], [129, 200]]     6.127           72.44
+640000  21      [[267], [125, 182]]     7.897           72.41
+650000  66      [[242], [128, 190]]     8.590           72.45
+660000  2       [[247], [141, 191]]     8.552           72.43
+670000  27      [[243], [135, 192]]     6.733           72.45
+680000  45      [[232], [126, 188]]     7.383           72.43
+690000  79      [[213], [131, 191]]     6.810           72.44
+700000  87      [[211], [132, 201]]     5.560           72.43
+710000  51      [[254], [137, 192]]     8.606           72.47
+720000  67      [[263], [154, 206]]     10.439          72.52
+730000  87      [[233], [138, 194]]     5.290           72.56
+740000  87      [[220], [140, 191]]     5.349           72.53
+750000  27      [[243], [127, 190]]     7.733           72.58
+760000  17      [[226], [151, 191]]     8.261           72.60
+770000  87      [[226], [126, 198]]     5.354           72.60
+780000  79      [[233], [133, 194]]     6.043           72.60
+790000  21      [[244], [114, 193]]     5.593           72.57
+800000  21      [[260], [119, 196]]     6.185           72.56
+810000  79      [[264], [141, 201]]     9.305           72.61
+820000  21      [[253], [117, 187]]     6.042           72.65
+830000  87      [[238], [153, 185]]     7.875           72.63
+840000  70      [[278], [150, 197]]     11.936          72.66
+850000  21      [[264], [117, 191]]     5.985           72.68
+860000  79      [[231], [130, 187]]     6.263           72.69
+870000  90      [[238], [134, 186]]     8.539           72.65
+880000  80      [[241], [134, 196]]     9.390           72.61
+890000  92      [[241], [133, 187]]     8.591           72.61
+900000  7       [[249], [140, 188]]     8.085           72.58
+910000  75      [[248], [164, 190]]     11.923          72.59
+920000  5       [[208], [143, 197]]     13.619          72.56
+930000  70      [[256], [139, 182]]     11.085          72.55
+940000  34      [[241], [127, 203]]     11.270          72.55
+950000  35      [[252], [153, 182]]     10.645          72.61
+960000  87      [[239], [143, 196]]     5.874           72.63
+970000  32      [[234], [138, 173]]     8.761           72.66
+980000  87      [[199], [130, 193]]     6.578           72.65
+990000  21      [[239], [134, 197]]     6.236           72.57
 
-Accepted 79.3236 %
+Accepted 72.5852 %
 
 
-Accepted [24.6235 24.3288 23.8448  6.5265] %
+Accepted [32.7525 31.2572 31.2572  8.5755] %
 
 </pre></div></div>
 </div>
 <p>Now, process and save the results for the next step, <code class="docutils literal notranslate"><span class="pre">Analysis</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Processing trajectory...&#39;</span><span class="p">,)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Writing results...&#39;</span><span class="p">,)</span>
-<span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">process_results</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s1">&#39;/traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="k">lam</span>)  # compute averages, etc.
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;...Done.&#39;</span><span class="p">)</span>
-
-<span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">read_results</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s1">&#39;/traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="k">lam</span>)
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Pickling the sampler object ...&#39;</span><span class="p">,)</span>
-<span class="n">outfilename</span> <span class="o">=</span> <span class="n">outdir</span><span class="o">+</span><span class="s1">&#39;/sampler_lambda</span><span class="si">%2.2f</span><span class="s1">.pkl&#39;</span><span class="o">%</span><span class="k">lam</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">outfilename</span><span class="p">)</span>
-<span class="n">fout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfilename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
-<span class="c1"># Pickle dictionary using protocol 0.</span>
+<span></span><span class="n">lam</span> <span class="o">=</span> <span class="n">lambda_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">process_results</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s1">&#39;/traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">))</span>
+<span class="n">outfilename</span> <span class="o">=</span> <span class="s1">&#39;sampler_lambda</span><span class="si">%2.2f</span><span class="s1">.pkl&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+<span class="n">fout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">outfilename</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sampler</span><span class="p">,</span> <span class="n">fout</span><span class="p">)</span>
 <span class="n">fout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;...Done.&#39;</span><span class="p">)</span>
@@ -500,24 +597,50 @@ Accepted [24.6235 24.3288 23.8448  6.5265] %
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Processing trajectory...
-Writing results...
-...Done.
-Pickling the sampler object ...
-results/sampler_lambda0.00.pkl
 ...Done.
 </pre></div></div>
 </div>
-<div class="section" id="Conclusion">
-<h1>Conclusion<a class="headerlink" href="#Conclusion" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial, we used the <code class="docutils literal notranslate"><span class="pre">PosteriorSampler</span></code> class to perform MCMC sampling given the ensemble Python object. In the <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Prep_Rest_Post_Ana/analysis.html">next tutorial</a>, we will analyze our trajectory data.</p>
-<h6 style="align: justify;font-size: 12pt"><p># NOTE: The following cell is for pretty notebook rendering</p>
-</h6><div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<p>Then, we will do the same thing for the second ensemble in the list of <code class="docutils literal notranslate"><span class="pre">ensembles</span></code>. <strong>Note that we separated them for simplicity of the tutorial.</strong></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="k">import</span> <span class="n">HTML</span>
+<span></span><span class="n">lam</span> <span class="o">=</span> <span class="n">lambda_values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">PosteriorSampler</span><span class="p">(</span><span class="n">ensembles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nsteps</span><span class="o">=</span><span class="n">nsteps</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">process_results</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s1">&#39;/traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">))</span>
+<span class="n">outfilename</span> <span class="o">=</span> <span class="s1">&#39;sampler_lambda</span><span class="si">%2.2f</span><span class="s1">.pkl&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+<span class="n">fout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">outfilename</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sampler</span><span class="p">,</span> <span class="n">fout</span><span class="p">)</span>
+<span class="n">fout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;...Done.&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Accepted 65.7684 %
+
+
+Accepted [32.7143 31.458  31.458   1.5961] %
+
+...Done.
+</pre></div></div>
+</div>
+<h1 style="text-align: center;font-size: 18pt;"><p>Conclusion</p>
+</h1><p>In this tutorial, we used the <code class="docutils literal notranslate"><span class="pre">PosteriorSampler</span></code> class to perform MCMC sampling given the ensemble Python object. In the <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Prep_Rest_Post_Ana/analysis.html">next tutorial</a>, we will analyze our trajectory data.</p>
+<h6 style="align: justify;font-size: 12pt"><p># NOTE: The following cell is for pretty notebook rendering</p>
+</h6><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
 <span class="k">def</span> <span class="nf">css_styling</span><span class="p">():</span>
     <span class="n">styles</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../../theme.css&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span>
@@ -526,7 +649,7 @@ results/sampler_lambda0.00.pkl
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -624,7 +747,6 @@ results/sampler_lambda0.00.pkl
         });
 </script></div>
 </div>
-</div>
 
 
            </div>
@@ -638,6 +760,7 @@ results/sampler_lambda0.00.pkl
   <div role="contentinfo">
     <p>
         &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
 
     </p>

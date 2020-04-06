@@ -36,7 +36,6 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -404,9 +403,11 @@ Interactive online version:
 <span class="raw-html"><a href="https://mybinder.org/v2/gh/spatialaudio/nbsphinx/2.0?filepath=doc/examples/full_examples/albocycline/albocycline.ipynb"><img alt="Binder badge" src="https://mybinder.org/badge.svg" style="vertical-align:text-bottom"></a></span></p>
 </div>
 <h1 style="align: center;font-size: 18pt;"><p>Albocycline</p>
-</h1><hr style="height:2.5px"><p>Summary: In our previous example we showed in detail how to calculate the consistency of theoretical modeling with experiment. The user gained insight on how to run <code class="docutils literal notranslate"><span class="pre">biceps</span></code> calculations in full. In this example, we will repeat the process will less detail for another system. In addition, this example will include the code for <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> lambda values. Note that 1M steps for tutorial purposes.</p>
-<p>To convert this Jupyter Notebook into a script use the following command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ jupyuter nbconvert --to python Albocycline.ipynb
+</h1><!--<img title="https://pubchem.ncbi.nlm.nih.gov" src="https://pubchem.ncbi.nlm.nih.gov/image/imagefly.cgi?cid=6440973&width=500&height=500" align="center" height="400" width="400">--><hr style="height:2.5px"><h2 style="align: center;font-size: 12pt;"><p>Summary:</p>
+</h2><p>Albocycline is a macrolactone isolated from Streptomyces maizeus. This macrolactone has recently been identified as a promising lead antibiotic candidate for the treatment of both vancomycin-resistant S. aureus (VRSA) and MRSA. In our previous example we showed in detail how to calculate the consistency of theoretical modeling with experiment. The user gained insight on how to run <code class="docutils literal notranslate"><span class="pre">biceps</span></code> calculations in full. In this example, we will repeat the process parallelizing lambda values with
+<code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code>.</p>
+</h2><p><strong>To convert this Jupyter Notebook into a script use the following command:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ jupyter nbconvert --to python albocycline.ipynb
 </pre></div>
 </div>
 <hr style="height:2.5px"><div class="nbinput docutils container">
@@ -414,8 +415,7 @@ Interactive online version:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">biceps</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
 </pre></div>
@@ -429,52 +429,72 @@ Interactive online version:
 BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </pre></div></div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">####### Data and Output Directories #######</span>
-<span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;../../datasets/albocycline/albocycline_QMenergies.dat&#39;</span><span class="p">)</span><span class="o">*</span><span class="mf">627.509</span>  <span class="c1"># convert from hartrees to kcal/mol</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Possible input data extensions: {biceps.toolbox.list_possible_extensions()}&quot;</span><span class="p">)</span>
+<span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;albocycline/albocycline_QMenergies.dat&#39;</span><span class="p">)</span><span class="o">*</span><span class="mf">627.509</span>  <span class="c1"># convert from hartrees to kcal/mol</span>
 <span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span><span class="o">/</span><span class="mf">0.5959</span>   <span class="c1"># convert to reduced free energies F = f/kT</span>
 <span class="n">energies</span> <span class="o">-=</span> <span class="n">energies</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>  <span class="c1"># set ground state to zero, just in case</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">sort_data</span><span class="p">(</span><span class="s1">&#39;../../datasets/albocycline/noe_J&#39;</span><span class="p">)</span>
-<span class="n">res</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">list_res</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">outdir</span> <span class="o">=</span> <span class="s1">&#39;results_ref_normal&#39;</span>
+<span class="n">states</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">)</span>
+<span class="n">dataFiles</span> <span class="o">=</span> <span class="s1">&#39;albocycline/new_J_NOE&#39;</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">sort_data</span><span class="p">(</span><span class="n">dataFiles</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input data: {biceps.toolbox.list_extensions(data)}&quot;</span><span class="p">)</span>
+<span class="n">outdir</span> <span class="o">=</span> <span class="s1">&#39;results&#39;</span>
 <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
-
-<span class="c1">####### Parameters #######</span>
-<span class="n">nsteps</span><span class="o">=</span><span class="mi">1000000</span>
-<span class="n">maxtau</span> <span class="o">=</span> <span class="mi">1000</span>
-<span class="n">lambda_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Possible input data extensions: [&#39;H&#39;, &#39;Ca&#39;, &#39;N&#39;, &#39;J&#39;, &#39;noe&#39;, &#39;pf&#39;]
+Input data: [&#39;J&#39;, &#39;noe&#39;]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">####### Parameters #######</span>
+<span class="n">nsteps</span><span class="o">=</span><span class="mi">10000000</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nSteps of sampling: </span><span class="si">{nsteps}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">n_lambdas</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">lambda_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">n_lambdas</span><span class="p">)</span>
 <span class="n">ref</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;uniform&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">]</span>
 <span class="n">uncern</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">]]</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+nSteps of sampling: 10000000
+</pre></div></div>
+</div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">####### Multiprocessing Lambda values #######</span>
 <span class="k">def</span> <span class="nf">mp_lambdas</span><span class="p">(</span><span class="n">Lambda</span><span class="p">):</span>
-    <span class="c1">####### MCMC Simulations #######</span>
-    <span class="n">ensemble</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">energies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">ensemble</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
-            <span class="n">File</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
-            <span class="n">R</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">init_res</span><span class="p">(</span><span class="n">PDB_filename</span><span class="o">=</span><span class="s1">&#39;../../datasets/albocycline/pdbs/0.pdb&#39;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-                <span class="n">energy</span><span class="o">=</span><span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ref</span><span class="o">=</span><span class="n">ref</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">File</span><span class="p">,</span>
-                <span class="n">uncern</span><span class="o">=</span><span class="n">uncern</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">])</span>
-            <span class="n">ensemble</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
-    <span class="n">sampler</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">PosteriorSampler</span><span class="p">(</span><span class="n">ensemble</span><span class="p">)</span>
-    <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nsteps</span><span class="o">=</span><span class="n">nsteps</span><span class="p">)</span>
-    <span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">process_results</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s1">&#39;/traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">))</span>
-    <span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">read_results</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span>
-        <span class="s1">&#39;traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="k">lam</span>))
-    <span class="n">outfilename</span> <span class="o">=</span> <span class="s1">&#39;sampler_lambda</span><span class="si">%2.2f</span><span class="s1">.pkl&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;lambda: </span><span class="si">{Lambda}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ensemble</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">Ensemble</span><span class="p">(</span><span class="n">Lambda</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ensemble</span><span class="o">.</span><span class="n">initialize_restraints</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ref_pot</span><span class="o">=</span><span class="n">ref</span><span class="p">,</span>
+            <span class="n">gamma</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">],</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">sampler</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">PosteriorSampler</span><span class="p">(</span><span class="n">ensemble</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+    <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nsteps</span><span class="o">=</span><span class="n">nsteps</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">process_results</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s1">&#39;/traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">Lambda</span><span class="p">))</span>
+    <span class="n">outfilename</span> <span class="o">=</span> <span class="s1">&#39;sampler_lambda</span><span class="si">%2.2f</span><span class="s1">.pkl&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">Lambda</span><span class="p">)</span>
     <span class="n">fout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">outfilename</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
     <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sampler</span><span class="p">,</span> <span class="n">fout</span><span class="p">)</span>
     <span class="n">fout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -483,22 +503,24 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Check the number of CPU&#39;s available</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of CPU&#39;s: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()))</span>
-<span class="n">p</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">lambda_values</span><span class="p">))</span> <span class="c1"># knows the number of CPU&#39;s to allocate</span>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of CPU&#39;s: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()))</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_lambdas</span><span class="p">)</span> <span class="c1"># knows the number of CPU&#39;s to allocate</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of processes: </span><span class="si">{n_lambdas}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">jobs</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="n">lambda_values</span><span class="p">:</span>
     <span class="n">process</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">mp_lambdas</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">lam</span><span class="p">,))</span>
     <span class="n">jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
     <span class="n">jobs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="c1"># Start the processes</span>
     <span class="n">active_processors</span> <span class="o">=</span> <span class="p">[</span><span class="n">jobs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">jobs</span><span class="p">))]</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">lambda_values</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1">#print(&quot;Waiting until a processor becomes available...&quot;)</span>
         <span class="k">while</span> <span class="nb">all</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">active_processors</span> <span class="o">=</span> <span class="p">[</span><span class="n">jobs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">jobs</span><span class="p">))]</span>
+
         <span class="n">inactive</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">jobs</span><span class="p">[</span><span class="n">inactive</span><span class="p">]</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
         <span class="n">jobs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">jobs</span><span class="p">[</span><span class="n">inactive</span><span class="p">])</span>
@@ -513,38 +535,42 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Number of CPU&#39;s: 4
+Number of CPU&#39;s: 6
+Number of processes: 3
+lambda: 0.0
+lambda: 0.5
+lambda: 1.0
 
-Accepted 65.92949999999999 %
-
-
-Accepted [32.6643 30.731  30.731   2.5342] %
-
-
-Accepted 69.62559999999999 %
+Accepted 72.14228 %
 
 
-Accepted [32.6185 30.2828 30.2828  6.7243] %
+Accepted [32.63885 31.71776 31.71776  7.78567] %
 
 
-Accepted 70.99839999999999 %
+Accepted 71.36804 %
 
 
-Accepted [32.6615 30.5969 30.5969  7.74  ] %
+Accepted [32.63184 31.53664 31.53664  7.19956] %
 
 ...Done.
+
+Accepted 66.93186 %
+
+
+Accepted [32.65749 31.69709 31.69709  2.57728] %
+
 ...Done.
 ...Done.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">####### Posterior Analysis #######</span>
 <span class="o">%</span><span class="k">matplotlib</span> inline
-<span class="n">A</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">Analysis</span><span class="p">(</span><span class="n">states</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">resultdir</span><span class="o">=</span><span class="n">outdir</span><span class="o">+</span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">Analysis</span><span class="p">(</span><span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span> <span class="n">resultdir</span><span class="o">=</span><span class="n">outdir</span><span class="o">+</span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
     <span class="n">BSdir</span><span class="o">=</span><span class="s1">&#39;BS.dat&#39;</span><span class="p">,</span> <span class="n">popdir</span><span class="o">=</span><span class="s1">&#39;populations.dat&#39;</span><span class="p">,</span>
     <span class="n">picfile</span><span class="o">=</span><span class="s1">&#39;BICePs.pdf&#39;</span><span class="p">)</span>
 <span class="n">A</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
@@ -556,20 +582,18 @@ Accepted [32.6615 30.5969 30.5969  7.74  ] %
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Loading results_ref_normal/traj_lambda0.00.npz ...
-Loading results_ref_normal/traj_lambda0.50.npz ...
-Loading results_ref_normal/traj_lambda1.00.npz ...
-not all state sampled, these states [ 9 48] are not sampled
-not all state sampled, these states [ 4  5  7  9 15 16 21 25 27 28 34 40 42 44 48 51 54 58 76 77 81 87 94 95
- 98] are not sampled
-Loading results_ref_normal/sampler_lambda0.00.pkl ...
-Loading results_ref_normal/sampler_lambda0.50.pkl ...
-Loading results_ref_normal/sampler_lambda1.00.pkl ...
+Loading results/traj_lambda0.00.npz ...
+Loading results/traj_lambda0.50.npz ...
+Loading results/traj_lambda1.00.npz ...
+not all state sampled, these states [ 5  7  9 11 15 16 25 34 40 42 48 77 81 87 95 98] are not sampled
+Loading results/sampler_lambda0.00.pkl ...
+Loading results/sampler_lambda0.50.pkl ...
+Loading results/sampler_lambda1.00.pkl ...
 lam = [0.0, 0.5, 1.0]
 nstates 100
-Writing results_ref_normal/BS.dat...
+Writing results/BS.dat...
 ...Done.
-Writing results_ref_normal/populations.dat...
+Writing results/populations.dat...
 ...Done.
 </pre></div></div>
 </div>
@@ -577,14 +601,14 @@ Writing results_ref_normal/populations.dat...
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/examples_full_examples_albocycline_albocycline_5_1.png" src="../../../_images/examples_full_examples_albocycline_albocycline_5_1.png" />
+<img alt="../../../_images/examples_full_examples_albocycline_albocycline_6_1.png" src="../../../_images/examples_full_examples_albocycline_albocycline_6_1.png" />
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/examples_full_examples_albocycline_albocycline_5_2.png" src="../../../_images/examples_full_examples_albocycline_albocycline_5_2.png" />
+<img alt="../../../_images/examples_full_examples_albocycline_albocycline_6_2.png" src="../../../_images/examples_full_examples_albocycline_albocycline_6_2.png" />
 </div>
 </div>
 <h6 style="align: justify;font-size: 12pt"><p># NOTE: The following cell is for pretty notebook rendering</p>
@@ -593,7 +617,7 @@ Writing results_ref_normal/populations.dat...
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="k">import</span> <span class="n">HTML</span>
+<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
 <span class="k">def</span> <span class="nf">css_styling</span><span class="p">():</span>
     <span class="n">styles</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../../theme.css&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span>
@@ -713,6 +737,7 @@ Writing results_ref_normal/populations.dat...
   <div role="contentinfo">
     <p>
         &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
 
     </p>

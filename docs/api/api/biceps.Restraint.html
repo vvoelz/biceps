@@ -36,7 +36,6 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
@@ -183,384 +182,58 @@
 <div class="section" id="module-biceps.Restraint">
 <span id="biceps-restraint"></span><h1><code class="docutils literal notranslate"><span class="pre">biceps.Restraint</span></code><a class="headerlink" href="#module-biceps.Restraint" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="biceps.Restraint.Restraint">
-<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint</code><span class="sig-paren">(</span><em class="sig-param">PDB_filename</em>, <em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>The parent class of all Restraint() objects.</p>
+<dt id="biceps.Restraint.Restraint_cs">
+<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_cs</code><span class="sig-paren">(</span><em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <code class="xref py py-attr docutils literal notranslate"><span class="pre">Restraint</span></code> child class for chemical shifts.</p>
+<p>The parent <code class="xref py py-attr docutils literal notranslate"><span class="pre">Restraint</span></code> class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id1"><span class="problematic" id="id2">*</span></a>.pdb)</p></li>
-<li><p><strong>ref</strong> (<em>str</em>) – Reference potential.</p></li>
-<li><p><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </p></li>
-<li><p><strong>sigma_min</strong> (<em>float</em>) – default = 0.05</p></li>
-<li><p><strong>sigma_max</strong> (<em>float</em>) – default = 20.0</p></li>
-<li><p><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<p>Initialize the Restraint class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id3"><span class="problematic" id="id4">*</span></a>.pdb)</p></li>
-<li><p><strong>ref</strong> (<em>str</em>) – Reference potential.</p></li>
-<li><p><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=0.05 sigma_min</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=20.0 sigma_max</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>ref_pot</strong> (<em>str</em>) – referenece potential e.g., “uniform”. “exp”, “gau”.                    If None, the default reference potential will be used for                    a given experimental observable</p></li>
+<li><p><strong>dlogsigma</strong> (<em>float</em>) – (defaults to np.log(1.02))</p></li>
+<li><p><strong>sigma_min</strong> (<em>float</em>) – (defaults to 0.05)</p></li>
+<li><p><strong>sigma_max</strong> (<em>float</em>) – (defaults to 20.0)</p></li>
+<li><p><strong>use_global_ref_sigma</strong> (<em>bool</em>) – (defaults to True)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
-<dt id="biceps.Restraint.Restraint.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">prep</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load in the experimental chemical shift restraints from a known
-file format.</p>
+<dt id="biceps.Restraint.Restraint_cs.init_restraint">
+<code class="sig-name descname">init_restraint</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">extension</em>, <em class="sig-param">weight=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs.init_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the chemical shift restraints for each <strong>exp</strong> (experimental)
+and <strong>model</strong> (theoretical) observable given <strong>data</strong>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>prep</strong> (<em>file</em>) – prep the input data</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>str</em>) – filename of data</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy of the conformation</p></li>
+<li><p><strong>extensions</strong> (<em>str</em>) – “H”, “Ca”, “N”</p></li>
+<li><p><strong>weight</strong> (<em>float</em>) – weight for restraint</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="biceps.Restraint.Restraint.add_restraint">
-<code class="sig-name descname">add_restraint</code><span class="sig-paren">(</span><em class="sig-param">restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint.add_restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>restraint</strong> (<em>list</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint.compute_sse">
-<code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dt id="biceps.Restraint.Restraint_cs.compute_sse">
+<code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs.compute_sse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="biceps.Restraint.Restraint.compute_neglog_exp_ref">
-<code class="sig-name descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the stored beta information (calculated across all structures)
-to calculate -log P_ref(observable[j]) for each observable j.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint.compute_neglog_gaussian_ref">
-<code class="sig-name descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alternative option for reference potential based on
-Gaussian distribution. (Ignoring constant terms)</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="biceps.Restraint.Restraint_cs_Ca">
-<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_cs_Ca</code><span class="sig-paren">(</span><em class="sig-param">PDB_filename</em>, <em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ca" title="Permalink to this definition">¶</a></dt>
-<dd><p>A derived class of RestraintClass() for C_alpha chemical shift restraints.</p>
-<p>Initialize the Restraint class.</p>
+<dt id="biceps.Restraint.Restraint_cs.compute_neglogP">
+<code class="sig-name descname">compute_neglogP</code><span class="sig-paren">(</span><em class="sig-param">index</em>, <em class="sig-param">parameters</em>, <em class="sig-param">parameter_indices</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs.compute_neglogP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes <span class="math notranslate nohighlight">\(-logP\)</span> for chemical shift during MCMC sampling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id5"><span class="problematic" id="id6">*</span></a>.pdb)</p></li>
-<li><p><strong>ref</strong> (<em>str</em>) – Reference potential.</p></li>
-<li><p><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=0.05 sigma_min</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=20.0 sigma_max</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>index</strong> (<em>int</em>) – restraint index</p></li>
+<li><p><strong>parameters</strong> (<em>list</em>) – collection of parameters for a given step of MCMC</p></li>
+<li><p><strong>parameter_indices</strong> (<em>list</em>) – collection of indices for a given step of MCMC</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ca.prep_observable">
-<code class="sig-name descname">prep_observable</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">lam</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ca.prep_observable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Observable is prepped by loading in C_alpha restraints.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>str</em>) – Experimental data file</p></li>
-<li><p><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</p></li>
-<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy of this conformation</p></li>
-</ul>
-</dd>
-</dl>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">F</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ca.add_restraint">
-<code class="sig-name descname">add_restraint</code><span class="sig-paren">(</span><em class="sig-param">restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ca.add_restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>restraint</strong> (<em>list</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ca.compute_neglog_exp_ref">
-<code class="sig-name descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ca.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the stored beta information (calculated across all structures)
-to calculate -log P_ref(observable[j]) for each observable j.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ca.compute_neglog_gaussian_ref">
-<code class="sig-name descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ca.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alternative option for reference potential based on
-Gaussian distribution. (Ignoring constant terms)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ca.compute_sse">
-<code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ca.compute_sse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ca.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">prep</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ca.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load in the experimental chemical shift restraints from a known
-file format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>prep</strong> (<em>file</em>) – prep the input data</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="biceps.Restraint.Restraint_cs_H">
-<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_cs_H</code><span class="sig-paren">(</span><em class="sig-param">PDB_filename</em>, <em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_H" title="Permalink to this definition">¶</a></dt>
-<dd><p>A derived class of RestraintClass() for H chemical shift restraints.</p>
-<p>Initialize the Restraint class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id7"><span class="problematic" id="id8">*</span></a>.pdb)</p></li>
-<li><p><strong>ref</strong> (<em>str</em>) – Reference potential.</p></li>
-<li><p><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=0.05 sigma_min</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=20.0 sigma_max</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_H.prep_observable">
-<code class="sig-name descname">prep_observable</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">lam</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_H.prep_observable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Observable is prepped by loading in cs_H restraints.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>str</em>) – Experimental data file</p></li>
-<li><p><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</p></li>
-<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy of this conformation</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_H.add_restraint">
-<code class="sig-name descname">add_restraint</code><span class="sig-paren">(</span><em class="sig-param">restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_H.add_restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>restraint</strong> (<em>list</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_H.compute_neglog_exp_ref">
-<code class="sig-name descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_H.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the stored beta information (calculated across all structures)
-to calculate -log P_ref(observable[j]) for each observable j.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_H.compute_neglog_gaussian_ref">
-<code class="sig-name descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_H.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alternative option for reference potential based on
-Gaussian distribution. (Ignoring constant terms)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_H.compute_sse">
-<code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_H.compute_sse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_H.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">prep</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_H.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load in the experimental chemical shift restraints from a known
-file format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>prep</strong> (<em>file</em>) – prep the input data</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="biceps.Restraint.Restraint_cs_Ha">
-<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_cs_Ha</code><span class="sig-paren">(</span><em class="sig-param">PDB_filename</em>, <em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ha" title="Permalink to this definition">¶</a></dt>
-<dd><p>A derived class of RestraintClass() for Ha chemical shift restraints.</p>
-<p>Initialize the Restraint class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id9"><span class="problematic" id="id10">*</span></a>.pdb)</p></li>
-<li><p><strong>ref</strong> (<em>str</em>) – Reference potential.</p></li>
-<li><p><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=0.05 sigma_min</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=20.0 sigma_max</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ha.prep_observable">
-<code class="sig-name descname">prep_observable</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">lam</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ha.prep_observable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Observable is prepped by loading in cs_Ha restraints.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>str</em>) – Experimental data file</p></li>
-<li><p><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</p></li>
-<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy of this conformation</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ha.add_restraint">
-<code class="sig-name descname">add_restraint</code><span class="sig-paren">(</span><em class="sig-param">restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ha.add_restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>restraint</strong> (<em>list</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ha.compute_neglog_exp_ref">
-<code class="sig-name descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ha.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the stored beta information (calculated across all structures)
-to calculate -log P_ref(observable[j]) for each observable j.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ha.compute_neglog_gaussian_ref">
-<code class="sig-name descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ha.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alternative option for reference potential based on
-Gaussian distribution. (Ignoring constant terms)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ha.compute_sse">
-<code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ha.compute_sse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_Ha.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">prep</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_Ha.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load in the experimental chemical shift restraints from a known
-file format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>prep</strong> (<em>file</em>) – prep the input data</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="biceps.Restraint.Restraint_cs_N">
-<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_cs_N</code><span class="sig-paren">(</span><em class="sig-param">PDB_filename</em>, <em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_N" title="Permalink to this definition">¶</a></dt>
-<dd><p>A derived class of RestraintClass() for N chemical shift restraints.</p>
-<p>Initialize the Restraint class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id11"><span class="problematic" id="id12">*</span></a>.pdb)</p></li>
-<li><p><strong>ref</strong> (<em>str</em>) – Reference potential.</p></li>
-<li><p><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=0.05 sigma_min</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=20.0 sigma_max</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_N.prep_observable">
-<code class="sig-name descname">prep_observable</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">lam</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_N.prep_observable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Observable is prepped by loading in cs_N restraints.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>str</em>) – Experimental data file</p></li>
-<li><p><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</p></li>
-<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy of this conformation</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_N.add_restraint">
-<code class="sig-name descname">add_restraint</code><span class="sig-paren">(</span><em class="sig-param">restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_N.add_restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>restraint</strong> (<em>list</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_N.compute_neglog_exp_ref">
-<code class="sig-name descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_N.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the stored beta information (calculated across all structures)
-to calculate -log P_ref(observable[j]) for each observable j.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_N.compute_neglog_gaussian_ref">
-<code class="sig-name descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_N.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alternative option for reference potential based on
-Gaussian distribution. (Ignoring constant terms)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_N.compute_sse">
-<code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_N.compute_sse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_cs_N.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">prep</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_cs_N.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load in the experimental chemical shift restraints from a known
-file format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>prep</strong> (<em>file</em>) – prep the input data</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -569,31 +242,31 @@ file format.</p>
 
 <dl class="class">
 <dt id="biceps.Restraint.Restraint_J">
-<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_J</code><span class="sig-paren">(</span><em class="sig-param">PDB_filename</em>, <em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J" title="Permalink to this definition">¶</a></dt>
-<dd><p>A derived class of RestraintClass() for J coupling constant.</p>
-<p>Initialize the Restraint class.</p>
+<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_J</code><span class="sig-paren">(</span><em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <code class="xref py py-attr docutils literal notranslate"><span class="pre">Restraint</span></code> child class for J coupling constant.</p>
+<p>The parent <code class="xref py py-attr docutils literal notranslate"><span class="pre">Restraint</span></code> class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id13"><span class="problematic" id="id14">*</span></a>.pdb)</p></li>
-<li><p><strong>ref</strong> (<em>str</em>) – Reference potential.</p></li>
-<li><p><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=0.05 sigma_min</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=20.0 sigma_max</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>ref_pot</strong> (<em>str</em>) – referenece potential e.g., “uniform”. “exp”, “gau”.                    If None, the default reference potential will be used for                    a given experimental observable</p></li>
+<li><p><strong>dlogsigma</strong> (<em>float</em>) – (defaults to np.log(1.02))</p></li>
+<li><p><strong>sigma_min</strong> (<em>float</em>) – (defaults to 0.05)</p></li>
+<li><p><strong>sigma_max</strong> (<em>float</em>) – (defaults to 20.0)</p></li>
+<li><p><strong>use_global_ref_sigma</strong> (<em>bool</em>) – (defaults to True)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
-<dt id="biceps.Restraint.Restraint_J.prep_observable">
-<code class="sig-name descname">prep_observable</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">lam</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J.prep_observable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Observable is prepped by loading in J coupling restraints.</p>
+<dt id="biceps.Restraint.Restraint_J.init_restraint">
+<code class="sig-name descname">init_restraint</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">weight=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J.init_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the sclar coupling constant restraints for each <strong>exp</strong>
+(experimental) and <strong>model</strong> (theoretical) observable given <strong>data</strong>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>str</em>) – Experimental data file</p></li>
-<li><p><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</p></li>
-<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy of this conformation</p></li>
+<li><p><strong>data</strong> (<em>str</em>) – filename of data</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy of the conformation</p></li>
+<li><p><strong>weight</strong> (<em>float</em>) – weight for restraint</p></li>
 </ul>
 </dd>
 </dl>
@@ -607,44 +280,25 @@ their equivalency group.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="biceps.Restraint.Restraint_J.add_restraint">
-<code class="sig-name descname">add_restraint</code><span class="sig-paren">(</span><em class="sig-param">restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J.add_restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>restraint</strong> (<em>list</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_J.compute_neglog_exp_ref">
-<code class="sig-name descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the stored beta information (calculated across all structures)
-to calculate -log P_ref(observable[j]) for each observable j.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_J.compute_neglog_gaussian_ref">
-<code class="sig-name descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alternative option for reference potential based on
-Gaussian distribution. (Ignoring constant terms)</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="biceps.Restraint.Restraint_J.compute_sse">
 <code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J.compute_sse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+<dd><p>Returns the (weighted) sum of squared errors</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="biceps.Restraint.Restraint_J.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">prep</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load in the experimental chemical shift restraints from a known
-file format.</p>
+<dt id="biceps.Restraint.Restraint_J.compute_neglogP">
+<code class="sig-name descname">compute_neglogP</code><span class="sig-paren">(</span><em class="sig-param">index</em>, <em class="sig-param">parameters</em>, <em class="sig-param">parameter_indices</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_J.compute_neglogP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes <span class="math notranslate nohighlight">\(-logP\)</span> for scalar coupling constant during MCMC sampling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>prep</strong> (<em>file</em>) – prep the input data</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – restraint index</p></li>
+<li><p><strong>parameters</strong> (<em>list</em>) – collection of parameters for a given step of MCMC</p></li>
+<li><p><strong>parameter_indices</strong> (<em>list</em>) – collection of indices for a given step of MCMC</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -653,31 +307,32 @@ file format.</p>
 
 <dl class="class">
 <dt id="biceps.Restraint.Restraint_noe">
-<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_noe</code><span class="sig-paren">(</span><em class="sig-param">PDB_filename</em>, <em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe" title="Permalink to this definition">¶</a></dt>
-<dd><p>A derived class of Restraint() for noe distance restraints.</p>
-<p>Initialize the Restraint class.</p>
+<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_noe</code><span class="sig-paren">(</span><em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <code class="xref py py-attr docutils literal notranslate"><span class="pre">Restraint</span></code> child class for NOE distances.</p>
+<p>The parent <code class="xref py py-attr docutils literal notranslate"><span class="pre">Restraint</span></code> class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id15"><span class="problematic" id="id16">*</span></a>.pdb)</p></li>
-<li><p><strong>ref</strong> (<em>str</em>) – Reference potential.</p></li>
-<li><p><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=0.05 sigma_min</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=20.0 sigma_max</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>ref_pot</strong> (<em>str</em>) – referenece potential e.g., “uniform”. “exp”, “gau”.                    If None, the default reference potential will be used for                    a given experimental observable</p></li>
+<li><p><strong>dlogsigma</strong> (<em>float</em>) – (defaults to np.log(1.02))</p></li>
+<li><p><strong>sigma_min</strong> (<em>float</em>) – (defaults to 0.05)</p></li>
+<li><p><strong>sigma_max</strong> (<em>float</em>) – (defaults to 20.0)</p></li>
+<li><p><strong>use_global_ref_sigma</strong> (<em>bool</em>) – (defaults to True)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
-<dt id="biceps.Restraint.Restraint_noe.prep_observable">
-<code class="sig-name descname">prep_observable</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">lam</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">use_log_normal_noe=False</em>, <em class="sig-param">dloggamma=0.009950330853168092</em>, <em class="sig-param">gamma_min=0.2</em>, <em class="sig-param">gamma_max=10.0</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe.prep_observable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Observable is prepped by loading in noe distance restraints.</p>
+<dt id="biceps.Restraint.Restraint_noe.init_restraint">
+<code class="sig-name descname">init_restraint</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">weight=1</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">use_log_normal_noe=False</em>, <em class="sig-param">dloggamma=0.009950330853168092</em>, <em class="sig-param">gamma_min=0.2</em>, <em class="sig-param">gamma_max=10.0</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe.init_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the NOE distance restraints for each <strong>exp</strong> (experimental)
+and <strong>model</strong> (theoretical) observable given <strong>data</strong>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>str</em>) – Experimental data file</p></li>
-<li><p><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</p></li>
-<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy f = beta*F of this conformation</p></li>
+<li><p><strong>data</strong> (<em>str</em>) – filename of data</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy <span class="math notranslate nohighlight">\(f=\beta*F\)</span> of the conformation</p></li>
+<li><p><strong>weight</strong> (<em>float</em>) – weight for restraint</p></li>
+<li><p><strong>use_log_normal_noe</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>dloggamma</strong> (<em>float</em>) – Gamma is in log space</p></li>
 <li><p><strong>gamma_min</strong> (<em>float</em>) – Minimum value of gamma</p></li>
 <li><p><strong>gamma_max</strong> (<em>float</em>) – Maximum value of gamma</p></li>
@@ -689,49 +344,30 @@ file format.</p>
 <dl class="method">
 <dt id="biceps.Restraint.Restraint_noe.adjust_weights">
 <code class="sig-name descname">adjust_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe.adjust_weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adjust the weights of distance restraints based on
+<dd><p>Adjust the weights of distance and dihedral restraints based on
 their equivalency group.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_noe.add_restraint">
-<code class="sig-name descname">add_restraint</code><span class="sig-paren">(</span><em class="sig-param">restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe.add_restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>restraint</strong> (<em>list</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_noe.compute_neglog_exp_ref">
-<code class="sig-name descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the stored beta information (calculated across all structures)
-to calculate -log P_ref(observable[j]) for each observable j.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_noe.compute_neglog_gaussian_ref">
-<code class="sig-name descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alternative option for reference potential based on
-Gaussian distribution. (Ignoring constant terms)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="biceps.Restraint.Restraint_noe.compute_sse">
 <code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe.compute_sse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
+<dd><p>Returns the (weighted) sum of squared errors</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="biceps.Restraint.Restraint_noe.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">prep</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load in the experimental chemical shift restraints from a known
-file format.</p>
+<dt id="biceps.Restraint.Restraint_noe.compute_neglogP">
+<code class="sig-name descname">compute_neglogP</code><span class="sig-paren">(</span><em class="sig-param">index</em>, <em class="sig-param">parameters</em>, <em class="sig-param">parameter_indices</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_noe.compute_neglogP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes <span class="math notranslate nohighlight">\(-logP\)</span> for NOE during MCMC sampling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>prep</strong> (<em>file</em>) – prep the input data</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – restraint index</p></li>
+<li><p><strong>parameters</strong> (<em>list</em>) – collection of parameters for a given step of MCMC</p></li>
+<li><p><strong>parameter_indices</strong> (<em>list</em>) – collection of indices for a given step of MCMC</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -740,34 +376,40 @@ file format.</p>
 
 <dl class="class">
 <dt id="biceps.Restraint.Restraint_pf">
-<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_pf</code><span class="sig-paren">(</span><em class="sig-param">PDB_filename</em>, <em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf" title="Permalink to this definition">¶</a></dt>
-<dd><p>A derived class of Restraint() for protection factor restraints.</p>
-<p>Initialize the Restraint class.</p>
+<em class="property">class </em><code class="sig-prename descclassname">biceps.Restraint.</code><code class="sig-name descname">Restraint_pf</code><span class="sig-paren">(</span><em class="sig-param">ref</em>, <em class="sig-param">dlogsigma=0.01980262729617973</em>, <em class="sig-param">sigma_min=0.05</em>, <em class="sig-param">sigma_max=20.0</em>, <em class="sig-param">use_global_ref_sigma=True</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <code class="xref py py-attr docutils literal notranslate"><span class="pre">Restraint</span></code> child class for protection factor.</p>
+<p>The parent <code class="xref py py-attr docutils literal notranslate"><span class="pre">Restraint</span></code> class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>PDB_filename</strong> (<em>str</em>) – A topology file (<a href="#id17"><span class="problematic" id="id18">*</span></a>.pdb)</p></li>
-<li><p><strong>ref</strong> (<em>str</em>) – Reference potential.</p></li>
-<li><p><strong>default=np.log</strong><strong>(</strong><strong>1.02</strong><strong>) </strong><strong>dlogsigma</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=0.05 sigma_min</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=20.0 sigma_max</strong> (<em>float</em>) – </p></li>
-<li><p><strong>default=True use_global_ref_sigma</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>ref_pot</strong> (<em>str</em>) – referenece potential e.g., “uniform”. “exp”, “gau”.                    If None, the default reference potential will be used for                    a given experimental observable</p></li>
+<li><p><strong>dlogsigma</strong> (<em>float</em>) – (defaults to np.log(1.02))</p></li>
+<li><p><strong>sigma_min</strong> (<em>float</em>) – (defaults to 0.05)</p></li>
+<li><p><strong>sigma_max</strong> (<em>float</em>) – (defaults to 20.0)</p></li>
+<li><p><strong>use_global_ref_sigma</strong> (<em>bool</em>) – (defaults to True)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
-<dt id="biceps.Restraint.Restraint_pf.prep_observable">
-<code class="sig-name descname">prep_observable</code><span class="sig-paren">(</span><em class="sig-param">lam</em>, <em class="sig-param">energy</em>, <em class="sig-param">data</em>, <em class="sig-param">precomputed_pf=False</em>, <em class="sig-param">Ncs=None</em>, <em class="sig-param">Nhs=None</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">beta_c_min=0.05</em>, <em class="sig-param">beta_c_max=0.25</em>, <em class="sig-param">dbeta_c=0.01</em>, <em class="sig-param">beta_h_min=0.0</em>, <em class="sig-param">beta_h_max=5.2</em>, <em class="sig-param">dbeta_h=0.2</em>, <em class="sig-param">beta_0_min=-10.0</em>, <em class="sig-param">beta_0_max=0.0</em>, <em class="sig-param">dbeta_0=0.2</em>, <em class="sig-param">xcs_min=5.0</em>, <em class="sig-param">xcs_max=8.5</em>, <em class="sig-param">dxcs=0.5</em>, <em class="sig-param">xhs_min=2.0</em>, <em class="sig-param">xhs_max=2.7</em>, <em class="sig-param">dxhs=0.1</em>, <em class="sig-param">bs_min=15.0</em>, <em class="sig-param">bs_max=16.0</em>, <em class="sig-param">dbs=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.prep_observable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Observable is prepped by loading in protection factor restraints.</p>
+<dt id="biceps.Restraint.Restraint_pf.init_restraint">
+<code class="sig-name descname">init_restraint</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">energy</em>, <em class="sig-param">precomputed=False</em>, <em class="sig-param">pf_prior=None</em>, <em class="sig-param">Ncs=None</em>, <em class="sig-param">Nhs=None</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">beta_c_min=0.05</em>, <em class="sig-param">beta_c_max=0.25</em>, <em class="sig-param">dbeta_c=0.01</em>, <em class="sig-param">beta_h_min=0.0</em>, <em class="sig-param">beta_h_max=5.2</em>, <em class="sig-param">dbeta_h=0.2</em>, <em class="sig-param">beta_0_min=-10.0</em>, <em class="sig-param">beta_0_max=0.0</em>, <em class="sig-param">dbeta_0=0.2</em>, <em class="sig-param">xcs_min=5.0</em>, <em class="sig-param">xcs_max=8.5</em>, <em class="sig-param">dxcs=0.5</em>, <em class="sig-param">xhs_min=2.0</em>, <em class="sig-param">xhs_max=2.7</em>, <em class="sig-param">dxhs=0.1</em>, <em class="sig-param">bs_min=15.0</em>, <em class="sig-param">bs_max=16.0</em>, <em class="sig-param">dbs=1.0</em>, <em class="sig-param">weight=1</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.init_restraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize protection factor restraints for each <strong>exp</strong> (experimental)
+and <strong>model</strong> (theoretical) observable given <strong>data</strong>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>str</em>) – Experimental data file</p></li>
-<li><p><strong>lam</strong> (<em>float</em>) – Lambda value (between 0 and 1)</p></li>
-<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy f = beta*F of this conformation</p></li>
+<li><p><strong>data</strong> (<em>str</em>) – filename of data</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – The (reduced) free energy <span class="math notranslate nohighlight">\(f=\beta*F\)</span> of the conformation</p></li>
+<li><p><strong>weight</strong> (<em>float</em>) – weight for restraint</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint.Restraint_pf.compute_sse">
+<code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.compute_sse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (weighted) sum of squared errors</p>
 </dd></dl>
 
 <dl class="method">
@@ -776,12 +418,13 @@ file format.</p>
 <dd><p>Calculate predicted (ln PF)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>beta_c</strong><strong>,</strong><strong>beta_h</strong><strong>,</strong><strong>Nc</strong><strong>,</strong><strong>Nh</strong> (<em>np.array</em>) – shape(nres, 2)
-array with columns &lt;N_c&gt; and &lt;N_h&gt; for each residue</p>
+<dd class="field-odd"><p><strong>beta_c</strong><strong>,</strong><strong>beta_h</strong><strong>,</strong><strong>Nc</strong><strong>,</strong><strong>Nh</strong> (<em>np.ndarray</em>) – shape(nres, 2)                    array with columns &lt;N_c&gt; and &lt;N_h&gt; for each residue</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>array of
-&gt;&gt;&gt; &lt;ln PF&gt; = beta_c &lt;N_c&gt; + beta_h &lt;N_h&gt; + beta_0 for all residues</p>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">&lt;ln</span> <span class="pre">PF&gt;</span> <span class="pre">=</span> <span class="pre">beta_c</span> <span class="pre">&lt;N_c&gt;</span> <span class="pre">+</span> <span class="pre">beta_h</span> <span class="pre">&lt;N_h&gt;</span> <span class="pre">+</span> <span class="pre">beta_0</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">residues</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -796,54 +439,13 @@ array with columns &lt;N_c&gt; and &lt;N_h&gt; for each residue</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>Ncs_i</strong><strong>,</strong><strong>Nhs_i</strong> (<em>np.array</em>) – array with columns &lt;N_c&gt; and &lt;N_h&gt; for each residue</p>
+<dd class="field-odd"><p><strong>Ncs_i</strong><strong>,</strong><strong>Nhs_i</strong> (<em>np.ndarray</em><em>, </em><em>np.ndarray</em>) – array with columns &lt;N_c&gt; and                    &lt;N_h&gt; for each residue</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>array of
-&gt;&gt;&gt; &lt;ln PF&gt; = beta_c &lt;N_c&gt; + beta_h &lt;N_h&gt; + beta_0 for all residues</p>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">&lt;ln</span> <span class="pre">PF&gt;</span> <span class="pre">=</span> <span class="pre">beta_c</span> <span class="pre">&lt;N_c&gt;</span> <span class="pre">+</span> <span class="pre">beta_h</span> <span class="pre">&lt;N_h&gt;</span> <span class="pre">+</span> <span class="pre">beta_0</span> <span class="pre">for</span> <span class="pre">all</span> <span class="pre">residues</span></code></p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_pf.add_restraint">
-<code class="sig-name descname">add_restraint</code><span class="sig-paren">(</span><em class="sig-param">restraint</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.add_restraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>restraint</strong> (<em>list</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_pf.compute_neglog_exp_ref">
-<code class="sig-name descname">compute_neglog_exp_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.compute_neglog_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the stored beta information (calculated across all structures)
-to calculate -log P_ref(observable[j]) for each observable j.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_pf.compute_neglog_gaussian_ref">
-<code class="sig-name descname">compute_neglog_gaussian_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.compute_neglog_gaussian_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>An alternative option for reference potential based on
-Gaussian distribution. (Ignoring constant terms)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_pf.compute_sse">
-<code class="sig-name descname">compute_sse</code><span class="sig-paren">(</span><em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.compute_sse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the (weighted) sum of squared errors for chemical shift values</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="biceps.Restraint.Restraint_pf.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">prep</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load in the experimental chemical shift restraints from a known
-file format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>prep</strong> (<em>file</em>) – prep the input data</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -851,10 +453,8 @@ file format.</p>
 <dl class="method">
 <dt id="biceps.Restraint.Restraint_pf.tile_multiaxis">
 <code class="sig-name descname">tile_multiaxis</code><span class="sig-paren">(</span><em class="sig-param">p</em>, <em class="sig-param">shape</em>, <em class="sig-param">axis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.tile_multiaxis" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Returns a multi-dimensional array of shape (tuple), with the 1D vector p along the specified axis,</dt><dd><p>and tiled in all other dimensions.</p>
-</dd>
-</dl>
+<dd><p>Returns a multi-dimensional array of shape (tuple), with the 1D
+vector p along the specified axis, and tiled in all other dimensions.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>A near future application…</p>
@@ -862,12 +462,10 @@ file format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>p</strong> (<em>np.array</em>) – a 1D array to tile</p></li>
+<li><p><strong>p</strong> (<em>np.ndarray</em>) – a 1D array to tile</p></li>
 <li><p><strong>shape</strong> (<em>tuple</em>) – a tuple describing the shape of the returned array</p></li>
+<li><p><strong>axis</strong> – the specified axis for p .  NOTE: len(p) must be equal to shape[axis]</p></li>
 </ul>
-</dd>
-<dt class="field-even">Variables</dt>
-<dd class="field-even"><p><strong>axis</strong> – the specified axis for p .  NOTE: len(p) must be equal to shape[axis]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -886,12 +484,28 @@ file format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>p</strong> (<em>np.array</em>) – a 1D array to tile</p></li>
+<li><p><strong>p</strong> (<em>np.ndarray</em>) – a 1D array to tile</p></li>
 <li><p><strong>shape</strong> (<em>tuple</em>) – a tuple describing the shape of the returned array</p></li>
+<li><p><strong>axis</strong> – the specified axis for p .  NOTE: len(p) must be equal to shape[axis]</p></li>
 </ul>
 </dd>
-<dt class="field-even">Variables</dt>
-<dd class="field-even"><p><strong>axis</strong> – the specified axis for p .  NOTE: len(p) must be equal to shape[axis]</p>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="biceps.Restraint.Restraint_pf.compute_neglogP">
+<code class="sig-name descname">compute_neglogP</code><span class="sig-paren">(</span><em class="sig-param">index</em>, <em class="sig-param">parameters</em>, <em class="sig-param">parameter_indices</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.Restraint.Restraint_pf.compute_neglogP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes <span class="math notranslate nohighlight">\(-logP\)</span> for protection factor during MCMC sampling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – restraint index</p></li>
+<li><p><strong>parameters</strong> (<em>list</em>) – collection of parameters for a given step of MCMC</p></li>
+<li><p><strong>parameter_indices</strong> (<em>list</em>) – collection of indices for a given step of MCMC</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -912,6 +526,7 @@ file format.</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
 
     </p>

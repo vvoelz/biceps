@@ -36,7 +36,6 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
@@ -184,7 +183,7 @@
 <span id="biceps-posteriorsampler"></span><h1><code class="docutils literal notranslate"><span class="pre">biceps.PosteriorSampler</span></code><a class="headerlink" href="#module-biceps.PosteriorSampler" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="biceps.PosteriorSampler.PosteriorSampler">
-<em class="property">class </em><code class="sig-prename descclassname">biceps.PosteriorSampler.</code><code class="sig-name descname">PosteriorSampler</code><span class="sig-paren">(</span><em class="sig-param">ensemble</em>, <em class="sig-param">freq_write_traj=100.0</em>, <em class="sig-param">freq_print=100.0</em>, <em class="sig-param">freq_save_traj=100.0</em>, <em class="sig-param">pf_prior=None</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.PosteriorSampler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">biceps.PosteriorSampler.</code><code class="sig-name descname">PosteriorSampler</code><span class="sig-paren">(</span><em class="sig-param">ensemble</em>, <em class="sig-param">freq_write_traj=100.0</em>, <em class="sig-param">freq_save_traj=100.0</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.PosteriorSampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class to perform posterior sampling of conformational populations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -206,9 +205,10 @@
 <dl class="method">
 <dt id="biceps.PosteriorSampler.PosteriorSampler.build_exp_ref">
 <code class="sig-name descname">build_exp_ref</code><span class="sig-paren">(</span><em class="sig-param">rest_index</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.PosteriorSampler.build_exp_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Look at all the structures to find the average observables r_j</p>
-<p>&gt;&gt;    beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)</p>
-<p>then store this reference potential info for all Restraints of this type for each structure</p>
+<dd><p>Look at all the structures to find the average observables r_j, then
+store the reference potential info for all Restraints of this type for
+each structure.</p>
+<p><span class="math notranslate nohighlight">\(beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)\)</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>rest_index</strong> (<em>int</em>) – index of the restraint</p>
@@ -278,15 +278,14 @@ then use this information to compute a gaussian reference prior for each structu
 
 <dl class="method">
 <dt id="biceps.PosteriorSampler.PosteriorSampler.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">nsteps</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.PosteriorSampler.sample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">nsteps</em>, <em class="sig-param">print_freq=1000</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.PosteriorSampler.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform n number of steps (nsteps) of posterior sampling, where Monte
-Carlo moves are accepted or rejected according to Metroplis criterion.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>nsteps</strong> (<em>int</em>) – number of steps of sampling.</p>
-</dd>
-</dl>
-<p>See <a class="reference internal" href="../biceps.html#biceps.PosteriorSampler.PosteriorSampler.neglogP" title="biceps.PosteriorSampler.PosteriorSampler.neglogP"><code class="xref py py-class docutils literal notranslate"><span class="pre">neglogP</span></code></a>.</p>
+Carlo moves are accepted or rejected according to Metroplis criterion.
+:param int nsteps: number of steps of sampling.
+:var int default=1000 print_freq: frequency of printing to the screen
+:var bool verbose: print statements for output
+:var bool debug: extra print statements for debugging
+See <a class="reference internal" href="../biceps.html#biceps.PosteriorSampler.neglogP" title="biceps.PosteriorSampler.neglogP"><code class="xref py py-class docutils literal notranslate"><span class="pre">neglogP</span></code></a>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -324,13 +323,6 @@ Standardized: Yes ; Binary: Yes; Human Readable: No;</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="biceps.PosteriorSampler.PosteriorSamplingTrajectory.read_results">
-<code class="sig-name descname">read_results</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#biceps.PosteriorSampler.PosteriorSamplingTrajectory.read_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads a numpy compressed filetype
-(npz) file</p>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -347,6 +339,7 @@ Standardized: Yes ; Binary: Yes; Human Readable: No;</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
 
     </p>

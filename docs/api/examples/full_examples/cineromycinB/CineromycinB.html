@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Note that all output trajectories and images will be placed in the previously defined outdir as ‘results_ref_normal’… &mdash; BICePs 2.0 documentation</title>
+  <title>&lt;no title&gt; &mdash; BICePs 2.0 documentation</title>
   
 
   
@@ -36,7 +36,6 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -137,7 +136,7 @@
     
       <li><a href="../../../index.html">Docs</a> &raquo;</li>
         
-      <li>Note that all output trajectories and images will be placed in the previously defined <code class="docutils literal notranslate"><span class="pre">outdir</span></code> as ‘results_ref_normal’…</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -399,23 +398,25 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <div class="admonition note">
-<p>This page was generated from <a href="#id2"><span class="problematic" id="id3">`doc/examples/full_examples/cineromycinB/CineromycinB.ipynb`__</span></a>.
+<p>This page was generated from <a class="reference external" href="https://github.com/spatialaudio/nbsphinx/blob/2.0/doc/examples/full_examples/cineromycinB/CineromycinB.ipynb">doc/examples/full_examples/cineromycinB/CineromycinB.ipynb</a>.
 Interactive online version:
 <span class="raw-html"><a href="https://mybinder.org/v2/gh/spatialaudio/nbsphinx/2.0?filepath=doc/examples/full_examples/cineromycinB/CineromycinB.ipynb"><img alt="Binder badge" src="https://mybinder.org/badge.svg" style="vertical-align:text-bottom"></a></span></p>
 </div>
 <h1 style="align: center;font-size: 18pt;"><p>Cineromycin B</p>
-</h1><hr style="height:2.5px"><h2 style="align: center;font-size: 12pt;"><p>Summary: In this example, we are going to show how to set up a “master” script to set up BICePs samplings. You are welcome to take this as a template for you and make necessary modification to get it work for you. All input files used in this tutorial are prepared from this tutorial.</p>
-<hr style="height:2.5px"><hr style="height:2.5px"><h2 style="align: center;font-size: 12pt;"><p>Summary: In our previous work (DOI: 10.1002/jcc.23738), we determine solution-state conformational populations of the 14-membered macrocycle cineromycin B, using a combination of previously published sparse Nuclear Magnetic Resonance (NMR) observables and replica exchange molecular dynamic/Quantum mehcanics (QM)-refined conformational ensembles. Cineromycin B is a 14-membered macrolide antibiotic that has become increasingly known for having activity against methicillin-resistant Staphylococcus
-Aureus (MRSA). In this example, we show how to calculate the consistency of computational modeling with experiment, and the relative importance of reference potentials and other model parameters.</p>
-</h2><hr style="height:2.5px"><p>First, we need to import source code for BICePs classes. More information of these classes can be found <a class="reference external" href="https://biceps.readthedocs.io/en/latest/workflow.html">here</a>.</p>
+</h1><!--<img title="https://pubchem.ncbi.nlm.nih.gov" src="https://pubchem.ncbi.nlm.nih.gov/image/imgsrv.fcgi?cid=6444600&t=l" align="center" height="300" width="300">--><hr style="height:2.5px"><h2 style="align: center;font-size: 12pt;"><p>Summary:</p>
+</h2><p>In our previous work (DOI: 10.1002/jcc.23738), we determine solution-state conformational populations of the 14-membered macrocycle cineromycin B (O-desmethyl albocycline), using a combination of previously published sparse Nuclear Magnetic Resonance (NMR) observables and replica exchange molecular dynamic/Quantum mechanics (QM)-refined conformational ensembles. Cineromycin B is a 14-membered macrolide antibiotic that has become increasingly known for having activity against
+methicillin-resistant Staphylococcus Aureus (MRSA). In this example, we show how to calculate the consistency of computational modeling with experiment, and the relative importance of reference potentials and other model parameters. We will walk through the process of setting up a <code class="docutils literal notranslate"><span class="pre">biceps</span></code> script. You are welcome to take this as a template for you and make necessary modification to get it work for you. All input files used in this tutorial are prepared from this tutorial.</p>
+</h2><p><strong>To convert this Jupyter Notebook into a script use the following command:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ jupyter nbconvert --to python cineromycinB.ipynb
+</pre></div>
+</div>
+<hr style="height:2.5px"><p>First, we need to import source code for BICePs classes. More information of these classes can be found <a class="reference external" href="https://biceps.readthedocs.io/en/latest/workflow.html">here</a>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># import source code</span>
-<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">biceps</span>
 </pre></div>
 </div>
@@ -428,36 +429,56 @@ Aureus (MRSA). In this example, we show how to calculate the consistency of comp
 BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </pre></div></div>
 </div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># What possible experimental data does biceps accept?</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Possible data restraints: {biceps.toolbox.list_possible_restraints()}&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Possible input data extensions: {biceps.toolbox.list_possible_extensions()}&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Possible data restraints: [&#39;Restraint_cs&#39;, &#39;Restraint_J&#39;, &#39;Restraint_noe&#39;, &#39;Restraint_pf&#39;]
+Possible input data extensions: [&#39;H&#39;, &#39;Ca&#39;, &#39;N&#39;, &#39;J&#39;, &#39;noe&#39;, &#39;pf&#39;]
+</pre></div></div>
+</div>
 <p>Now we need to specify input files and output files folder.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">####### Data and Output Directories #######</span>
-<span class="c1"># REQUIRED: energy file name of each state (computational prior distribution)</span>
-<span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;../../datasets/cineromycin_B/cineromycinB_QMenergies.dat&#39;</span><span class="p">)</span><span class="o">*</span><span class="mf">627.509</span>  <span class="c1"># convert from hartrees to kcal/mol</span>
+<span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;cineromycin_B/cineromycinB_QMenergies.dat&#39;</span><span class="p">)</span><span class="o">*</span><span class="mf">627.509</span>  <span class="c1"># convert from hartrees to kcal/mol</span>
 <span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span><span class="o">/</span><span class="mf">0.5959</span>   <span class="c1"># convert to reduced free energies F = f/kT</span>
 <span class="n">energies</span> <span class="o">-=</span> <span class="n">energies</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>  <span class="c1"># set ground state to zero, just in case</span>
+<span class="n">states</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">)</span>
 
 <span class="c1"># REQUIRED: specify directory of input data (BICePs readable format)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">sort_data</span><span class="p">(</span><span class="s1">&#39;../../datasets/cineromycin_B/noe_J&#39;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">sort_data</span><span class="p">(</span><span class="s1">&#39;cineromycin_B/J_NOE&#39;</span><span class="p">)</span>
 
 <span class="c1"># REQUIRED: specify outcome directory of BICePs sampling</span>
-<span class="n">outdir</span> <span class="o">=</span> <span class="s1">&#39;results_ref_normal&#39;</span>
+<span class="n">outdir</span> <span class="o">=</span> <span class="s1">&#39;results&#39;</span>
 <span class="c1"># Make a new directory if we have to</span>
 <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>Next, we need to specify number of steps for BICePs sampling. We recommend to run at least 1M steps for converged Monte Carlo samplings. In BICePs, we also prepare functions of checking convergence of Monte Carlo. More information can be found [here].</p>
+<p>Next, we need to specify number of steps for BICePs sampling. We recommend to run at least 1M steps for converged Monte Carlo samplings. In BICePs, we also prepare functions of <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Convergence/convergence.html">checking convergence</a> of Monte Carlo. More information can be found <a class="reference external" href="https://biceps.readthedocs.io/en/latest/biceps.html#convergence">here</a>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># REQUIRED: number of MCMC steps for each lambda</span>
-<span class="n">nsteps</span> <span class="o">=</span> <span class="mi">1000000</span>
+<span class="n">nsteps</span> <span class="o">=</span> <span class="mi">10000000</span> <span class="c1"># 10 M steps</span>
 </pre></div>
 </div>
 </div>
@@ -465,13 +486,13 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 between different models. More lambda values will increase the samplings for <a class="reference external" href="http://www.alchemistry.org/wiki/Multistate_Bennett_Acceptance_Ratio">multistate Bennett acceptance ratio (MBAR)</a> predictions in free energy change and populations. However more lambda values also will slow down the whole process of BICePs (as more samplings need to run), so balancing the accuracy and efficiency is important. To successfully finish a BICePs sampling, lambda values of 0.0 and 1.0 are necessary. Based
 on our experience, the lambda values of 0.0,0.5,1.0 are good enough for BICePs sampling.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># REQUIRED: specify how many lambdas to sample (more lambdas will provide higher</span>
 <span class="c1"># accuracy but slower the whole process, lambda=0.0 and 1.0 are necessary)</span>
-<span class="n">n_lambdas</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">n_lambdas</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">lambda_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">n_lambdas</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">lambda_values</span><span class="p">)</span>
 </pre></div>
@@ -482,19 +503,18 @@ on our experience, the lambda values of 0.0,0.5,1.0 are good enough for BICePs s
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[0.  0.5 1. ]
+[0. 1.]
 </pre></div></div>
 </div>
 <p>Print what experimental observables are included in BICePs sampling. This is optional and provides a chance for double check before running BICePs sampling.</p>
 <p>In this tutorial, we used both J couplings and NOE (pairwise distances) in BICePs sampling.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># OPTIONAL but RECOMMENDED: print experimental restraints included (a chance for double check)</span>
-<span class="n">res</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">list_res</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input data: {biceps.toolbox.list_extensions(data)}&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -503,7 +523,7 @@ on our experience, the lambda values of 0.0,0.5,1.0 are good enough for BICePs s
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;J&#39;, &#39;noe&#39;]
+Input data: [&#39;J&#39;, &#39;noe&#39;]
 </pre></div></div>
 </div>
 <p>Another key parameter for BICePs set-up is the type of reference potential for each experimental observables. More information of reference potential can be found <a class="reference external" href="https://biceps.readthedocs.io/en/latest/theory.html">here</a>.</p>
@@ -511,7 +531,7 @@ on our experience, the lambda values of 0.0,0.5,1.0 are good enough for BICePs s
 <p>As we found in previous research, exponential reference potential is useful in most cases. Some higher level task may require more in reference potential selection (e.g <a class="reference external" href="https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871">force field parametrization</a>).</p>
 <p>(Note: It will be helpful to print out what is the order of experimental observables included in BICePs sampling as shown above.)</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -523,7 +543,7 @@ on our experience, the lambda values of 0.0,0.5,1.0 are good enough for BICePs s
 </div>
 <p>If you want, you can specify nuisance parameters (uncertainty in experiments) range but it’s not required. Our default parameters range is broad enough. “gamma” is a scaling factor converting distances to NOE intensity in experiments. It is only used when NOE restraint is ued in BICePs sampling.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -537,30 +557,19 @@ on our experience, the lambda values of 0.0,0.5,1.0 are good enough for BICePs s
 </div>
 <p>Now we need to set up BICePs samplings and feed arguments using variables we defined above. In most cases, you don’t need to modify this part as long as you defined all these parameters shown above.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">####### MCMC Simulations #######</span>
 <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="n">lambda_values</span><span class="p">:</span>
-    <span class="n">ensemble</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;lambda: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="k">lam</span>)
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">energies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span> <span class="c1"># number of states</span>
-        <span class="n">ensemble</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
-        <span class="c1"># We will instantiate a number of Restraint() objects to construct the ensemble</span>
-        <span class="c1"># experimental data and pre-computed model data are compiled for each state</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>   <span class="c1"># number of experimental observables</span>
-            <span class="n">File</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
-            <span class="n">R</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">init_res</span><span class="p">(</span><span class="n">PDB_filename</span><span class="o">=</span><span class="s1">&#39;../../datasets/cineromycin_B/cineromycinB_pdbs/0.fixed.pdb&#39;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-                <span class="n">energy</span><span class="o">=</span><span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ref</span><span class="o">=</span><span class="n">ref</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">File</span><span class="p">,</span>
-                <span class="n">uncern</span><span class="o">=</span><span class="n">uncern</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">])</span>
-            <span class="n">ensemble</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
-    <span class="c1">########## Posterior Sampling ############</span>
-    <span class="n">sampler</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">PosteriorSampler</span><span class="p">(</span><span class="n">ensemble</span><span class="p">)</span>
-    <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nsteps</span><span class="o">=</span><span class="n">nsteps</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;lambda: </span><span class="si">{lam}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ensemble</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">Ensemble</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ensemble</span><span class="o">.</span><span class="n">initialize_restraints</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ref_pot</span><span class="o">=</span><span class="n">ref</span><span class="p">,</span>
+            <span class="n">uncern</span><span class="o">=</span><span class="n">uncern</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">])</span>
+    <span class="n">sampler</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">PosteriorSampler</span><span class="p">(</span><span class="n">ensemble</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+    <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nsteps</span><span class="o">=</span><span class="n">nsteps</span><span class="p">,</span> <span class="n">print_freq</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">process_results</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s1">&#39;/traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">))</span>
-    <span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">read_results</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span>
-        <span class="s1">&#39;traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="k">lam</span>))
     <span class="n">outfilename</span> <span class="o">=</span> <span class="s1">&#39;sampler_lambda</span><span class="si">%2.2f</span><span class="s1">.pkl&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
     <span class="n">fout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">outfilename</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
     <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sampler</span><span class="p">,</span> <span class="n">fout</span><span class="p">)</span>
@@ -575,51 +584,63 @@ on our experience, the lambda values of 0.0,0.5,1.0 are good enough for BICePs s
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 lambda: 0.0
+Step            State   Para Indices            Energy          Acceptance (%)
+0               33      [[151], [116, 81]]      119.297         100.00
+1000000         87      [[223], [149, 102]]     6.367           71.49
+2000000         23      [[251], [144, 105]]     10.597          71.61
+3000000         22      [[242], [145, 96]]      8.970           71.56
+4000000         21      [[219], [114, 97]]      7.765           71.65
+5000000         66      [[280], [131, 97]]      11.077          71.48
+6000000         47      [[252], [143, 104]]     11.953          71.31
+7000000         45      [[238], [126, 99]]      7.611           71.23
+8000000         45      [[250], [124, 95]]      7.041           71.21
+9000000         59      [[222], [171, 95]]      14.392          71.15
 
-Accepted 71.42960000000001 %
+Accepted 71.14281 %
 
 
-Accepted [32.7929 29.8089 29.8089  8.8278] %
-
-...Done.
-lambda: 0.5
-
-Accepted 65.9897 %
-
-
-Accepted [32.7526 29.9704 29.9704  3.2667] %
+Accepted [ ...Nuisance paramters..., state] %%
+Accepted [32.74304 29.88213 29.88213  8.51764] %
 
 ...Done.
 lambda: 1.0
+Step            State   Para Indices            Energy          Acceptance (%)
+0               0       [[150], [116, 81]]      128.034         100.00
+1000000         59      [[240], [154, 96]]      7.682           64.13
+2000000         39      [[258], [130, 99]]      10.780          64.23
+3000000         59      [[236], [143, 93]]      6.438           64.28
+4000000         90      [[237], [161, 93]]      9.077           64.29
+5000000         85      [[277], [126, 96]]      9.104           64.32
+6000000         59      [[302], [111, 95]]      11.312          64.31
+7000000         38      [[281], [119, 90]]      7.911           64.30
+8000000         90      [[232], [129, 91]]      5.833           64.30
+9000000         90      [[248], [128, 88]]      6.561           64.30
 
-Accepted 64.26039999999999 %
+Accepted 64.28557 %
 
 
-Accepted [32.7128 29.9519 29.9519  1.5957] %
+Accepted [ ...Nuisance paramters..., state] %%
+Accepted [32.72381 29.97256 29.97256  1.5892 ] %
 
 ...Done.
 </pre></div></div>
 </div>
-<div class="section" id="Note-that-all-output-trajectories-and-images-will-be-placed-in-the-previously-defined-outdir-as-‘results_ref_normal’…">
-<h1>Note that all output trajectories and images will be placed in the previously defined <code class="docutils literal notranslate"><span class="pre">outdir</span></code> as ‘results_ref_normal’…<a class="headerlink" href="#Note-that-all-output-trajectories-and-images-will-be-placed-in-the-previously-defined-outdir-as-‘results_ref_normal’…" title="Permalink to this headline">¶</a></h1>
-</div>
-<div class="section" id="Also-note-that-the-user-can-quickly-check-to-see-if-our-MCMC-trajectories-have-converged-using-our-biceps.convergence-module.-See-this-tutorial-&lt;&gt;-for-an-example-and-more-details.">
-<h1>Also note that the user can quickly check to see if our MCMC trajectories have converged using our <code class="docutils literal notranslate"><span class="pre">biceps.convergence</span></code> module. See <a href="#id2"><span class="problematic" id="id4">`this tutorial &lt;&gt;`__</span></a> for an example and more details.<a class="headerlink" href="#Also-note-that-the-user-can-quickly-check-to-see-if-our-MCMC-trajectories-have-converged-using-our-biceps.convergence-module.-See-this-tutorial-<>-for-an-example-and-more-details." title="Permalink to this headline">¶</a></h1>
-<p>Then, we need to run functions in <a class="reference external" href="https://biceps.readthedocs.io/en/latest/api.html#analysis">Analysis</a> to get predicted populations of each conformational states and BICePs score. A figure of posterior distribution of populations and nuisance parameters will be plotted as well.</p>
+<p><strong>Note that all output trajectories and images will be placed in the previously defined ``outdir`` as ‘results_ref_normal’…</strong></p>
+<p><strong>Also note that the user can quickly check to see if our MCMC trajectories have converged using our ``biceps.convergence`` module. See</strong><a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Convergence/convergence.html">this tutorial</a><strong>for an example and more details.</strong></p>
+<p>Then, we need to run functions in <a class="reference external" href="https://biceps.readthedocs.io/en/latest/biceps.html#analysis">Analysis</a> to get predicted populations of each conformational states and BICePs score. A figure of posterior distribution of populations and nuisance parameters will be plotted as well.</p>
 <p>The output files include: population information (“populations.dat”), figure of sampled parameters distribution (“BICePs.pdf”), BICePs score information (“BS.dat”).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1">#########################################</span>
+<span></span><span class="c1">############ MBAR and Figures ###########</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="c1"># Let&#39;s do analysis using MBAR algorithm and plot figures</span>
-<span class="c1">############ MBAR and Figures ###########</span>
-
-<span class="n">A</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">Analysis</span><span class="p">(</span><span class="n">states</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">resultdir</span><span class="o">=</span><span class="n">outdir</span><span class="p">,</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">Analysis</span><span class="p">(</span><span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span> <span class="n">resultdir</span><span class="o">=</span><span class="n">outdir</span><span class="p">,</span>
     <span class="n">BSdir</span><span class="o">=</span><span class="s1">&#39;BS.dat&#39;</span><span class="p">,</span> <span class="n">popdir</span><span class="o">=</span><span class="s1">&#39;populations.dat&#39;</span><span class="p">,</span>
     <span class="n">picfile</span><span class="o">=</span><span class="s1">&#39;BICePs.pdf&#39;</span><span class="p">)</span>
-<span class="n">A</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">A</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -628,20 +649,17 @@ Accepted [32.7128 29.9519 29.9519  1.5957] %
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Loading results_ref_normal/traj_lambda0.00.npz ...
-Loading results_ref_normal/traj_lambda0.50.npz ...
-Loading results_ref_normal/traj_lambda1.00.npz ...
-not all state sampled, these states [ 5 11 40 48 95] are not sampled
-not all state sampled, these states [ 3  4  5  9 11 13 14 15 16 18 21 22 23 24 25 26 27 34 36 40 41 42 48 51
- 52 53 54 55 57 61 62 64 66 73 74 76 77 78 81 83 87 95 97 98 99] are not sampled
-Loading results_ref_normal/sampler_lambda0.00.pkl ...
-Loading results_ref_normal/sampler_lambda0.50.pkl ...
-Loading results_ref_normal/sampler_lambda1.00.pkl ...
-lam = [0.0, 0.5, 1.0]
+Loading results/traj_lambda0.00.npz ...
+Loading results/traj_lambda1.00.npz ...
+not all state sampled, these states [ 4  5  9 11 13 15 16 22 24 25 26 27 34 40 42 48 51 52 54 62 73 76 77 81
+ 87 95 98 99] are not sampled
+Loading results/sampler_lambda0.00.pkl ...
+Loading results/sampler_lambda1.00.pkl ...
+lam = [0.0, 1.0]
 nstates 100
-Writing results_ref_normal/BS.dat...
+Writing results/BS.dat...
 ...Done.
-Writing results_ref_normal/populations.dat...
+Writing results/populations.dat...
 ...Done.
 </pre></div></div>
 </div>
@@ -649,23 +667,23 @@ Writing results_ref_normal/populations.dat...
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/examples_full_examples_cineromycinB_CineromycinB_20_1.png" src="../../../_images/examples_full_examples_cineromycinB_CineromycinB_20_1.png" />
+<img alt="../../../_images/examples_full_examples_cineromycinB_CineromycinB_21_1.png" src="../../../_images/examples_full_examples_cineromycinB_CineromycinB_21_1.png" />
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/examples_full_examples_cineromycinB_CineromycinB_20_2.png" src="../../../_images/examples_full_examples_cineromycinB_CineromycinB_20_2.png" />
+<img alt="../../../_images/examples_full_examples_cineromycinB_CineromycinB_21_2.png" src="../../../_images/examples_full_examples_cineromycinB_CineromycinB_21_2.png" />
 </div>
 </div>
 <p>Now, let’s take a look at the output figure above (“BICePs.pdf”).</p>
 <p>The top left panel shows the population of each states in the presence (y-axis) and absense (x-axis) of computational modeling prior information. You can find some states (e.g state 38, 59) get awarded after including computational prior information. If you check <a class="reference external" href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738">this work</a> you will see how misleading the results will be if we only use experimental restraints without computational prior information. The other three panels show the
 distribution of nuisance parameters in the presence or absence of computational modeling information. It may not be clear in this example due to the limit of finite sampling, but based on our experience, including prior information from our simulations will lower the nuisance parameters than only using experimental restraints.</p>
 <p>Next, let’s take a look at the populations file.</p>
-<p>There are 100 rows corresponding to 100 clustered states. 6 columns corresponding to populations of each state (row) for 3 lambda values (first 3 columns) and population change (last 3 columns).</p>
+<p>There are 100 rows corresponding to 100 clustered states. Four columns corresponding to populations of each state (row) for 2 lambda values (first 2 columns) and population change (last 2 columns).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -681,28 +699,29 @@ distribution of nuisance parameters in the presence or absence of computational 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-           0             1             2         3             4             5
-0   0.017932  1.746091e-03  2.238655e-05  0.001264  1.247105e-04  1.603244e-06
-1   0.004169  5.222414e-04  8.613228e-06  0.000607  7.621352e-05  1.257921e-06
-2   0.008869  7.822257e-03  9.083208e-04  0.000667  5.872274e-04  6.872386e-05
-3   0.000629  1.657312e-04  5.753918e-06  0.000222  5.859516e-05  2.034737e-06
-4   0.000286  1.347067e-05  8.340771e-08  0.000165  7.777689e-06  4.815966e-08
-..       ...           ...           ...       ...           ...           ...
-95  0.004799  5.717813e-07  8.968826e-12  0.000691  8.261478e-08  0.000000e+00
-96  0.003107  6.740497e-04  1.925554e-05  0.000503  1.093605e-04  3.126745e-06
-97  0.003725  4.674517e-04  7.723927e-06  0.000574  7.216044e-05  1.193144e-06
-98  0.003599  9.946298e-07  3.619149e-11  0.000599  1.658991e-07  0.000000e+00
-99  0.001254  4.613341e-05  2.235258e-07  0.000347  1.279807e-05  6.201627e-08
+           0             1         2             3
+0   0.017158  2.203805e-05  0.000410  5.357668e-07
+1   0.003782  8.038469e-06  0.000194  4.136070e-07
+2   0.007418  7.816113e-04  0.000258  2.737407e-05
+3   0.000565  5.318498e-06  0.000075  7.046287e-07
+4   0.000310  9.283943e-08  0.000056  1.667566e-08
+..       ...           ...       ...           ...
+95  0.005040  9.690027e-12  0.000224           NaN
+96  0.003080  1.964245e-05  0.000175  1.117146e-06
+97  0.003802  8.110902e-06  0.000194  4.162408e-07
+98  0.003290  3.403677e-11  0.000181  1.164153e-10
+99  0.001730  3.172908e-07  0.000131  2.414103e-08
 
-[100 rows x 6 columns]
+[100 rows x 4 columns]
 </pre></div></div>
 </div>
-<div class="nbinput docutils container">
+<h6 style="align: justify;font-size: 12pt"><p># NOTE: The following cell is for pretty notebook rendering</p>
+</h6><div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="k">import</span> <span class="n">HTML</span>
+<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
 <span class="k">def</span> <span class="nf">css_styling</span><span class="p">():</span>
     <span class="n">styles</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../theme.css&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span>
@@ -809,7 +828,6 @@ distribution of nuisance parameters in the presence or absence of computational 
         });
 </script></div>
 </div>
-</div>
 
 
            </div>
@@ -823,6 +841,7 @@ distribution of nuisance parameters in the presence or absence of computational 
   <div role="contentinfo">
     <p>
         &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
 
     </p>

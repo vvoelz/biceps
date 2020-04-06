@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Convert populations to energy &mdash; BICePs 2.0 documentation</title>
+  <title>&lt;no title&gt; &mdash; BICePs 2.0 documentation</title>
   
 
   
@@ -36,7 +36,6 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -137,7 +136,7 @@
     
       <li><a href="../../../index.html">Docs</a> &raquo;</li>
         
-      <li>Convert populations to energy</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -423,8 +422,7 @@ Interactive online version:
 BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </pre></div></div>
 </div>
-<div class="section" id="Convert-populations-to-energy">
-<h1>Convert populations to energy<a class="headerlink" href="#Convert-populations-to-energy" title="Permalink to this headline">¶</a></h1>
+<p><strong>Convert populations to energy</strong></p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -445,9 +443,7 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 [5.583336321580334, 9.721165995742174, 9.115030192171858, 9.433483923290392, 6.495645628155304, 11.107460356862065, 6.094605306027495, 10.126631103850338, 8.8387768155437, 9.721165995742174]
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="Compute-J-coupling-constants-for-natural-amino-acids">
-<h1>Compute J coupling constants for natural amino acids<a class="headerlink" href="#Compute-J-coupling-constants-for-natural-amino-acids" title="Permalink to this headline">¶</a></h1>
+<p><strong>Compute J coupling constants for natural amino acids</strong></p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -480,9 +476,7 @@ saving output file...
 Done!
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="Compute-J-coupling-constants-for-non-natural-amino-acids">
-<h1>Compute J coupling constants for non-natural amino acids<a class="headerlink" href="#Compute-J-coupling-constants-for-non-natural-amino-acids" title="Permalink to this headline">¶</a></h1>
+<p><strong>Compute J coupling constants for non-natural amino acids</strong></p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -518,18 +512,14 @@ Done!
   10.9185836   2.76861831  1.46725946  2.17715562 10.99202389  1.80701938]]
 </pre></div></div>
 </div>
-<hr><div class="section" id="Tools-to-be-used-after-BICePs-sampling">
-<h2>Tools to be used after BICePs sampling<a class="headerlink" href="#Tools-to-be-used-after-BICePs-sampling" title="Permalink to this headline">¶</a></h2>
+<hr><p><strong>Tools to be used after BICePs sampling</strong></p>
 <!--
 #### Plot reference potential for each experimental restraints
 --><!--
 %matplotlib inline
 outdir = 'results/traj_lambda0.00.npz'
 p = biceps.toolbox.plot_ref(outdir)
---></div>
-</div>
-<div class="section" id="Convert-biceps-trajectory-file-to-Pandas-DataFrame">
-<h1>Convert <code class="docutils literal notranslate"><span class="pre">biceps</span></code> trajectory file to Pandas DataFrame<a class="headerlink" href="#Convert-biceps-trajectory-file-to-Pandas-DataFrame" title="Permalink to this headline">¶</a></h1>
+--><p><strong>Convert ``biceps`` trajectory file to Pandas DataFrame</strong></p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -565,7 +555,7 @@ p = biceps.toolbox.plot_ref(outdir)
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="k">import</span> <span class="n">HTML</span>
+<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
 <span class="k">def</span> <span class="nf">css_styling</span><span class="p">():</span>
     <span class="n">styles</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../../theme.css&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span>
@@ -672,7 +662,6 @@ p = biceps.toolbox.plot_ref(outdir)
         });
 </script></div>
 </div>
-</div>
 
 
            </div>
@@ -686,6 +675,7 @@ p = biceps.toolbox.plot_ref(outdir)
   <div role="contentinfo">
     <p>
         &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
 
     </p>

@@ -36,7 +36,6 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -427,61 +426,75 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </div>
 <div class="section" id="Data-and-Output-Directories">
 <h1>Data and Output Directories<a class="headerlink" href="#Data-and-Output-Directories" title="Permalink to this headline">¶</a></h1>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;../../datasets/cineromycin_B/cineromycinB_QMenergies.dat&#39;</span><span class="p">)</span><span class="o">*</span><span class="mf">627.509</span>  <span class="c1"># convert from hartrees to kcal/mol</span>
+<span></span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;cineromycin_B/cineromycinB_QMenergies.dat&#39;</span><span class="p">)</span><span class="o">*</span><span class="mf">627.509</span>  <span class="c1"># convert from hartrees to kcal/mol</span>
 <span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span><span class="o">/</span><span class="mf">0.5959</span>   <span class="c1"># convert to reduced free energies F = f/kT</span>
 <span class="n">energies</span> <span class="o">-=</span> <span class="n">energies</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>  <span class="c1"># set ground state to zero, just in case</span>
-<span class="n">datadir</span> <span class="o">=</span> <span class="s2">&quot;../../datasets/cineromycin_B/&quot;</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">sort_data</span><span class="p">(</span><span class="n">datadir</span><span class="o">+</span><span class="s1">&#39;noe_J&#39;</span><span class="p">)</span>
+<span class="n">states</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">)</span>
+<span class="n">top</span> <span class="o">=</span> <span class="s1">&#39;cineromycin_B/cineromycinB_pdbs/0.fixed.pdb&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Possible input data extensions: {biceps.toolbox.list_possible_extensions()}&quot;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">sort_data</span><span class="p">(</span><span class="s1">&#39;cineromycin_B/J_NOE&#39;</span><span class="p">)</span>
 <span class="n">res</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">list_res</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">outdir</span> <span class="o">=</span> <span class="s1">&#39;results&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input data: {biceps.toolbox.list_extensions(data)}&quot;</span><span class="p">)</span>
+<span class="n">outdir</span> <span class="o">=</span> <span class="s1">&#39;results_test&#39;</span>
 <span class="n">biceps</span><span class="o">.</span><span class="n">toolbox</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Possible input data extensions: [&#39;H&#39;, &#39;Ca&#39;, &#39;N&#39;, &#39;J&#39;, &#39;noe&#39;, &#39;pf&#39;]
+Input data: [&#39;J&#39;, &#39;noe&#39;]
+</pre></div></div>
+</div>
 </div>
 <div class="section" id="Parameters">
 <h1>Parameters<a class="headerlink" href="#Parameters" title="Permalink to this headline">¶</a></h1>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">nsteps</span><span class="o">=</span><span class="mi">1000000</span>
-<span class="n">lambda_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span></span><span class="n">nsteps</span><span class="o">=</span><span class="mi">10000000</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nSteps of sampling: </span><span class="si">{nsteps}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">maxtau</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">n_lambdas</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">lambda_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">n_lambdas</span><span class="p">)</span>
 <span class="n">ref</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;uniform&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">]</span>
 <span class="n">uncern</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">]]</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+nSteps of sampling: 10000000
+</pre></div></div>
+</div>
 </div>
 <div class="section" id="Multiprocessing-Lambda-values">
 <h1>Multiprocessing Lambda values<a class="headerlink" href="#Multiprocessing-Lambda-values" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="k">def</span> <span class="nf">mp_lambdas</span><span class="p">(</span><span class="n">Lambda</span><span class="p">):</span>
-    <span class="c1">####### MCMC Simulations #######</span>
-    <span class="n">ensemble</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">energies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">ensemble</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
-            <span class="n">File</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
-            <span class="n">R</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">init_res</span><span class="p">(</span><span class="n">PDB_filename</span><span class="o">=</span><span class="n">datadir</span><span class="o">+</span><span class="s1">&#39;cineromycinB_pdbs/0.fixed.pdb&#39;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="n">lam</span><span class="p">,</span>
-                <span class="n">energy</span><span class="o">=</span><span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ref</span><span class="o">=</span><span class="n">ref</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">File</span><span class="p">,</span>
-                <span class="n">uncern</span><span class="o">=</span><span class="n">uncern</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">])</span>
-            <span class="n">ensemble</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
-    <span class="n">sampler</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">PosteriorSampler</span><span class="p">(</span><span class="n">ensemble</span><span class="p">)</span>
-    <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nsteps</span><span class="o">=</span><span class="n">nsteps</span><span class="p">)</span>
+    <span class="n">ensemble</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">Ensemble</span><span class="p">(</span><span class="n">Lambda</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">top</span><span class="p">)</span>
+    <span class="n">ensemble</span><span class="o">.</span><span class="n">initialize_restraints</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ref_pot</span><span class="o">=</span><span class="n">ref</span><span class="p">,</span>
+            <span class="n">uncern</span><span class="o">=</span><span class="n">uncern</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">])</span>
+    <span class="n">sampler</span> <span class="o">=</span> <span class="n">biceps</span><span class="o">.</span><span class="n">PosteriorSampler</span><span class="p">(</span><span class="n">ensemble</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+    <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nsteps</span><span class="o">=</span><span class="n">nsteps</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">process_results</span><span class="p">(</span><span class="n">outdir</span><span class="o">+</span><span class="s1">&#39;/traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">))</span>
-    <span class="n">sampler</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">read_results</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span>
-        <span class="s1">&#39;traj_lambda</span><span class="si">%2.2f</span><span class="s1">.npz&#39;</span><span class="o">%</span><span class="k">lam</span>))
     <span class="n">outfilename</span> <span class="o">=</span> <span class="s1">&#39;sampler_lambda</span><span class="si">%2.2f</span><span class="s1">.pkl&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
     <span class="n">fout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">outfilename</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
     <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sampler</span><span class="p">,</span> <span class="n">fout</span><span class="p">)</span>
@@ -494,16 +507,14 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 <div class="section" id="Note-that-the-output-from-each-lambda-will-be-returned-to-stdout-as-soon-as-the-job-has-completed…">
 <h1>Note that the output from each lambda will be returned to stdout as soon as the job has completed…<a class="headerlink" href="#Note-that-the-output-from-each-lambda-will-be-returned-to-stdout-as-soon-as-the-job-has-completed…" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Check the number of CPU&#39;s available</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of CPU&#39;s: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()))</span>
-<span class="k">if</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lambda_values</span><span class="p">):</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">lambda_values</span><span class="p">))</span> <span class="c1"># knows the number of CPU&#39;s to allocate</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span> <span class="c1"># knows the number of CPU&#39;s to allocate</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_lambdas</span><span class="p">)</span> <span class="c1"># knows the number of CPU&#39;s to allocate</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of processes: </span><span class="si">{n_lambdas}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">jobs</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="n">lambda_values</span><span class="p">:</span>
     <span class="n">process</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">mp_lambdas</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">lam</span><span class="p">,))</span>
@@ -511,10 +522,8 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
     <span class="n">jobs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="c1"># Start the processes</span>
     <span class="n">active_processors</span> <span class="o">=</span> <span class="p">[</span><span class="n">jobs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">jobs</span><span class="p">))]</span>
     <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="c1">#print(&quot;Waiting until a processor becomes available...&quot;)</span>
         <span class="k">while</span> <span class="nb">all</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">active_processors</span> <span class="o">=</span> <span class="p">[</span><span class="n">jobs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">jobs</span><span class="p">))]</span>
-        <span class="c1">#print(active_processors)</span>
         <span class="n">inactive</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">active_processors</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">jobs</span><span class="p">[</span><span class="n">inactive</span><span class="p">]</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
         <span class="n">jobs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">jobs</span><span class="p">[</span><span class="n">inactive</span><span class="p">])</span>
@@ -529,26 +538,27 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Number of CPU&#39;s: 4
+Number of CPU&#39;s: 6
+Number of processes: 3
 
-Accepted 72.772 %
-
-
-Accepted [24.5859 24.2438 22.7593  1.183 ] %
+Accepted 71.40438999999999 %
 
 
-Accepted 77.84440000000001 %
-
-
-Accepted [24.6292 24.2702 22.6047  6.3403] %
-
-
-Accepted 73.99470000000001 %
-
-
-Accepted [24.6232 24.1921 22.6925  2.4869] %
+Accepted [32.73672 29.90617 29.90617  8.7615 ] %
 
 ...Done.
+
+Accepted 66.00635 %
+
+
+Accepted [32.73587 29.9568  29.9568   3.31368] %
+
+
+Accepted 64.30934 %
+
+
+Accepted [32.74651 29.97059 29.97059  1.59224] %
+
 ...Done.
 ...Done.
 </pre></div></div>
@@ -559,7 +569,7 @@ Accepted [24.6232 24.1921 22.6925  2.4869] %
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="k">import</span> <span class="n">HTML</span>
+<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
 <span class="k">def</span> <span class="nf">css_styling</span><span class="p">():</span>
     <span class="n">styles</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../../theme.css&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span>
@@ -581,6 +591,7 @@ Accepted [24.6232 24.1921 22.6925  2.4869] %
   <div role="contentinfo">
     <p>
         &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
 
     </p>

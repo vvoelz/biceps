@@ -8,7 +8,12 @@ from biceps.KarplusRelation import * # Returns J-coupling values from dihedral a
 
 class Ensemble(object):
     def __init__(self, lam, energies, verbose=False):
-        """Container of Restraint objects"""
+        """Container class for :attr:`Restraint` objects.
+
+        Args:
+            lam(float): lambda value to scale energies
+            energies(np.ndarray): numpy array of energies for each state
+        """
 
         self.ensemble = []
         if not isinstance(lam, float):
@@ -16,7 +21,6 @@ class Ensemble(object):
         else:
             self.lam = lam
 
-        # TODO: check
         if np.array(energies).dtype != float:
             raise ValueError("Energies should be array with type of 'float'")
         else:
@@ -24,19 +28,43 @@ class Ensemble(object):
         self.verbose = verbose
 
     def to_list(self):
+        """Converts the :class:`Ensemble` class to a list.
+
+        Returns:
+            list: collection of :attr:`Restraint` objects
+        """
+
         return self.ensemble
 
     def initialize_restraints(self, input_data, ref_pot=None, uncern=None, pf_prior=None,
-            gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None, state=None, weights=None,
+            gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None, states=None, weights=None,
             debug=False):
-        """Initialize corresponding restraint class based on experimental observables in input files for each conformational state.
+        """Initialize corresponding :attr:`Restraint` classes based on experimental
+        observables from **input_data** for each conformational state.
 
-        :param float lam: lambdas
-        :param float energy: potential energy for each conformational state
-        :param str default=None ref: reference potential (if default, will use our suggested reference potential for each experimental observables)
-        :param str data: BICePs input files directory
-        :param list default=None uncern: nuisance parameters range (if default, will use our suggested broad range (may increase sampling requirement for convergence))
-        :param list default=None gamma: only for NOE, range of gamma (if default, will use our suggested broad range (may increase sampling requirement for convergence))"""
+        Print possible restraints with: ``biceps.toolbox.list_possible_restraints()``
+
+        Print possible extensions with: ``biceps.toolbox.list_possible_extensions()``
+
+        Args:
+            input_data(list of str): a sorted collection of filenames (files\
+                    contain `exp` (experimental) and `model` (theoretical) observables)
+            ref_pot(str): referenece potential e.g., "uniform". "exp", "gau".\
+                    If None, the default reference potential will be used for\
+                    a given experimental observable
+            weights(list, optional): weights for each restraint in the order of\
+                    sorted data (``biceps.toolbox.list_extensions()``).
+            uncern(list, optional): nuisance parameters range. If too broad of\
+                    a range this could potentially increase sampling requirement\
+                    for convergence.
+            gamma(list, optional): (Only for NOE) range of gamma. If too broad of\
+                    a range this could potentially increase sampling requirement\
+                    for convergence.
+            precomputed(bool): (Only for pf) precomputed model data?
+            Ncs_fi(str, optional): (Only for pf) path to forward model data
+            Nhs_fi(str, optional): (Only for pf) path to forward model data
+            states(list): (Only for pf) specified list of states for model data
+        """
 
         verbose = self.verbose
         uncertainties = uncern
@@ -71,7 +99,7 @@ class Ensemble(object):
                 ##########################################################
                 if data.endswith('pf'):
                     if not precomputed:
-                        if Ncs_fi == None or Nhs_fi == None or state[i] == None:
+                        if Ncs_fi == None or Nhs_fi == None or states[i] == None:
                             raise ValueError("Ncs and Nhs and state number are needed!")
                     # add uncern option here later
                     # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
@@ -90,12 +118,12 @@ class Ensemble(object):
                     Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
                     for o in range(len(allowed_xcs)):
                         for q in range(len(allowed_bs)):
-                            infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],state[i])
+                            infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],states[i])
                             #print(f"infile_Nc = {infile_Nc}")
                             Ncs[o,q,:] = (np.load(infile_Nc))
                     for p in range(len(allowed_xhs)):
                         for q in range(len(allowed_bs)):
-                            infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],state[i])
+                            infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],states[i])
                             #print(f"infile_Nh = {infile_Nh}")
                             Nhs[p,q,:] = (np.load(infile_Nh))
                 if ref_pot[k] ==  None:
@@ -129,25 +157,19 @@ class Ensemble(object):
 
 
 class Restraint(object):
-    """The parent class of all Restraint() objects.
-
-    :param str PDB_filename: A topology file (*.pdb)
-    :param str ref: Reference potential.
-    :param float default=np.log(1.02) dlogsigma:
-    :param float sigma_min: default=0.05
-    :param float sigma_max: default=20.0
-    :param bool default=True use_global_ref_sigma: """
 
     def __init__(self, ref, dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0,
             use_global_ref_sigma=True, verbose=False):
-        """Initialize the Restraint class.
+        """The parent :attr:`Restraint` class.
 
-        :param str PDB_filename: A topology file (*.pdb)
-        :param str ref: Reference potential.
-        :param float default=np.log(1.02) dlogsigma:
-        :param float default=0.05 sigma_min:
-        :param float default=20.0 sigma_max:
-        :param bool default=True use_global_ref_sigma:
+        Args:
+            ref_pot(str): referenece potential e.g., "uniform". "exp", "gau".\
+                    If None, the default reference potential will be used for\
+                    a given experimental observable
+            dlogsigma(float): (defaults to np.log(1.02))
+            sigma_min(float): (defaults to 0.05)
+            sigma_max(float): (defaults to 20.0)
+            use_global_ref_sigma(bool): (defaults to True)
         """
 
         # Store restraint info
@@ -182,9 +204,16 @@ class Restraint(object):
 
 
     def load_data(self, filename, As="pickle"):
-        """Load in the experimental restraints from a known
-        file format. For more information about file formats:
-        `https://pandas.pydata.org/pandas-docs/stable/reference/io.html`
+        """Load in the experimental restraints from many possible file formats.
+        `More information about file formats \
+                <https://pandas.pydata.org/pandas-docs/stable/reference/io.html>`_
+
+        Args:
+            filename(str): name of file to be loaded in memory
+            As(str): file type from `pandas IO \
+                    <https://pandas.pydata.org/pandas-docs/stable/reference/io.html>`_
+        Returns:
+            pd.DataFrame
         """
 
         if self.verbose:
@@ -195,14 +224,18 @@ class Restraint(object):
 
 
     def add_restraint(self, restraint):
-        """Add a new restraint data container (e.g. NMR_Chemicalshift()) to the list.
-        :param list restraint:
+        """Append an experimental restraint object to the list.
+
+        Args:
+            restraint(object): :attr:`Restraint` object
         """
+
         self.restraints.append(restraint)
 
     def compute_neglog_exp_ref(self):
-        """Uses the stored beta information (calculated across all structures)
-        to calculate -log P_ref(observable[j]) for each observable j."""
+        """Uses the stored beta information to compute \
+                :math:`-log P_{ref}(r_{j}(X_{i}))` over each structure\
+                :math:`X_{i}` and for each observable :math:`r_{j}`."""
 
         self.neglog_exp_ref = np.zeros(self.n)
         self.sum_neglog_exp_ref = 0.0
@@ -213,7 +246,7 @@ class Restraint(object):
 
     def compute_neglog_gaussian_ref(self):
         """An alternative option for reference potential based on
-        Gaussian distribution. (Ignoring constant terms) """
+        Gaussian distribution. (Ignoring constant terms)"""
 
         self.neglog_gaussian_ref = np.zeros(self.n)
         self.sum_neglog_gaussian_ref = 0.0
@@ -225,7 +258,7 @@ class Restraint(object):
 
 
 class Restraint_cs(Restraint):
-    """A derived class of RestraintClass() for N chemical shift restraints."""
+    """A :attr:`Restraint` child class for chemical shifts."""
 
     _ext = ["H", "Ca", "N"]
 
@@ -236,11 +269,15 @@ class Restraint_cs(Restraint):
             pass
 
     def init_restraint(self, data, energy, extension, weight=1, verbose=False):
-        """Observable is prepped by loading in cs_N restraints.
+        """Initialize the chemical shift restraints for each **exp** (experimental)
+        and **model** (theoretical) observable given **data**.
 
-        :param str data: Experimental data file
-        :param float lam: Lambda value (between 0 and 1)
-        :param float energy: The (reduced) free energy of this conformation"""
+        Args:
+            data(str): filename of data
+            energy(float): The (reduced) free energy of the conformation
+            extensions(str): "H", "Ca", "N"
+            weight(float): weight for restraint
+        """
 
         self.extension = extension
 
@@ -284,17 +321,25 @@ class Restraint_cs(Restraint):
         self.Ndof = N
         if debug:
             print('self.sse', self.sse)
-        #print(self.sse)
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
+    def compute_neglogP(self, index, parameters, parameter_indices):
+        """Computes :math:`-logP` for chemical shift during MCMC sampling.
+
+        Args:
+            index(int): restraint index
+            parameters(list): collection of parameters for a given step of MCMC
+            parameter_indices(list): collection of indices for a given step of MCMC
+
+        :rtype: float
+        """
 
         result = 0
         para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
         result += (self.Ndof)*np.log(para[index][0])
         result += self.sse / (2.0*float(para[index][0])**2.0)
-        result += (self.Ndof)/2.0*ln2pi  # for normalization
+        result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
         if self.ref == "gaussian":
@@ -303,16 +348,19 @@ class Restraint_cs(Restraint):
 
 
 class Restraint_J(Restraint):
-    """A derived class of RestraintClass() for J coupling constant."""
+    """A :attr:`Restraint` child class for J coupling constant."""
 
     _ext = ['J']
 
     def init_restraint(self, data, energy, weight=1, verbose=False):
-        """Observable is prepped by loading in J coupling restraints.
+        """Initialize the sclar coupling constant restraints for each **exp**
+        (experimental) and **model** (theoretical) observable given **data**.
 
-        :param str data: Experimental data file
-        :param float lam: Lambda value (between 0 and 1)
-        :param float energy: The (reduced) free energy of this conformation"""
+        Args:
+            data(str): filename of data
+            energy(float): The (reduced) free energy of the conformation
+            weight(float): weight for restraint
+        """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
@@ -380,14 +428,23 @@ class Restraint_J(Restraint):
         #print(self.sse)
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
+    def compute_neglogP(self, index, parameters, parameter_indices):
+        """Computes :math:`-logP` for scalar coupling constant during MCMC sampling.
+
+        Args:
+            index(int): restraint index
+            parameters(list): collection of parameters for a given step of MCMC
+            parameter_indices(list): collection of indices for a given step of MCMC
+
+        :rtype: float
+        """
 
         result = 0
         para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
         result += (self.Ndof)*np.log(para[index][0])
         result += self.sse / (2.0*float(para[index][0])**2.0)
-        result += (self.Ndof)/2.0*ln2pi  # for normalization
+        result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
         if self.ref == "gaussian":
@@ -397,21 +454,25 @@ class Restraint_J(Restraint):
 
 
 class Restraint_noe(Restraint):
-    """A derived class of Restraint() for noe distance restraints."""
+    """A :attr:`Restraint` child class for NOE distances."""
 
     _ext = ['noe']
 
     def init_restraint(self, data, energy, weight=1, verbose=False,
             use_log_normal_noe=False, dloggamma=np.log(1.01),
             gamma_min=0.2, gamma_max=10.0):
-        """Observable is prepped by loading in noe distance restraints.
+        """Initialize the NOE distance restraints for each **exp** (experimental)
+        and **model** (theoretical) observable given **data**.
 
-        :param str data: Experimental data file
-        :param float lam: Lambda value (between 0 and 1)
-        :param float energy: The (reduced) free energy f = beta*F of this conformation
-        :param float dloggamma: Gamma is in log space
-        :param float gamma_min: Minimum value of gamma
-        :param float gamma_max: Maximum value of gamma"""
+        Args:
+            data(str): filename of data
+            energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
+            weight(float): weight for restraint
+            use_log_normal_noe(bool):
+            dloggamma(float): Gamma is in log space
+            gamma_min(float): Minimum value of gamma
+            gamma_max(float): Maximum value of gamma
+        """
 
         # Store info about gamma^(-1/6) scaling parameter array
         self.dloggamma = dloggamma
@@ -491,14 +552,23 @@ class Restraint_noe(Restraint):
         #print(self.sse)
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
+    def compute_neglogP(self, index, parameters, parameter_indices):
+        """Computes :math:`-logP` for NOE during MCMC sampling.
+
+        Args:
+            index(int): restraint index
+            parameters(list): collection of parameters for a given step of MCMC
+            parameter_indices(list): collection of indices for a given step of MCMC
+
+        :rtype: float
+        """
 
         result = 0
         para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
         result += (self.Ndof)*np.log(para[index][0])
         result += self.sse[int(indices[index][1])] / (2.0*para[index][0]**2.0)
-        result += (self.Ndof)/2.0*ln2pi  # for normalization
+        result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
         if self.ref == "gaussian":
@@ -507,20 +577,23 @@ class Restraint_noe(Restraint):
 
 
 class Restraint_pf(Restraint):
-    """A derived class of Restraint() for protection factor restraints."""
+    """A :attr:`Restraint` child class for protection factor."""
 
     _ext = ['pf']
 
-    def init_restraint(self, energy, data, precomputed=False, pf_prior=None,
+    def init_restraint(self, data, energy, precomputed=False, pf_prior=None,
             Ncs=None, Nhs=None,verbose=False, beta_c_min=0.05,beta_c_max=0.25,
             dbeta_c=0.01,beta_h_min=0.0,beta_h_max=5.2,dbeta_h=0.2,
             beta_0_min=-10.0,beta_0_max=0.0,dbeta_0=0.2,xcs_min=5.0,xcs_max=8.5,
-            dxcs=0.5,xhs_min=2.0,xhs_max=2.7,dxhs=0.1,bs_min=15.0,bs_max=16.0,dbs=1.0, weight=1):
-        """Observable is prepped by loading in protection factor restraints.
+            dxcs=0.5,xhs_min=2.0,xhs_max=2.7,dxhs=0.1,bs_min=15.0,bs_max=16.0,
+            dbs=1.0, weight=1):
+        """Initialize protection factor restraints for each **exp** (experimental)
+        and **model** (theoretical) observable given **data**.
 
-        :param str data: Experimental data file
-        :param float lam: Lambda value (between 0 and 1)
-        :param float energy: The (reduced) free energy f = beta*F of this conformation
+        Args:
+            data(str): filename of data
+            energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
+            weight(float): weight for restraint
         """
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
@@ -646,16 +719,15 @@ class Restraint_pf(Restraint):
                 self.sse += (self.restraints[i]['weight'] * err**2.0)
                 self.Ndof += self.restraints[i]['weight']
 
-        #print(self.sse)
-
 
     def compute_PF(self, beta_c, beta_h, beta_0, Nc, Nh):
         """Calculate predicted (ln PF)
 
-        :param np.array beta_c,beta_h,Nc,Nh: shape(nres, 2)
-          array with columns <N_c> and <N_h> for each residue
-        :return:   array of
-          >>> <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
+        Args:
+            beta_c,beta_h,Nc,Nh(np.ndarray): shape(nres, 2)\
+                    array with columns <N_c> and <N_h> for each residue
+        Returns:
+            np.ndarray: ``<ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues``
         """
         return beta_c * Nc + beta_h * Nh + beta_0  #GYH: new equation for PF calculation 03/2017 '''
 
@@ -665,10 +737,12 @@ class Restraint_pf(Restraint):
 
         .. tip:: A near future application...
 
-        :param np.array Ncs_i,Nhs_i:
-          array with columns <N_c> and <N_h> for each residue
-        :return:   array of
-          >>> <ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues
+        Args:
+            Ncs_i,Nhs_i(np.ndarray, np.ndarray): array with columns <N_c> and\
+                    <N_h> for each residue
+
+        Returns:
+            np.ndarray: ``<ln PF> = beta_c <N_c> + beta_h <N_h> + beta_0 for all residues``
         """
 
         N_beta_c = len(self.allowed_beta_c)
@@ -697,14 +771,15 @@ class Restraint_pf(Restraint):
         return beta_c * Nc + beta_h * Nh + beta_0
 
     def tile_multiaxis(self, p, shape, axis=None):
-        """Returns a multi-dimensional array of shape (tuple), with the 1D vector p along the specified axis,
-           and tiled in all other dimensions.
-
+        """Returns a multi-dimensional array of shape (tuple), with the 1D
+        vector p along the specified axis, and tiled in all other dimensions.
 
         .. tip:: A near future application...
-        :param np.array p: a 1D array to tile
-        :param tuple shape: a tuple describing the shape of the returned array
-        :var axis: the specified axis for p .  NOTE: len(p) must be equal to shape[axis]
+
+        Args:
+            p(np.ndarray): a 1D array to tile
+            shape(tuple): a tuple describing the shape of the returned array
+            axis: the specified axis for p .  NOTE: len(p) must be equal to shape[axis]
         """
 
         assert shape[axis] == len(p), "len(p) must be equal to shape[axis]!"
@@ -719,9 +794,11 @@ class Restraint_pf(Restraint):
            and tiled in all other dimensions.
 
         .. tip:: A near future application...
-        :param np.array p: a 1D array to tile
-        :param tuple shape: a tuple describing the shape of the returned array
-        :var axis: the specified axis for p .  NOTE: len(p) must be equal to shape[axis]
+
+        Args:
+            p(np.ndarray): a 1D array to tile
+            shape(tuple): a tuple describing the shape of the returned array
+            axis: the specified axis for p .  NOTE: len(p) must be equal to shape[axis]
         """
 
         assert (shape[axes[0]],shape[axes[1]]) == q.shape, "q.shape must be equal to (shape[axes[0]],shape[axes[1]])"
@@ -752,7 +829,16 @@ class Restraint_pf(Restraint):
             self.sum_neglog_gaussian_ref += self.restraints[j]['weight'] * self.neglog_gaussian_ref[j]
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices, ln2pi):
+    def compute_neglogP(self, index, parameters, parameter_indices):
+        """Computes :math:`-logP` for protection factor during MCMC sampling.
+
+        Args:
+            index(int): restraint index
+            parameters(list): collection of parameters for a given step of MCMC
+            parameter_indices(list): collection of indices for a given step of MCMC
+
+        :rtype: float
+        """
 
         result = 0
         para,indices = parameters, parameter_indices
@@ -764,7 +850,7 @@ class Restraint_pf(Restraint):
                 result += self.pf_prior[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
         else:
             result += self.sse / (2.0*float(para[index][0])**2.0)
-        result += (self.Ndof)/2.0*ln2pi  # for normalization
+        result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         # Which reference potential was used for each restraint?
         if self.ref == "exp":
             if isinstance(self.sum_neglog_exp_ref, float):
@@ -796,9 +882,16 @@ class Preparation(object):
         self.data = list()
 
     def write_DataFrame(self, filename, As="pickle", verbose=False):
-        """Write Pandas DataFrame As user specified filetype.
-        For more information about file formats:
-        `https://pandas.pydata.org/pandas-docs/stable/reference/io.html`
+        """Write Pandas DataFrame **As** user specified filetype.
+        `More information about file formats \
+                <https://pandas.pydata.org/pandas-docs/stable/reference/io.html>`_
+
+        Args:
+            filename(str): name of file to be loaded in memory
+            As(str): file type from `pandas IO \
+                    <https://pandas.pydata.org/pandas-docs/stable/reference/io.html>`_
+        Returns:
+            pd.DataFrame
         """
 
         #biceps.toolbox.mkdir(self.outdir)

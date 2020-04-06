@@ -9,7 +9,6 @@ energies -= energies.min()  # set ground state to zero, just in case
 states = len(energies)
 print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
 data = biceps.toolbox.sort_data('cineromycin_B/J_NOE')
-res = biceps.toolbox.list_res(data)
 print(f"Input data: {biceps.toolbox.list_extensions(data)}")
 outdir = '_results_test'
 biceps.toolbox.mkdir(outdir)

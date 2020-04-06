@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Conclusion &mdash; BICePs 2.0 documentation</title>
+  <title>&lt;no title&gt; &mdash; BICePs 2.0 documentation</title>
   
 
   
@@ -36,7 +36,6 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -137,7 +136,7 @@
     
       <li><a href="../../../index.html">Docs</a> &raquo;</li>
         
-      <li>Conclusion</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -404,15 +403,14 @@ Interactive online version:
 <span class="raw-html"><a href="https://mybinder.org/v2/gh/spatialaudio/nbsphinx/2.0?filepath=doc/examples/Tutorials/Prep_Rest_Post_Ana/analysis.ipynb"><img alt="Binder badge" src="https://mybinder.org/badge.svg" style="vertical-align:text-bottom"></a></span></p>
 </div>
 <h1 style="align: center;font-size: 18pt;"><p>Analysis</p>
-</h1><hr style="height:2.5px"><p>In this tutorial, we show the user how to instantiate the <code class="docutils literal notranslate"><span class="pre">biceps.Analysis</span></code> class. <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> uses <a class="reference external" href="https://pymbar.readthedocs.io/en/master/index.html">MBAR</a> to get predicted populations of each conformational states and BICePs score. We also provide a short description of the output data from <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> and embed the figures of posterior distribution of populations &amp; nuisance parameters. Please refer to the <a class="reference external" href="https://biceps.readthedocs.io/en/latest/api.html#analysis">documentation of
+</h1><hr style="height:2.5px"><p>In this tutorial, we show the user how to instantiate the <code class="docutils literal notranslate"><span class="pre">biceps.Analysis</span></code> class. The <strong>Analysis class</strong> uses <a class="reference external" href="https://pymbar.readthedocs.io/en/master/index.html">MBAR</a> to get predicted populations of each conformational states and BICePs score. We also provide a short description of the output data from <strong>Analysis</strong> and embed the figures of posterior distribution of populations &amp; nuisance parameters. Please refer to the <a class="reference external" href="https://biceps.readthedocs.io/en/latest/biceps.html#analysis">documentation of
 Analysis</a> for more specific details.</p>
 <hr style="height:2.5px"><div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">biceps</span>
+<span></span><span class="kn">import</span> <span class="nn">biceps</span>
 </pre></div>
 </div>
 </div>
@@ -425,7 +423,7 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -446,8 +444,8 @@ BICePs - Bayesian Inference of Conformational Populations, Version 2.0
 <div class="highlight"><pre>
 Loading results/traj_lambda0.00.npz ...
 Loading results/traj_lambda1.00.npz ...
-not all state sampled, these states [ 1  4  5  7  9 11 14 15 16 18 22 23 24 25 26 27 31 34 40 42 48 51 52 54
- 57 60 61 62 69 73 74 76 77 81 87 89 95 98 99] are not sampled
+not all state sampled, these states [ 4  5  9 11 13 15 16 18 22 24 25 26 27 28 31 34 40 41 42 48 51 52 53 54
+ 57 62 64 66 69 73 76 77 81 82 83 95 98 99] are not sampled
 Loading results/sampler_lambda0.00.pkl ...
 Loading results/sampler_lambda1.00.pkl ...
 lam = [0.0, 1.0]
@@ -480,7 +478,7 @@ Writing results/populations.dat...
 <p>Now, let’s take a look at the populations file:</p>
 <p>There are 100 rows corresponding to 100 clustered states. 4 columns corresponding to populations of each state (row) for 2 lambda values (first 2 columns) and population change (last 2 columns).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -497,34 +495,33 @@ Writing results/populations.dat...
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-           0             1             2             3
-0   0.017675  2.468969e-05  1.315615e-03  1.870498e-06
-1   0.003991  9.224753e-06  6.296154e-04  1.461176e-06
-2   0.007806  8.943944e-04  8.335932e-04  9.617911e-05
-3   0.001188  1.216696e-05  3.426760e-04  3.514156e-06
-4   0.000000  0.000000e+00  2.328306e-10  0.000000e+00
-..       ...           ...           ...           ...
-95  0.004000  8.363088e-12  6.310649e-04           NaN
-96  0.002383  1.652896e-05  4.858905e-04  3.377554e-06
-97  0.002993  6.944256e-06  5.455576e-04  1.269547e-06
-98  0.003100  3.487877e-11  5.558279e-04           NaN
-99  0.001600  3.191285e-07  3.995688e-04  7.983919e-08
+           0             1         2             3
+0   0.019178  2.167922e-05  0.001369  1.577845e-06
+1   0.004691  8.775425e-06  0.000683  1.282691e-06
+2   0.006772  6.279527e-04  0.000784  7.319238e-05
+3   0.000893  7.398924e-06  0.000297  2.467277e-06
+4   0.000000  0.000000e+00  0.000000  0.000000e+00
+..       ...           ...       ...           ...
+95  0.005700  9.643841e-12  0.000753  1.646361e-10
+96  0.001989  1.116143e-05  0.000444  2.497964e-06
+97  0.003493  6.559169e-06  0.000589  1.110421e-06
+98  0.002900  2.640554e-11  0.000538           NaN
+99  0.001700  2.744073e-07  0.000412  6.660544e-08
 
 [100 rows x 4 columns]
 </pre></div></div>
 </div>
-<!--There are 100 rows corresponding to 100 clustered states. 6 columns corresponding to populations of each state (row) for 3 lambda values (first 3 columns) and population change (last 3 columns). --><div class="section" id="Conclusion">
-<h1>Conclusion<a class="headerlink" href="#Conclusion" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial, the user learned how to call on the <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> class in order to analyze the trajectory data, which automatically plots the posterior distribution of populations &amp; nuisance parameters.</p>
+<!--There are 100 rows corresponding to 100 clustered states. 6 columns corresponding to populations of each state (row) for 3 lambda values (first 3 columns) and population change (last 3 columns). --><h1 style="align: center;font-size: 18pt;"><p>Conclusion</p>
+</h1><p>In this tutorial, the user learned how to call on the <strong>Analysis class</strong> in order to analyze the trajectory data, which automatically plots the posterior distribution of populations &amp; nuisance parameters.</p>
 <p>We now conclude the series of tutorials: <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Prep_Rest_Post_Ana/preparation.html">Preparation</a>, <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Prep_Rest_Post_Ana/restraint.html">Restraint</a>, <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Prep_Rest_Post_Ana/posteriorsampler.html">PosteriorSampler</a> and <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/Tutorials/Prep_Rest_Post_Ana/analysis.html">Analysis</a>
 <strong>To learn more about BICePs, please check out our other examples &amp; tutorials</strong> <a class="reference external" href="https://biceps.readthedocs.io/en/latest/examples/index.html">here</a>.</p>
 <h6 style="align: justify;font-size: 12pt"><p># NOTE: The following cell is for pretty notebook rendering</p>
-</h6><div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</h6><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="k">import</span> <span class="n">HTML</span>
+<span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
 <span class="k">def</span> <span class="nf">css_styling</span><span class="p">():</span>
     <span class="n">styles</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../../theme.css&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span>
@@ -532,6 +529,104 @@ Writing results/populations.dat...
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    @font-face {
+        font-family: "Computer Modern";
+        src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunss.otf');
+    }
+    #notebook { /* centers the page content */
+    padding-left:8%;
+    padding-right:9%;
+    }
+    #ipython-main-app {
+        position: relative;
+    }
+    #jupyter-main-app {
+        position: relative;
+    }
+    div.cell{
+        width:98%;
+        margin-left:4% !important;*/
+        margin-right:4%;
+    }
+    h1 {
+        font-family: "Charis SIL", Palatino, serif;
+        text-align: center;
+    }
+    h4{
+        margin-top:12px;
+        margin-bottom: 3px;
+       }
+    div.text_cell_render{
+        font-family: Computer Modern, "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+        line-height: 145%;
+        font-size: 12pt;
+        width:99%;
+        margin-left:auto;
+        margin-right:auto;
+    }
+    .output_png {
+        display: block;/*table-cell;*/
+        text-align: center;
+        align: center;
+        vertical-align: middle;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+    }
+    div.output_area pre {font-weight: normal; text-align: justify; }
+    .warning{
+        color: rgb( 240, 20, 20 )
+        }
+    .CodeMirror{
+            font-family: "Source Code Pro", source-code-pro,Consolas, monospace;
+    }
+    .prompt{
+        display: None;
+    }
+    .text_cell_render h5 {
+        font-weight: 300;
+        font-size: 16pt;
+        color: #4057A1;
+        font-style: italic;
+        margin-bottom: .5em;
+        margin-top: 0.5em;
+        display: block;
+    }
+    /* override table width restrictions as found on https://github.com/getpelican/pelican/issues/1311 */
+    .wy-table-responsive table td, .wy-table-responsive table th {
+        /* !important prevents the common CSS stylesheets from
+           overriding this as on RTD they are loaded after this stylesheet */
+        white-space: normal !important;
+    }
+
+    .wy-table-responsive {
+        overflow: visible !important;
+    }
+</style>
+
+<!-- MathJax configuration -->
+<script type="text/x-mathjax-config">
+    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    MathJax.Hub.Config({
+                        TeX: {
+                           extensions: ["AMSmath.js"]
+                           },
+                tex2jax: {
+                    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                    displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
+                },
+                displayAlign: 'center', // Change this to 'center' to center equations.
+                "HTML-CSS": {
+                    styles: {'.MathJax_Display': {"margin": 4}},
+                    linebreaks: { automatic: true }}
+        });
+</script></div>
 </div>
 
 
@@ -546,6 +641,7 @@ Writing results/populations.dat...
   <div role="contentinfo">
     <p>
         &copy; Copyright 2020, Temple University, Yunhui Ge, Robert M. Raddi, Vincent A. Voelz
+
 
 
     </p>

@@ -34,7 +34,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "#### Convert populations to energy"
+    "**Convert populations to energy**"
    ]
   },
   {
@@ -61,7 +61,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "#### Compute J coupling constants for natural amino acids"
+    "**Compute J coupling constants for natural amino acids**"
    ]
   },
   {
@@ -100,7 +100,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "#### Compute J coupling constants for non-natural amino acids"
+    "**Compute J coupling constants for non-natural amino acids**"
    ]
   },
   {
@@ -144,7 +144,7 @@
    "source": [
     "<hr>\n",
     "\n",
-    "### Tools to be used after BICePs sampling"
+    "**Tools to be used after BICePs sampling**"
    ]
   },
   {
@@ -173,7 +173,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "#### Convert `biceps` trajectory file to Pandas DataFrame"
+    "**Convert `biceps` trajectory file to Pandas DataFrame**"
    ]
   },
   {
@@ -349,7 +349,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.7.4"
+   "version": "3.7.3"
   }
  },
  "nbformat": 4,

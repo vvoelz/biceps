@@ -234,11 +234,10 @@ class PosteriorSampler(object):
         """
 
         s = self.ensemble[int(new_state)] # Current Structure (list of restraints)
-        ln2pi = self.ln2pi                # for normalization
         _result = s[0].energy + self.logZ  # Grab the free energy of the state and normalize
         for index,R in enumerate(s):
             #print(index, R)
-            _result += R.compute_neglogP(index, parameters, parameter_indices, ln2pi)
+            _result += R.compute_neglogP(index, parameters, parameter_indices)
         return _result
 
 
