@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-# Authors: Yunhui Ge, Vincent Voelz
-# Contributors: Rob Raddi
-# This file is used to do posterior analysis using MBAR and plot figures.
-##############################################################################
-
-import sys, os, glob
+import os, glob
 from .Restraint import *
 from .PosteriorSampler import *
 from . import toolbox as d
@@ -13,10 +7,8 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import numpy as np
-from scipy import loadtxt, savetxt
-import pickle, pprint
+import pickle
 from pymbar import MBAR
-import re
 
 class Analysis(object):
     """A class to perform analysis and plot figures.
@@ -184,11 +176,11 @@ class Analysis(object):
         """save results (BICePs score and populations) from MBAR analysis"""
 
         print('Writing %s...'%self.BSdir)
-        savetxt(self.BSdir, self.f_df)
+        np.savetxt(self.BSdir, self.f_df)
         print('...Done.')
 
         print('Writing %s...'%self.popdir)
-        savetxt(self.popdir, self.P_dP)
+        np.savetxt(self.popdir, self.P_dP)
         print('...Done.')
 
     def plot(self, show=False, debug=False):

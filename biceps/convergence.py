@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
-import sys, os
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
-from scipy.optimize import curve_fit
-from matplotlib.offsetbox import AnchoredText
 import warnings
 warnings.filterwarnings("ignore",category=DeprecationWarning)
 warnings.filterwarnings("ignore",category=RuntimeWarning)
-
 
 class Convergence(object):
     """Convergence submodule for BICePs.
@@ -328,6 +324,7 @@ class Convergence(object):
             self.plot_auto_curve(std_x=std_x, std_y=std_y)
 
         if method == "exp":
+            from scipy.optimize import curve_fit
             self.yFits,popts = [],[]
             for i in range(len(self.autocorr)):
                 yFit,popt = self.exponential_fit(self.autocorr[i], exp_function=self.exp_function)
@@ -500,10 +497,6 @@ class Convergence(object):
                 plt.plot([JSDs_sorted[ind], JSDs_sorted[ind]],
                         [0.0, p[ind]/norm], 'k')
 
-#                ax = plt.gca()
-#                anchored_text = AnchoredText('%0.3f'%(p[ind]/norm),
-#                        loc="upper left",frameon=False)
-#                ax.add_artist(anchored_text)
                 plt.ylim(bottom=0.0, top=1.0)
                 plt.xlim(left=0.0)
                 plt.xlabel('JSD')

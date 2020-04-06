@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, os, glob, re, yaml, io, pickle
+import os, glob, re, pickle
 import numpy as np
 import pandas as pd
 from biceps.J_coupling import *
@@ -139,7 +139,6 @@ def read_results(self,filename):
 
 def plot_ref(traj, debug=True):
     #from matplotlib import pyplot as plt
-    # Load in yaml trajectories
     #output = os.path.join(resultdir,'traj_lambda0.00.npz')
     #output = traj
     """Plot reference potential for each observables.
