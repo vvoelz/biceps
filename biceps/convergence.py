@@ -8,12 +8,13 @@ warnings.filterwarnings("ignore",category=DeprecationWarning)
 warnings.filterwarnings("ignore",category=RuntimeWarning)
 
 class Convergence(object):
-    """Convergence submodule for BICePs.
-
-    :param np.array traj: output trajectory from BICePs sampling
-    """
 
     def __init__(self, trajfile=None, resultdir=None):
+        """Convergence submodule for BICePs.
+
+        Args:
+            traj(npz, np.ndarray): MCMC trajectory
+        """
 
         if trajfile is None:
             raise ValueError("Trajectory file is necessary")
@@ -68,8 +69,8 @@ class Convergence(object):
     def plot_traces(self, fname="traj_traces.png", xlim=None):
         """Plot trajectory traces.
 
-        :param tuple xlim:
-        :return figure: A figure
+        :param tuple xlim: matplotlib x-axis limits
+        :return figure:
         """
 
         print('Plotting traces...')
@@ -91,15 +92,17 @@ class Convergence(object):
         plt.savefig(self.resultdir+fname)
         print('Done!')
 
-    def plot_auto_curve(self, xlim=None,
-            fname="autocorrelation_curve.png", std_x=None, std_y=None):
+    def plot_auto_curve(self, xlim=None, fname="autocorrelation_curve.png",
+            std_x=None, std_y=None):
         """Plot auto-correlation curve.
 
-        :param np.ndarray autocorrs:
-        :param np.ndarray tau_c:
-        :param list labels:
+        Args:
+            autocorrs(np.ndarray):
+            tau_c(np.ndarray):
+            labels(list):
+
         :return figure: A figure of auto-correlation with error bars at the 95%
-        confidence interval (`\tau_{auto}` is rounded to the nearest integer).
+        confidence interval (:math:`\\tau_{auto}` is rounded to the nearest integer).
         """
 
         print('Plotting autocorrelation curve ...')
@@ -141,9 +144,8 @@ class Convergence(object):
         plt.savefig(self.resultdir+fname)
         print('Done!')
 
-    def plot_auto_curve_with_exp_fitting(self,
-            fname="autocorrelation_curve_with_exp_fitting.png"):
-        """Plot auto-correlation curve.
+    def plot_auto_curve_with_exp_fitting(self, fname="autocorrelation_curve_with_exp_fitting.png"):
+        """Plot auto-correlation curve with an exponential fitting.
 
         :return figure: A figure of auto-correlation
         """
@@ -196,10 +198,10 @@ class Convergence(object):
         return a0 + a1*np.exp(-(x/tau1)) + a2*np.exp(-(x/tau2))
 
     def exponential_fit(self, ac, exp_function='single'):
-        """Calls on `single_exp_decay` or `double_exp_decay` for an
-        exponential fitting of an autocorrelation curve.
-        See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
-        for more details on curve fit.
+        """Calls on :attr:`single_exp_decay` ('single') or :attr:`double_exp_decay`
+        ('double') for an exponential fitting of an autocorrelation curve.
+        See `SciPy curve fit <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html>`_
+        for more details.
 
         :param np.ndarray ac:
         :param str default='single' exp_function:
@@ -228,7 +230,6 @@ class Convergence(object):
         autocorrs = []
         for timeseries in data:
             autocorrs.append( self.g(np.array(timeseries), max_tau=self.maxtau) )
-        #print('Done!')
         return autocorrs
 
 
@@ -254,10 +255,14 @@ class Convergence(object):
 
 
     def autocorrelation_time(self, autocorr):
-        """Computes the autocorrelation time:
+        """Computes the autocorrelation time :math:`\\tau_{auto} = \int C_{\\tau} d\\tau`
 
-        :math:`\tau_{auto} = \int C_{\tau} d\tau`
+        Args:
+            autocorr(np.ndarray): an array containing the autocorrelation for \
+                    each restraint.
+
         """
+
         result = [sum(autocorr[i]) for i in range(len(autocorr))]
         return np.array(result)
 
@@ -340,7 +345,11 @@ class Convergence(object):
 
     def process(self, nblock=5, nfold=10, nround=100, savefile=True,
             plot=True, verbose=False, block=False, normalize=True):
-        """Process the trajectory
+        """Process the trajectory and execute :func:`compute_JSD` with
+        :func:`plot_JSD_conv` and :func:`plot_JSD_distribution`.
+        If :attr:`block=True`, then block averaging will be executed. If
+        :attr:`plot=True`, then :func:`plot_block_avg` will be executed as well.
+
 
         :param int default=5 nblock: is the number of partitions in the time series
         :param int default=10 nfold: is the number of partitions in the shuffled (subsampled) trajectory
@@ -430,14 +439,21 @@ class Convergence(object):
     def compute_JSD(self, T1, T2, T_total, ind, allowed_parameters):
         """Compute JSD for a given part of trajectory.
 
+        :math:`JSD = H(P_{comb}) - {\pi_{1}}{H(P_{1})} - {\pi_{2}}{H(P_{2})}`,
+        where :math:`P_{comb}` is the combined data (:math:`P_{1} \cup P_{2}`).
+        :math:`H` is the Shannon entropy of distribution :math:`P_{i}` and
+        :math:`\pi_{i}` is the weight for the probability distribution :math:`P_{i}`.
+        :math:`H(P_{i}) = \sum -\\frac{r_{i}}{N_{i}}*ln(\\frac{r_{i}}{N_{i}})`,
+        where :math:`r_{i}` and :math:`N_{i}` represents sampled times of a
+        specific parameter index and the total number of samples of the
+        parameter, respectively
+
         :var T1, T2, T_total: part 1, part2 and total (part1 + part2)
         :var rest_type: experimental restraint type
         :var allowed_parameters: nuisacne parameters range
         :return float: Jensen–Shannon divergence
         """
 
-#        all_JSD = np.zeros(len(rest_type))
-#        for i in range(len(rest_type)):
         r1,r2,r_total = np.zeros(len(allowed_parameters)),np.zeros(len(allowed_parameters)),np.zeros(len(allowed_parameters))
         for frame in T1:
             parameter_indices = np.concatenate(frame[4])
@@ -459,6 +475,7 @@ class Convergence(object):
         H = sum(np.nan_to_num(H))
         JSD = H-(N1/N_total)*H1-(N2/N_total)*H2
         return JSD
+
 
     def plot_JSD_conv(self, JSD, JSDs, p_limit=0.99):
         """Plot Jensen–Shannon divergence (JSD) distribution for convergence check.
