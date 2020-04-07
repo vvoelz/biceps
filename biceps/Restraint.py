@@ -326,6 +326,13 @@ class Restraint_cs(Restraint):
     def compute_neglogP(self, index, parameters, parameter_indices):
         """Computes :math:`-logP` for chemical shift during MCMC sampling.
 
+        :math:`-ln P(X, \\sigma | D)=(N_{j}+1) \ln \sigma+\\chi^{2}(X) / 2 \\sigma^{2}-ln P(X) -ln Q_{ref}+(N_{j} / 2) ln 2 \pi + f_{i}`,
+
+        where :math:`f_i` is the free energy of conformational state :math:`i`
+        obtained from computational simulations and :math:`\\chi^{2}(X)` is the sum of
+        squared errors and can be computed as following in practice as \
+                :math:`\\chi^{2}(X)=\sum_{j} w_{j}(r_{j}(X)-r_{j}^{\exp})^{2}`
+
         Args:
             index(int): restraint index
             parameters(list): collection of parameters for a given step of MCMC
@@ -868,13 +875,12 @@ class Restraint_pf(Restraint):
 class Preparation(object):
 
     def __init__(self, nstates=0,  top=None, outdir="./"):
-        """A parent class to prepare input files for BICePs calculation.
+        """A class to prepare **input_data** for the :attr:`Restraint` class.
 
-        :param str obs: type of experimental observables {'noe','J','cs_H','cs_Ha','cs_N','cs_Ca','pf'}
-        :param int default=0 nstates: number of states
-        :param str default=None indices: experimental observable index (*.txt file)
-        :param str default=None exp_data: experimental measuremnets (*.txt file)
-        :param str default=None top: topology file (*.pdb)
+        Args:
+            nstates(int): number of conformational states
+            top(str): path to structure topology
+            outdir(str): path for output
         """
 
         self.nstates = nstates
@@ -905,11 +911,14 @@ class Preparation(object):
         dfOut(filename)
 
     def prep_cs(self, exp_data, model_data, indices, extension, outdir=None, verbose=False):
-        """A method containing input/output methods for writing chemicalshift
-        Restaint Files.
+        """A method for preprocessing chemicalshift **exp** and **model** data.
 
-        exp (ppm)
-        model (ppm)
+        Args:
+            exp_data(str): path to experimental data file (units: ppm)
+            model_data(str): path to model data file (units: ppm)
+            indices(str): path to atom indices
+            extension(str): nuclei for the CS data ("H" or "Ca or "N")
+            outdir(str): path to output
         """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
@@ -947,11 +956,14 @@ class Preparation(object):
 
 
     def prep_noe(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
-        """A method containing input/output methods for writing NOE
-        Restaint Files.
+        """A method for preprocessing NOE **exp** and **model** data.
 
-        'exp' ()
-        'model' ()
+        Args:
+            exp_data(str): path to experimental data file (units: :math:`Å`)
+            model_data(str): path to model data file (units: :math:`Å`)
+            indices(str): path to atom indices
+            extension(str): nuclei for the CS data ("H" or "Ca or "N")
+            outdir(str): path to output
         """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
@@ -989,11 +1001,14 @@ class Preparation(object):
 
 
     def prep_J(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
-        """A method containing input/output methods for writing scalar coupling
-        Restaint Files.
+        """A method for preprocessing scalar coupling **exp** and **model** data.
 
-        'exp_J (Hz)
-        'model_J (Hz)'
+        Args:
+            exp_data(str): path to experimental data file (units: Hz)
+            model_data(str): path to model data file (units: Hz)
+            indices(str): path to atom indices
+            extension(str): nuclei for the CS data ("H" or "Ca or "N")
+            outdir(str): path to output
         """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
@@ -1040,8 +1055,16 @@ class Preparation(object):
 
 
     def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, outdir=None, verbose=False):
-        """A method containing input/output methods for writing protection factor
-        Restaint Files."""
+        """A method for preprocessing HDX protection factor **exp** and
+        **model** data.
+
+        Args:
+            exp_data(str): path to experimental data file (units: Hz)
+            model_data(str): path to model data file (units: Hz)
+            indices(str): path to atom indices
+            extension(str): nuclei for the CS data ("H" or "Ca or "N")
+            outdir(str): path to output
+        """
 
         if model_data:
             self.header = ('restraint_index', 'atom_index1', 'res1', 'exp','model', 'comments')

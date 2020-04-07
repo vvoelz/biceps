@@ -92,12 +92,14 @@ def list_extensions(input_data):
 
 def list_possible_restraints():
     """Function will return a list of all possible restraint classes in Restraint.py.
+
     >>> biceps.toolbox.list_possible_restraints()
     """
     return [ key for key in vars(Restraint).keys() if key.startswith("Restraint_") ]
 
 def list_possible_extensions():
     """Function will return a list of all possible input data file extensions.
+
     >>> biceps.toolbox.list_possible_extensions()
     """
     restraint_classes = list_possible_restraints()
@@ -112,6 +114,7 @@ def list_possible_extensions():
 
 def mkdir(path):
     """Function will create a directory if given path does not exist.
+
     >>> toolbox.mkdir("./doctest")
     """
     # create a directory for each system
@@ -138,13 +141,13 @@ def read_results(self,filename):
 
 
 def plot_ref(traj, debug=True):
-    #from matplotlib import pyplot as plt
-    #output = os.path.join(resultdir,'traj_lambda0.00.npz')
-    #output = traj
     """Plot reference potential for each observables.
 
-    :param traj: output trajectory from BICePs sampling
-    :return figure: A figure of reference potential and distribution of model observables
+    Args:
+        traj(npz, np.array): output trajectory from BICePs sampling
+
+    Returns:
+        figure: A figure of reference potential and distribution of model observables
     """
 
     if debug:
@@ -198,14 +201,22 @@ def plot_ref(traj, debug=True):
 # input: pandas daraframe of populations
 # output: ordered list of populations with labeled columns
 def get_state_populations(file):
-    """ populations.dat file
+    """Get the state populations given a **populations.dat** file.
+
+    Returns:
+        np.ndarray: populations
     """
+
     return np.loadtxt(file)[:][0]
 
 
 def print_scores(file):
-    """ BS.dat file
+    """Get the BICePs Score given a **BS.dat** file
+
+    Returns:
+        np.ndarray or float: Scores
     """
+
     return np.loadtxt(file)[1,0]
 
 

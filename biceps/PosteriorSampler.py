@@ -5,17 +5,16 @@ from .Restraint import *
 from .toolbox import *
 
 class PosteriorSampler(object):
-    """
-    A class to perform posterior sampling of conformational populations.
-
-    :param list ensemble: a list of lists of Restraint objects, one list for each conformation.
-    :param int freq_write_traj: the frequency (in steps) to write the MCMC trajectory
-    :param int freq_print: the frequency (in steps) to print status
-    :param int freq_save_traj: the frequency (in steps) to store the MCMC trajectory
-    """
 
     def __init__(self, ensemble, freq_write_traj=100., freq_save_traj=100., verbose=False):
-        """Initialize PosteriorSampler Class."""
+        """A class to perform posterior sampling of conformational populations.
+
+        Args:
+            ensemble(list): a list of lists of Restraint objects, one list for each conformation.
+            freq_write_traj(int): the frequency (in steps) to write the MCMC trajectory
+            freq_print(int): the frequency (in steps) to print status
+            freq_save_traj(int): the frequency (in steps) to store the MCMC trajectory
+        """
 
         # Allow the ensemble to pass through the class
         self.ensemble = ensemble
@@ -75,13 +74,15 @@ class PosteriorSampler(object):
 
 
     def build_exp_ref(self, rest_index, verbose=False):
-        """Look at all the structures to find the average observables r_j, then
-        store the reference potential info for all Restraints of this type for
-        each structure.
+        """Looks at each structure to find the average observables
+        :math:`<r_{j}>`, then stores the reference potential info for each
+        :attr:`Restraint` of this type for each structure.
 
-        :math:`beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)`
+        ``beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)``
 
-        :param int rest_index: index of the restraint"""
+        Args:
+            rest_index(int): restraint index
+        """
 
         # collect distributions of observables r_j across all structures
         n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
@@ -106,12 +107,13 @@ class PosteriorSampler(object):
 
 
     def build_gaussian_ref(self, rest_index, use_global_ref_sigma=False, verbose=False):
-        """Look at all the structures to find the mean (mu) and std (sigma) of
-        observables r_j then store this reference potential info for all
-        restraints of this type for each structure.
+        """Looks at all the structures to find the mean (:math:`\\mu`) and std
+        (:math:`\\sigma`) of observables r_j then store this reference potential
+        info for all restraints of this type for each structure.
 
-        :param int rest_index: index of the restraint
-        :param bool default=False use_global_ref_sigma:
+        Args:
+            rest_index(int): restraint index
+            use_global_ref_sigma(bool):
         """
 
         #print( 'Computing parameters for Gaussian reference potentials...')
@@ -153,10 +155,12 @@ class PosteriorSampler(object):
     def build_exp_ref_pf(self,rest_index):
         """Calculate the MLE average PF values for restraint j across all structures,
 
-        >>    beta_PF_j = np.array(protectionfactor_distributions[j]).sum()/(len(protectionfactor_distributions[j])+1.0)
+        ``beta_PF_j = np.array(protectionfactor_distributions[j]).sum()/(len(protectionfactor_distributions[j])+1.0)``
 
         then use this information to compute the reference prior for each structures.
-        *** VAV: NOTE that this reference potential probably should NOT be used for protection factors, PF! ***"""
+
+        .. tip:: **(not required)** an additional method specific for protection factor
+        """
 
         # collect distributions of observables r_j across all structures
         n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
@@ -180,7 +184,10 @@ class PosteriorSampler(object):
     def build_gaussian_ref_pf(self, rest_index):
         """Calculate the mean and std PF values for restraint j across all structures,
         then use this information to compute a gaussian reference prior for each structure.
-        *** VAV: NOTE that this reference potential probably should NOT be used for protection factors, PF! ***"""
+
+        .. tip:: **(not required)** an additional method specific for protection factor
+        """
+
         # collect distributions of observables r_j across all structures
         n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
         #print('n_observables = ',n_observables)
@@ -206,10 +213,10 @@ class PosteriorSampler(object):
 
 
     def compile_nuisance_parameters(self, verbose=False):
-        """Compiles arrays into a list for each nuisance parameter.
+        """Compiles numpy arrays of allowed parameters for each nuisance parameter.
 
-        :return np.array: numpy array with shape(n_restraint,n_para)
-          [[allowed_sigma_cs_H],[allowed_sigma_noe,allowed_gamma_noe],...,[Nth_restraint]]"""
+        :rtype np.ndarray: with shape(n_restraint,n_para)
+        """
 
         # Generate empty lists for each restraint to fill with nuisance parameters
         nuisance_para = [ ]
@@ -228,9 +235,10 @@ class PosteriorSampler(object):
     def neglogP(self, new_state, parameters, parameter_indices, verbose=False):
         """Return -ln P of the current configuration.
 
-        :param int new_state: the new conformational state from Sample()
-        :param list parameters: a list of the new parameters for each of the restraints
-        :param list parameter_indices: parameter indices that correspond to each restraint
+        Args:
+            new_state(list): the new conformational state from Sample()
+            parameters(list): a list of the new parameters for each of the restraints
+            parameter_indices(list): parameter indices that correspond to each restraint
         """
 
         s = self.ensemble[int(new_state)] # Current Structure (list of restraints)
@@ -244,11 +252,12 @@ class PosteriorSampler(object):
     def sample(self, nsteps, print_freq=1000, verbose=False, debug=False):
         """Perform n number of steps (nsteps) of posterior sampling, where Monte
         Carlo moves are accepted or rejected according to Metroplis criterion.
-        :param int nsteps: number of steps of sampling.
-        :var int default=1000 print_freq: frequency of printing to the screen
-        :var bool verbose: print statements for output
-        :var bool debug: extra print statements for debugging
-        See :class:`neglogP`."""
+        Energies are computed via :class:`neglogP`.
+
+        Args:
+            nsteps(int): number of steps of sampling.
+            print_freq(int): frequency of printing to the screen
+        """
 
         # Generate a matrix of nuisance parameters
         self.compile_nuisance_parameters()
@@ -497,13 +506,13 @@ class PosteriorSampler(object):
 
 
 class PosteriorSamplingTrajectory(object):
-    """A container class to store and perform operations on the trajectories of
-    sampling runs."""
-
     def __init__(self, ensemble):
-        """Initialize the PosteriorSamplingTrajectory container class.
+        """A container class to store and perform operations on the trajectories of
+        sampling runs.
 
-        :param list ensemble: """
+        Args:
+            ensemble(list): ensemble of :attr:`Restraint` objects
+        """
 
         self.ensemble = ensemble
         self.nstates = len(self.ensemble)
@@ -549,7 +558,11 @@ class PosteriorSamplingTrajectory(object):
 
     def process_results(self, outfilename='traj.npz'):
         """Process the trajectory, computing sampling statistics,
-        ensemble-average NMR observables."""
+        ensemble-average NMR observables.
+
+        Args:
+            outfilename(str): path and filename of output MCMC trajectory
+        """
 
         # Store the name of the restraints in a list corresponding to the correct order
         saving = ['rest_type','trajectory_headers','trajectory','sep_accept',
@@ -585,9 +598,12 @@ class PosteriorSamplingTrajectory(object):
         """Writes a compact file of several arrays into binary format.
         Standardized: Yes ; Binary: Yes; Human Readable: No;
 
-        :param str outfilename: name of the output file
-        :return: numpy compressed filetype
+        Args:
+            outfilename(str): path and filename of output MCMC trajectory
+
+        :rtype: npz (numpy compressed file)
         """
+
         np.savez_compressed(outfilename, *args, **kwds)
 
 
