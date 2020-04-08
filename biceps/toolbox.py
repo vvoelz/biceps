@@ -642,9 +642,6 @@ def find_all_state_sampled_time(trace,nstates):
             init += 1
     return init, frac
 
-###############################################################################
-##############TODO: Place methods in observable class :TODO ###################
-###############################################################################
 def compute_distances(states, ind, outdir):
     distances = []
     ind = np.loadtxt(ind, dtype=int)

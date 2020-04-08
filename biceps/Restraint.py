@@ -885,7 +885,13 @@ class Preparation(object):
 
         self.nstates = nstates
         self.topology = md.load(top).topology
-        self.data = list()
+        self.outdir
+
+    def to_sorted_list(self):
+        """Uses ``biceps.toolbox.sort_data()`` to return sorted list of **input_data**."""
+        #TODO: check to see if this works...
+
+        return biceps.toolbox.sort_data(self.outdir+"*")
 
     def write_DataFrame(self, filename, As="pickle", verbose=False):
         """Write Pandas DataFrame **As** user specified filetype.

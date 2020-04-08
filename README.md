@@ -25,7 +25,7 @@ Citation [![DOI for Citing BICePs](https://img.shields.io/badge/DOI-10.1021.acs.
 
 ### Check our [BICePs website](https://biceps.readthedocs.io/en/latest/) for more details!
 
-### Please check out the [theory of **BICePs**](https://biceps.readthedocs.io/en/latest/Theory.html) to learn more.
+### Please check out the [theory of **BICePs**](https://biceps.readthedocs.io/en/latest/theory.html) to learn more.
 
 Installation (in progress)
 ==========================
@@ -55,25 +55,26 @@ distribution](http://conda.pydata.org/miniconda.html), which is a
 bare-bones Python installation.
 -->
 
-BICePs supports Python 2.7 (see [tag v1.0](https://github.com/vvoelz/biceps/releases/tag/v1.0)) or Python 3.4+ on Mac, Linux, and Windows.
+BICePs supports Python 2.7 (see [tag v1.0](https://github.com/vvoelz/biceps/releases/tag/v1.0)) or Python 3.4+ (v2.0 or greater) on Mac, Linux, and Windows.
 
 
 Dependencies of BICePs
 ----------------------
 
-> -   Pymbar \--\> 3.0 or later
-> -   MDTraj \--\> 1.9 or later
-> -   Matplotlib \--\> 1.5.1 or later
-> -   Numpy \--\> 1.14.0 or later
+> -   pymbar>=3.0
+> -   mdtraj>=1.5.0
+> -   matplotlib>=2.1.2
+> -   numpy>=1.14.0
+> -   multiprocessing
 
 -------------------------------------------
 
 
-### View [the workflow of BICePs](./BICePs_2.0/markdown/workflow.md).
+### View [the workflow of BICePs](https://biceps.readthedocs.io/en/latest/workflow.html).
 
 ### BICePs is research software. If you make use of BICePs in scientific publications, please cite it.
 
-# To get started, see [BICePs_2.0](https://github.com/vvoelz/biceps/tree/master/BICePs_2.0) for the latest version of BICePs.
+# To get started, see [biceps/releases](https://github.com/vvoelz/biceps/releases) for the latest version of BICePs.
 
 
 
