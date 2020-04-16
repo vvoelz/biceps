@@ -562,6 +562,9 @@ class PosteriorSamplingTrajectory(object):
 
         Args:
             outfilename(str): path and filename of output MCMC trajectory
+
+        .. tip:: [Future] Returns: Pandas DataFrame
+
         """
 
         # Store the name of the restraints in a list corresponding to the correct order
@@ -592,6 +595,10 @@ class PosteriorSamplingTrajectory(object):
         self.results['state_trace'] = self.state_trace
 
         self.write(outfilename, self.results)
+        #TODO: Return a Pandas Dataframe of the results to be passed into
+        # Analysis so time isn't wasted loading in long trajectories
+        #return self.results
+        #return pd.DataFrame(self.results)
 
 
     def write(self, outfilename='traj.npz', *args, **kwds): # new

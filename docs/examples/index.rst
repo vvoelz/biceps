@@ -75,9 +75,8 @@ Tutorials & Examples
             chemical shift data after obtaining the forward model. This
             example is base on a previously published work by Wan et al
             (DOI: <a href="https://doi.org/10.1021/acs.jctc.9b01240">10.1021/acs.jctc.9b01240</a>).
-            Posterior sampling of ln PF forward model parameters
-            :math:`\\lambda, \\sigma = (\\beta_c, \\beta_h, \\beta_0, x_c, x_h, b),
-            \\sigma` was calculated for ubiquitin and BPTI experimental HDX protection
+            Posterior sampling of ln PF forward model parameters were calculated
+            for ubiquitin and BPTI experimental HDX protection
             factors (ln PF) data for ubiquitin and BPTI. More
             information regarding the forward model can be found
             <a href="https://github.com/vvoelz/HDX-forward-model">here</a>.
