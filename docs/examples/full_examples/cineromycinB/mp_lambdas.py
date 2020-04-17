@@ -1,15 +1,15 @@
 import numpy as np
+import pandas as pd
 import biceps
 import multiprocessing as mp
-
 ####### Data and Output Directories #######
 energies = np.loadtxt('cineromycin_B/cineromycinB_QMenergies.dat')*627.509  # convert from hartrees to kcal/mol
 energies = energies/0.5959   # convert to reduced free energies F = f/kT
 energies -= energies.min()  # set ground state to zero, just in case
 states = len(energies)
 print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
-data = biceps.toolbox.sort_data('cineromycin_B/J_NOE')
-print(f"Input data: {biceps.toolbox.list_extensions(data)}")
+input_data = biceps.toolbox.sort_data('cineromycin_B/J_NOE')
+print(f"Input data: {biceps.toolbox.list_extensions(input_data)}")
 outdir = '_results_test'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
@@ -18,13 +18,15 @@ print(f"nSteps of sampling: {nsteps}")
 maxtau = 1000
 n_lambdas = 3
 lambda_values = np.linspace(0.0, 1.0, n_lambdas)
-ref = ['uniform', 'exp']
-uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
+parameters = [
+        {"ref": 'uniform', "sigma": (0.05, 20.0, 1.02)},
+        {"ref": 'exp', "sigma": (0.05, 5.0, 1.02), "gamma": (0.2, 5.0, 1.02)}
+        ]
+print(pd.DataFrame(parameters))
 ####### Multiprocessing Lambda values #######
 def mp_lambdas(Lambda):
-    ensemble = biceps.Ensemble(Lambda, energies)
-    ensemble.initialize_restraints(input_data=data, ref_pot=ref,
-            uncern=uncern, gamma=[0.2, 5.0, 1.02])
+    ensemble = biceps.Ensemble(Lambda, energies, debug=False)
+    ensemble.initialize_restraints(input_data, parameters)
     sampler = biceps.PosteriorSampler(ensemble.to_list())
     sampler.sample(nsteps=nsteps, print_freq=1000, verbose=False)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))

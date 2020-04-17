@@ -52,8 +52,8 @@ class PosteriorSampler(object):
                     self.build_gaussian_ref_pf(i, use_global_ref_sigma=R.use_global_ref_sigma)
                 else:
                     self.build_gaussian_ref(i, use_global_ref_sigma=R.use_global_ref_sigma)
-                self.traj.ref[i].append(self.ref_mean)
-                self.traj.ref[i].append(self.ref_sigma)
+                self.traj.ref[i].append(R.ref_mean)
+                self.traj.ref[i].append(R.ref_sigma)
             else:
                 raise ValueError('Please choose a reference potential of the following:\n \
                     {%s,%s,%s}'%('uniform','exp','gaussian'))

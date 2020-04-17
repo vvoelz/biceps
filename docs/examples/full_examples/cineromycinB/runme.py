@@ -8,28 +8,25 @@ energies = np.loadtxt('cineromycin_B/cineromycinB_QMenergies.dat')*627.509  # co
 energies = energies/0.5959   # convert to reduced free energies F = f/kT
 energies -= energies.min()  # set ground state to zero, just in case
 states = len(energies)
-top = 'cineromycin_B/cineromycinB_pdbs/0.fixed.pdb'
 print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
-#data = biceps.toolbox.sort_data('../../datasets/cineromycin_B/noe_J')
-data = biceps.toolbox.sort_data('cineromycin_B/J_NOE')
-res = biceps.toolbox.list_res(data)
-print(f"Input data: {biceps.toolbox.list_extensions(data)}")
-outdir = 'results_test'
+input_data = biceps.toolbox.sort_data('cineromycin_B/J_NOE')
+print(f"Input data: {biceps.toolbox.list_extensions(input_data)}")
+outdir = '_results_test'
 biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
-nsteps=100000
+nsteps=1000000
 print(f"nSteps of sampling: {nsteps}")
 maxtau = 1000
 n_lambdas = 2
 lambda_values = np.linspace(0.0, 1.0, n_lambdas)
-#ref = ['exp', 'exp']
-ref = ['uniform', 'exp']
-uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
+parameters = [
+        {"ref": 'uniform', "uncern": (0.05, 20.0, 1.02)},
+        {"ref": 'exp', "uncern": (0.05, 5.0, 1.02), "gamma": (0.2, 5.0, 1.02)}
+        ]
 for lam in lambda_values:
     print(f"lambda: {lam}")
-    ensemble = biceps.Ensemble(lam, energies, top, verbose=False)
-    ensemble.initialize_restraints(input_data=data, ref_pot=ref,
-            uncern=uncern, gamma=[0.2, 5.0, 1.02])
+    ensemble = biceps.Ensemble(lam, energies, verbose=False)
+    ensemble.initialize_restraints(input_data, parameters)
     sampler = biceps.PosteriorSampler(ensemble.to_list())
     sampler.sample(nsteps=nsteps, verbose=True)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))

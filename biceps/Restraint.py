@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, inspect
+import os, sys, inspect
 import numpy as np
 import pandas as pd
 import mdtraj as md
@@ -7,7 +7,7 @@ import biceps
 from biceps.KarplusRelation import * # Returns J-coupling values from dihedral angles
 
 class Ensemble(object):
-    def __init__(self, lam, energies, verbose=False):
+    def __init__(self, lam, energies, debug=False):
         """Container class for :attr:`Restraint` objects.
 
         Args:
@@ -25,7 +25,8 @@ class Ensemble(object):
             raise ValueError("Energies should be array with type of 'float'")
         else:
             self.energies = self.lam*energies # Scale the energies
-        self.verbose = verbose
+        self.debug = debug
+
 
     def to_list(self):
         """Converts the :class:`Ensemble` class to a list.
@@ -36,9 +37,8 @@ class Ensemble(object):
 
         return self.ensemble
 
-    def initialize_restraints(self, input_data, ref_pot=None, uncern=None, pf_prior=None,
-            gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None, states=None, weights=None,
-            debug=False):
+
+    def initialize_restraints(self, input_data, parameters):
         """Initialize corresponding :attr:`Restraint` classes based on experimental
         observables from **input_data** for each conformational state.
 
@@ -49,116 +49,51 @@ class Ensemble(object):
         Args:
             input_data(list of str): a sorted collection of filenames (files\
                     contain `exp` (experimental) and `model` (theoretical) observables)
-            ref_pot(str): referenece potential e.g., "uniform". "exp", "gau".\
-                    If None, the default reference potential will be used for\
-                    a given experimental observable
-            weights(list, optional): weights for each restraint in the order of\
-                    sorted data (``biceps.toolbox.list_extensions()``).
-            uncern(list, optional): nuisance parameters range. If too broad of\
-                    a range this could potentially increase sampling requirement\
-                    for convergence.
-            gamma(list, optional): (Only for NOE) range of gamma. If too broad of\
-                    a range this could potentially increase sampling requirement\
-                    for convergence.
-            precomputed(bool): (Only for pf) precomputed model data?
-            Ncs_fi(str, optional): (Only for pf) path to forward model data
-            Nhs_fi(str, optional): (Only for pf) path to forward model data
-            states(list): (Only for pf) specified list of states for model data
+            parameters(list of dict): dictionary containing keys that match \
+                    :attr:`Restraint` parameters and values are lists for each restraint.
         """
 
-        verbose = self.verbose
-        uncertainties = uncern
+        verbose = self.debug
         extensions = biceps.toolbox.list_extensions(input_data)
         lam = self.lam
         for i in range(self.energies.shape[0]):
             self.ensemble.append([])
+            energy = self.energies[i]
             for k in range(len(input_data[0])):
                 data = input_data[i][k]
-                energy = self.energies[i]
                 extension = extensions[k]
-                if debug:
-                    print(f"extension: {extension}")
-                if ref_pot[k] is not None and not isinstance(ref_pot[k], str):
-                    raise ValueError("Reference potential must be a 'str'")
-                if uncern ==  None:
-                    sigma_min, sigma_max, dlogsigma=0.05, 20.0, np.log(1.02)
-                else:
-                    if len(uncern[k]) != 3:
-                        raise ValueError("uncertainty should be a list of three items: sigma_min, sigma_max, dlogsigma")
-                    else:
-                        sigma_min, sigma_max, dlogsigma = uncertainties[k][0], uncertainties[k][1], np.log(uncertainties[k][2])
-                if gamma ==  None:
-                    gamma_min, gamma_max, dloggamma = 0.05, 20.0, np.log(1.02)
-                else:
-                    if len(gamma) != 3:
-                        raise ValueError("gamma should be a list of three items: gamma_min, gamma_max, dgamma")
-                    else:
-                        gamma_min, gamma_max, dloggamma = gamma[0], gamma[1], np.log(gamma[2])
-                ##########################################################
-                # TODO: Place in Protection factor parameters in restraint
-                ##########################################################
-                if data.endswith('pf'):
-                    if not precomputed:
-                        if Ncs_fi == None or Nhs_fi == None or states[i] == None:
-                            raise ValueError("Ncs and Nhs and state number are needed!")
-                    # add uncern option here later
-                    # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
-                    beta_c_min, beta_c_max, dbeta_c = 0.05, 0.25, 0.01
-                    beta_h_min, beta_h_max, dbeta_h = 0.0, 5.2, 0.2
-                    beta_0_min, beta_0_max, dbeta_0 = -10.0, 0.0, 0.2
-                    xcs_min, xcs_max, dxcs = 5.0, 8.5, 0.5
-                    xhs_min, xhs_max, dxhs = 2.0, 2.7, 0.1
-                    bs_min, bs_max, dbs = 15.0, 16.0, 1.0
-
-                    allowed_xcs=np.arange(xcs_min,xcs_max,dxcs)
-                    allowed_xhs=np.arange(xhs_min,xhs_max,dxhs)
-                    allowed_bs=np.arange(bs_min,bs_max,dbs)
-                    # 107=residue numbers, Nc/Nh file names are hard coded for now. Yunhui 06/19
-                    Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
-                    Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
-                    for o in range(len(allowed_xcs)):
-                        for q in range(len(allowed_bs)):
-                            infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],states[i])
-                            #print(f"infile_Nc = {infile_Nc}")
-                            Ncs[o,q,:] = (np.load(infile_Nc))
-                    for p in range(len(allowed_xhs)):
-                        for q in range(len(allowed_bs)):
-                            infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],states[i])
-                            #print(f"infile_Nh = {infile_Nh}")
-                            Nhs[p,q,:] = (np.load(infile_Nh))
-                if ref_pot[k] ==  None:
-                    # TODO: place the default ref_pot[k] inside the class
-                    ref_pot[k] = 'exp' # 'uniform'
-                if weights == None:
-                    weight = 1
-                else:
-                    weight = weights[k]
                 ext = data.split(".")[-1]
-                #restraint, extension = ext.split("_")
                 restraint, extension = ext.split("_")[0], ext.split("_")[-1]
                 # Find all Child Restraint classes in the current file
                 current_module = sys.modules[__name__]
                 # Pick the Restraint class upon file extension
                 _Restraint = getattr(current_module, "Restraint_%s"%(restraint))
-                # Initializing Restraint
-                R = _Restraint(ref=ref_pot[k], dlogsigma=dlogsigma,
-                        sigma_min=sigma_min, sigma_max=sigma_max, verbose=verbose)
-                # Get all the arguments for the Child Restraint Class
+                # Get all the arguments for the Parent Restraint Class if given
                 args = {"%s"%key: val for key,val in locals().items()
-                        if key in inspect.getfullargspec(R.init_restraint)[0]
-                        if key != 'self'}
-                #print(args)
-                #print(f"args = {args}")
-                #print(f"Required args:{R.init_restraint.__code__.co_varnames}")
-                #print(f"Required args by inspect:{inspect.getfullargspec(R.init_restraint)[0]}")
-                #exit()
+                        if key in inspect.getfullargspec(_Restraint)[0] if key != 'self'}
+                for key,val in parameters[k].items():
+                    if key in inspect.getfullargspec(_Restraint)[0]:
+                        args[key] = val
+                R = _Restraint(**args) # Initializing Restraint
+                # Get all the arguments for the Child Restraint Class and match
+                # them with the local variables
+                args = {"%s"%key: val for key,val in locals().items()
+                        if key in inspect.getfullargspec(R.init_restraint)[0] if key != 'self'}
+                # get all the variables from parameters and match the args
+                for key,val in parameters[k].items():
+                    if key in inspect.getfullargspec(R.init_restraint)[0]:
+                        args[key] = val
+                if self.debug:
+                    print(R)
+                    print(f"Required args by inspect:{inspect.getfullargspec(R.init_restraint)[0]}")
+                    print(f"args given: {args}")
                 R.init_restraint(**args)
                 self.ensemble[-1].append(R)
 
 
 class Restraint(object):
 
-    def __init__(self, ref, dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0,
+    def __init__(self, ref="uniform", sigma=(0.05, 20.0, 1.02),
             use_global_ref_sigma=True, verbose=False):
         """The parent :attr:`Restraint` class.
 
@@ -166,9 +101,7 @@ class Restraint(object):
             ref_pot(str): referenece potential e.g., "uniform". "exp", "gau".\
                     If None, the default reference potential will be used for\
                     a given experimental observable
-            dlogsigma(float): (defaults to np.log(1.02))
-            sigma_min(float): (defaults to 0.05)
-            sigma_max(float): (defaults to 20.0)
+            sigma(tuple):  (sigma_min, sigma_max, dsigma)
             use_global_ref_sigma(bool): (defaults to True)
         """
 
@@ -192,9 +125,9 @@ class Restraint(object):
         self.ref = ref
 
         # set sigma range
-        self.dlogsigma = dlogsigma
-        self.sigma_min = sigma_min
-        self.sigma_max = sigma_max
+        self.dlogsigma = np.log(sigma[2])
+        self.sigma_min = sigma[0]
+        self.sigma_max = sigma[1]
         self.allowed_sigma = np.exp(np.arange(np.log(self.sigma_min),
             np.log(self.sigma_max), self.dlogsigma))
         self.sigma_index = int(len(self.allowed_sigma)/2)
@@ -219,7 +152,7 @@ class Restraint(object):
         if self.verbose:
             print('Loading %s as %s...'%(filename,As))
         df = getattr(pd, "read_%s"%As)
-        #TODO: Check all formats work (e.g., from="csv")
+        #TODO: Check all formats (e.g., from="csv")
         return df(filename)
 
 
@@ -405,7 +338,7 @@ class Restraint_J(Restraint):
             print(f'self.equivalency_groups = {self.equivalency_groups}')
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
-        self.compute_sse(debug=verbose)
+        self.compute_sse(debug=False)
 
 
     def adjust_weights(self):
@@ -466,8 +399,7 @@ class Restraint_noe(Restraint):
     _ext = ['noe']
 
     def init_restraint(self, data, energy, weight=1, verbose=False,
-            use_log_normal_noe=False, dloggamma=np.log(1.01),
-            gamma_min=0.2, gamma_max=10.0):
+            use_log_normal_noe=False, gamma=(0.2, 10.0, 1.01)):
         """Initialize the NOE distance restraints for each **exp** (experimental)
         and **model** (theoretical) observable given **data**.
 
@@ -476,15 +408,13 @@ class Restraint_noe(Restraint):
             energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
             weight(float): weight for restraint
             use_log_normal_noe(bool):
-            dloggamma(float): Gamma is in log space
-            gamma_min(float): Minimum value of gamma
-            gamma_max(float): Maximum value of gamma
+            gamma(tuple): (gamma_min, gamma_max, dgamma) in log space
         """
 
         # Store info about gamma^(-1/6) scaling parameter array
-        self.dloggamma = dloggamma
-        self.gamma_min = gamma_min
-        self.gamma_max = gamma_max
+        self.dloggamma = np.log(gamma[2])
+        self.gamma_min = gamma[0]
+        self.gamma_max = gamma[1]
         self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
         self.gamma_index = int(len(self.allowed_gamma)/2)
         self.gamma = self.allowed_gamma[self.gamma_index]
@@ -525,7 +455,7 @@ class Restraint_noe(Restraint):
             print(f'self.equivalency_groups = {self.equivalency_groups}')
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
-        self.compute_sse(debug=verbose)
+        self.compute_sse(debug=False)
 
     def adjust_weights(self):
         """Adjust the weights of distance and dihedral restraints based on
@@ -589,11 +519,9 @@ class Restraint_pf(Restraint):
     _ext = ['pf']
 
     def init_restraint(self, data, energy, precomputed=False, pf_prior=None,
-            Ncs=None, Nhs=None,verbose=False, beta_c_min=0.05,beta_c_max=0.25,
-            dbeta_c=0.01,beta_h_min=0.0,beta_h_max=5.2,dbeta_h=0.2,
-            beta_0_min=-10.0,beta_0_max=0.0,dbeta_0=0.2,xcs_min=5.0,xcs_max=8.5,
-            dxcs=0.5,xhs_min=2.0,xhs_max=2.7,dxhs=0.1,bs_min=15.0,bs_max=16.0,
-            dbs=1.0, weight=1):
+            Ncs_fi=None, Nhs_fi=None, beta_c=(0.05, 0.25, 0.01), beta_h=(0.0, 5.2, 0.2),
+            beta_0=(-10.0, 0.0, 0.2), xcs=(5.0, 8.5, 0.5), xhs=(2.0, 2.7, 0.1),
+            bs=(15.0, 16.0, 1.0), weight=1, states=None, verbose=False):
         """Initialize protection factor restraints for each **exp** (experimental)
         and **model** (theoretical) observable given **data**.
 
@@ -601,7 +529,38 @@ class Restraint_pf(Restraint):
             data(str): filename of data
             energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
             weight(float): weight for restraint
+            beta_c(tuple): [min, max, spacing]
+            beta_h(tuple):
+            beta_0(tuple):
+            xcs(tuple):
+            xhs(tuple):
+            bs(tuple):
+
         """
+
+        # TODO: make more general... (there exists two sets of the same variables, see line 585)
+        beta_c_min, beta_c_max, dbeta_c = beta_c[0], beta_c[1], beta_c[2]
+        beta_h_min, beta_h_max, dbeta_h = beta_h[0], beta_h[1], beta_h[2]
+        beta_0_min, beta_0_max, dbeta_0 = beta_0[0], beta_0[1], beta_0[2]
+        xcs_min, xcs_max, dxcs = xcs[0], xcs[1], xcs[2]
+        xhs_min, xhs_max, dxhs = xhs[0], xhs[1], xhs[2]
+        bs_min, bs_max, dbs = bs[0], bs[1], bs[2]
+        allowed_xcs=np.arange(xcs_min,xcs_max,dxcs)
+        allowed_xhs=np.arange(xhs_min,xhs_max,dxhs)
+        allowed_bs=np.arange(bs_min,bs_max,dbs)
+        Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
+        Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
+        for i in range(len(states)):
+            for o in range(len(allowed_xcs)):
+                for q in range(len(allowed_bs)):
+                    infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi,
+                            allowed_xcs[o], allowed_bs[q],states[i])
+                    Ncs[o,q,:] = (np.load(infile_Nc))
+            for p in range(len(allowed_xhs)):
+                for q in range(len(allowed_bs)):
+                    infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi,
+                            allowed_xhs[p], allowed_bs[q],states[i])
+                    Nhs[p,q,:] = (np.load(infile_Nh))
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
@@ -697,7 +656,7 @@ class Restraint_pf(Restraint):
                 d = {key: grouped_data[key][row] for key in grouped_data.keys()}
                 self.add_restraint(d)
                 self.restraints[-1]['weight'] = weight
-        self.compute_sse(debug=verbose)
+        self.compute_sse(debug=False)
 
 
     def compute_sse(self, debug=False):
@@ -885,13 +844,12 @@ class Preparation(object):
 
         self.nstates = nstates
         self.topology = md.load(top).topology
-        self.outdir
+        self.outdir = outdir
 
     def to_sorted_list(self):
         """Uses ``biceps.toolbox.sort_data()`` to return sorted list of **input_data**."""
-        #TODO: check to see if this works...
 
-        return biceps.toolbox.sort_data(self.outdir+"*")
+        return biceps.toolbox.sort_data(os.path.join(self.outdir,"*"))
 
     def write_DataFrame(self, filename, As="pickle", verbose=False):
         """Write Pandas DataFrame **As** user specified filetype.
@@ -916,7 +874,7 @@ class Preparation(object):
         dfOut = getattr(df, "to_%s"%As)
         dfOut(filename)
 
-    def prep_cs(self, exp_data, model_data, indices, extension, outdir=None, verbose=False):
+    def prep_cs(self, exp_data, model_data, indices, extension, verbose=False):
         """A method for preprocessing chemicalshift **exp** and **model** data.
 
         Args:
@@ -924,7 +882,6 @@ class Preparation(object):
             model_data(str): path to model data file (units: ppm)
             indices(str): path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
-            outdir(str): path to output
         """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
@@ -956,12 +913,12 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.cs_%s"%(j, extension)
-            if outdir:
-                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
+            if self.outdir:
+                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
 
 
 
-    def prep_noe(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
+    def prep_noe(self, exp_data, model_data, indices, extension=None, verbose=False):
         """A method for preprocessing NOE **exp** and **model** data.
 
         Args:
@@ -969,7 +926,6 @@ class Preparation(object):
             model_data(str): path to model data file (units: :math:`Å`)
             indices(str): path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
-            outdir(str): path to output
         """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
@@ -1002,11 +958,11 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.noe"%(j)
-            if outdir:
-                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
+            if self.outdir:
+                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
 
 
-    def prep_J(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
+    def prep_J(self, exp_data, model_data, indices, extension=None, verbose=False):
         """A method for preprocessing scalar coupling **exp** and **model** data.
 
         Args:
@@ -1014,7 +970,6 @@ class Preparation(object):
             model_data(str): path to model data file (units: Hz)
             indices(str): path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
-            outdir(str): path to output
         """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
@@ -1056,11 +1011,11 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.J"%(j)
-            if outdir:
-                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
+            if self.outdir:
+                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
 
 
-    def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, outdir=None, verbose=False):
+    def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, verbose=False):
         """A method for preprocessing HDX protection factor **exp** and
         **model** data.
 
@@ -1069,7 +1024,6 @@ class Preparation(object):
             model_data(str): path to model data file (units: Hz)
             indices(str): path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
-            outdir(str): path to output
         """
 
         if model_data:
@@ -1103,9 +1057,8 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.pf"%(j)
-            if outdir:
-                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
-
+            if self.outdir:
+                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
 
 
 
