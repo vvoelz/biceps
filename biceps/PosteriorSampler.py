@@ -46,10 +46,11 @@ class PosteriorSampler(object):
                         self.build_exp_ref_pf(i)
                 else:
                     self.build_exp_ref(i)
-                self.traj.ref[i].append(self.betas)
+                self.traj.ref[i].append(R.betas)
             elif R.ref == 'gaussian':
-                if not R.precomputed:
-                    self.build_gaussian_ref_pf(i, use_global_ref_sigma=R.use_global_ref_sigma)
+                if hasattr(R, 'precomputed'):
+                    if not R.precomputed:
+                        self.build_gaussian_ref_pf(i, use_global_ref_sigma=R.use_global_ref_sigma)
                 else:
                     self.build_gaussian_ref(i, use_global_ref_sigma=R.use_global_ref_sigma)
                 self.traj.ref[i].append(R.ref_mean)
