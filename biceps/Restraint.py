@@ -168,7 +168,8 @@ class Restraint(object):
     def compute_neglog_exp_ref(self):
         """Uses the stored beta information to compute \
                 :math:`-log P_{ref}(r_{j}(X_{i}))` over each structure\
-                :math:`X_{i}` and for each observable :math:`r_{j}`."""
+                :math:`X_{i}` and for each observable :math:`r_{j}`.
+        """
 
         self.neglog_exp_ref = np.zeros(self.n)
         self.sum_neglog_exp_ref = 0.0
@@ -217,11 +218,6 @@ class Restraint_cs(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
         self.Ndof = None
-        # Private variables to store specific restraint attributes in a list
-        self._nuisance_parameters = ['allowed_sigma']
-        self._parameters = ['sigma']
-        self._parameter_indices = ['sigma_index']
-        self._rest_type = ['sigma_cs_%s'%self.extension]
 
         # Reading the data from loading in filenames
         data = self.load_data(data)
@@ -256,7 +252,7 @@ class Restraint_cs(Restraint):
             print('self.sse', self.sse)
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices):
         """Computes :math:`-logP` for chemical shift during MCMC sampling.
 
         :math:`-ln P(X, \\sigma | D)=(N_{j}+1) \ln \sigma+\\chi^{2}(X) / 2 \\sigma^{2}-ln P(X) -ln Q_{ref}+(N_{j} / 2) ln 2 \pi + f_{i}`,
@@ -267,7 +263,6 @@ class Restraint_cs(Restraint):
                 :math:`\\chi^{2}(X)=\sum_{j} w_{j}(r_{j}(X)-r_{j}^{\exp})^{2}`
 
         Args:
-            index(int): restraint index
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
 
@@ -275,10 +270,9 @@ class Restraint_cs(Restraint):
         """
 
         result = 0
-        para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
-        result += (self.Ndof)*np.log(para[index][0])
-        result += self.sse / (2.0*float(para[index][0])**2.0)
+        result += (self.Ndof)*np.log(parameters[0])
+        result += self.sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
@@ -305,12 +299,6 @@ class Restraint_J(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
         self.Ndof = None
-        #####TODO: Remove these variables ... ##################################
-        ## Private variables to store specific restraint attributes in a list
-        self._nuisance_parameters = ['allowed_sigma']
-        self._parameters = ['sigma']
-        self._parameter_indices = ['sigma_index']
-        self._rest_type = ['sigma_J']
 
         # Reading the data from loading in filenames
         data = self.load_data(data)
@@ -368,11 +356,10 @@ class Restraint_J(Restraint):
         #print(self.sse)
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices):
         """Computes :math:`-logP` for scalar coupling constant during MCMC sampling.
 
         Args:
-            index(int): restraint index
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
 
@@ -380,10 +367,9 @@ class Restraint_J(Restraint):
         """
 
         result = 0
-        para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
-        result += (self.Ndof)*np.log(para[index][0])
-        result += self.sse / (2.0*float(para[index][0])**2.0)
+        result += (self.Ndof)*np.log(parameters[0])
+        result += self.sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
@@ -425,11 +411,6 @@ class Restraint_noe(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
         self.Ndof = None
-        # Private variables to store specific restraint attributes in a list
-        self._nuisance_parameters = ['allowed_sigma','allowed_gamma']
-        self._parameters = ['sigma','gamma']
-        self._parameter_indices = ['sigma_index','gamma_index']
-        self._rest_type = ['sigma_noe','gamma']
 
         # Reading the data from loading in filenames
         data = self.load_data(data)
@@ -489,11 +470,10 @@ class Restraint_noe(Restraint):
         #print(self.sse)
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices):
         """Computes :math:`-logP` for NOE during MCMC sampling.
 
         Args:
-            index(int): restraint index
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
 
@@ -501,10 +481,9 @@ class Restraint_noe(Restraint):
         """
 
         result = 0
-        para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
-        result += (self.Ndof)*np.log(para[index][0])
-        result += self.sse[int(indices[index][1])] / (2.0*para[index][0]**2.0)
+        result += (self.Ndof)*np.log(parameters[0])
+        result += self.sse[int(parameter_indices[1])] / (2.0*parameters[0]**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
@@ -570,13 +549,7 @@ class Restraint_pf(Restraint):
         if pf_prior is not None:
             self.pf_prior = np.load(pf_prior)
 
-        # Private variables to store specific restraint attributes in a list
-        if self.precomputed:
-            self._nuisance_parameters = ['allowed_sigma']
-            self._parameters = ['sigma']
-            self._parameter_indices = ['sigma_index']
-            self._rest_type = ['sigma_PF']
-        else:
+        if not self.precomputed:
             self.Ncs = Ncs
             self.Nhs = Nhs
             self.dbeta_c = dbeta_c
@@ -608,7 +581,7 @@ class Restraint_pf(Restraint):
             self.bs_min = bs_min
             self.bs_max = bs_max
             self.allowed_bs = np.arange(self.bs_min, self.bs_max, self.dbs)
-            #print "self.allowed_beta_c", len(self.allowed_beta_c), "self.allowed_beta_h", len(self.allowed_beta_h), "self.allowed_beta_0", len(self.allowed_beta_0), "self.allowed_xcs", len(self.allowed_xcs), "self.allowed_xhs", len(self.allowed_xhs), "self.allowed_bs", len(self.allowed_bs)
+
             self.beta_c_index = int(len(self.allowed_beta_c)/2)
             self.beta_c = self.allowed_beta_c[self.beta_c_index]
 
@@ -626,12 +599,6 @@ class Restraint_pf(Restraint):
 
             self.bs_index = int(len(self.allowed_bs)/2)
             self.bs = self.allowed_bs[self.bs_index]
-
-            self._nuisance_parameters = ['allowed_sigma','allowed_beta_c', 'allowed_beta_h',
-                    'allowed_beta_0', 'allowed_xcs', 'allowed_xhs','allowed_bs']
-            self._parameters = ['sigma','beta_c','beta_h','beta_0','xcs','xhs','bs']
-            self._parameter_indices = ['sigma_index','beta_c_index','beta_h_index','beta_0_index','xcs_index','xhs_index','bs_index']
-            self._rest_type = ['sigma_PF','beta_c','beta_h','beta_0','xcs','xhs','bs']
 
 
         # Reading the data from loading in filenames
@@ -795,11 +762,10 @@ class Restraint_pf(Restraint):
             self.sum_neglog_gaussian_ref += self.restraints[j]['weight'] * self.neglog_gaussian_ref[j]
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices):
         """Computes :math:`-logP` for protection factor during MCMC sampling.
 
         Args:
-            index(int): restraint index
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
 
@@ -807,27 +773,26 @@ class Restraint_pf(Restraint):
         """
 
         result = 0
-        para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
-        result += (self.Ndof)*np.log(para[index][0])
+        result += (self.Ndof)*np.log(parameters[0])
         if not self.precomputed:
-            result += self.sse[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])] / (2.0*para[index][0]**2.0)
+            result += self.sse[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])] / (2.0*parameters[0]**2.0)
             if self.pf_prior is not None:
-                result += self.pf_prior[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+                result += self.pf_prior[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])]
         else:
-            result += self.sse / (2.0*float(para[index][0])**2.0)
+            result += self.sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         # Which reference potential was used for each restraint?
         if self.ref == "exp":
             if isinstance(self.sum_neglog_exp_ref, float):
                 result -= self.sum_neglog_exp_ref
             else:
-                result -= self.sum_neglog_exp_ref[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+                result -= self.sum_neglog_exp_ref[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])]
         if self.ref == "gaussian":
             if isinstance(self.sum_neglog_gaussian_ref, float):
                 result -= self.sum_neglog_gaussian_ref
             else:
-                result -= self.sum_neglog_gaussian_ref[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+                result -= self.sum_neglog_gaussian_ref[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])]
         return result
 
 

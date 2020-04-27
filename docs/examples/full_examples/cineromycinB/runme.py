@@ -20,15 +20,16 @@ maxtau = 1000
 n_lambdas = 2
 lambda_values = np.linspace(0.0, 1.0, n_lambdas)
 parameters = [
-        {"ref": 'uniform', "uncern": (0.05, 20.0, 1.02)},
-        {"ref": 'exp', "uncern": (0.05, 5.0, 1.02), "gamma": (0.2, 5.0, 1.02)}
+        dict(ref="uniform", uncern=(0.05, 20.0, 1.02)),
+        dict(ref="exp", uncern=(0.05, 5.0, 1.02), gamma=(0.2, 5.0, 1.02)),
         ]
 for lam in lambda_values:
     print(f"lambda: {lam}")
-    ensemble = biceps.Ensemble(lam, energies, verbose=False)
+    ensemble = biceps.Ensemble(lam, energies)
     ensemble.initialize_restraints(input_data, parameters)
     sampler = biceps.PosteriorSampler(ensemble.to_list())
-    sampler.sample(nsteps=nsteps, verbose=True)
+    #sampler.sample(nsteps, print_freq=1, verbose=True)
+    sampler.sample(nsteps, verbose=True)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
     outfilename = 'sampler_lambda%2.2f.pkl'%(lam)
     fout = open(os.path.join(outdir, outfilename), 'wb')

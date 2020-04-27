@@ -19,13 +19,13 @@ maxtau = 1000
 n_lambdas = 3
 lambda_values = np.linspace(0.0, 1.0, n_lambdas)
 parameters = [
-        {"ref": 'uniform', "sigma": (0.05, 20.0, 1.02)},
-        {"ref": 'exp', "sigma": (0.05, 5.0, 1.02), "gamma": (0.2, 5.0, 1.02)}
+        dict(ref="uniform", uncern=(0.05, 20.0, 1.02)),
+        dict(ref="exp", uncern=(0.05, 5.0, 1.02), gamma=(0.2, 5.0, 1.02)),
         ]
 print(pd.DataFrame(parameters))
 ####### Multiprocessing Lambda values #######
 def mp_lambdas(Lambda):
-    ensemble = biceps.Ensemble(Lambda, energies, debug=False)
+    ensemble = biceps.Ensemble(Lambda, energies)
     ensemble.initialize_restraints(input_data, parameters)
     sampler = biceps.PosteriorSampler(ensemble.to_list())
     sampler.sample(nsteps=nsteps, print_freq=1000, verbose=False)
