@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import inspect, time
 from .KarplusRelation import *     # Returns J-coupling values from dihedral angles
 from .Restraint import *
 from .toolbox import *
 
 class PosteriorSampler(object):
 
-    def __init__(self, ensemble, nreplicas=1, freq_write_traj=100., freq_save_traj=100., verbose=False):
+    def __init__(self, ensemble, freq_write_traj=100., freq_save_traj=100., verbose=False):
         """A class to perform posterior sampling of conformational populations.
 
         Args:
@@ -17,12 +18,13 @@ class PosteriorSampler(object):
         """
 
         self.ensemble = ensemble # Allow the ensemble to pass through the class
-        self.nreplicas = nreplicas
+        self.nreplicas = 1
         self.write_traj = freq_write_traj # Step frequencies to write trajectory info
         self.traj_every = freq_save_traj # Frequency of storing trajectory samples
         self.nstates = len(ensemble) # Ensemble is a list of Restraint objects
         # The initial state of the structural ensemble we're sampling from
         self.state = 0    # index in the ensemble
+        self.state = np.random.randint(low=0, high=self.nstates, size=self.nreplicas)
         self.E = 1.0e99   # initial energy
         self.accepted = 0
         self.total = 0
@@ -64,7 +66,6 @@ class PosteriorSampler(object):
         for s in self.ensemble:
             Z +=  np.exp( -np.array(s[0].energy, dtype=np.float128) )
         self.logZ = np.log(Z)
-        self.ln2pi = np.log(2.0*np.pi)
 
 
     def build_exp_ref(self, rest_index, verbose=False):
@@ -226,7 +227,7 @@ class PosteriorSampler(object):
         return self.nuisance_para
 
 
-    def neglogP(self, state, parameters, parameter_indices, verbose=False):
+    def neglogP(self, states, parameters, parameter_indices):
         """Return -ln P of the current configuration.
 
         Args:
@@ -235,10 +236,12 @@ class PosteriorSampler(object):
             parameter_indices(list): parameter indices that correspond to each restraint
         """
 
-        s = self.ensemble[int(state)] # Current Structure (list of restraints)
-        result = s[0].energy + self.logZ  # Grab the free energy of the state and normalize
-        for i,R in enumerate(s):
-            result += R.compute_neglogP(parameters[i], parameter_indices[i])
+        result = 0
+        for state in states:
+            s = self.ensemble[int(state)] # Current Structure (list of restraints)
+            result += s[0].energy + self.logZ  # Grab the free energy of the state and normalize
+            for i,R in enumerate(s):
+                result += R.compute_neglogP(parameters[i], parameter_indices[i], s[i].sse)
         return result
 
 
@@ -260,7 +263,8 @@ class PosteriorSampler(object):
         self.indices = [] # e.g., [161, 142, ...]
         # Loop through the restraints, and get the parameters and indices
         rest_index = []
-        for i,R in enumerate(self.ensemble[self.state]):
+        #NOTE: using information from first state
+        for i,R in enumerate(self.ensemble[self.state[0]]):
             keys = R.__dict__.keys() # all attributes of the Child Restraint class
             for j in [key for key in keys if "index" in key]: # get the parameter indices
                 self.indices.append(getattr(R, j))
@@ -268,15 +272,16 @@ class PosteriorSampler(object):
                 self.rest_type.append(str(j)+"_"+str(R.__repr__).split("_")[-1].split()[0])
                 rest_index.append(i)
         if verbose:
-            header = """Step\t\tState\tPara Indices\t\tEnergy\t\tAcceptance (%)"""
+            header = """Step\t\tState\tPara Indices\t\tAvg Energy\t\tAcceptance (%)"""
             print(header)
         # Create separate accepted ratio recorder list
         n_rest = max(rest_index)+1
         sep_accepted = np.zeros(len(self.indices)+1) # all nuisance paramters + state (n_para starts from 1 not 0)
         step=0
+        start = time.time()
         while step < nsteps:
             # Redefine based upon acceptance (Metroplis criterion)
-            state, E = self.state, self.E
+            state, E = self.state.copy(), self.E
             indices = self.indices.copy() # e.g. [161, 142]
             #values = self.values # e.g. [1.2122652, 0.832136160]
             # All sample-space will share the same probability to be sampled
@@ -289,7 +294,7 @@ class PosteriorSampler(object):
                     indices[k] = (indices[k]+(np.random.randint(3)-1))%len(allowed[k])
                     ind.append(k)
             else: ## Take a random step in state space
-                state = np.random.randint(self.nstates)
+                state = np.random.randint(low=0, high=self.nstates, size=self.nreplicas)
                 ind = [len(indices)]
             # values e.g., [1.2122652, 0.832136160, ...]
             values = [allowed[i][indices[i]] for i in range(len(indices))]
@@ -301,7 +306,7 @@ class PosteriorSampler(object):
                 sep_values[m].append(values[n])
             #print(f"sep_indices: {sep_indices}")
             # Compute new "energy"
-            E = self.neglogP(state, sep_values, sep_indices, verbose=False)
+            E = self.neglogP(state, sep_values, sep_indices)
             # Accept or reject the MC move according to Metroplis criterion
             self.accept = False
             if E < self.E:
@@ -313,18 +318,17 @@ class PosteriorSampler(object):
             # Update values based upon acceptance (Metroplis criterion)
             if self.accept:
                 self.E = E
-                self.state = state
+                self.state = state.copy()
                 self.indices = indices.copy()
                 self.values = values.copy()
                 for k in ind:
                     sep_accepted[k] += 1.0
                 self.accepted += 1.0
             self.total += 1.0
-
-            #NOTE: There will need to be additional values here for protection factor.
-            self.traj.state_counts[int(self.state)] += 1
-            self.traj.state_trace.append(int(self.state))
-
+            # Store sampled states along trajectory
+            for i in range(len(self.state)):
+                self.traj.state_counts[int(self.state[i])] += 1
+                self.traj.state_trace.append(int(self.state[i]))
             # Store the counts of sampled sigma along the trajectory
             for i in range(len(self.indices)):
                 self.traj.sampled_parameters[i][self.indices[i]] += 1
@@ -335,15 +339,14 @@ class PosteriorSampler(object):
             # Store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step), float(self.E),
-                    #TODO
-                    #int(accept), list(state), list(temp)])
-                    int(self.accept), int(self.state), list(temp.copy())])
-                self.traj.traces.append(self.values)
+                    int(self.accept), list(self.state.copy()), list(temp.copy())])
+                    #int(self.accept), int(self.state), list(temp.copy())])
+                self.traj.traces.append(self.values.copy())
 
             if verbose:
                 if step%print_freq == 0:
-                    output = """%i\t\t%i\t%s\t\t%.3f\t\t%.2f\t%s"""%(step, self.state,
-                            self.indices, self.E, self.accepted/self.total*100., self.accept)
+                    output = """%i\t\t%s\t%s\t\t%.3f\t\t%.2f\t%s"""%(step, self.state,
+                            self.indices, self.E/self.nreplicas, self.accepted/self.total*100., self.accept)
                     print(output)
             step += 1
         restraints = list(dict.fromkeys([r.split("_")[-1] for r in self.rest_type]))

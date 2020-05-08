@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 import os, sys, inspect
 import numpy as np
@@ -232,27 +233,21 @@ class Restraint_cs(Restraint):
             # N equivalent chemical shift should only get 1/N f the weight when
             #... computing chi^2 (not likely in this case but just in case we need it in the future)
             self.restraints[-1]['weight'] = weight  #1.0/3.0 used in JCTC 2020 paper  # default is N=1
+        self.sse = self.compute_sse(f=self.restraints)
 
-        self.compute_sse()
-
-    def compute_sse(self, debug=False):
+    def compute_sse(self, f):
         """Returns the (weighted) sum of squared errors for chemical shift values"""
 
         N,sse = 0.0, 0.0
         for i in range(self.n):
-            if debug:
-                print('---->', i, '%d'%self.restraints[i].i, end=' ')
-                print('      exp', self.restraints[i]['exp'], 'model', self.restraints[i]['model'])
-            err = self.restraints[i]['model'] - self.restraints[i]['exp']
-            sse += (self.restraints[i]['weight']*err**2.0)
-            N += self.restraints[i]['weight']
-        self.sse = sse
+            err = f[i]['model'] - f[i]['exp']
+            sse += (f[i]['weight']*err**2.0)
+            N += f[i]['weight']
         self.Ndof = N
-        if debug:
-            print('self.sse', self.sse)
+        return sse
 
 
-    def compute_neglogP(self, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices, sse):
         """Computes :math:`-logP` for chemical shift during MCMC sampling.
 
         :math:`-ln P(X, \\sigma | D)=(N_{j}+1) \ln \sigma+\\chi^{2}(X) / 2 \\sigma^{2}-ln P(X) -ln Q_{ref}+(N_{j} / 2) ln 2 \pi + f_{i}`,
@@ -272,7 +267,7 @@ class Restraint_cs(Restraint):
         result = 0
         # Use with log-spaced sigma values
         result += (self.Ndof)*np.log(parameters[0])
-        result += self.sse / (2.0*float(parameters[0])**2.0)
+        result += sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
@@ -326,7 +321,7 @@ class Restraint_J(Restraint):
             print(f'self.equivalency_groups = {self.equivalency_groups}')
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
-        self.compute_sse(debug=False)
+        self.sse = self.compute_sse(f=self.restraints)
 
 
     def adjust_weights(self):
@@ -338,25 +333,20 @@ class Restraint_J(Restraint):
             for i in group:
                 self.restraints[i]['weight'] = 1.0/n
 
-    def compute_sse(self, debug=False):
+
+    def compute_sse(self, f):
         """Returns the (weighted) sum of squared errors"""
 
         N,sse = 0.0, 0.0
         for i in range(self.n):
-            if debug:
-                print('---->', i, '%d'%self.restraints[i].i, end=' ')
-                print('      exp', self.restraints[i]['exp'], 'model', self.restraints[i]['model'])
-            err = self.restraints[i]['model'] - self.restraints[i]['exp']
-            sse += (self.restraints[i]['weight']*err**2.0)
-            N += self.restraints[i]['weight']
-        self.sse = sse
+            err = f[i]['model'] - f[i]['exp']
+            sse += (f[i]['weight']*err**2.0)
+            N += f[i]['weight']
         self.Ndof = N
-        if debug:
-            print('self.sse', self.sse)
-        #print(self.sse)
+        return sse
 
 
-    def compute_neglogP(self, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices, sse):
         """Computes :math:`-logP` for scalar coupling constant during MCMC sampling.
 
         Args:
@@ -369,7 +359,7 @@ class Restraint_J(Restraint):
         result = 0
         # Use with log-spaced sigma values
         result += (self.Ndof)*np.log(parameters[0])
-        result += self.sse / (2.0*float(parameters[0])**2.0)
+        result += sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
@@ -385,15 +375,18 @@ class Restraint_noe(Restraint):
     _ext = ['noe']
 
     def init_restraint(self, data, energy, weight=1, verbose=False,
-            use_log_normal_noe=False, gamma=(0.2, 10.0, 1.01)):
+            log_normal=False, gamma=(0.2, 10.0, 1.01)):
         """Initialize the NOE distance restraints for each **exp** (experimental)
         and **model** (theoretical) observable given **data**.
+
+        When using :attr:`log_normal` the modified sum of squared errors is used:
+        :math:`\chi_{\mathrm{d}}^{2}(X)=\sum_{j} w_{j}\left(\ln \left(r_{j}(X) / \gamma^{\prime} r_{j}^{\exp }\right)\right)^{2}`
 
         Args:
             data(str): filename of data
             energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
             weight(float): weight for restraint
-            use_log_normal_noe(bool):
+            log_normal(bool):
             gamma(tuple): (gamma_min, gamma_max, dgamma) in log space
         """
 
@@ -406,7 +399,7 @@ class Restraint_noe(Restraint):
         self.gamma = self.allowed_gamma[self.gamma_index]
 
         # Flag to use log-normal distance errors log(d/d0)
-        self.use_log_normal_noe = use_log_normal_noe
+        self.log_normal = log_normal
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
@@ -436,7 +429,7 @@ class Restraint_noe(Restraint):
             print(f'self.equivalency_groups = {self.equivalency_groups}')
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
-        self.compute_sse(debug=False)
+        self.sse = self.compute_sse(f=self.restraints)
 
     def adjust_weights(self):
         """Adjust the weights of distance and dihedral restraints based on
@@ -447,30 +440,28 @@ class Restraint_noe(Restraint):
             for i in group:
                 self.restraints[i]['weight'] = 1.0/n
 
-    def compute_sse(self, debug=False):
+
+    def compute_sse(self, f):
         """Returns the (weighted) sum of squared errors"""
 
-        self.sse = np.array([0.0 for gamma in self.allowed_gamma])
+        _sse = np.array([0.0 for gamma in self.allowed_gamma])
         for g in range(len(self.allowed_gamma)):
             N,sse = 0.0, 0.0
             for i in range(self.n):
                 gamma = self.allowed_gamma[g]
-                if self.use_log_normal_noe:
-                    err = np.log(self.restraints[i]['model']/(gamma*self.restraints[i]['exp']))
+                #if self.use_log_normal_noe:
+                if self.log_normal:
+                    err = np.log(f[i]['model']/(gamma*f[i]['exp']))
                 else:
-                    err = gamma*self.restraints[i]['exp'] - self.restraints[i]['model']
-                sse += (self.restraints[i]['weight'] * err**2.0)
-                N += self.restraints[i]['weight']
-            self.sse[g] = sse
+                    err = gamma*f[i]['exp'] - f[i]['model']
+                sse += (f[i]['weight'] * err**2.0)
+                N += f[i]['weight']
+            _sse[g] = sse
             self.Ndof = N
-        if debug:
-            for i in range(self.n):
-                print('---->', i, '%d'%self.restraints[i].i, end=' ')
-                print('      exp', self.restraints[i]['exp'], 'model', self.restraints[i]['model'])
-        #print(self.sse)
+        return _sse
 
 
-    def compute_neglogP(self, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices, sse):
         """Computes :math:`-logP` for NOE during MCMC sampling.
 
         Args:
@@ -483,7 +474,7 @@ class Restraint_noe(Restraint):
         result = 0
         # Use with log-spaced sigma values
         result += (self.Ndof)*np.log(parameters[0])
-        result += self.sse[int(parameter_indices[1])] / (2.0*parameters[0]**2.0)
+        result += sse[int(parameter_indices[1])] / (2.0*parameters[0]**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
@@ -623,34 +614,29 @@ class Restraint_pf(Restraint):
                 d = {key: grouped_data[key][row] for key in grouped_data.keys()}
                 self.add_restraint(d)
                 self.restraints[-1]['weight'] = weight
-        self.compute_sse(debug=False)
+
+        self.sse = self.compute_sse(f=self.restraints)
 
 
-    def compute_sse(self, debug=False):
+    def compute_sse(self, f):
         """Returns the (weighted) sum of squared errors"""
 
+        N,sse = 0.0, 0.0
         if self.precomputed:
-            N,sse = 0.0, 0.0
             for i in range(self.n):
-                if debug:
-                    print('---->', i, '%d'%self.restraints[i].i, end=' ')
-                    print('      exp', self.restraints[i]['exp'], 'model', self.restraints[i]['model'])
-                err = self.restraints[i]['model'] - self.restraints[i]['exp']
-                sse += (self.restraints[i]['weight']*err**2.0)
-                N += self.restraints[i]['weight']
-            self.sse = sse
+                err = f[i]['model'] - f[i]['exp']
+                sse += (f[i]['weight']*err**2.0)
+                N += f[i]['weight']
             self.Ndof = N
-            if debug:
-                print('self.sse', self.sse)
-
         else:
-            self.sse = np.zeros( (len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0),
+            sse = np.zeros( (len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0),
                 len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)) )
             self.Ndof = 0.
             for i in range(self.n):
-                err = self.restraints[i]['model'] - self.restraints[i]['exp']
-                self.sse += (self.restraints[i]['weight'] * err**2.0)
-                self.Ndof += self.restraints[i]['weight']
+                err = f[i]['model'] - f[i]['exp']
+                sse += (f[i]['weight'] * err**2.0)
+                self.Ndof += f[i]['weight']
+        return sse
 
 
     def compute_PF(self, beta_c, beta_h, beta_0, Nc, Nh):
@@ -762,7 +748,7 @@ class Restraint_pf(Restraint):
             self.sum_neglog_gaussian_ref += self.restraints[j]['weight'] * self.neglog_gaussian_ref[j]
 
 
-    def compute_neglogP(self, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices, sse):
         """Computes :math:`-logP` for protection factor during MCMC sampling.
 
         Args:
@@ -776,11 +762,11 @@ class Restraint_pf(Restraint):
         # Use with log-spaced sigma values
         result += (self.Ndof)*np.log(parameters[0])
         if not self.precomputed:
-            result += self.sse[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])] / (2.0*parameters[0]**2.0)
+            result += sse[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])] / (2.0*parameters[0]**2.0)
             if self.pf_prior is not None:
                 result += self.pf_prior[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])]
         else:
-            result += self.sse / (2.0*float(parameters[0])**2.0)
+            result += sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         # Which reference potential was used for each restraint?
         if self.ref == "exp":
@@ -1031,7 +1017,6 @@ if __name__ == "__main__":
 
     import doctest
     doctest.testmod()
-
 
 
 

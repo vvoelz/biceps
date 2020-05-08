@@ -209,6 +209,15 @@ def get_state_populations(file):
 
     return np.loadtxt(file)[:][0]
 
+def print_top_N_pops(file, nlambda, N=5):
+    pops = np.loadtxt(file)[:,nlambda-1]
+    ntop = N#int(int(self.states)/10.)
+    topN = pops[np.argsort(pops)[-ntop:]]
+    topN_labels = [np.where(topN[i]==pops)[0][0] for i in range(len(topN))]
+    print(f"Top {ntop} states: {topN_labels}")
+    print(f"Top {ntop} populations: {topN}")
+
+
 
 def print_scores(file):
     """Get the BICePs Score given a **BS.dat** file

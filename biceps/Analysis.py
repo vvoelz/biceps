@@ -52,7 +52,9 @@ class Analysis(object):
         for filename in exp_files:
             if debug:
                 print('Loading %s ...'%filename)
-            self.traj.append( np.load(filename, allow_pickle=True )['arr_0'].item() )
+            traj = np.load(filename, allow_pickle=True )['arr_0'].item()
+            self.traj.append(traj)
+        self.nreplicas = len(traj['trajectory'][0][3])
         if self.precheck:
             steps = []
             fractions = []
@@ -105,7 +107,7 @@ class Analysis(object):
         u_kln = np.zeros( (self.K, self.K, nsnaps) )
         nstates = int(self.states)
         print('nstates', nstates)
-        states_kn = np.zeros( (self.K, nsnaps) )
+        states_kn = np.zeros( (self.K, nsnaps, self.nreplicas) )
 
         # special treatment for neglogP function
         temp_parameters_indices = self.traj[0]['trajectory'][0][4:][0]
@@ -125,7 +127,8 @@ class Analysis(object):
                     if k==l:
                         u_kln[k,k,n] = self.traj[k]['trajectory'][n][1]
                     state, sigma_index = self.traj[k]['trajectory'][n][3:]
-                    states_kn[k,n] = state
+                    for r in range(self.nreplicas):
+                        states_kn[k,n,r] = state[r]
                     temp_parameters = []
                     new_parameters=[[] for i in range(len(temp_parameters_indices))]
                     temp_parameter_indices = np.concatenate(sigma_index)
@@ -162,12 +165,14 @@ class Analysis(object):
         self.P_dP = np.zeros( (nstates, 2*self.K) )  # left columns are P, right columns are dP
         if debug:
             print('state\tP\tdP')
+        states_kn = np.array(states_kn)
         for i in range(nstates):
-            A_kn = np.where(states_kn==i,1,0)
+            sampled = np.array([np.where(states_kn[:,:,r]==i,1,0) for r in range(self.nreplicas)])
+            A_kn = sampled.sum(axis=0)
             (p_i, dp_i) = mbar.computeExpectations(A_kn, uncertainty_method='approximate')
             self.P_dP[i,0:self.K] = p_i
             self.P_dP[i,self.K:2*self.K] = dp_i
-        pops, dpops = self.P_dP[:,0:self.K], self.P_dP[:,self.K:2*self.K]
+        pops, dpops = self.P_dP[:, 0:self.K], self.P_dP[:, self.K:2*self.K]
 
         # save results
         self.save_MBAR()
@@ -213,18 +218,39 @@ class Analysis(object):
         # Make a subplot in the upper left
         plt.subplot(r,c,1)
         plt.errorbar( pops0, pops1, xerr=dpops0, yerr=dpops1, fmt='k.')
+
         #plt.hold(True)
-        plt.plot([1e-6, 1], [1e-6, 1], color='k', linestyle='-', linewidth=2)
-        plt.xlim(1e-6, 1.)
-        plt.ylim(1e-6, 1.)
+        limit = 1e-6
+        plt.plot([limit, 1], [limit, 1], color='k', linestyle='-', linewidth=2)
+        plt.xlim(limit, 1.)
+        plt.ylim(limit, 1.)
+
+        #x0,x1 = np.min(pops0), np.max(pops0)
+        #y0,y1 = np.min(pops1), np.max(pops1)
+        #spacing = 0.0  # not sure yet...
+        #low, high = np.min([x0, y0])-spacing, np.max([x1,y1])+spacing
+        #plt.plot([low, high], [low, high], color='k', linestyle='-', linewidth=2)
+        #plt.xlim(low, high)
+        #plt.ylim(low, high)
+
         plt.xlabel('$p_i$ (exp)', fontsize=label_fontsize)
         plt.ylabel('$p_i$ (sim+exp)', fontsize=label_fontsize)
         plt.xscale('log')
         plt.yscale('log')
-        # label key states
+
+        #label key states
         for i in range(len(pops1)):
             if (i==0) or (pops1[i] > 0.05):
                 plt.text( pops0[i], pops1[i], str(i), color='g' )
+
+        ntop = int(int(self.states)/10.)
+        topN = pops1[np.argsort(pops1)[-ntop:]]
+        topN_labels = [np.where(topN[i]==pops1)[0][0] for i in range(len(topN))]
+        print(f"Top {ntop} states: {topN_labels}")
+        print(f"Top {ntop} populations: {topN}")
+        #for i in range(len(pops1)):
+        #    if (i==0) or (pops1[i] in topN):
+        #        plt.text( pops0[i], pops1[i], str(i), color='g' )
         for k in range(len(self.scheme)):
             plt.subplot(r,c,k+2)
             plt.step(t0['allowed_parameters'][k], t0['sampled_parameters'][k], 'b-')
