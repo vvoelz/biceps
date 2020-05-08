@@ -283,7 +283,7 @@ class Convergence(object):
         """Compute autocorrelaton function for a time-series f(t), partition the
         data into the specified number of blocks and plot the autocorrelation curve.
 
-        :param string method: method for computing autocorrelation time; "block-avg" or "exp" or "normal"
+        :param string method: method for computing autocorrelation time; "block-avg" or "exp" or "auto"
         :param int default=5 nblocks: number of blocks to split up the trajectory
         :param int default=10000 maxtau: the upper bound of autocorrelation lag time
         :param bool default=True plot_traces: will plot the trajectory traces
@@ -305,8 +305,8 @@ class Convergence(object):
         self.tau_c = self.autocorrelation_time(self.autocorr)
         print("Done!")
 
-        if method in ["block-avg","normal"]:
-            if method == "normal":
+        if method in ["block-avg","auto"]:
+            if method == "auto":
                 nblocks = 1
             blocks = self.get_blocks(sampled_parameters, nblocks)
             x,y = [],[]
