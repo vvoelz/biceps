@@ -278,7 +278,7 @@ class Convergence(object):
         return blocks
 
 
-    def get_autocorrelation_curves(self, method="normal", nblocks=5, maxtau=10000,
+    def get_autocorrelation_curves(self, method="auto", nblocks=5, maxtau=10000,
             plot_traces=False):
         """Compute autocorrelaton function for a time-series f(t), partition the
         data into the specified number of blocks and plot the autocorrelation curve.
