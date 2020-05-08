@@ -20,8 +20,8 @@ maxtau = 1000
 n_lambdas = 2
 lambda_values = np.linspace(0.0, 1.0, n_lambdas)
 parameters = [
-        dict(ref="uniform", uncern=(0.05, 20.0, 1.02)),
-        dict(ref="exp", uncern=(0.05, 5.0, 1.02), gamma=(0.2, 5.0, 1.02)),
+        dict(ref="uniform", sigma=(0.05, 20.0, 1.02)),
+        dict(ref="exp", sigma=(0.05, 5.0, 1.02), gamma=(0.2, 5.0, 1.02)),
         ]
 for lam in lambda_values:
     print(f"lambda: {lam}")
