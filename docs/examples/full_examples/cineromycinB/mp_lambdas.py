@@ -10,18 +10,16 @@ states = len(energies)
 print(f"Possible input data extensions: {biceps.toolbox.list_possible_extensions()}")
 input_data = biceps.toolbox.sort_data('cineromycin_B/J_NOE')
 print(f"Input data: {biceps.toolbox.list_extensions(input_data)}")
-outdir = '_results_test'
-biceps.toolbox.mkdir(outdir)
 ####### Parameters #######
 nsteps=1000000
 print(f"nSteps of sampling: {nsteps}")
 maxtau = 1000
 n_lambdas = 3
+outdir = '%s_steps_%s_lam'%(nsteps, n_lambdas)
+biceps.toolbox.mkdir(outdir)
 lambda_values = np.linspace(0.0, 1.0, n_lambdas)
-parameters = [
-        dict(ref="uniform", uncern=(0.05, 20.0, 1.02)),
-        dict(ref="exp", uncern=(0.05, 5.0, 1.02), gamma=(0.2, 5.0, 1.02)),
-        ]
+parameters = [dict(ref="uniform", uncern=(0.05, 20.0, 1.02)),
+        dict(ref="exp", uncern=(0.05, 5.0, 1.02), gamma=(0.2, 5.0, 1.02)),]
 print(pd.DataFrame(parameters))
 ####### Multiprocessing Lambda values #######
 def mp_lambdas(Lambda):
