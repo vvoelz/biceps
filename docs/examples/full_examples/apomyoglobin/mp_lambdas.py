@@ -64,9 +64,8 @@ for job in jobs:
     job.join() # will wait until the execution is over...
 p.close()
 
-A = biceps.Analysis(states=states, resultdir=outdir,
-  BSdir='BS.dat', popdir='populations.dat',
-  picfile='BICePs.pdf')
+
+A = biceps.Analysis(nstates=len(energies), outdir=outdir)
 A.plot()
 
 

@@ -49,9 +49,7 @@ C.process(nblock=5, nfold=10, nround=100, savefile=True,
 '''
 
 ####### Posterior Analysis #######
-A = biceps.Analysis(states=states, resultdir=outdir,
-    BSdir='BS.dat', popdir='populations.dat',
-    picfile='BICePs.pdf')
+A = biceps.Analysis(nstates=states, outdir=outdir)
 A.plot()
 
 

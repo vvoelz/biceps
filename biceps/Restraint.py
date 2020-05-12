@@ -70,26 +70,35 @@ class Ensemble(object):
                 # Pick the Restraint class upon file extension
                 _Restraint = getattr(current_module, "Restraint_%s"%(restraint))
                 # Get all the arguments for the Parent Restraint Class if given
-                args = {"%s"%key: val for key,val in locals().items()
+                args1 = {"%s"%key: val for key,val in locals().items()
                         if key in inspect.getfullargspec(_Restraint)[0] if key != 'self'}
+                R = _Restraint#(**args) # Initializing Restraint
+                args2 = {"%s"%key: val for key,val in locals().items()
+                        if key in inspect.getfullargspec(R.init_restraint)[0] if key != 'self'}
                 for key,val in parameters[k].items():
                     if key in inspect.getfullargspec(_Restraint)[0]:
-                        args[key] = val
-                R = _Restraint(**args) # Initializing Restraint
-                # Get all the arguments for the Child Restraint Class and match
-                # them with the local variables
-                args = {"%s"%key: val for key,val in locals().items()
-                        if key in inspect.getfullargspec(R.init_restraint)[0] if key != 'self'}
-                # get all the variables from parameters and match the args
-                for key,val in parameters[k].items():
-                    if key in inspect.getfullargspec(R.init_restraint)[0]:
-                        args[key] = val
+                        args1[key] = val
+                    elif key in inspect.getfullargspec(R.init_restraint)[0]:
+                        args2[key] = val
+                    else:
+                        possible_args = np.unique(np.concatenate(
+                            [inspect.getfullargspec(_Restraint)[0],
+                            inspect.getfullargspec(R.init_restraint)[0]]))
+                        possible_args = np.delete(possible_args, np.where(possible_args == "self"))
+                        possible_args = np.delete(possible_args, np.where(possible_args == "data"))
+                        raise TypeError(f"{key} is an invalid keyword argument for {_Restraint}\n\n\
+Please check your parameters... \n\
+The ordering of dictionaries should be: {biceps.toolbox.list_extensions(input_data)}\n\
+Keys for {_Restraint.__name__} are any of: {possible_args}")
                 if self.debug:
                     print(R)
                     print(f"Required args by inspect:{inspect.getfullargspec(R.init_restraint)[0]}")
-                    print(f"args given: {args}")
-                R.init_restraint(**args)
+                    print(f"args1 given: {args1}")
+                    print(f"args2 given: {args2}")
+                R = _Restraint(**args1) # Initializing Restraint
+                R.init_restraint(**args2)
                 self.ensemble[-1].append(R)
+
 
 
 class Restraint(object):

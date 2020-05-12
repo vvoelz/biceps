@@ -9,7 +9,6 @@ top ='albocycline/pdbs/0.pdb'
 energies = np.loadtxt('albocycline/albocycline_QMenergies.dat')*627.509  # convert from hartrees to kcal/mol
 energies = energies/0.5959   # convert to reduced free energies F = f/kT
 energies -= energies.min()  # set ground state to zero, just in case
-nstates = len(energies)
 dataFiles = 'albocycline/J_NOE'
 input_data = biceps.toolbox.sort_data(dataFiles)
 print(f"Input data: {biceps.toolbox.list_extensions(input_data)}")
@@ -73,9 +72,7 @@ C.process(nblock=5, nfold=10, nround=100, savefile=True,
 
 
 ####### Posterior Analysis #######
-A = biceps.Analysis(states=nstates, resultdir=outdir+"/",
-    BSdir='BS.dat', popdir='populations.dat',
-    picfile='BICePs.pdf')
+A = biceps.Analysis(nstates=len(energies), outdir=outdir)
 A.plot()
 
 

@@ -40,9 +40,7 @@ for lam in lambda_values:
     biceps.toolbox.save_object(sampler, filename)
     print('...Done.')
 
-A = biceps.Analysis(states=states, resultdir=outdir,
-  BSdir='BS.dat', popdir='populations.dat',
-  picfile='BICePs.pdf')
+A = biceps.Analysis(nstates=len(energies), outdir=outdir)
 A.plot()
 
 

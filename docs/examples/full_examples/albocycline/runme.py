@@ -41,9 +41,7 @@ C.process(nblock=5, nfold=10, nround=100, savefile=True,
     plot=True, block=True, normalize=True)
 
 ####### Posterior Analysis #######
-A = biceps.Analysis(states=100, resultdir=outdir,
-    BSdir='BS.dat', popdir='populations.dat',
-    picfile='BICePs.pdf')
+A = biceps.Analysis(nstates=len(energies), outdir=outdir)
 A.plot()
 
 
