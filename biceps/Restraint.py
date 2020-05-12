@@ -836,7 +836,7 @@ class Preparation(object):
         """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
-                'exp', 'model', 'comments')
+                'exp', 'model', )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices)
@@ -859,7 +859,6 @@ class Preparation(object):
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 dd['model'].append(np.float64(model_data[i]))
-                dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
@@ -880,7 +879,7 @@ class Preparation(object):
         """
 
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
-                'atom_index2', 'res2', 'atom_name2', 'exp', 'model', 'comments')
+                'atom_index2', 'res2', 'atom_name2', 'exp', 'model', )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices, dtype=int)
@@ -904,7 +903,6 @@ class Preparation(object):
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 dd['model'].append(np.float64(model_data[i]))
-                dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
@@ -926,7 +924,7 @@ class Preparation(object):
         self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
                 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3',
                 'atom_index4', 'res4', 'atom_name4', 'exp',
-                'model', 'comments')
+                'model', )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         if type(indices) is not str:
@@ -957,7 +955,6 @@ class Preparation(object):
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 dd['model'].append(np.float64(model_data[i]))
-                dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
@@ -978,9 +975,9 @@ class Preparation(object):
         """
 
         if model_data:
-            self.header = ('restraint_index', 'atom_index1', 'res1', 'exp','model', 'comments')
+            self.header = ('restraint_index', 'atom_index1', 'res1', 'exp','model', )
         else:
-            self.header = ('restraint_index', 'atom_index1', 'res1','exp', 'comments')
+            self.header = ('restraint_index', 'atom_index1', 'res1','exp', )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices, dtype=int)
@@ -1003,7 +1000,6 @@ class Preparation(object):
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 if model_data:
                     dd['model'].append(np.float64(model_data[i]))
-                dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)

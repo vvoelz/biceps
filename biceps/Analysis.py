@@ -11,27 +11,23 @@ import pickle
 from pymbar import MBAR
 
 class Analysis(object):
-    """A class to perform analysis and plot figures.
 
-    :param int default=0 states: number of conformational states
-    :param str default=None data: BICePs input data directory converted from precomputed observables
-    :param str default=None resultdir: output files directory
-    :param str default='BS.dat' BSdir: output BICePs score file name
-    :param str default='populations.dat' popdir: output BICePs reweighted populations file name
-    :param str default='BICePs.pdf' picfile: output figure name
-    """
-
-    def __init__(self, states=0, precheck=True, resultdir=None, BSdir='BS.dat',
+    def __init__(self, nstates=0, precheck=True, outdir="./", BSdir='BS.dat',
             popdir='populations.dat', picfile='BICePs.pdf'):
+        """A class to perform analysis and plot figures.
 
-        self.states = states
-        if resultdir.endswith("/"):
-            self.resultdir = resultdir
-        else:
-            self.resultdir = resultdir+"/"
-        self.BSdir = self.resultdir+BSdir
-        self.popdir = self.resultdir+popdir
-        self.picfile = self.resultdir+picfile
+        :param int default=0 nstates: number of conformational states
+        :param str default="./" outdir: output files directory
+        :param str default='BS.dat' BSdir: output BICePs score file name
+        :param str default='populations.dat' popdir: output BICePs reweighted populations file name
+        :param str default='BICePs.pdf' picfile: output figure name
+        """
+
+        self.states = nstates
+        self.resultdir = outdir
+        self.BSdir = os.path.join(self.resultdir,BSdir)
+        self.popdir = os.path.join(self.resultdir,popdir)
+        self.picfile = os.path.join(self.resultdir,picfile)
         self.scheme = None
         self.traj = []
         self.sampler = []
@@ -41,11 +37,10 @@ class Analysis(object):
         self.precheck = precheck
         if self.states == 0:
             raise ValueError("State number cannot be zero")
-        if self.resultdir == None:
-            raise ValueError("Result directory is missing")
 
-    def load_data(self, debug = True):
+    def load_data(self, debug=True):
         """load input data from BICePs sampling (*npz and *pkl files)"""
+
         # Load in npz trajectories
         exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.npz') )
         exp_files.sort()
@@ -70,7 +65,7 @@ class Analysis(object):
                     plt.xlabel('steps')
                     plt.ylabel('fractions')
                     plt.legend(loc='best')
-                    plt.savefig(self.resultdir+'fractions.pdf')
+                    plt.savefig(os.path.join(self.resultdir,'fractions.pdf'))
             #else:
             #    print('Error: Not all states are sampled in any of the lambda values')
             #    exit()
@@ -92,7 +87,7 @@ class Analysis(object):
         self.scheme = self.traj[0]['rest_type']
 
 
-    def MBAR_analysis(self, debug = False):
+    def MBAR_analysis(self, debug=False):
         """MBAR analysis for populations and BICePs score"""
 
         # load necessary data first
