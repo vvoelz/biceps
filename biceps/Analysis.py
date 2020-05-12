@@ -37,6 +37,9 @@ class Analysis(object):
         self.precheck = precheck
         if self.states == 0:
             raise ValueError("State number cannot be zero.")
+        # next get MABR sampling done
+        self.MBAR_analysis()
+
 
     def load_data(self, debug=True):
         """load input data from BICePs sampling (*npz and *pkl files)"""
@@ -189,8 +192,8 @@ class Analysis(object):
         # first figure out what scheme is used
         #self.list_scheme()
 
-        # next get MABR sampling done
-        self.MBAR_analysis()
+        ## next get MABR sampling done
+        #self.MBAR_analysis()
 
         # load in precomputed P and dP from MBAR analysis
         pops0, pops1   = self.P_dP[:,0], self.P_dP[:,self.K-1]
