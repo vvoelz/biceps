@@ -12,12 +12,12 @@ from pymbar import MBAR
 
 class Analysis(object):
 
-    def __init__(self, nstates=0, precheck=True, outdir="./", BSdir='BS.dat',
+    def __init__(self, outdir, nstates=0, precheck=True, BSdir='BS.dat',
             popdir='populations.dat', picfile='BICePs.pdf'):
         """A class to perform analysis and plot figures.
 
         :param int default=0 nstates: number of conformational states
-        :param str default="./" outdir: output files directory
+        :param str outdir: output files directory
         :param str default='BS.dat' BSdir: output BICePs score file name
         :param str default='populations.dat' popdir: output BICePs reweighted populations file name
         :param str default='BICePs.pdf' picfile: output figure name
@@ -36,7 +36,7 @@ class Analysis(object):
         self.P_dp = None
         self.precheck = precheck
         if self.states == 0:
-            raise ValueError("State number cannot be zero")
+            raise ValueError("State number cannot be zero.")
 
     def load_data(self, debug=True):
         """load input data from BICePs sampling (*npz and *pkl files)"""
