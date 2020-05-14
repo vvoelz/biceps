@@ -6,12 +6,12 @@ def multiprocess(*args, **kwargs):
     """
 
     def wrapper(function):
-        n = len(kwargs['iterator'])
+        n = len(kwargs['iterable'])
         print("Number of CPU's: %s"%(mp.cpu_count()))
         p = mp.Pool(processes=n)
         print(f"Number of processes: {n}")
         jobs = []
-        for iter in kwargs['iterator']:
+        for iter in kwargs['iterable']:
             process = p.Process(target=function, args=(iter,))
             jobs.append(process)
             jobs[-1].start()
