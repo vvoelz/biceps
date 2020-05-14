@@ -2,7 +2,7 @@ import multiprocessing as mp
 import numpy as np
 
 def multiprocess(*args, **kwargs):
-    """Decorator method for multiprocessing an embarassingly parallel function.
+    """Decorator method for multiprocessing an embarrassingly parallel function.
     """
 
     def wrapper(function):
