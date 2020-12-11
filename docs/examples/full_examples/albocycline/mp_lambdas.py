@@ -28,9 +28,9 @@ uncern = [[0.05, 20.0, 1.02], [0.05, 5.0, 1.02]]
 ####### Multiprocessing Lambda values #######
 def mp_lambdas(Lambda):
     print(f"lambda: {Lambda}")
-    ensemble = biceps.Ensemble(Lambda, energies, top, verbose=False)
+    ensemble = biceps.Ensemble(Lambda, energies)
     ensemble.initialize_restraints(input_data=data, ref_pot=ref,
-            gamma=[0.2, 5.0, 1.01],extensions=extensions, debug=False)
+            uncern=uncern, gamma=[0.2, 5.0, 1.01])
     sampler = biceps.PosteriorSampler(ensemble.to_list())
     sampler.sample(nsteps=nsteps, verbose=False)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(Lambda))
@@ -41,7 +41,7 @@ def mp_lambdas(Lambda):
 # Check the number of CPU's available
 print("Number of CPU's: %s"%(mp.cpu_count()))
 p = mp.Pool(processes=len(lambda_values)) # knows the number of CPU's to allocate
-print("Number of processes: {n_lambdas}")
+print(f"Number of processes: {n_lambdas}")
 #p = mp.Pool(processes=mp.cpu_count()) # knows the number of CPU's to allocate
 #print("Process ID's: %s"%get_processes(p, n=lam))
 jobs = []

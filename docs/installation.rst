@@ -52,11 +52,17 @@ Installation
 Dependencies of biceps
 ----------------------
 
- - pymbar>=3.0
- - mdtraj>=1.5.0
- - matplotlib>=2.1.2
- - numpy>=1.14.0
- - multiprocessing
+
+.. raw:: html
+
+   <ul>
+    <li style="list-style-type: none;"><a href="https://pymbar.readthedocs.io">pymbar</a> >= 3.0</li>
+    <li style="list-style-type: none;"><a href="https://mdtraj.org">mdtraj>=1.5.0</li>
+    <li style="list-style-type: none;">matplotlib >= 2.1.2</li>
+    <li style="list-style-type: none;">numpy >= 1.14.0</li>
+    <li style="list-style-type: none;">multiprocessing (currently works for
+    Python versions 3.0-3.7)</li>
+   </ul>
 
 
 Testing Your Installation
