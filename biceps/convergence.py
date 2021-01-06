@@ -6,35 +6,32 @@ from matplotlib import pyplot as plt
 import warnings
 warnings.filterwarnings("ignore",category=DeprecationWarning)
 warnings.filterwarnings("ignore",category=RuntimeWarning)
+from scipy.optimize import curve_fit
 
 class Convergence(object):
 
-    def __init__(self, trajfile=None, resultdir=None):
+    def __init__(self, filename, outdir="./", verbose=False):
         """Convergence submodule for BICePs.
 
         Args:
-            traj(npz, np.ndarray): MCMC trajectory
+            filename(str): relative path and filename to MCMC trajectory (NumPy npz file)
+            outdir(str): relative path for output files
         """
 
-        if trajfile is None:
-            raise ValueError("Trajectory file is necessary")
-        else:
-            print('Loading trajectory file...')
-#            self.traj = np.load(trajfile, allow_pickle=True)
-            self.traj = np.load(trajfile, allow_pickle=True)['arr_0'].item()
-            self.freq_save_traj = int(self.traj["trajectory"][1][0] - self.traj["trajectory"][0][0])
-        print('Collecting rest_type...')
+        self.verbose = verbose
+        if self.verbose: print(f'Loading {filename}...')
+        self.traj = np.load(filename, allow_pickle=True)['arr_0'].item()
+        self.freq_save_traj = int(self.traj["trajectory"][1][0] - self.traj["trajectory"][0][0])
+        if self.verbose: print('Collecting rest_type...')
         self.rest_type = self.traj['rest_type']
-        print('Collecting allowed_parameters...')
+        if self.verbose: print('Collecting allowed_parameters...')
         self.allowed_parameters = self.traj['allowed_parameters']
-        print('Collecting sampled parameters...')
+        if self.verbose: print('Collecting sampled parameters...')
         self.sampled_parameters = self.get_sampled_parameters()
         self.labels = self.get_labels()
         self.exp_function = "single"
-        if resultdir.endswith("/"):
-            self.resultdir = resultdir
-        else:
-            self.resultdir = resultdir+"/"
+        if outdir.endswith("/"): self.outdir = outdir
+        else: self.outdir = outdir+"/"
 
 
     def get_sampled_parameters(self):
@@ -66,14 +63,14 @@ class Convergence(object):
         return labels
 
 
-    def plot_traces(self, fname="traj_traces.png", xlim=None):
+    def plot_traces(self, figname="traj_traces.png", xlim=None):
         """Plot trajectory traces.
 
-        :param tuple xlim: matplotlib x-axis limits
-        :return figure:
+        Args:
+            xlim(tuple): matplotlib x-axis limits
         """
 
-        print('Plotting traces...')
+        if self.verbose: print('Plotting traces...')
         total_steps = len(self.sampled_parameters[0])
         x = np.arange(1,total_steps+0.1,1)*self.freq_save_traj
         n_rest = len(self.rest_type)
@@ -86,26 +83,25 @@ class Convergence(object):
             plt.legend(loc='best')
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
-            if xlim:
-                plt.xlim(left=xlim[0], right=xlim[1])
+            if xlim: plt.xlim(left=xlim[0], right=xlim[1])
         plt.tight_layout()
-        plt.savefig(self.resultdir+fname)
-        print('Done!')
+        plt.savefig(self.outdir+figname)
+        if self.verbose: print('Done!')
 
-    def plot_auto_curve(self, xlim=None, fname="autocorrelation_curve.png",
+    def plot_auto_curve(self, xlim=None, figname="autocorrelation_curve.png",
             std_x=None, std_y=None):
-        """Plot auto-correlation curve.
+        """Plot auto-correlation curve. This function saves a figure of
+        auto-correlation with error bars at the 95% confidence interval
+        (:math:`\\tau_{auto}` is rounded to the nearest integer).
 
         Args:
-            autocorrs(np.ndarray):
-            tau_c(np.ndarray):
-            labels(list):
+            xlim(tuple): matplotlib x-axis limits
+            std_x(np.ndarray):
+            std_y(np.ndarray):
 
-        :return figure: A figure of auto-correlation with error bars at the 95%
-        confidence interval (:math:`\\tau_{auto}` is rounded to the nearest integer).
         """
 
-        print('Plotting autocorrelation curve ...')
+        if self.verbose: print('Plotting autocorrelation curve ...')
         plt.figure( figsize=(3*len(self.rest_type),6))
         for i in range(len(self.autocorr)):
             if len(self.rest_type) == 2:
@@ -141,16 +137,16 @@ class Convergence(object):
             if xlim:
                 plt.xlim(left=xlim[0], right=xlim[1])
         plt.tight_layout()
-        plt.savefig(self.resultdir+fname)
-        print('Done!')
+        plt.savefig(self.outdir+figname)
+        if self.verbose: print('Done!')
 
-    def plot_auto_curve_with_exp_fitting(self, fname="autocorrelation_curve_with_exp_fitting.png"):
+    def plot_auto_curve_with_exp_fitting(self, figname="autocorrelation_curve_with_exp_fitting.png"):
         """Plot auto-correlation curve with an exponential fitting.
 
         :return figure: A figure of auto-correlation
         """
 
-        print('Plotting autocorrelation curve ...')
+        if self.verbose: print('Plotting autocorrelation curve ...')
         plt.figure( figsize=(3*len(self.rest_type),6))
         for i in range(len(self.autocorr)):
             if len(self.rest_type) == 2:
@@ -165,8 +161,8 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(self.resultdir+fname)
-        print('Done!')
+        plt.savefig(self.outdir+figname)
+        if self.verbose: print('Done!')
 
 
     def single_exp_decay(self, x, a0, a1, tau1):
@@ -282,12 +278,13 @@ class Convergence(object):
             plot_traces=False):
         """Compute autocorrelaton function for a time-series f(t), partition the
         data into the specified number of blocks and plot the autocorrelation curve.
+        Saves a figure of autocorrelation curves for each restraint.
 
-        :param string method: method for computing autocorrelation time; "block-avg" or "exp" or "auto"
-        :param int default=5 nblocks: number of blocks to split up the trajectory
-        :param int default=10000 maxtau: the upper bound of autocorrelation lag time
-        :param bool default=True plot_traces: will plot the trajectory traces
-        :return figure: A figure of autocorrelation curves for each restraint
+        Args:
+            method(str): method for computing autocorrelation time; "block-avg" or "exp" or "auto"
+            nblocks(int): number of blocks to split up the trajectory
+            maxtau(int): the upper bound of autocorrelation lag time
+            plot_traces(bool): plot the trajectory traces?
         """
 
         sampled_parameters = self.sampled_parameters
@@ -298,12 +295,12 @@ class Convergence(object):
         #self.tau_c = np.array(c_conv.autocorrelation_time(autocorr))
 
         # Python
-        print('Calculating autocorrelation ...')
+        if self.verbose: print('Calculating autocorrelation ...')
         self.autocorr = self.cal_auto(sampled_parameters)
-        print("Done!")
-        print('Calculating autocorrelation times...')
+        if self.verbose: print("Done!")
+        if self.verbose: print('Calculating autocorrelation times...')
         self.tau_c = self.autocorrelation_time(self.autocorr)
-        print("Done!")
+        if self.verbose: print("Done!")
 
         if method in ["block-avg","auto"]:
             if method == "auto":
@@ -317,6 +314,7 @@ class Convergence(object):
             self.tau_c = np.average(x, axis=1)
 
             # Check to see if there are any negative autocorrelation times
+            # NOTE: Should mention something about negative autocorrelation times
             if any(i < 0 for i in self.tau_c):
                 print("NOTE: Found a negative autocorrelation time...")
 
@@ -344,20 +342,19 @@ class Convergence(object):
 
 
     def process(self, nblock=5, nfold=10, nround=100, savefile=True,
-            plot=True, verbose=False, block=False, normalize=True):
+            block=False, normalize=True):
         """Process the trajectory and execute :func:`compute_JSD` with
         :func:`plot_JSD_conv` and :func:`plot_JSD_distribution`.
-        If :attr:`block=True`, then block averaging will be executed. If
-        :attr:`plot=True`, then :func:`plot_block_avg` will be executed as well.
+        If :attr:`block=True`, then block averaging will be executed and
+        :func:`plot_block_avg` will be executed as well.
 
-
-        :param int default=5 nblock: is the number of partitions in the time series
-        :param int default=10 nfold: is the number of partitions in the shuffled (subsampled) trajectory
-        :param int default=100 nround: is the number of rounds of bootstrapping when computing JSDs
-        :param bool default=True savefile:
-        :param bool default=True plot:
-        :param bool default=False block: block averaging
-        :param bool verbose: verbosity
+        Args:
+             nblock(int): is the number of partitions in the time series
+             nfold(int): is the number of partitions in the shuffled (subsampled) trajectory
+             nround(int): is the number of rounds of bootstrapping when computing JSDs
+             savefile(bool):
+             block(bool): use block averaging
+             verbose(bool): verbosity
         """
 
         if block:
@@ -381,7 +378,7 @@ class Convergence(object):
 
         all_JSD=[[] for i in range(len(self.tau_c))]      # create JSD list
         all_JSDs=[[[] for i in range(nfold)] for j in range(len(self.tau_c))]   # create JSD list of distribution
-        print('Calculating JSDs ...')
+        if self.verbose: print('Calculating JSDs ...')
         for i in range(len(self.tau_c)):
             ind = i
             tau_auto = self.tau_c[i]
@@ -408,15 +405,21 @@ class Convergence(object):
                         temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
                     all_JSDs[i][subset].append(self.compute_JSD(temp_T1,temp_T2,T_total,ind,self.allowed_parameters[i]))
         if savefile:
-            np.save(self.resultdir+"all_JSD.npy", all_JSD)
-            np.save(self.resultdir+"all_JSDs.npy", all_JSDs)
-        print('Done!')
+            np.save(self.outdir+"all_JSD.npy", all_JSD)
+            np.save(self.outdir+"all_JSDs.npy", all_JSDs)
+        if self.verbose: print('Done!')
         self.plot_JSD_distribution(np.array(all_JSD), np.array(all_JSDs), nround, nfold)
         self.plot_JSD_conv(np.array(all_JSD), np.array(all_JSDs))
 
 
-    def plot_block_avg(self, nblock, r_max, fname = "block_avg.png"):
-        """Plot block average"""
+    def plot_block_avg(self, nblock, r_max, figname="block_avg.png"):
+        """Plot block average
+
+        Args:
+             nblock(int): is the number of partitions in the time series
+             r_max(np.ndarray): maximum sampled parameters for each restraint
+             figname(str): figure name without relative path (taken care of)
+        """
 
         plt.figure(figsize=(10,5*len(self.rest_type)))
         x=np.arange(1.,nblock+1.,1.)
@@ -424,7 +427,7 @@ class Convergence(object):
         for i in range(len(self.rest_type)):
             total_max = self.allowed_parameters[i][np.argmax(self.traj['sampled_parameters'][i])]
             plt.subplot(len(self.rest_type),1,i+1)
-            plt.plot(x,r_max[i],'o-',color=colors[i],label=self.labels[i])
+            plt.plot(x, r_max[i], 'o-', color=colors[i], label=self.labels[i])
             plt.xlabel('block', fontsize=18)
             plt.ylabel('allowed '+self.labels[i], fontsize=18)
             plt.ylim(min(self.allowed_parameters[i]),max(self.allowed_parameters[i]))
@@ -433,7 +436,7 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(self.resultdir+fname)
+        plt.savefig(self.outdir+figname)
 
 
     def compute_JSD(self, T1, T2, T_total, ind, allowed_parameters):
@@ -487,7 +490,7 @@ class Convergence(object):
         :return figure: A figure of JSD and JSDs distribution
         """
 
-        print('plotting JSDs ...')
+        if self.verbose: print('plotting JSDs ...')
         for k in range(len(JSD)):
             plt.figure(figsize=(10,5))
             for j in range(len(JSD[0])):
@@ -523,12 +526,12 @@ class Convergence(object):
                 plt.title('%d'%(10*(j+1))+'%',fontsize=10)
                 plt.legend(loc='best',fontsize=6)
             plt.tight_layout()
-            plt.savefig(self.resultdir+'JSD_conv_%s.pdf'%self.rest_type[k])
-        print('Done')
+            plt.savefig(self.outdir+'JSD_conv_%s.pdf'%self.rest_type[k])
+        if self.verbose: print('Done')
 
 
 
-    def plot_JSD_distribution(self, all_JSD, all_JSDs, nround, nfold, fname="JSD_distribution.png"):
+    def plot_JSD_distribution(self, all_JSD, all_JSDs, nround, nfold, figname="JSD_distribution.png"):
         """Plots the distributions for JSD"""
 
 
@@ -570,7 +573,7 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(self.resultdir+fname)
+        plt.savefig(self.outdir+figname)
 
 
 

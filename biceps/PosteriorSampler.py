@@ -11,7 +11,7 @@ class PosteriorSampler(object):
         """A class to perform posterior sampling of conformational populations.
 
         Args:
-            ensemble(list): a list of lists of Restraint objects, one list for each conformation.
+            ensemble(list): a list of lists of :attr:`biceps.Restraint.Restraint` objects, one list for each conformation.
             freq_write_traj(int): the frequency (in steps) to write the MCMC trajectory
             freq_print(int): the frequency (in steps) to print status
             freq_save_traj(int): the frequency (in steps) to store the MCMC trajectory
@@ -71,7 +71,7 @@ class PosteriorSampler(object):
     def build_exp_ref(self, rest_index, verbose=False):
         """Looks at each structure to find the average observables
         :math:`<r_{j}>`, then stores the reference potential info for each
-        :attr:`Restraint` of this type for each structure.
+        :attr:`biceps.Restraint.Restraint` of this type for each structure.
 
         ``beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)``
 
@@ -231,7 +231,7 @@ class PosteriorSampler(object):
         """Return -ln P of the current configuration.
 
         Args:
-            state(list): the new conformational state from Sample()
+            state(list): the new conformational state being sampled in :attr:`PosteriorSampler.sample`
             parameters(list): a list of the new parameters for each of the restraints
             parameter_indices(list): parameter indices that correspond to each restraint
         """
@@ -253,6 +253,11 @@ class PosteriorSampler(object):
         Args:
             nsteps(int): number of steps of sampling.
             print_freq(int): frequency of printing to the screen
+            verbose(bool): control over verbosity
+
+        .. tip::
+            Keep `verbose=False` when using multiprocessing. Otherwise, it is very
+            convenient to have `verbose=True`.
         """
 
         # Generate a matrix of nuisance parameters
@@ -272,7 +277,7 @@ class PosteriorSampler(object):
                 self.rest_type.append(str(j)+"_"+str(R.__repr__).split("_")[-1].split()[0])
                 rest_index.append(i)
         if verbose:
-            header = """Step\t\tState\tPara Indices\t\tAvg Energy\t\tAcceptance (%)"""
+            header = """Step\t\tState\tPara Indices\t\tAvg Energy\tAcceptance (%)"""
             print(header)
         # Create separate accepted ratio recorder list
         n_rest = max(rest_index)+1
@@ -365,7 +370,7 @@ class PosteriorSamplingTrajectory(object):
         sampling runs.
 
         Args:
-            ensemble(list): ensemble of :attr:`Restraint` objects
+            ensemble(list): ensemble of :attr:`biceps.Restraint.Restraint` objects
             nreplicas(int): number of replicas
         """
 
@@ -401,14 +406,23 @@ class PosteriorSamplingTrajectory(object):
         self.traces = []
         self.results = {}
 
-    def process_results(self, outfilename='traj.npz'):
+    def process_results(self, filename='traj.npz'):
         """Process the trajectory, computing sampling statistics,
         ensemble-average NMR observables.
 
-        Args:
-            outfilename(str): path and filename of output MCMC trajectory
+        Benefits of using Numpy Z compression (npz) formatting:
+        1) Standardized Python library (NumPy), 2) writes a compact file
+        of several arrays into binary format and 3) significantly smaller
+        size over many other formats.
 
-        .. tip:: [Future] Returns: Pandas DataFrame
+        Args:
+            filename(str): relative path and filename for MCMC trajectory
+
+        .. tip::
+
+            It is possible to convert the trajectory file to a Pandas DataFrame
+            (pickle file) with the following: :attr:`biceps.toolbox.npz_to_DataFrame`
+
         """
 
         # Store the name of the restraints in a list corresponding to the correct order
@@ -436,24 +450,24 @@ class PosteriorSamplingTrajectory(object):
         self.results['traces'] = self.traces
         self.results['state_trace'] = self.state_trace
 
-        self.write(outfilename, self.results)
+        self.write(filename, self.results)
         #TODO: Return a Pandas Dataframe of the results to be passed into
         # Analysis so time isn't wasted loading in long trajectories
         #return self.results
         #return pd.DataFrame(self.results)
 
 
-    def write(self, outfilename='traj.npz', *args, **kwds):
+    def write(self, filename='traj.npz', *args, **kwds):
         """Writes a compact file of several arrays into binary format.
         Standardized: Yes ; Binary: Yes; Human Readable: No;
 
         Args:
-            outfilename(str): path and filename of output MCMC trajectory
+            filename(str): path and filename of output MCMC trajectory
 
         :rtype: npz (numpy compressed file)
         """
 
-        np.savez_compressed(outfilename, *args, **kwds)
+        np.savez_compressed(filename, *args, **kwds)
 
 
 

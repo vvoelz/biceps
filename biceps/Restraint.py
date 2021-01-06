@@ -9,7 +9,7 @@ from biceps.KarplusRelation import * # Returns J-coupling values from dihedral a
 
 class Ensemble(object):
     def __init__(self, lam, energies, debug=False):
-        """Container class for :attr:`Restraint` objects.
+        """Container class for :attr:`biceps.Restraint.Restraint` objects.
 
         Args:
             lam(float): lambda value to scale energies
@@ -33,28 +33,31 @@ class Ensemble(object):
         """Converts the :class:`Ensemble` class to a list.
 
         Returns:
-            list: collection of :attr:`Restraint` objects
+            list: collection of :attr:`biceps.Restraint.Restraint` objects
         """
 
         return self.ensemble
 
 
-    def initialize_restraints(self, input_data, parameters):
-        """Initialize corresponding :attr:`Restraint` classes based on experimental
+    def initialize_restraints(self, input_data, parameters=None):
+        """Initialize corresponding :attr:`biceps.Restraint.Restraint` classes based on experimental
         observables from **input_data** for each conformational state.
 
-        Print possible restraints with: ``biceps.toolbox.list_possible_restraints()``
+        .. tip::
 
-        Print possible extensions with: ``biceps.toolbox.list_possible_extensions()``
+            Print possible restraints with: :attr:`biceps.toolbox.list_possible_restraints`
+
+            Print possible extensions with: :attr:`biceps.toolbox.list_possible_extensions`
 
         Args:
             input_data(list of str): a sorted collection of filenames (files\
                     contain `exp` (experimental) and `model` (theoretical) observables)
             parameters(list of dict): dictionary containing keys that match \
-                    :attr:`Restraint` parameters and values are lists for each restraint.
+                    :attr:`biceps.Restraint.Restraint` parameters and values are lists for each restraint.
         """
 
         verbose = self.debug
+        if parameters is None: parameters = [dict() for i in range(len(input_data[0]))]
         extensions = biceps.toolbox.list_extensions(input_data)
         lam = self.lam
         for i in range(self.energies.shape[0]):
@@ -68,34 +71,35 @@ class Ensemble(object):
                 # Find all Child Restraint classes in the current file
                 current_module = sys.modules[__name__]
                 # Pick the Restraint class upon file extension
-                _Restraint = getattr(current_module, "Restraint_%s"%(restraint))
+                R = getattr(current_module, "Restraint_%s"%(restraint))
                 # Get all the arguments for the Parent Restraint Class if given
                 args1 = {"%s"%key: val for key,val in locals().items()
-                        if key in inspect.getfullargspec(_Restraint)[0] if key != 'self'}
-                R = _Restraint#(**args) # Initializing Restraint
+                        if key in inspect.getfullargspec(R)[0] if key != 'self'}
                 args2 = {"%s"%key: val for key,val in locals().items()
                         if key in inspect.getfullargspec(R.init_restraint)[0] if key != 'self'}
+                # It shouldn't matter the ordering of the keys and values
+                # All parameters are parsed as respective Restraint child class arguments
                 for key,val in parameters[k].items():
-                    if key in inspect.getfullargspec(_Restraint)[0]:
+                    if key in inspect.getfullargspec(R)[0]:
                         args1[key] = val
                     elif key in inspect.getfullargspec(R.init_restraint)[0]:
                         args2[key] = val
                     else:
                         possible_args = np.unique(np.concatenate(
-                            [inspect.getfullargspec(_Restraint)[0],
+                            [inspect.getfullargspec(R)[0],
                             inspect.getfullargspec(R.init_restraint)[0]]))
                         possible_args = np.delete(possible_args, np.where(possible_args == "self"))
                         possible_args = np.delete(possible_args, np.where(possible_args == "data"))
-                        raise TypeError(f"{key} is an invalid keyword argument for {_Restraint}\n\n\
+                        raise TypeError(f"{key} is an invalid keyword argument for {R}\n\n\
 Please check your parameters... \n\
-The ordering of dictionaries should be: {biceps.toolbox.list_extensions(input_data)}\n\
-Keys for {_Restraint.__name__} are any of: {possible_args}")
+The input data provided suggests the ordering of dictionaries should be: {biceps.toolbox.list_extensions(input_data)}\n\
+Dictionary keys for {R.__name__} are any of: {possible_args}")
                 if self.debug:
                     print(R)
                     print(f"Required args by inspect:{inspect.getfullargspec(R.init_restraint)[0]}")
                     print(f"args1 given: {args1}")
                     print(f"args2 given: {args2}")
-                R = _Restraint(**args1) # Initializing Restraint
+                R = R(**args1) # Initializing Restraint
                 R.init_restraint(**args2)
                 self.ensemble[-1].append(R)
 
@@ -103,15 +107,15 @@ Keys for {_Restraint.__name__} are any of: {possible_args}")
 
 class Restraint(object):
 
-    def __init__(self, ref="uniform", sigma=(0.05, 20.0, 1.02),
+    def __init__(self, ref="uniform", sigma=[0.05, 20.0, 1.02],
             use_global_ref_sigma=True, verbose=False):
-        """The parent :attr:`Restraint` class.
+        """The parent :attr:`biceps.Restraint.Restraint` class.
 
         Args:
             ref_pot(str): referenece potential e.g., "uniform". "exp", "gau".\
                     If None, the default reference potential will be used for\
                     a given experimental observable
-            sigma(tuple):  (sigma_min, sigma_max, dsigma)
+            sigma(list):  (sigma_min, sigma_max, dsigma)
             use_global_ref_sigma(bool): (defaults to True)
         """
 
@@ -170,7 +174,7 @@ class Restraint(object):
         """Append an experimental restraint object to the list.
 
         Args:
-            restraint(object): :attr:`Restraint` object
+            restraint(object): :attr:`biceps.Restraint.Restraint` object
         """
 
         self.restraints.append(restraint)
@@ -202,7 +206,7 @@ class Restraint(object):
 
 
 class Restraint_cs(Restraint):
-    """A :attr:`Restraint` child class for chemical shifts."""
+    """A :attr:`biceps.Restraint.Restraint` child class for chemical shifts."""
 
     _ext = ["H", "Ca", "N"]
 
@@ -213,8 +217,8 @@ class Restraint_cs(Restraint):
             pass
 
     def init_restraint(self, data, energy, extension, weight=1, verbose=False):
-        """Initialize the chemical shift restraints for each **exp** (experimental)
-        and **model** (theoretical) observable given **data**.
+        """Initialize the chemical shift restraints for each experimental
+        and theoretical observable given data.
 
         Args:
             data(str): filename of data
@@ -245,7 +249,7 @@ class Restraint_cs(Restraint):
         self.sse = self.compute_sse(f=self.restraints)
 
     def compute_sse(self, f):
-        """Returns the (weighted) sum of squared errors for chemical shift values"""
+        """Returns the (weighted) sum of squared errors for chemical shift values."""
 
         N,sse = 0.0, 0.0
         for i in range(self.n):
@@ -269,6 +273,7 @@ class Restraint_cs(Restraint):
         Args:
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
+            sse(float): sum of squared errors
 
         :rtype: float
         """
@@ -286,7 +291,7 @@ class Restraint_cs(Restraint):
 
 
 class Restraint_J(Restraint):
-    """A :attr:`Restraint` child class for J coupling constant."""
+    """A :attr:`biceps.Restraint.Restraint` child class for J coupling constant."""
 
     _ext = ['J']
 
@@ -361,6 +366,7 @@ class Restraint_J(Restraint):
         Args:
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
+            sse(float): sum of squared errors
 
         :rtype: float
         """
@@ -379,7 +385,7 @@ class Restraint_J(Restraint):
 
 
 class Restraint_noe(Restraint):
-    """A :attr:`Restraint` child class for NOE distances."""
+    """A :attr:`biceps.Restraint.Restraint` child class for NOE distances."""
 
     _ext = ['noe']
 
@@ -476,6 +482,7 @@ class Restraint_noe(Restraint):
         Args:
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
+            sse(float): sum of squared errors
 
         :rtype: float
         """
@@ -493,7 +500,7 @@ class Restraint_noe(Restraint):
 
 
 class Restraint_pf(Restraint):
-    """A :attr:`Restraint` child class for protection factor."""
+    """A :attr:`biceps.Restraint.Restraint` child class for protection factor."""
 
     _ext = ['pf']
 
@@ -763,6 +770,7 @@ class Restraint_pf(Restraint):
         Args:
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
+            sse(float): sum of squared errors
 
         :rtype: float
         """
@@ -793,17 +801,17 @@ class Restraint_pf(Restraint):
 
 class Preparation(object):
 
-    def __init__(self, nstates=0,  top=None, outdir="./"):
-        """A class to prepare **input_data** for the :attr:`Restraint` class.
+    def __init__(self, nstates=0,  top_file=None, outdir="./"):
+        """A class to prepare **input_data** for the :attr:`biceps.Ensemble.initialize_restraints` method.
 
         Args:
             nstates(int): number of conformational states
-            top(str): path to structure topology
-            outdir(str): path for output
+            top_file(str): relative path to the structure topology file
+            outdir(str): relative path for output files
         """
 
         self.nstates = nstates
-        self.topology = md.load(top).topology
+        self.topology = md.load(top_file).topology
         self.outdir = outdir
 
     def to_sorted_list(self):
@@ -826,16 +834,14 @@ class Preparation(object):
 
         #biceps.toolbox.mkdir(self.outdir)
         #columns = { self.keys[i] : self.header[i] for i in range(len(self.keys)) }
-        #print(columns)
-        if verbose:
-            print('Writing %s as %s...'%(filename,As))
+        if verbose: print('Writing %s as %s...'%(filename,As))
         df = pd.DataFrame(self.biceps_df)
         #dfOut = getattr(self.df.rename(columns=columns), "to_%s"%As)
         dfOut = getattr(df, "to_%s"%As)
         dfOut(filename)
 
     def prep_cs(self, exp_data, model_data, indices, extension, verbose=False):
-        """A method for preprocessing chemicalshift **exp** and **model** data.
+        """A method for preprocessing chemicalshift **exp_data** and **model_data**.
 
         Args:
             exp_data(str): path to experimental data file (units: ppm)
@@ -844,8 +850,8 @@ class Preparation(object):
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
         """
 
-        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
-                'exp', 'model', )
+        self.header = ('exp', 'model', 'restraint_index', 'atom_index1', 'res1',
+                'atom_name1', )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices)
@@ -878,7 +884,7 @@ class Preparation(object):
 
 
     def prep_noe(self, exp_data, model_data, indices, extension=None, verbose=False):
-        """A method for preprocessing NOE **exp** and **model** data.
+        """A method for preprocessing NOE **exp_data** and **model_data**.
 
         Args:
             exp_data(str): path to experimental data file (units: :math:`Å`)
@@ -887,8 +893,8 @@ class Preparation(object):
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
         """
 
-        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
-                'atom_index2', 'res2', 'atom_name2', 'exp', 'model', )
+        self.header = ('exp', 'model', 'restraint_index', 'atom_index1', 'res1',
+                'atom_name1', 'atom_index2', 'res2', 'atom_name2', )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices, dtype=int)
@@ -920,8 +926,9 @@ class Preparation(object):
                 self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
 
 
+
     def prep_J(self, exp_data, model_data, indices, extension=None, verbose=False):
-        """A method for preprocessing scalar coupling **exp** and **model** data.
+        """A method for preprocessing scalar coupling **exp_data** and **model_data**.
 
         Args:
             exp_data(str): path to experimental data file (units: Hz)
@@ -930,10 +937,9 @@ class Preparation(object):
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
         """
 
-        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
+        self.header = ('exp', 'model', 'restraint_index', 'atom_index1', 'res1', 'atom_name1',
                 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3',
-                'atom_index4', 'res4', 'atom_name4', 'exp',
-                'model', )
+                'atom_index4', 'res4', 'atom_name4',  )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         if type(indices) is not str:
@@ -973,8 +979,8 @@ class Preparation(object):
 
 
     def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, verbose=False):
-        """A method for preprocessing HDX protection factor **exp** and
-        **model** data.
+        """A method for preprocessing HDX protection factor **exp_data** and
+        **model_data**.
 
         Args:
             exp_data(str): path to experimental data file (units: Hz)
@@ -983,10 +989,8 @@ class Preparation(object):
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
         """
 
-        if model_data:
-            self.header = ('restraint_index', 'atom_index1', 'res1', 'exp','model', )
-        else:
-            self.header = ('restraint_index', 'atom_index1', 'res1','exp', )
+        if model_data: self.header = ('exp','model', 'restraint_index', 'atom_index1', 'res1', )
+        else: self.header = ('exp', 'restraint_index', 'atom_index1', 'res1',)
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices, dtype=int)

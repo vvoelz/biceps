@@ -11,10 +11,6 @@ from matplotlib import pyplot as plt
 import biceps.Restraint as Restraint
 from scipy.optimize import curve_fit
 
-
-###############################################################################
-#TODO: Does sort_data need to be so elaborate? Can't we just sort by order in Restraint.py?
-###############################################################################
 def sort_data(dataFiles):
     """Sorting the data by extension into lists. Data can be located in various
     directories.  Provide a list of paths where the data can be found.
@@ -67,13 +63,25 @@ def sort_data(dataFiles):
 
 
 def get_files(path):
+    """Uses a sorted glob to return a list of files in numerical order.
+
+    Args:
+        path(str): path to glob (able to use *)
+
+    >>> biceps.toolbox.get_files()
+    """
+
     convert = lambda txt: int(txt) if txt.isdigit() else txt
     return sorted(glob.glob(path), key=lambda x:[convert(s) for s in re.split("([0-9]+)",x)])
 
 
 
 def list_res(input_data):
-    """Determine what scheme is included in sampling
+    """Determine the ordering of the experimental restraints that
+    will be included in sampling.
+
+    Args:
+        input_data(list): see :attr:`biceps.Ensemble.initialize_restraints`
 
     >>> biceps.toolbox.list_res()
     """
@@ -87,6 +95,16 @@ def list_res(input_data):
     return scheme
 
 def list_extensions(input_data):
+    """Determine the ordering of the experimental restraints that
+    will be included in sampling.
+
+    Args:
+        input_data(list): see :attr:`biceps.Ensemble.initialize_restraints`
+
+    >>> biceps.toolbox.list_extensions()
+
+    """
+
     return [ res.split("_")[-1] for res in list_res(input_data) ]
 
 
@@ -398,8 +416,13 @@ def double_exp_decay(x, a0, a1, a2, tau1, tau2):
 def exponential_fit(ac, use_function='single'):
     """Perform a single- or double- exponential fit on an autocorrelation curve.
 
-    RETURNS
-    yFit  - the y-values of the fit curve."""
+    Args:
+        ac(np.ndarray): autocorrelation
+        use_function(str): 'single' or 'double'
+
+    Returns:
+        yFit_data(np.ndarray): the y-values of the fit curve.
+    """
 
     nsteps = ac.shape[0]
     if use_function == 'single':
@@ -418,7 +441,6 @@ def exponential_fit(ac, use_function='single'):
         #print('best-fit a2 = ', popt[2], '+/-', pcov[2][2])
         print('best-fit tau1 = ', popt[3], '+/-', pcov[3][3])
         print('best-fit tau2 = ', popt[4], '+/-', pcov[4][4])
-
     return yFit_data
 
 
@@ -610,6 +632,7 @@ def plot_conv(all_JSD,all_JSDs,rest_type):
 def plot_grid(traj, rest_type=None):
     """Plot acceptance ratio for each nuisance parameters jump during MCMC sampling.
     """
+
     if rest_type == None:
         rest = get_rest_type(traj)
     else:
@@ -636,22 +659,17 @@ def plot_grid(traj, rest_type=None):
         plt.close()
 
 
-def find_all_state_sampled_time(trace,nstates):
-    frac = []
-    all_states = np.zeros(nstates)
-    init = 0
-    while 0 in all_states:
-        if init == len(trace):
-            print('not all state sampled, these states', np.where(all_states == 0)[0],'are not sampled')
-            return 'null', frac
-        else:
-        #    print(trace[init])
-            all_states[trace[init]] += 1
-            frac.append(float(len(np.where(all_states!=0)[0]))/float(nstates))
-            init += 1
-    return init, frac
-
 def compute_distances(states, ind, outdir):
+    """Function that uses MDTraj to compute distances given index pairs.
+    Args:
+        states(list): list of conformatonal state topology files
+        ind(str): relative path and filename of indices for pair distances
+        outdir(str): relative path for output directory
+
+    Returns:
+        distances(np.ndarray): computed distances
+    """
+
     distances = []
     ind = np.loadtxt(ind, dtype=int)
     for i in range(len(states)):
@@ -660,6 +678,15 @@ def compute_distances(states, ind, outdir):
     return distances
 
 def compute_chemicalshifts(states, temp=298.0, pH=5.0, outdir="./"):
+    """Chemical shifts are computed using MDTraj, which uses ShiftX2.
+
+    Args:
+        states(list): list of conformatonal state topology files
+        temp(float): solution temperature
+        pH(float): pH of solution
+        outdir(str): relative path for output directory
+    """
+
     states = get_files(states)
     for i in range(len(states)):
         print(f"Loading {states[i]} ...")
@@ -701,8 +728,6 @@ def compute_nonaa_scalar_coupling(states, index, karplus_key, outdir="./", top=N
 
         np.savetxt(outdir+'%d.txt'%state,J)
     #return J
-
-
 
 
 
@@ -879,7 +904,13 @@ def get_indices(traj, top, selection_expression=None, code_expression=None,
 
 
 def save_object(obj, filename):
-    """Saves python object as pkl file"""
+    """Saves python object as pickle file.
+    Args:
+        obj(object): python object
+        filename(str): relative path for ouput
+
+    >>> biceps.toolbox.save_object()
+    """
 
     with open(filename, 'wb') as output:  # Overwrites any existing file.
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)

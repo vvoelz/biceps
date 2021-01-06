@@ -10,7 +10,8 @@ Installation
 .. raw:: html
 
     <h3 style="align: justify;font-size: 12pt"> We recommend that you install
-    <code>biceps</code> with <code>pip</code>.<h3>
+    <code>biceps</code> with <a href="https://pip.pypa.io/en/stable/">pip</a>. Supporting
+        Python <= 3.7 on Mac, Linux, and Windows.<h3>
 
     <div class="highlight-default notranslate">
         <div class="highlight">
@@ -44,25 +45,47 @@ Installation
     </h3>
     <!--<a href=""> </a>-->
     <br>
-    <h3 style="text-align: justify;font-size: 12pt"> biceps supports
-    Python 2.7 or Python 3.4+ (coming soon) on Mac, Linux, and Windows.</h3>
+    <h3 style="text-align: justify;font-size: 12pt">
+    <a class="github-button" href="https://github.com/vvoelz/biceps/" data-size="large" data-show-count="false" aria-label="BICePs">GitHub</a><script async defer src="https://buttons.github.io/buttons.js"></script> Take a look at our repository, peruse through our source code and submit issues.</h3>
 
 
 
-Dependencies of biceps
-----------------------
+Dependencies
+------------
 
- - pymbar>=3.0
- - mdtraj>=1.5.0
- - matplotlib>=2.1.2
- - numpy>=1.14.0
- - multiprocessing
+.. raw:: html
+
+   <ul>
+    <li style="list-style-type: none;"><a href="https://pymbar.readthedocs.io">pymbar</a> == 3.0.2</li>
+    <li style="list-style-type: none;"><a href="https://mdtraj.org">mdtraj</a> >= 1.5.0</li>
+    <li style="list-style-type: none;">matplotlib >= 2.1.2</li>
+    <li style="list-style-type: none;">numpy >= 1.14.0</li>
+    <li style="list-style-type: none;">multiprocessing (currently works for
+    Python versions 2.7-3.7)</li>
+   </ul>
+
 
 
 Testing Your Installation
 -------------------------
 
 Coming soon.
+
+
+Versions
+--------
+
+.. raw:: html
+
+   <ul>
+    <li style="list-style-type: none;">
+    <a href="https://github.com/vvoelz/biceps/releases/tag/v1.0">Version 1.0</a>: This release is non-production ready. This release contains archived scripts for various systems.</li>
+    <li style="list-style-type: none;">Version 2.0: Redesigned/generalized source
+    code with convergence submodule for checking MCMC trajectories. Optional
+    multiprocessing functionality for running simulations for each lambda value
+    in parallel. Additional experimental observables include hydrogen–deuterium
+    exchange (HDX).</li>
+   </ul>
 
 
 .. vim: tw=75

@@ -1,26 +1,48 @@
 # -*- coding: utf-8 -*-
 import os, glob
-from .Restraint import *
-from .PosteriorSampler import *
-from . import toolbox as d
-import matplotlib
-matplotlib.use('Agg')
-from matplotlib import pyplot as plt
 import numpy as np
 import pickle
 from pymbar import MBAR
+from .Restraint import *
+from .PosteriorSampler import *
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+
+def find_all_state_sampled_time(trace, nstates):
+    """Determine which states were sampled and the states with zero counts.
+
+    Args:
+        trace(np.ndarray): trajectory trace
+        nstates(int): number of states
+    """
+
+    frac = []
+    all_states = np.zeros(nstates)
+    init = 0
+    while 0 in all_states:
+        if init == len(trace):
+            print('not all state sampled, these states', np.where(all_states == 0)[0],'are not sampled')
+            return 'null', frac
+        else:
+            all_states[trace[init]] += 1
+            frac.append(float(len(np.where(all_states!=0)[0]))/float(nstates))
+            init += 1
+    return init, frac
+
 
 class Analysis(object):
-
     def __init__(self, outdir, nstates=0, precheck=True, BSdir='BS.dat',
             popdir='populations.dat', picfile='BICePs.pdf'):
         """A class to perform analysis and plot figures.
 
-        :param int default=0 nstates: number of conformational states
-        :param str outdir: output files directory
-        :param str default='BS.dat' BSdir: output BICePs score file name
-        :param str default='populations.dat' popdir: output BICePs reweighted populations file name
-        :param str default='BICePs.pdf' picfile: output figure name
+        Args:
+            nstates(int): number of conformational states
+            outdir(str): relative path to trajectories (will alos be used to output files and figures)
+            precheck(bool): find the all the states that haven't been sampled if any
+            BSdir(str): relative path for BICePs score file name
+            popdir(str): relative path for BICePs reweighted populations file name
+            picfile(str): relative path for BICePs figure
         """
 
         self.states = nstates
@@ -42,7 +64,7 @@ class Analysis(object):
 
 
     def load_data(self, debug=True):
-        """load input data from BICePs sampling (*npz and *pkl files)"""
+        """Load input data from BICePs sampling (*npz and *pkl files)."""
 
         # Load in npz trajectories
         exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.npz') )
@@ -57,7 +79,7 @@ class Analysis(object):
             steps = []
             fractions = []
             for i in range(len(self.traj)):
-                s,f = d.find_all_state_sampled_time(self.traj[i]['state_trace'],self.states)
+                s,f = find_all_state_sampled_time(self.traj[i]['state_trace'],self.states)
                 steps.append(s)
                 fractions.append(f)
             total_fractions = np.concatenate(fractions)
@@ -138,6 +160,7 @@ class Analysis(object):
                     if debug:
                         print('E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n])
 
+
         # Initialize MBAR with reduced energies u_kln and number of uncorrelated configurations from each state N_k.
         # u_kln[k,l,n] is the reduced potential energy beta*U_l(x_kn), where U_l(x) is the potential energy function for state l,
         # beta is the inverse temperature, and and x_kn denotes uncorrelated configuration n from state k.
@@ -186,8 +209,12 @@ class Analysis(object):
         np.savetxt(self.popdir, self.P_dP)
         print('...Done.')
 
-    def plot(self, show=False, debug=False):
-        """plot figures for population, nuisance parameters"""
+    def plot(self, show=False):
+        """Plot figures for population and sampled nuisance parameters.
+
+        Args:
+            show(bool): show the plot in Jupyter Notebook.
+        """
 
         # first figure out what scheme is used
         #self.list_scheme()
@@ -280,8 +307,7 @@ class Analysis(object):
                 plt.yticks([])
         plt.tight_layout()
         plt.savefig(self.picfile)
-        if show:
-            plt.show()
+        if show: plt.show()
 
 
 

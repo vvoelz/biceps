@@ -97,7 +97,10 @@ master_doc = 'index'
 project = u'BICePs'
 authors = u'Yunhui Ge, Robert M. Raddi, Vincent A. Voelz'
 date = datetime.now()
-copyright = """%s, Temple University, %s\n\n"""%(date.today().year,authors)
+copyright = f"""{date.today().year}, Temple University, {authors}
+
+"""
+
 version = biceps.__version__
 release = version
 
@@ -112,6 +115,7 @@ language = 'en'
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
 exclude_patterns = [
+    'README.md',
     '_build',
     '_templates',
     '**.ipynb_checkpoints',
@@ -128,11 +132,6 @@ nbsphinx_prolog = r"""
     .. role:: raw-html(raw)
         :format: html
 
-    .. nbinfo::
-
-        This page was generated from `{{ docname }}`__.
-        Interactive online version:
-        :raw-html:`<a href="https://mybinder.org/v2/gh/spatialaudio/nbsphinx/{{ env.config.release }}?filepath={{ docname }}"><img alt="Binder badge" src="https://mybinder.org/badge.svg" style="vertical-align:text-bottom"></a>`
 
     __ https://github.com/spatialaudio/nbsphinx/blob/
         {{ env.config.release }}/{{ docname }}
@@ -197,10 +196,10 @@ html_theme_options = {
 # Adding our Temp Logo:
 html_logo = ''
 
-html_static_path = ['_static']
-#html_css_files = [
-#        'theme.css'
-#]
+#html_static_path = ['_static']
+html_css_files = [
+        '../../theme.css'
+]
 
 intersphinx_mapping = {'https://docs.python.org/': None}
 
