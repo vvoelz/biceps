@@ -1,5 +1,6 @@
+
 # -*- coding: utf-8 -*-
-import sys, inspect
+import os, sys, inspect
 import numpy as np
 import pandas as pd
 import mdtraj as md
@@ -7,8 +8,8 @@ import biceps
 from biceps.KarplusRelation import * # Returns J-coupling values from dihedral angles
 
 class Ensemble(object):
-    def __init__(self, lam, energies, verbose=False):
-        """Container class for :attr:`Restraint` objects.
+    def __init__(self, lam, energies, debug=False):
+        """Container class for :attr:`biceps.Restraint.Restraint` objects.
 
         Args:
             lam(float): lambda value to scale energies
@@ -25,150 +26,96 @@ class Ensemble(object):
             raise ValueError("Energies should be array with type of 'float'")
         else:
             self.energies = self.lam*energies # Scale the energies
-        self.verbose = verbose
+        self.debug = debug
+
 
     def to_list(self):
         """Converts the :class:`Ensemble` class to a list.
 
         Returns:
-            list: collection of :attr:`Restraint` objects
+            list: collection of :attr:`biceps.Restraint.Restraint` objects
         """
 
         return self.ensemble
 
-    def initialize_restraints(self, input_data, ref_pot=None, uncern=None, pf_prior=None,
-            gamma=None, precomputed=False, Ncs_fi=None, Nhs_fi=None, states=None, weights=None,
-            debug=False):
-        """Initialize corresponding :attr:`Restraint` classes based on experimental
+
+    def initialize_restraints(self, input_data, parameters=None):
+        """Initialize corresponding :attr:`biceps.Restraint.Restraint` classes based on experimental
         observables from **input_data** for each conformational state.
 
-        Print possible restraints with: ``biceps.toolbox.list_possible_restraints()``
+        .. tip::
 
-        Print possible extensions with: ``biceps.toolbox.list_possible_extensions()``
+            Print possible restraints with: :attr:`biceps.toolbox.list_possible_restraints`
+
+            Print possible extensions with: :attr:`biceps.toolbox.list_possible_extensions`
 
         Args:
             input_data(list of str): a sorted collection of filenames (files\
                     contain `exp` (experimental) and `model` (theoretical) observables)
-            ref_pot(str): referenece potential e.g., "uniform". "exp", "gau".\
-                    If None, the default reference potential will be used for\
-                    a given experimental observable
-            weights(list, optional): weights for each restraint in the order of\
-                    sorted data (``biceps.toolbox.list_extensions()``).
-            uncern(list, optional): nuisance parameters range. If too broad of\
-                    a range this could potentially increase sampling requirement\
-                    for convergence.
-            gamma(list, optional): (Only for NOE) range of gamma. If too broad of\
-                    a range this could potentially increase sampling requirement\
-                    for convergence.
-            precomputed(bool): (Only for pf) precomputed model data?
-            Ncs_fi(str, optional): (Only for pf) path to forward model data
-            Nhs_fi(str, optional): (Only for pf) path to forward model data
-            states(list): (Only for pf) specified list of states for model data
+            parameters(list of dict): dictionary containing keys that match \
+                    :attr:`biceps.Restraint.Restraint` parameters and values are lists for each restraint.
         """
 
-        verbose = self.verbose
-        uncertainties = uncern
+        verbose = self.debug
+        if parameters is None: parameters = [dict() for i in range(len(input_data[0]))]
         extensions = biceps.toolbox.list_extensions(input_data)
         lam = self.lam
         for i in range(self.energies.shape[0]):
             self.ensemble.append([])
+            energy = self.energies[i]
             for k in range(len(input_data[0])):
                 data = input_data[i][k]
-                energy = self.energies[i]
                 extension = extensions[k]
-                if debug:
-                    print(f"extension: {extension}")
-                if ref_pot[k] is not None and not isinstance(ref_pot[k], str):
-                    raise ValueError("Reference potential must be a 'str'")
-                if uncern ==  None:
-                    sigma_min, sigma_max, dlogsigma=0.05, 20.0, np.log(1.02)
-                else:
-                    if len(uncern[k]) != 3:
-                        raise ValueError("uncertainty should be a list of three items: sigma_min, sigma_max, dlogsigma")
-                    else:
-                        sigma_min, sigma_max, dlogsigma = uncertainties[k][0], uncertainties[k][1], np.log(uncertainties[k][2])
-                if gamma ==  None:
-                    gamma_min, gamma_max, dloggamma = 0.05, 20.0, np.log(1.02)
-                else:
-                    if len(gamma) != 3:
-                        raise ValueError("gamma should be a list of three items: gamma_min, gamma_max, dgamma")
-                    else:
-                        gamma_min, gamma_max, dloggamma = gamma[0], gamma[1], np.log(gamma[2])
-                ##########################################################
-                # TODO: Place in Protection factor parameters in restraint
-                ##########################################################
-                if data.endswith('pf'):
-                    if not precomputed:
-                        if Ncs_fi == None or Nhs_fi == None or states[i] == None:
-                            raise ValueError("Ncs and Nhs and state number are needed!")
-                    # add uncern option here later
-                    # don't trust these numbers, need to be confirmed!!! Yunhui 06/2019
-                    beta_c_min, beta_c_max, dbeta_c = 0.05, 0.25, 0.01
-                    beta_h_min, beta_h_max, dbeta_h = 0.0, 5.2, 0.2
-                    beta_0_min, beta_0_max, dbeta_0 = -10.0, 0.0, 0.2
-                    xcs_min, xcs_max, dxcs = 5.0, 8.5, 0.5
-                    xhs_min, xhs_max, dxhs = 2.0, 2.7, 0.1
-                    bs_min, bs_max, dbs = 15.0, 16.0, 1.0
-
-                    allowed_xcs=np.arange(xcs_min,xcs_max,dxcs)
-                    allowed_xhs=np.arange(xhs_min,xhs_max,dxhs)
-                    allowed_bs=np.arange(bs_min,bs_max,dbs)
-                    # 107=residue numbers, Nc/Nh file names are hard coded for now. Yunhui 06/19
-                    Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
-                    Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
-                    for o in range(len(allowed_xcs)):
-                        for q in range(len(allowed_bs)):
-                            infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi, allowed_xcs[o], allowed_bs[q],states[i])
-                            #print(f"infile_Nc = {infile_Nc}")
-                            Ncs[o,q,:] = (np.load(infile_Nc))
-                    for p in range(len(allowed_xhs)):
-                        for q in range(len(allowed_bs)):
-                            infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi, allowed_xhs[p], allowed_bs[q],states[i])
-                            #print(f"infile_Nh = {infile_Nh}")
-                            Nhs[p,q,:] = (np.load(infile_Nh))
-                if ref_pot[k] ==  None:
-                    # TODO: place the default ref_pot[k] inside the class
-                    ref_pot[k] = 'exp' # 'uniform'
-                if weights == None:
-                    weight = 1
-                else:
-                    weight = weights[k]
                 ext = data.split(".")[-1]
-                #restraint, extension = ext.split("_")
                 restraint, extension = ext.split("_")[0], ext.split("_")[-1]
                 # Find all Child Restraint classes in the current file
                 current_module = sys.modules[__name__]
                 # Pick the Restraint class upon file extension
-                _Restraint = getattr(current_module, "Restraint_%s"%(restraint))
-                # Initializing Restraint
-                R = _Restraint(ref=ref_pot[k], dlogsigma=dlogsigma,
-                        sigma_min=sigma_min, sigma_max=sigma_max, verbose=verbose)
-                # Get all the arguments for the Child Restraint Class
-                args = {"%s"%key: val for key,val in locals().items()
-                        if key in inspect.getfullargspec(R.init_restraint)[0]
-                        if key != 'self'}
-                #print(args)
-                #print(f"args = {args}")
-                #print(f"Required args:{R.init_restraint.__code__.co_varnames}")
-                #print(f"Required args by inspect:{inspect.getfullargspec(R.init_restraint)[0]}")
-                #exit()
-                R.init_restraint(**args)
+                R = getattr(current_module, "Restraint_%s"%(restraint))
+                # Get all the arguments for the Parent Restraint Class if given
+                args1 = {"%s"%key: val for key,val in locals().items()
+                        if key in inspect.getfullargspec(R)[0] if key != 'self'}
+                args2 = {"%s"%key: val for key,val in locals().items()
+                        if key in inspect.getfullargspec(R.init_restraint)[0] if key != 'self'}
+                # It shouldn't matter the ordering of the keys and values
+                # All parameters are parsed as respective Restraint child class arguments
+                for key,val in parameters[k].items():
+                    if key in inspect.getfullargspec(R)[0]:
+                        args1[key] = val
+                    elif key in inspect.getfullargspec(R.init_restraint)[0]:
+                        args2[key] = val
+                    else:
+                        possible_args = np.unique(np.concatenate(
+                            [inspect.getfullargspec(R)[0],
+                            inspect.getfullargspec(R.init_restraint)[0]]))
+                        possible_args = np.delete(possible_args, np.where(possible_args == "self"))
+                        possible_args = np.delete(possible_args, np.where(possible_args == "data"))
+                        raise TypeError(f"{key} is an invalid keyword argument for {R}\n\n\
+Please check your parameters... \n\
+The input data provided suggests the ordering of dictionaries should be: {biceps.toolbox.list_extensions(input_data)}\n\
+Dictionary keys for {R.__name__} are any of: {possible_args}")
+                if self.debug:
+                    print(R)
+                    print(f"Required args by inspect:{inspect.getfullargspec(R.init_restraint)[0]}")
+                    print(f"args1 given: {args1}")
+                    print(f"args2 given: {args2}")
+                R = R(**args1) # Initializing Restraint
+                R.init_restraint(**args2)
                 self.ensemble[-1].append(R)
+
 
 
 class Restraint(object):
 
-    def __init__(self, ref, dlogsigma=np.log(1.02), sigma_min=0.05, sigma_max=20.0,
+    def __init__(self, ref="uniform", sigma=[0.05, 20.0, 1.02],
             use_global_ref_sigma=True, verbose=False):
-        """The parent :attr:`Restraint` class.
+        """The parent :attr:`biceps.Restraint.Restraint` class.
 
         Args:
             ref_pot(str): referenece potential e.g., "uniform". "exp", "gau".\
                     If None, the default reference potential will be used for\
                     a given experimental observable
-            dlogsigma(float): (defaults to np.log(1.02))
-            sigma_min(float): (defaults to 0.05)
-            sigma_max(float): (defaults to 20.0)
+            sigma(list):  (sigma_min, sigma_max, dsigma)
             use_global_ref_sigma(bool): (defaults to True)
         """
 
@@ -192,9 +139,9 @@ class Restraint(object):
         self.ref = ref
 
         # set sigma range
-        self.dlogsigma = dlogsigma
-        self.sigma_min = sigma_min
-        self.sigma_max = sigma_max
+        self.dlogsigma = np.log(sigma[2])
+        self.sigma_min = sigma[0]
+        self.sigma_max = sigma[1]
         self.allowed_sigma = np.exp(np.arange(np.log(self.sigma_min),
             np.log(self.sigma_max), self.dlogsigma))
         self.sigma_index = int(len(self.allowed_sigma)/2)
@@ -219,7 +166,7 @@ class Restraint(object):
         if self.verbose:
             print('Loading %s as %s...'%(filename,As))
         df = getattr(pd, "read_%s"%As)
-        #TODO: Check all formats work (e.g., from="csv")
+        #TODO: Check all formats (e.g., from="csv")
         return df(filename)
 
 
@@ -227,7 +174,7 @@ class Restraint(object):
         """Append an experimental restraint object to the list.
 
         Args:
-            restraint(object): :attr:`Restraint` object
+            restraint(object): :attr:`biceps.Restraint.Restraint` object
         """
 
         self.restraints.append(restraint)
@@ -235,7 +182,8 @@ class Restraint(object):
     def compute_neglog_exp_ref(self):
         """Uses the stored beta information to compute \
                 :math:`-log P_{ref}(r_{j}(X_{i}))` over each structure\
-                :math:`X_{i}` and for each observable :math:`r_{j}`."""
+                :math:`X_{i}` and for each observable :math:`r_{j}`.
+        """
 
         self.neglog_exp_ref = np.zeros(self.n)
         self.sum_neglog_exp_ref = 0.0
@@ -258,7 +206,7 @@ class Restraint(object):
 
 
 class Restraint_cs(Restraint):
-    """A :attr:`Restraint` child class for chemical shifts."""
+    """A :attr:`biceps.Restraint.Restraint` child class for chemical shifts."""
 
     _ext = ["H", "Ca", "N"]
 
@@ -269,8 +217,8 @@ class Restraint_cs(Restraint):
             pass
 
     def init_restraint(self, data, energy, extension, weight=1, verbose=False):
-        """Initialize the chemical shift restraints for each **exp** (experimental)
-        and **model** (theoretical) observable given **data**.
+        """Initialize the chemical shift restraints for each experimental
+        and theoretical observable given data.
 
         Args:
             data(str): filename of data
@@ -284,11 +232,6 @@ class Restraint_cs(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
         self.Ndof = None
-        # Private variables to store specific restraint attributes in a list
-        self._nuisance_parameters = ['allowed_sigma']
-        self._parameters = ['sigma']
-        self._parameter_indices = ['sigma_index']
-        self._rest_type = ['sigma_cs_%s'%self.extension]
 
         # Reading the data from loading in filenames
         data = self.load_data(data)
@@ -303,27 +246,21 @@ class Restraint_cs(Restraint):
             # N equivalent chemical shift should only get 1/N f the weight when
             #... computing chi^2 (not likely in this case but just in case we need it in the future)
             self.restraints[-1]['weight'] = weight  #1.0/3.0 used in JCTC 2020 paper  # default is N=1
+        self.sse = self.compute_sse(f=self.restraints)
 
-        self.compute_sse()
-
-    def compute_sse(self, debug=False):
-        """Returns the (weighted) sum of squared errors for chemical shift values"""
+    def compute_sse(self, f):
+        """Returns the (weighted) sum of squared errors for chemical shift values."""
 
         N,sse = 0.0, 0.0
         for i in range(self.n):
-            if debug:
-                print('---->', i, '%d'%self.restraints[i].i, end=' ')
-                print('      exp', self.restraints[i]['exp'], 'model', self.restraints[i]['model'])
-            err = self.restraints[i]['model'] - self.restraints[i]['exp']
-            sse += (self.restraints[i]['weight']*err**2.0)
-            N += self.restraints[i]['weight']
-        self.sse = sse
+            err = f[i]['model'] - f[i]['exp']
+            sse += (f[i]['weight']*err**2.0)
+            N += f[i]['weight']
         self.Ndof = N
-        if debug:
-            print('self.sse', self.sse)
+        return sse
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices, sse):
         """Computes :math:`-logP` for chemical shift during MCMC sampling.
 
         :math:`-ln P(X, \\sigma | D)=(N_{j}+1) \ln \sigma+\\chi^{2}(X) / 2 \\sigma^{2}-ln P(X) -ln Q_{ref}+(N_{j} / 2) ln 2 \pi + f_{i}`,
@@ -334,18 +271,17 @@ class Restraint_cs(Restraint):
                 :math:`\\chi^{2}(X)=\sum_{j} w_{j}(r_{j}(X)-r_{j}^{\exp})^{2}`
 
         Args:
-            index(int): restraint index
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
+            sse(float): sum of squared errors
 
         :rtype: float
         """
 
         result = 0
-        para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
-        result += (self.Ndof)*np.log(para[index][0])
-        result += self.sse / (2.0*float(para[index][0])**2.0)
+        result += (self.Ndof)*np.log(parameters[0])
+        result += sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
@@ -355,7 +291,7 @@ class Restraint_cs(Restraint):
 
 
 class Restraint_J(Restraint):
-    """A :attr:`Restraint` child class for J coupling constant."""
+    """A :attr:`biceps.Restraint.Restraint` child class for J coupling constant."""
 
     _ext = ['J']
 
@@ -372,12 +308,6 @@ class Restraint_J(Restraint):
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
         self.Ndof = None
-        #####TODO: Remove these variables ... ##################################
-        ## Private variables to store specific restraint attributes in a list
-        self._nuisance_parameters = ['allowed_sigma']
-        self._parameters = ['sigma']
-        self._parameter_indices = ['sigma_index']
-        self._rest_type = ['sigma_J']
 
         # Reading the data from loading in filenames
         data = self.load_data(data)
@@ -405,7 +335,7 @@ class Restraint_J(Restraint):
             print(f'self.equivalency_groups = {self.equivalency_groups}')
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
-        self.compute_sse(debug=verbose)
+        self.sse = self.compute_sse(f=self.restraints)
 
 
     def adjust_weights(self):
@@ -417,40 +347,34 @@ class Restraint_J(Restraint):
             for i in group:
                 self.restraints[i]['weight'] = 1.0/n
 
-    def compute_sse(self, debug=False):
+
+    def compute_sse(self, f):
         """Returns the (weighted) sum of squared errors"""
 
         N,sse = 0.0, 0.0
         for i in range(self.n):
-            if debug:
-                print('---->', i, '%d'%self.restraints[i].i, end=' ')
-                print('      exp', self.restraints[i]['exp'], 'model', self.restraints[i]['model'])
-            err = self.restraints[i]['model'] - self.restraints[i]['exp']
-            sse += (self.restraints[i]['weight']*err**2.0)
-            N += self.restraints[i]['weight']
-        self.sse = sse
+            err = f[i]['model'] - f[i]['exp']
+            sse += (f[i]['weight']*err**2.0)
+            N += f[i]['weight']
         self.Ndof = N
-        if debug:
-            print('self.sse', self.sse)
-        #print(self.sse)
+        return sse
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices, sse):
         """Computes :math:`-logP` for scalar coupling constant during MCMC sampling.
 
         Args:
-            index(int): restraint index
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
+            sse(float): sum of squared errors
 
         :rtype: float
         """
 
         result = 0
-        para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
-        result += (self.Ndof)*np.log(para[index][0])
-        result += self.sse / (2.0*float(para[index][0])**2.0)
+        result += (self.Ndof)*np.log(parameters[0])
+        result += sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
@@ -461,45 +385,40 @@ class Restraint_J(Restraint):
 
 
 class Restraint_noe(Restraint):
-    """A :attr:`Restraint` child class for NOE distances."""
+    """A :attr:`biceps.Restraint.Restraint` child class for NOE distances."""
 
     _ext = ['noe']
 
     def init_restraint(self, data, energy, weight=1, verbose=False,
-            use_log_normal_noe=False, dloggamma=np.log(1.01),
-            gamma_min=0.2, gamma_max=10.0):
+            log_normal=False, gamma=(0.2, 10.0, 1.01)):
         """Initialize the NOE distance restraints for each **exp** (experimental)
         and **model** (theoretical) observable given **data**.
+
+        When using :attr:`log_normal` the modified sum of squared errors is used:
+        :math:`\chi_{\mathrm{d}}^{2}(X)=\sum_{j} w_{j}\left(\ln \left(r_{j}(X) / \gamma^{\prime} r_{j}^{\exp }\right)\right)^{2}`
 
         Args:
             data(str): filename of data
             energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
             weight(float): weight for restraint
-            use_log_normal_noe(bool):
-            dloggamma(float): Gamma is in log space
-            gamma_min(float): Minimum value of gamma
-            gamma_max(float): Maximum value of gamma
+            log_normal(bool):
+            gamma(tuple): (gamma_min, gamma_max, dgamma) in log space
         """
 
         # Store info about gamma^(-1/6) scaling parameter array
-        self.dloggamma = dloggamma
-        self.gamma_min = gamma_min
-        self.gamma_max = gamma_max
+        self.dloggamma = np.log(gamma[2])
+        self.gamma_min = gamma[0]
+        self.gamma_max = gamma[1]
         self.allowed_gamma = np.exp(np.arange(np.log(self.gamma_min), np.log(self.gamma_max), self.dloggamma))
         self.gamma_index = int(len(self.allowed_gamma)/2)
         self.gamma = self.allowed_gamma[self.gamma_index]
 
         # Flag to use log-normal distance errors log(d/d0)
-        self.use_log_normal_noe = use_log_normal_noe
+        self.log_normal = log_normal
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
         self.Ndof = None
-        # Private variables to store specific restraint attributes in a list
-        self._nuisance_parameters = ['allowed_sigma','allowed_gamma']
-        self._parameters = ['sigma','gamma']
-        self._parameter_indices = ['sigma_index','gamma_index']
-        self._rest_type = ['sigma_noe','gamma']
 
         # Reading the data from loading in filenames
         data = self.load_data(data)
@@ -525,7 +444,7 @@ class Restraint_noe(Restraint):
             print(f'self.equivalency_groups = {self.equivalency_groups}')
         # adjust the weights of distances and dihedrals to account for equivalencies
         self.adjust_weights()
-        self.compute_sse(debug=verbose)
+        self.sse = self.compute_sse(f=self.restraints)
 
     def adjust_weights(self):
         """Adjust the weights of distance and dihedral restraints based on
@@ -536,45 +455,42 @@ class Restraint_noe(Restraint):
             for i in group:
                 self.restraints[i]['weight'] = 1.0/n
 
-    def compute_sse(self, debug=False):
+
+    def compute_sse(self, f):
         """Returns the (weighted) sum of squared errors"""
 
-        self.sse = np.array([0.0 for gamma in self.allowed_gamma])
+        _sse = np.array([0.0 for gamma in self.allowed_gamma])
         for g in range(len(self.allowed_gamma)):
             N,sse = 0.0, 0.0
             for i in range(self.n):
                 gamma = self.allowed_gamma[g]
-                if self.use_log_normal_noe:
-                    err = np.log(self.restraints[i]['model']/(gamma*self.restraints[i]['exp']))
+                #if self.use_log_normal_noe:
+                if self.log_normal:
+                    err = np.log(f[i]['model']/(gamma*f[i]['exp']))
                 else:
-                    err = gamma*self.restraints[i]['exp'] - self.restraints[i]['model']
-                sse += (self.restraints[i]['weight'] * err**2.0)
-                N += self.restraints[i]['weight']
-            self.sse[g] = sse
+                    err = gamma*f[i]['exp'] - f[i]['model']
+                sse += (f[i]['weight'] * err**2.0)
+                N += f[i]['weight']
+            _sse[g] = sse
             self.Ndof = N
-        if debug:
-            for i in range(self.n):
-                print('---->', i, '%d'%self.restraints[i].i, end=' ')
-                print('      exp', self.restraints[i]['exp'], 'model', self.restraints[i]['model'])
-        #print(self.sse)
+        return _sse
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices, sse):
         """Computes :math:`-logP` for NOE during MCMC sampling.
 
         Args:
-            index(int): restraint index
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
+            sse(float): sum of squared errors
 
         :rtype: float
         """
 
         result = 0
-        para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
-        result += (self.Ndof)*np.log(para[index][0])
-        result += self.sse[int(indices[index][1])] / (2.0*para[index][0]**2.0)
+        result += (self.Ndof)*np.log(parameters[0])
+        result += sse[int(parameter_indices[1])] / (2.0*parameters[0]**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         if self.ref == "exp":
             result -= self.sum_neglog_exp_ref
@@ -584,16 +500,14 @@ class Restraint_noe(Restraint):
 
 
 class Restraint_pf(Restraint):
-    """A :attr:`Restraint` child class for protection factor."""
+    """A :attr:`biceps.Restraint.Restraint` child class for protection factor."""
 
     _ext = ['pf']
 
     def init_restraint(self, data, energy, precomputed=False, pf_prior=None,
-            Ncs=None, Nhs=None,verbose=False, beta_c_min=0.05,beta_c_max=0.25,
-            dbeta_c=0.01,beta_h_min=0.0,beta_h_max=5.2,dbeta_h=0.2,
-            beta_0_min=-10.0,beta_0_max=0.0,dbeta_0=0.2,xcs_min=5.0,xcs_max=8.5,
-            dxcs=0.5,xhs_min=2.0,xhs_max=2.7,dxhs=0.1,bs_min=15.0,bs_max=16.0,
-            dbs=1.0, weight=1):
+            Ncs_fi=None, Nhs_fi=None, beta_c=(0.05, 0.25, 0.01), beta_h=(0.0, 5.2, 0.2),
+            beta_0=(-10.0, 0.0, 0.2), xcs=(5.0, 8.5, 0.5), xhs=(2.0, 2.7, 0.1),
+            bs=(15.0, 16.0, 1.0), weight=1, states=None, verbose=False):
         """Initialize protection factor restraints for each **exp** (experimental)
         and **model** (theoretical) observable given **data**.
 
@@ -601,7 +515,38 @@ class Restraint_pf(Restraint):
             data(str): filename of data
             energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
             weight(float): weight for restraint
+            beta_c(tuple): [min, max, spacing]
+            beta_h(tuple):
+            beta_0(tuple):
+            xcs(tuple):
+            xhs(tuple):
+            bs(tuple):
+
         """
+
+        # TODO: make more general... (there exists two sets of the same variables, see line 585)
+        beta_c_min, beta_c_max, dbeta_c = beta_c[0], beta_c[1], beta_c[2]
+        beta_h_min, beta_h_max, dbeta_h = beta_h[0], beta_h[1], beta_h[2]
+        beta_0_min, beta_0_max, dbeta_0 = beta_0[0], beta_0[1], beta_0[2]
+        xcs_min, xcs_max, dxcs = xcs[0], xcs[1], xcs[2]
+        xhs_min, xhs_max, dxhs = xhs[0], xhs[1], xhs[2]
+        bs_min, bs_max, dbs = bs[0], bs[1], bs[2]
+        allowed_xcs=np.arange(xcs_min,xcs_max,dxcs)
+        allowed_xhs=np.arange(xhs_min,xhs_max,dxhs)
+        allowed_bs=np.arange(bs_min,bs_max,dbs)
+        Ncs=np.zeros((len(allowed_xcs),len(allowed_bs),107))
+        Nhs=np.zeros((len(allowed_xhs),len(allowed_bs),107))
+        for i in range(len(states)):
+            for o in range(len(allowed_xcs)):
+                for q in range(len(allowed_bs)):
+                    infile_Nc='%s/Nc_x%0.1f_b%d_state%03d.npy'%(Ncs_fi,
+                            allowed_xcs[o], allowed_bs[q],states[i])
+                    Ncs[o,q,:] = (np.load(infile_Nc))
+            for p in range(len(allowed_xhs)):
+                for q in range(len(allowed_bs)):
+                    infile_Nh='%s/Nh_x%0.1f_b%d_state%03d.npy'%(Nhs_fi,
+                            allowed_xhs[p], allowed_bs[q],states[i])
+                    Nhs[p,q,:] = (np.load(infile_Nh))
 
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
@@ -611,13 +556,7 @@ class Restraint_pf(Restraint):
         if pf_prior is not None:
             self.pf_prior = np.load(pf_prior)
 
-        # Private variables to store specific restraint attributes in a list
-        if self.precomputed:
-            self._nuisance_parameters = ['allowed_sigma']
-            self._parameters = ['sigma']
-            self._parameter_indices = ['sigma_index']
-            self._rest_type = ['sigma_PF']
-        else:
+        if not self.precomputed:
             self.Ncs = Ncs
             self.Nhs = Nhs
             self.dbeta_c = dbeta_c
@@ -649,7 +588,7 @@ class Restraint_pf(Restraint):
             self.bs_min = bs_min
             self.bs_max = bs_max
             self.allowed_bs = np.arange(self.bs_min, self.bs_max, self.dbs)
-            #print "self.allowed_beta_c", len(self.allowed_beta_c), "self.allowed_beta_h", len(self.allowed_beta_h), "self.allowed_beta_0", len(self.allowed_beta_0), "self.allowed_xcs", len(self.allowed_xcs), "self.allowed_xhs", len(self.allowed_xhs), "self.allowed_bs", len(self.allowed_bs)
+
             self.beta_c_index = int(len(self.allowed_beta_c)/2)
             self.beta_c = self.allowed_beta_c[self.beta_c_index]
 
@@ -667,12 +606,6 @@ class Restraint_pf(Restraint):
 
             self.bs_index = int(len(self.allowed_bs)/2)
             self.bs = self.allowed_bs[self.bs_index]
-
-            self._nuisance_parameters = ['allowed_sigma','allowed_beta_c', 'allowed_beta_h',
-                    'allowed_beta_0', 'allowed_xcs', 'allowed_xhs','allowed_bs']
-            self._parameters = ['sigma','beta_c','beta_h','beta_0','xcs','xhs','bs']
-            self._parameter_indices = ['sigma_index','beta_c_index','beta_h_index','beta_0_index','xcs_index','xhs_index','bs_index']
-            self._rest_type = ['sigma_PF','beta_c','beta_h','beta_0','xcs','xhs','bs']
 
 
         # Reading the data from loading in filenames
@@ -697,34 +630,29 @@ class Restraint_pf(Restraint):
                 d = {key: grouped_data[key][row] for key in grouped_data.keys()}
                 self.add_restraint(d)
                 self.restraints[-1]['weight'] = weight
-        self.compute_sse(debug=verbose)
+
+        self.sse = self.compute_sse(f=self.restraints)
 
 
-    def compute_sse(self, debug=False):
+    def compute_sse(self, f):
         """Returns the (weighted) sum of squared errors"""
 
+        N,sse = 0.0, 0.0
         if self.precomputed:
-            N,sse = 0.0, 0.0
             for i in range(self.n):
-                if debug:
-                    print('---->', i, '%d'%self.restraints[i].i, end=' ')
-                    print('      exp', self.restraints[i]['exp'], 'model', self.restraints[i]['model'])
-                err = self.restraints[i]['model'] - self.restraints[i]['exp']
-                sse += (self.restraints[i]['weight']*err**2.0)
-                N += self.restraints[i]['weight']
-            self.sse = sse
+                err = f[i]['model'] - f[i]['exp']
+                sse += (f[i]['weight']*err**2.0)
+                N += f[i]['weight']
             self.Ndof = N
-            if debug:
-                print('self.sse', self.sse)
-
         else:
-            self.sse = np.zeros( (len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0),
+            sse = np.zeros( (len(self.allowed_beta_c), len(self.allowed_beta_h), len(self.allowed_beta_0),
                 len(self.allowed_xcs), len(self.allowed_xhs), len(self.allowed_bs)) )
             self.Ndof = 0.
             for i in range(self.n):
-                err = self.restraints[i]['model'] - self.restraints[i]['exp']
-                self.sse += (self.restraints[i]['weight'] * err**2.0)
-                self.Ndof += self.restraints[i]['weight']
+                err = f[i]['model'] - f[i]['exp']
+                sse += (f[i]['weight'] * err**2.0)
+                self.Ndof += f[i]['weight']
+        return sse
 
 
     def compute_PF(self, beta_c, beta_h, beta_0, Nc, Nh):
@@ -836,62 +764,60 @@ class Restraint_pf(Restraint):
             self.sum_neglog_gaussian_ref += self.restraints[j]['weight'] * self.neglog_gaussian_ref[j]
 
 
-    def compute_neglogP(self, index, parameters, parameter_indices):
+    def compute_neglogP(self, parameters, parameter_indices, sse):
         """Computes :math:`-logP` for protection factor during MCMC sampling.
 
         Args:
-            index(int): restraint index
             parameters(list): collection of parameters for a given step of MCMC
             parameter_indices(list): collection of indices for a given step of MCMC
+            sse(float): sum of squared errors
 
         :rtype: float
         """
 
         result = 0
-        para,indices = parameters, parameter_indices
         # Use with log-spaced sigma values
-        result += (self.Ndof)*np.log(para[index][0])
+        result += (self.Ndof)*np.log(parameters[0])
         if not self.precomputed:
-            result += self.sse[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])] / (2.0*para[index][0]**2.0)
+            result += sse[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])] / (2.0*parameters[0]**2.0)
             if self.pf_prior is not None:
-                result += self.pf_prior[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+                result += self.pf_prior[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])]
         else:
-            result += self.sse / (2.0*float(para[index][0])**2.0)
+            result += sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         # Which reference potential was used for each restraint?
         if self.ref == "exp":
             if isinstance(self.sum_neglog_exp_ref, float):
                 result -= self.sum_neglog_exp_ref
             else:
-                result -= self.sum_neglog_exp_ref[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+                result -= self.sum_neglog_exp_ref[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])]
         if self.ref == "gaussian":
             if isinstance(self.sum_neglog_gaussian_ref, float):
                 result -= self.sum_neglog_gaussian_ref
             else:
-                result -= self.sum_neglog_gaussian_ref[int(indices[index][1])][int(indices[index][2])][int(indices[index][3])][int(indices[index][4])][int(indices[index][5])][int(indices[index][6])]
+                result -= self.sum_neglog_gaussian_ref[int(parameter_indices[1])][int(parameter_indices[2])][int(parameter_indices[3])][int(parameter_indices[4])][int(parameter_indices[5])][int(parameter_indices[6])]
         return result
 
 
 class Preparation(object):
 
-    def __init__(self, nstates=0,  top=None, outdir="./"):
-        """A class to prepare **input_data** for the :attr:`Restraint` class.
+    def __init__(self, nstates=0,  top_file=None, outdir="./"):
+        """A class to prepare **input_data** for the :attr:`biceps.Ensemble.initialize_restraints` method.
 
         Args:
             nstates(int): number of conformational states
-            top(str): path to structure topology
-            outdir(str): path for output
+            top_file(str): relative path to the structure topology file
+            outdir(str): relative path for output files
         """
 
         self.nstates = nstates
-        self.topology = md.load(top).topology
-        self.outdir
+        self.topology = md.load(top_file).topology
+        self.outdir = outdir
 
     def to_sorted_list(self):
         """Uses ``biceps.toolbox.sort_data()`` to return sorted list of **input_data**."""
-        #TODO: check to see if this works...
 
-        return biceps.toolbox.sort_data(self.outdir+"*")
+        return biceps.toolbox.sort_data(os.path.join(self.outdir,"*"))
 
     def write_DataFrame(self, filename, As="pickle", verbose=False):
         """Write Pandas DataFrame **As** user specified filetype.
@@ -908,27 +834,24 @@ class Preparation(object):
 
         #biceps.toolbox.mkdir(self.outdir)
         #columns = { self.keys[i] : self.header[i] for i in range(len(self.keys)) }
-        #print(columns)
-        if verbose:
-            print('Writing %s as %s...'%(filename,As))
+        if verbose: print('Writing %s as %s...'%(filename,As))
         df = pd.DataFrame(self.biceps_df)
         #dfOut = getattr(self.df.rename(columns=columns), "to_%s"%As)
         dfOut = getattr(df, "to_%s"%As)
         dfOut(filename)
 
-    def prep_cs(self, exp_data, model_data, indices, extension, outdir=None, verbose=False):
-        """A method for preprocessing chemicalshift **exp** and **model** data.
+    def prep_cs(self, exp_data, model_data, indices, extension, verbose=False):
+        """A method for preprocessing chemicalshift **exp_data** and **model_data**.
 
         Args:
             exp_data(str): path to experimental data file (units: ppm)
             model_data(str): path to model data file (units: ppm)
             indices(str): path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
-            outdir(str): path to output
         """
 
-        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
-                'exp', 'model', 'comments')
+        self.header = ('exp', 'model', 'restraint_index', 'atom_index1', 'res1',
+                'atom_name1', )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices)
@@ -951,29 +874,27 @@ class Preparation(object):
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 dd['model'].append(np.float64(model_data[i]))
-                dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
             filename = "%s.cs_%s"%(j, extension)
-            if outdir:
-                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
+            if self.outdir:
+                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
 
 
 
-    def prep_noe(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
-        """A method for preprocessing NOE **exp** and **model** data.
+    def prep_noe(self, exp_data, model_data, indices, extension=None, verbose=False):
+        """A method for preprocessing NOE **exp_data** and **model_data**.
 
         Args:
             exp_data(str): path to experimental data file (units: :math:`Å`)
             model_data(str): path to model data file (units: :math:`Å`)
             indices(str): path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
-            outdir(str): path to output
         """
 
-        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
-                'atom_index2', 'res2', 'atom_name2', 'exp', 'model', 'comments')
+        self.header = ('exp', 'model', 'restraint_index', 'atom_index1', 'res1',
+                'atom_name1', 'atom_index2', 'res2', 'atom_name2', )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices, dtype=int)
@@ -997,30 +918,28 @@ class Preparation(object):
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 dd['model'].append(np.float64(model_data[i]))
-                dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
             filename = "%s.noe"%(j)
-            if outdir:
-                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
+            if self.outdir:
+                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
 
 
-    def prep_J(self, exp_data, model_data, indices, extension=None, outdir=None, verbose=False):
-        """A method for preprocessing scalar coupling **exp** and **model** data.
+
+    def prep_J(self, exp_data, model_data, indices, extension=None, verbose=False):
+        """A method for preprocessing scalar coupling **exp_data** and **model_data**.
 
         Args:
             exp_data(str): path to experimental data file (units: Hz)
             model_data(str): path to model data file (units: Hz)
             indices(str): path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
-            outdir(str): path to output
         """
 
-        self.header = ('restraint_index', 'atom_index1', 'res1', 'atom_name1',
+        self.header = ('exp', 'model', 'restraint_index', 'atom_index1', 'res1', 'atom_name1',
                 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3',
-                'atom_index4', 'res4', 'atom_name4', 'exp',
-                'model', 'comments')
+                'atom_index4', 'res4', 'atom_name4',  )
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         if type(indices) is not str:
@@ -1051,31 +970,27 @@ class Preparation(object):
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 dd['model'].append(np.float64(model_data[i]))
-                dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
             filename = "%s.J"%(j)
-            if outdir:
-                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
+            if self.outdir:
+                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
 
 
-    def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, outdir=None, verbose=False):
-        """A method for preprocessing HDX protection factor **exp** and
-        **model** data.
+    def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, verbose=False):
+        """A method for preprocessing HDX protection factor **exp_data** and
+        **model_data**.
 
         Args:
             exp_data(str): path to experimental data file (units: Hz)
             model_data(str): path to model data file (units: Hz)
             indices(str): path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
-            outdir(str): path to output
         """
 
-        if model_data:
-            self.header = ('restraint_index', 'atom_index1', 'res1', 'exp','model', 'comments')
-        else:
-            self.header = ('restraint_index', 'atom_index1', 'res1','exp', 'comments')
+        if model_data: self.header = ('exp','model', 'restraint_index', 'atom_index1', 'res1', )
+        else: self.header = ('exp', 'restraint_index', 'atom_index1', 'res1',)
         self.exp_data = np.loadtxt(exp_data)
         self.model_data = model_data
         self.ind = np.loadtxt(indices, dtype=int)
@@ -1098,14 +1013,12 @@ class Preparation(object):
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 if model_data:
                     dd['model'].append(np.float64(model_data[i]))
-                dd['comments'].append(np.NaN)
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
             filename = "%s.pf"%(j)
-            if outdir:
-                self.write_DataFrame(filename=outdir+filename, verbose=verbose)
-
+            if self.outdir:
+                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
 
 
 
@@ -1113,7 +1026,6 @@ if __name__ == "__main__":
 
     import doctest
     doctest.testmod()
-
 
 
 

@@ -1,37 +1,55 @@
 # -*- coding: utf-8 -*-
 import os, glob
-from .Restraint import *
-from .PosteriorSampler import *
-from . import toolbox as d
-import matplotlib
-matplotlib.use('Agg')
-from matplotlib import pyplot as plt
 import numpy as np
 import pickle
 from pymbar import MBAR
+from .Restraint import *
+from .PosteriorSampler import *
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 
-class Analysis(object):
-    """A class to perform analysis and plot figures.
+def find_all_state_sampled_time(trace, nstates):
+    """Determine which states were sampled and the states with zero counts.
 
-    :param int default=0 states: number of conformational states
-    :param str default=None data: BICePs input data directory converted from precomputed observables
-    :param str default=None resultdir: output files directory
-    :param str default='BS.dat' BSdir: output BICePs score file name
-    :param str default='populations.dat' popdir: output BICePs reweighted populations file name
-    :param str default='BICePs.pdf' picfile: output figure name
+    Args:
+        trace(np.ndarray): trajectory trace
+        nstates(int): number of states
     """
 
-    def __init__(self, states=0, precheck=True, resultdir=None, BSdir='BS.dat',
-            popdir='populations.dat', picfile='BICePs.pdf'):
-
-        self.states = states
-        if resultdir.endswith("/"):
-            self.resultdir = resultdir
+    frac = []
+    all_states = np.zeros(nstates)
+    init = 0
+    while 0 in all_states:
+        if init == len(trace):
+            print('not all state sampled, these states', np.where(all_states == 0)[0],'are not sampled')
+            return 'null', frac
         else:
-            self.resultdir = resultdir+"/"
-        self.BSdir = self.resultdir+BSdir
-        self.popdir = self.resultdir+popdir
-        self.picfile = self.resultdir+picfile
+            all_states[trace[init]] += 1
+            frac.append(float(len(np.where(all_states!=0)[0]))/float(nstates))
+            init += 1
+    return init, frac
+
+
+class Analysis(object):
+    def __init__(self, outdir, nstates=0, precheck=True, BSdir='BS.dat',
+            popdir='populations.dat', picfile='BICePs.pdf'):
+        """A class to perform analysis and plot figures.
+
+        Args:
+            nstates(int): number of conformational states
+            outdir(str): relative path to trajectories (will alos be used to output files and figures)
+            precheck(bool): find the all the states that haven't been sampled if any
+            BSdir(str): relative path for BICePs score file name
+            popdir(str): relative path for BICePs reweighted populations file name
+            picfile(str): relative path for BICePs figure
+        """
+
+        self.states = nstates
+        self.resultdir = outdir
+        self.BSdir = os.path.join(self.resultdir,BSdir)
+        self.popdir = os.path.join(self.resultdir,popdir)
+        self.picfile = os.path.join(self.resultdir,picfile)
         self.scheme = None
         self.traj = []
         self.sampler = []
@@ -40,24 +58,28 @@ class Analysis(object):
         self.P_dp = None
         self.precheck = precheck
         if self.states == 0:
-            raise ValueError("State number cannot be zero")
-        if self.resultdir == None:
-            raise ValueError("Result directory is missing")
+            raise ValueError("State number cannot be zero.")
+        # next get MABR sampling done
+        self.MBAR_analysis()
 
-    def load_data(self, debug = True):
-        """load input data from BICePs sampling (*npz and *pkl files)"""
+
+    def load_data(self, debug=True):
+        """Load input data from BICePs sampling (*npz and *pkl files)."""
+
         # Load in npz trajectories
         exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.npz') )
         exp_files.sort()
         for filename in exp_files:
             if debug:
                 print('Loading %s ...'%filename)
-            self.traj.append( np.load(filename, allow_pickle=True )['arr_0'].item() )
+            traj = np.load(filename, allow_pickle=True )['arr_0'].item()
+            self.traj.append(traj)
+        self.nreplicas = len(traj['trajectory'][0][3])
         if self.precheck:
             steps = []
             fractions = []
             for i in range(len(self.traj)):
-                s,f = d.find_all_state_sampled_time(self.traj[i]['state_trace'],self.states)
+                s,f = find_all_state_sampled_time(self.traj[i]['state_trace'],self.states)
                 steps.append(s)
                 fractions.append(f)
             total_fractions = np.concatenate(fractions)
@@ -68,7 +90,7 @@ class Analysis(object):
                     plt.xlabel('steps')
                     plt.ylabel('fractions')
                     plt.legend(loc='best')
-                    plt.savefig(self.resultdir+'fractions.pdf')
+                    plt.savefig(os.path.join(self.resultdir,'fractions.pdf'))
             #else:
             #    print('Error: Not all states are sampled in any of the lambda values')
             #    exit()
@@ -90,7 +112,7 @@ class Analysis(object):
         self.scheme = self.traj[0]['rest_type']
 
 
-    def MBAR_analysis(self, debug = False):
+    def MBAR_analysis(self, debug=False):
         """MBAR analysis for populations and BICePs score"""
 
         # load necessary data first
@@ -105,7 +127,7 @@ class Analysis(object):
         u_kln = np.zeros( (self.K, self.K, nsnaps) )
         nstates = int(self.states)
         print('nstates', nstates)
-        states_kn = np.zeros( (self.K, nsnaps) )
+        states_kn = np.zeros( (self.K, nsnaps, self.nreplicas) )
 
         # special treatment for neglogP function
         temp_parameters_indices = self.traj[0]['trajectory'][0][4:][0]
@@ -125,7 +147,8 @@ class Analysis(object):
                     if k==l:
                         u_kln[k,k,n] = self.traj[k]['trajectory'][n][1]
                     state, sigma_index = self.traj[k]['trajectory'][n][3:]
-                    states_kn[k,n] = state
+                    for r in range(self.nreplicas):
+                        states_kn[k,n,r] = state[r]
                     temp_parameters = []
                     new_parameters=[[] for i in range(len(temp_parameters_indices))]
                     temp_parameter_indices = np.concatenate(sigma_index)
@@ -136,6 +159,7 @@ class Analysis(object):
                     u_kln[k,l,n] = self.sampler[l].neglogP(state, new_parameters, sigma_index)
                     if debug:
                         print('E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n])
+
 
         # Initialize MBAR with reduced energies u_kln and number of uncorrelated configurations from each state N_k.
         # u_kln[k,l,n] is the reduced potential energy beta*U_l(x_kn), where U_l(x) is the potential energy function for state l,
@@ -162,12 +186,14 @@ class Analysis(object):
         self.P_dP = np.zeros( (nstates, 2*self.K) )  # left columns are P, right columns are dP
         if debug:
             print('state\tP\tdP')
+        states_kn = np.array(states_kn)
         for i in range(nstates):
-            A_kn = np.where(states_kn==i,1,0)
+            sampled = np.array([np.where(states_kn[:,:,r]==i,1,0) for r in range(self.nreplicas)])
+            A_kn = sampled.sum(axis=0)
             (p_i, dp_i) = mbar.computeExpectations(A_kn, uncertainty_method='approximate')
             self.P_dP[i,0:self.K] = p_i
             self.P_dP[i,self.K:2*self.K] = dp_i
-        pops, dpops = self.P_dP[:,0:self.K], self.P_dP[:,self.K:2*self.K]
+        pops, dpops = self.P_dP[:, 0:self.K], self.P_dP[:, self.K:2*self.K]
 
         # save results
         self.save_MBAR()
@@ -183,14 +209,18 @@ class Analysis(object):
         np.savetxt(self.popdir, self.P_dP)
         print('...Done.')
 
-    def plot(self, show=False, debug=False):
-        """plot figures for population, nuisance parameters"""
+    def plot(self, show=False):
+        """Plot figures for population and sampled nuisance parameters.
+
+        Args:
+            show(bool): show the plot in Jupyter Notebook.
+        """
 
         # first figure out what scheme is used
         #self.list_scheme()
 
-        # next get MABR sampling done
-        self.MBAR_analysis()
+        ## next get MABR sampling done
+        #self.MBAR_analysis()
 
         # load in precomputed P and dP from MBAR analysis
         pops0, pops1   = self.P_dP[:,0], self.P_dP[:,self.K-1]
@@ -213,18 +243,39 @@ class Analysis(object):
         # Make a subplot in the upper left
         plt.subplot(r,c,1)
         plt.errorbar( pops0, pops1, xerr=dpops0, yerr=dpops1, fmt='k.')
+
         #plt.hold(True)
-        plt.plot([1e-6, 1], [1e-6, 1], color='k', linestyle='-', linewidth=2)
-        plt.xlim(1e-6, 1.)
-        plt.ylim(1e-6, 1.)
+        limit = 1e-6
+        plt.plot([limit, 1], [limit, 1], color='k', linestyle='-', linewidth=2)
+        plt.xlim(limit, 1.)
+        plt.ylim(limit, 1.)
+
+        #x0,x1 = np.min(pops0), np.max(pops0)
+        #y0,y1 = np.min(pops1), np.max(pops1)
+        #spacing = 0.0  # not sure yet...
+        #low, high = np.min([x0, y0])-spacing, np.max([x1,y1])+spacing
+        #plt.plot([low, high], [low, high], color='k', linestyle='-', linewidth=2)
+        #plt.xlim(low, high)
+        #plt.ylim(low, high)
+
         plt.xlabel('$p_i$ (exp)', fontsize=label_fontsize)
         plt.ylabel('$p_i$ (sim+exp)', fontsize=label_fontsize)
         plt.xscale('log')
         plt.yscale('log')
-        # label key states
+
+        #label key states
         for i in range(len(pops1)):
             if (i==0) or (pops1[i] > 0.05):
                 plt.text( pops0[i], pops1[i], str(i), color='g' )
+
+        ntop = int(int(self.states)/10.)
+        topN = pops1[np.argsort(pops1)[-ntop:]]
+        topN_labels = [np.where(topN[i]==pops1)[0][0] for i in range(len(topN))]
+        print(f"Top {ntop} states: {topN_labels}")
+        print(f"Top {ntop} populations: {topN}")
+        #for i in range(len(pops1)):
+        #    if (i==0) or (pops1[i] in topN):
+        #        plt.text( pops0[i], pops1[i], str(i), color='g' )
         for k in range(len(self.scheme)):
             plt.subplot(r,c,k+2)
             plt.step(t0['allowed_parameters'][k], t0['sampled_parameters'][k], 'b-')
@@ -256,8 +307,7 @@ class Analysis(object):
                 plt.yticks([])
         plt.tight_layout()
         plt.savefig(self.picfile)
-        if show:
-            plt.show()
+        if show: plt.show()
 
 
 

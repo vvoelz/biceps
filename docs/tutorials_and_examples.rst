@@ -1,0 +1,338 @@
+Tutorials & Examples
+====================
+
+.. raw:: html
+
+    <hr style="height:2.5px">
+
+    <p style="align: justify;font-size: 12pt">This page contains a series of tutorials
+    & examples broken up into sections to help you get started with <code>biceps</code>.
+    Within each subsection, you will find a tutorial
+    <img width="15px" src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+    with a description.
+    <br>
+    <b>To execute these notebooks interactively, the <code>biceps</code>
+    GitHub repository must be <a href="https://github.com/vvoelz/biceps/tree/master/">
+    cloned</a></b>.  Navigate to <code>biceps/docs/examples</code> to find
+    this current directory. Start a Jupyter Notebook server and open the notebook:
+
+    <!--
+    To download, click the download icon to the left of the static notebook
+    link. In order to execute the Jupyter Notebook interactively, you will need
+    to <a href="installation.html#installation">
+    install <code>biceps</code></a>. Additionally,
+    -->
+
+.. code:: bash
+
+   $ jupyter notebook
+
+
+
+
+.. raw:: html
+
+
+    <p style="align: justify;font-size: 12pt;font-weight: bold;">Please note that the
+    tutorials found in both sections <a href="#the-workflow">the workflow</a> &
+    <a href="#additional-tools">additional tools</a> use Cineromycin B as
+    the test system. See <a href="#full-examples">full examples</a> for the
+    notebook that puts it all together.
+    </p>
+
+
+
+The workflow
+-------------
+
+.. raw:: html
+
+    <!--
+    <p style="align: justify;font-size: 12pt">The typical workflow
+    includes four core steps executed in series: <code><a href="biceps.html#preparation">biceps.Restraint.Preparation</a></code>,
+    <code><a href="biceps.html#ensemble">biceps.Ensemble</a></code>,
+    <code><a href="biceps.html#posteriorsampler">biceps.PosteriorSampler</a></code> and
+    <code><a href="biceps.html#analysis">biceps.Analysis</a></code>.</p>
+
+    Each tutorial is a separate part of the series that will help in the
+    understanding of the workflow.
+
+    Each of of the following jupyter notebooks can be downloaded by clicking
+    the download icon left of the notebook link.
+    -->
+
+
+Preparation
+^^^^^^^^^^^
+
+.. raw:: html
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/Tutorials/Prep_Rest_Post_Ana/preparation.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+    <!--
+    <a href="Examples/Tutorials/Post_Prep_Rest_Ana/preparation.ipynb" download="preparation.ipynb">
+       <button type="button"><img width="25px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+
+    Prepare input files using the <code><a href="biceps.html#preparation">biceps.Restraint.Preparation</a></code> class.
+    Here, the raw model & experimental data is organized inside a Pandas DataFrame. This class requires
+    experimental data as well as correspondingly precomputed experimental observables from simulation.
+    We recommend users to use <a href="http://mdtraj.org">MDTraj</a> to compute all
+    necessary experimental quantities from simulation or use our prepared
+    functions in <code><a href="biceps.html#toolbox">biceps.toolbox</a></code>.
+    </p>
+
+
+Ensemble
+^^^^^^^^^
+
+.. raw:: html
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/Tutorials/Prep_Rest_Post_Ana/ensemble.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+    <!--
+    <a href="Examples/Tutorials/Post_Prep_Rest_Ana/ensemble.ipynb" download="ensemble.ipynb">
+       <button type="button"><img width="25px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+
+    Construct a container to store state and restraint information
+    using the <code><a href="biceps.html#ensemble">biceps.Ensemble</a></code> class.
+    An ensemble will need to be instantiated for each lambda value, each
+    with different scaled energies. Using this class, we can call on the method
+    <code><a href="biceps.Ensemble.initialize_restraints">biceps.Ensemble.initialize_restraints</a></code>
+    to fill the container with <code><a href="biceps.html#restraint">biceps.Restraint</a></code>
+    objects for each conformational state by passing the input data and/or optional parameters.
+    </p>
+
+
+PosteriorSampler
+^^^^^^^^^^^^^^^^
+
+.. raw:: html
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/Tutorials/Prep_Rest_Post_Ana/posteriorsampler.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+    <!--
+    <a href="Examples/Tutorials/Post_Prep_Rest_Ana/posteriorsampler.ipynb" download="posteriorsampler.ipynb">
+       <button type="button"><img width="25px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+
+    For a given ensemble, the posterior distribution can be sampled by Markov Chain Monte Carlo (MCMC)
+    using the <code><a href="biceps.html#posteriorsampler">biceps.PosteriorSampler</a></code> class.
+    MCMC sampling is performed using the
+    <a hre="https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm">Metroplis-Hastings criterion</a>.
+    </p>
+
+
+Analysis
+^^^^^^^^
+
+.. raw:: html
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/Tutorials/Prep_Rest_Post_Ana/analysis.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+    <!--
+    <a href="Examples/Tutorials/Post_Prep_Rest_Ana/analysis.ipynb" download="analysis.ipynb">
+       <button type="button"><img width="25px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+
+    Predict populations of conformational states and compute the BICePs score using the
+    <code><a href="biceps.html#analysis">biceps.Analysis</a></code> class.
+    <br>
+    The analysis is comprised of two parts:
+    <br>
+    1. Using the <code><a href="https://pymbar.readthedocs.io/en/master/index.html">MBAR</a></code>
+    algorithm to compute populations and <code><a href="theory.html">BICePs scores</a></code>.
+    <br>
+    2. Plot and save figures that show population and sampled <code><a href="theory.html">nuisance parameters</a></code>.
+    </p>
+
+
+Additional tools
+----------------
+
+Convergence
+^^^^^^^^^^^
+
+.. raw:: html
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/Tutorials/Convergence/convergence.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+    <!--
+    <a href="Examples/Tutorials/Convergence/convergence.ipynb" download="convergence.ipynb">
+       <button type="button"><img width="25px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+
+    The convergence of our
+    <a href="#PosteriorSampler">PosteriorSampler</a> MCMC trajectories can be checked using the
+    <code><a href="biceps.html#convergence">biceps.Convergence</a></code> class.
+    </p>
+
+
+
+Multiprocessing Lambda Values
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. raw:: html
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/Tutorials/MP_Lambdas/mp_lambdas.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+    <!--
+    <a href="Examples/Tutorials/MP_Lambdas/mp_lambdas.ipynb" download="mp_lambdas.ipynb">
+       <button type="button"><img width="25px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+
+    Run the typical <code>biceps</code> workflow in a fraction of the time by
+    parallelizing lambda values with the <code>@biceps.multiprocess(iterable=lambda_values)</code>
+    decorator.
+    </p>
+
+
+Toolbox
+^^^^^^^
+
+.. raw:: html
+
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/Tutorials/Tools/toolbox.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+    <!--
+    <a href="Examples/Tutorials/Tools/toolbox.ipynb" download="toolbox.ipynb">
+       <button type="button"><img width="25px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+
+    A collection of methods considered to be useful outside of the typical
+    workflow.
+    </p>
+
+
+Full examples
+-------------
+
+Cineromycin B
+^^^^^^^^^^^^^^
+
+.. raw:: html
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/full_examples/cineromycinB/CineromycinB.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+
+    <!--
+    <a href="Examples/full_examples/cineromycinB/CineromycinB.ipynb" download="CineromycinB.ipynb">
+       <button type="button"><img width="15px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+
+    Determine the solution-state conformational populations of a 14-membered macrolide
+    antibiotic. This example contains the use of experimental scalar coupling
+    constant alongside NOE data and is based on a previously
+    published work by Voelz et al
+    (DOI: <a href="https://onlinelibrary.wiley.com/doi/full/10.1002/jcc.23738">10.1002/jcc.23738</a>).
+    </p>
+
+Albocycline
+^^^^^^^^^^^
+
+.. raw:: html
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/full_examples/albocycline/albocycline.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+
+    <!--
+    <a href="Examples/full_examples/albocycline/albocycline.ipynb" download="albocycline.ipynb">
+       <button type="button"><img width="15px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+    Compute conforamtional populations of a 14-membered macrolactone. Multiprocess
+    lambda values and sample the posterior distribution for each simultaneously.
+    This example is based on a previously published work by Zhou et al
+    (DOI: <a href="https://www.sciencedirect.com/science/article/pii/S0968089618303389">10.1016/j.bmc.2018.05.017</a>).
+    </p>
+
+Apomyoglobin
+^^^^^^^^^^^^
+
+.. raw:: html
+
+    <p style="align: justify;font-size: 12pt">
+    <a href="Examples/full_examples/apomyoglobin/apomyoglobin.html">
+       <button type="button"><img width="25px"
+       src="https://nbsphinx.readthedocs.io/en/0.2.0/_images/notebook_icon.png">
+       </button>
+    </a>
+    <!--
+    <a href="Examples/full_examples/apomyoglobin/apomyoglobin.ipynb" download="apomyoglobin.ipynb">
+       <button type="button"><img width="15px" src="data:image/png;base64,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"></button>
+    </a>
+    -->
+
+    An example using experimental HDX protetion factors and
+    chemical shift data after obtaining the forward model. This
+    example is base on a previously published work by Wan et al
+    (DOI: <a href="https://doi.org/10.1021/acs.jctc.9b01240">10.1021/acs.jctc.9b01240</a>).
+    Posterior sampling of ln PF forward model parameters were calculated
+    for ubiquitin and BPTI experimental HDX protection
+    factors (ln PF) data for ubiquitin and BPTI. More
+    information regarding the forward model can be found
+    <a href="https://github.com/vvoelz/HDX-forward-model">here</a>.
+    </p>
+
+    <!--
+    <h3 style="align: justify;font-size: 12pt"># <span
+    style="color:red;">NOTE</span>: Each of of the following jupyter notebooks can be downloaded
+    <a href="https://github.com/vvoelz/biceps/">here</a>.</h3>
+    -->
+
+    <h3 style="align: justify;font-size: 12pt">
+    You are welcome to contribute your own examples and please let us know
+    by simply submit a pull request on our <a href="https://github.com/vvoelz/biceps">Github</a>!</h3>
+
+
+
+
+
+
+.. vim: tw=75

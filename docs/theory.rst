@@ -3,6 +3,12 @@
 Theory
 =============
 
+.. raw:: html
+
+    <hr style="height:2.5px">
+
+
+
 Bayesian inference
 ------------------
 
@@ -114,7 +120,7 @@ and values of :math:`\sigma`:
 .. math::
 
    Z^{(k)} = \int P^{(k)}(X,\sigma | D)  dX d\sigma  &=& \int P^{(k)}(X) Q(X) dX\\
-    \text{total evidence for model } P^{(k)} && \text{overlap integral} 
+    \text{total evidence for model } P^{(k)} && \text{overlap integral}
 
 The quantity :math:`Z^{(k)}` can be interpreted as the total evidence in
 favor of a given model. Equivalently, we can think of this term as an
@@ -190,4 +196,7 @@ References
 .. [#f2] Olsson, S.; Boomsma, W.; Frellsen, J.; Bottaro, S.; Harder, T.; Ferkinghoff-Borg, J.; Hamelryck, T. `Generative Probabilistic Models Extend the Scope of Inferential Structure Determination. <https://www.sciencedirect.com/science/article/pii/S1090780711003090?via%3Dihub>`_ J. Magn. Reson. 2011, 213, 182−186.
 .. [#f3] Hamelryck, T.; Borg, M.; Paluszewski, M.; Paulsen, J.; Frellsen, J.; Andreetta, C.; Boomsma, W.; Bottaro, S.; Ferkinghoff-Borg, J. `Potentials of Mean Force for Protein Structure Prediction Vindicated, Formalized and Generalized. <http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0013714>`_ PLoS One 2010, 5, e13714.
 .. [#f4] Voelz, V. A.; Zhou, G. `Bayesian Inference of Conformational State Populations from Computational Models and Sparse Exper- imental Observables. <https://onlinelibrary.wiley.com/doi/abs/10.1002/jcc.23738>`_ J. Comput. Chem. 2014, 35, 2215−2224.
-.. [#f5] Yunhui Ge and Vincent A. Voelz, `Model selection using BICePs: A Bayesian approach to force field validation and parameterization <https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871>`_ Journal of Physical Chemistry B (2018) 122 (21): 5610–5622 
+.. [#f5] Yunhui Ge and Vincent A. Voelz, `Model selection using BICePs: A Bayesian approach to force field validation and parameterization <https://pubs.acs.org/doi/10.1021/acs.jpcb.7b11871>`_ Journal of Physical Chemistry B (2018) 122 (21): 5610–5622
+
+
+

@@ -56,8 +56,8 @@ setup(
         license='MIT',
         #packages=exclude=['docs']),
         install_requires=[
-            'numpy>=1.7.0','mdtraj==1.9.3','pymbar'],
-        python_requires='>=3.6',
+            'numpy>=1.7.0','mdtraj==1.9.3','pymbar==3.0.2'],
+        python_requires='<=3.7',
         #extras_require={  # Optional
         #        'dev': ['check-manifest'],
         #        'test': ['coverage'],

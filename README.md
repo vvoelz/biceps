@@ -1,3 +1,4 @@
+
 BICePs - Bayesian Inference of Conformational Populations
 =========================================================
 
@@ -13,13 +14,13 @@ theoretical predictions of conformational state populations with sparse
 and/or noisy experimental measurements and objectively compare different
 models. Supported experimental observables include: 
 
-- [NMR nuclear Overhauser effect (NOE)](https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect). 
+- [NMR nuclear Overhauser effect](https://en.wikipedia.org/wiki/Nuclear_Overhauser_effect)  (`NOE`).
 
 - [NMR chemical shifts](https://en.wikipedia.org/wiki/Chemical_shift) (`HA`,`NH`, `CA` and `N`). 
 
-- [J couplings](https://en.wikipedia.org/wiki/J-coupling) (both small molecules and amino acids) 
+- [J couplings](https://en.wikipedia.org/wiki/J-coupling) (both small molecules and amino acids) (`J`).
 
-- [Hydrogen--deuterium exchange (HDX)](https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange).
+- [Hydrogen--deuterium exchange](https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange) (`HDX`).
 
 Citation [![DOI for Citing BICePs](https://img.shields.io/badge/DOI-10.1021.acs.jpcb.7b11871-green.svg)](http://doi.org/10.1021/acs.jpcb.7b11871)
 
@@ -75,6 +76,7 @@ Dependencies of BICePs
 ### BICePs is research software. If you make use of BICePs in scientific publications, please cite it.
 
 # To get started, see [biceps/releases](https://github.com/vvoelz/biceps/releases) for the latest version of BICePs.
+
 
 
 

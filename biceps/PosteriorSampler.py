@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import inspect, time
 from .KarplusRelation import *     # Returns J-coupling values from dihedral angles
 from .Restraint import *
 from .toolbox import *
@@ -10,31 +11,27 @@ class PosteriorSampler(object):
         """A class to perform posterior sampling of conformational populations.
 
         Args:
-            ensemble(list): a list of lists of Restraint objects, one list for each conformation.
+            ensemble(list): a list of lists of :attr:`biceps.Restraint.Restraint` objects, one list for each conformation.
             freq_write_traj(int): the frequency (in steps) to write the MCMC trajectory
             freq_print(int): the frequency (in steps) to print status
             freq_save_traj(int): the frequency (in steps) to store the MCMC trajectory
         """
 
-        # Allow the ensemble to pass through the class
-        self.ensemble = ensemble
-        # Step frequencies to write trajectory info
-        self.write_traj = freq_write_traj
-        # Frequency of storing trajectory samples
-        self.traj_every = freq_save_traj
-        # Ensemble is a list of Restraint objects
-        self.nstates = len(ensemble)
+        self.ensemble = ensemble # Allow the ensemble to pass through the class
+        self.nreplicas = 1
+        self.write_traj = freq_write_traj # Step frequencies to write trajectory info
+        self.traj_every = freq_save_traj # Frequency of storing trajectory samples
+        self.nstates = len(ensemble) # Ensemble is a list of Restraint objects
         # The initial state of the structural ensemble we're sampling from
         self.state = 0    # index in the ensemble
+        self.state = np.random.randint(low=0, high=self.nstates, size=self.nreplicas)
         self.E = 1.0e99   # initial energy
         self.accepted = 0
         self.total = 0
         # keep track of what we sampled in a trajectory
-        self.traj = PosteriorSamplingTrajectory(self.ensemble)
+        self.traj = PosteriorSamplingTrajectory(self.ensemble, self.nreplicas)
         # for each Restraint, calculate global reference potential parameters
         # ..by looking across all structures
-        #
-
         # TODO: can't this be more general?!?
         for i,R in enumerate(ensemble[0]):
             if R.ref == "uniform":
@@ -46,21 +43,20 @@ class PosteriorSampler(object):
                         self.build_exp_ref_pf(i)
                 else:
                     self.build_exp_ref(i)
-                self.traj.ref[i].append(self.betas)
+                self.traj.ref[i].append(R.betas)
             elif R.ref == 'gaussian':
-                if not R.precomputed:
-                    self.build_gaussian_ref_pf(i, use_global_ref_sigma=R.use_global_ref_sigma)
+                if hasattr(R, 'precomputed'):
+                    if not R.precomputed:
+                        self.build_gaussian_ref_pf(i, use_global_ref_sigma=R.use_global_ref_sigma)
                 else:
                     self.build_gaussian_ref(i, use_global_ref_sigma=R.use_global_ref_sigma)
-                self.traj.ref[i].append(self.ref_mean)
-                self.traj.ref[i].append(self.ref_sigma)
+                self.traj.ref[i].append(R.ref_mean)
+                self.traj.ref[i].append(R.ref_sigma)
             else:
                 raise ValueError('Please choose a reference potential of the following:\n \
                     {%s,%s,%s}'%('uniform','exp','gaussian'))
-
         # Compute ref state logZ for the free energies to normalize.
         self.compute_logZ()
-
         self.verbose = verbose
 
     def compute_logZ(self):
@@ -70,13 +66,12 @@ class PosteriorSampler(object):
         for s in self.ensemble:
             Z +=  np.exp( -np.array(s[0].energy, dtype=np.float128) )
         self.logZ = np.log(Z)
-        self.ln2pi = np.log(2.0*np.pi)
 
 
     def build_exp_ref(self, rest_index, verbose=False):
         """Looks at each structure to find the average observables
         :math:`<r_{j}>`, then stores the reference potential info for each
-        :attr:`Restraint` of this type for each structure.
+        :attr:`biceps.Restraint.Restraint` of this type for each structure.
 
         ``beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)``
 
@@ -164,7 +159,6 @@ class PosteriorSampler(object):
 
         # collect distributions of observables r_j across all structures
         n_observables  = self.ensemble[0][rest_index].n  # the number of (model,exp) data values in this restraint
-        #print('n_observables = ',n_observables)
 
         for s in self.ensemble:   # s is a list of Restraint() objects, we are considering the rest_index^th restraint
             s[rest_index].betas = []
@@ -221,35 +215,37 @@ class PosteriorSampler(object):
         # Generate empty lists for each restraint to fill with nuisance parameters
         nuisance_para = [ ]
         for R in self.ensemble[0]:
-            # Get nuisance parameters for this specific restraint
-            for para in R._nuisance_parameters:
-                nuisance_para.append(np.array(getattr(R, para)))
+            keys = R.__dict__.keys() # all attributes of the Child Restraint class
+            for j in [key for key in keys if "allowed_" in key]: # get the allowed parameters
+                nuisance_para.append(np.array(getattr(R, j)))
         self.nuisance_para = np.array(nuisance_para)
 #        np.save('compiled_nuisance_parameters.npy',self.nuisance_para)
         # Construct the matrix converting all values to floats for C++
         if verbose == True:
             print(self.nuisance_para)
             print('Number of Restraints = ',len(self.nuisance_para))
+        return self.nuisance_para
 
 
-    def neglogP(self, new_state, parameters, parameter_indices, verbose=False):
+    def neglogP(self, states, parameters, parameter_indices):
         """Return -ln P of the current configuration.
 
         Args:
-            new_state(list): the new conformational state from Sample()
+            state(list): the new conformational state being sampled in :attr:`PosteriorSampler.sample`
             parameters(list): a list of the new parameters for each of the restraints
             parameter_indices(list): parameter indices that correspond to each restraint
         """
 
-        s = self.ensemble[int(new_state)] # Current Structure (list of restraints)
-        _result = s[0].energy + self.logZ  # Grab the free energy of the state and normalize
-        for index,R in enumerate(s):
-            #print(index, R)
-            _result += R.compute_neglogP(index, parameters, parameter_indices)
-        return _result
+        result = 0
+        for state in states:
+            s = self.ensemble[int(state)] # Current Structure (list of restraints)
+            result += s[0].energy + self.logZ  # Grab the free energy of the state and normalize
+            for i,R in enumerate(s):
+                result += R.compute_neglogP(parameters[i], parameter_indices[i], s[i].sse)
+        return result
 
 
-    def sample(self, nsteps, print_freq=1000, verbose=False, debug=False):
+    def sample(self, nsteps, print_freq=1000, verbose=False):
         """Perform n number of steps (nsteps) of posterior sampling, where Monte
         Carlo moves are accepted or rejected according to Metroplis criterion.
         Energies are computed via :class:`neglogP`.
@@ -257,264 +253,129 @@ class PosteriorSampler(object):
         Args:
             nsteps(int): number of steps of sampling.
             print_freq(int): frequency of printing to the screen
+            verbose(bool): control over verbosity
+
+        .. tip::
+            Keep `verbose=False` when using multiprocessing. Otherwise, it is very
+            convenient to have `verbose=True`.
         """
 
         # Generate a matrix of nuisance parameters
-        self.compile_nuisance_parameters()
-
-        # Generate a high dimentional matrix of allowed nuisance parameters
-        #grid = []
-        #for rest in self.nuisance_para:
-        #    grid.append(np.zeros((rest.shape[0],rest.shape[0])))
-        # create a list to record sampled times in each nuisance parameter space
-        sampled = np.zeros(len(self.nuisance_para))
-
-        # Generate random restraint index to initialize the sigma and gamma parameters
-        self.new_rest_index = np.random.randint(len(self.ensemble[0]))
-
-        # Initialize the state
-        self.new_state = int(self.state)
-
+        allowed = self.compile_nuisance_parameters()
+        # Store a list of nuisance parameters for each restraint
+        self.rest_type = []
         # Store a list of parameter indices for each restraint inside a list
-        # parameter_indices e.g., [[161], [142], ...]
-        _parameter_indices = [ ]
-
-        # Store a list of parameters that correspond to the index inside a list
-        # parameters e.g., [[1.2122652], [0.832136160], ...]
-        _parameters = [ ]
+        self.indices = [] # e.g., [161, 142, ...]
         # Loop through the restraints, and get the parameters and indices
-        for rest_index in range(len(self.ensemble[self.new_state])):
-            Restraint = self.ensemble[self.new_state][rest_index]
-            _parameter_indices.append(
-                    [getattr(Restraint, para) for para in Restraint._parameter_indices])
-            _parameters.append(
-                    [getattr(Restraint, para) for para in Restraint._parameters])
-
+        rest_index = []
+        #NOTE: using information from first state
+        for i,R in enumerate(self.ensemble[self.state[0]]):
+            keys = R.__dict__.keys() # all attributes of the Child Restraint class
+            for j in [key for key in keys if "index" in key]: # get the parameter indices
+                self.indices.append(getattr(R, j))
+            for j in [key.split("_")[-1] for key in keys if "allowed_" in key]: #
+                self.rest_type.append(str(j)+"_"+str(R.__repr__).split("_")[-1].split()[0])
+                rest_index.append(i)
         if verbose:
-            header = """Step\t\tState\tPara Indices\t\tEnergy\t\tAcceptance (%)"""
+            header = """Step\t\tState\tPara Indices\t\tAvg Energy\tAcceptance (%)"""
             print(header)
-
-
-        # The new parameter index to use in initial step (this is for restraints with more than one nuisance parameters)
-        #self.new_para_index = np.random.randint(
-        #        len(_parameter_indices[self.new_rest_index]) )
-
         # Create separate accepted ratio recorder list
-        n_para = 1
-        for para in _parameters:    # restraint
-            for in_para in para:    # nuisance parameters
-                n_para += 1
-        sep_accepted = np.zeros(n_para)   # all nuisance paramters + state (n_para starts from 1 not 0)
-
-        for step in range(nsteps):
-
+        n_rest = max(rest_index)+1
+        sep_accepted = np.zeros(len(self.indices)+1) # all nuisance paramters + state (n_para starts from 1 not 0)
+        step=0
+        start = time.time()
+        while step < nsteps:
             # Redefine based upon acceptance (Metroplis criterion)
-            new_state = self.new_state
-
-            # parameter_indices e.g. [[161], [142]]
-            parameter_indices = _parameter_indices
-
-            """ the point of the following part is to convert
-            the original parameters in the format of list of lists (e.g. [[1],[2,3]])
-            to a 1D list (e.g. [1,2,3] because the allowed_parameters (self.nuisance_para)
-            is in the format of [a,b,c] where a,b,c represent parameters
-            (which is different from parameter_indices).
-            So the logic is to convert from list of lists to a 1D list
-            and track the original index of each parameters to convert it back to the list of lists later.
-            (The reason for that is because the way we coded up neglogP function requires that format).
-            The code will randomly pick up one observable space (including state space) to sample
-            and then propose a jump along each parameter space associated with that observable.
-            Once we have the new index and parameter of that observable,
-            we convert all parameters/indices back to the original format (list of lists)
-            and feed them to neglogP function for energy calculation.
-            I'm sure this part can be improved and I suggest people who are going to work on this
-            read the code carefully and make sure you fully understand what is going on here
-            and come up with your own way to make it better.
-            This is the core part of BICePs so make sure you know what you are doing. --Yunhui Ge 03/2020)
-            """
-
-            # make a temporary list of indices
-            temp_parameter_indices = []
-            original_index =[]   # keep tracking the original index of the parameters
-            for ind in range(len(parameter_indices)):
-                for in_ind in parameter_indices[ind]:
-                    temp_parameter_indices.append(in_ind)
-                    original_index.append(ind)
-            original_index = np.array(original_index)
-            #print('original_index',original_index)
-            # parameters e.g. [[1.2122652], [0.832136160]]
-            parameters = _parameters
-            # make a temporary list of parameters
-            temp_parameters = []
-            for para in parameters:
-                for in_para in para:
-                    temp_parameters.append(in_para)
-
-            # RAND = generalized probability of taking a step in restraint space given the total number of restraints.
-            RAND = 1. - 1./(len(parameter_indices) + 1.)   # 1. is the state
-            #print('RAND',RAND)
-            # randomly pick up one observable to sample
-            to_sample_ind = np.random.randint(len(parameter_indices))  # together with RAND, this will make sure all observables and the state space will share the same probability to propose a MCMC movement
-            #print('to_sample_ind',to_sample_ind)
-            sample_ind = np.where(original_index==to_sample_ind)[0]   # the ind in the list of parameters (later used for self.nuisance_para)
-            #print('sample_ind',sample_ind)
-            # find corresponding nuisance parameters
-            allowed_parameters = []
-            for para_ind in sample_ind:
-                allowed_parameters.append(self.nuisance_para[para_ind])
-            #print('allowed_parameters',allowed_parameters)
-            # pick up the index of parameters associated with the observable to sample
-            index = []
-            for para_ind in sample_ind:
-                index.append(temp_parameter_indices[para_ind])
-            #print('index',index)
-            #ind1 = index
-
-            # rolling a dice
-            dice = np.random.random()
-            #print('rolling dice', dice)
-            #if np.random.random() < RAND:
-
-            if dice < RAND:
-                ## Take a random step in the space of specific parameter
-                actual_sample_ind = sample_ind  # actual parameters being sampled
-                #print('actual_sample_ind',actual_sample_ind)
-                # Shift the index by +1, 0 or -1
-                temp_index = []
-                for ind in range(len(index)):
-                    temp_index.append(index[ind] + (np.random.randint(3)-1))
-                #print('temp_index',temp_index)
-                #index += (np.random.randint(3)-1)
-#                index = np.random.randint(len(nuisance_para))
-                # Make sure the index doesn't fall out of the boundry of the allowed parameters
-                temp_index2 = []
-                for ind in range(len(temp_index)):
-                    temp_index2.append(temp_index[ind]%len(allowed_parameters[ind]))
-                #print('temp_index2',temp_index2)
-                #index = index%(len(allowed_parameters))
-                #ind2 = index
-                ## Temporary replacement until satisfied by Metroplis criterion
-                # Replace the old parameter with the new parameter
-                for ind in range(len(sample_ind)):
-                    temp_parameters[sample_ind[ind]] = allowed_parameters[ind][temp_index2[ind]]
-                    temp_parameter_indices[sample_ind[ind]] = temp_index2[ind]
-                #print('temp_parameters',temp_parameters)
-                #print('temp_parameter_indices',temp_parameter_indices)
-                #temp_parameters[to_sample_ind] = allowed_parameters[index]
-                #temp_parameter_indices[to_sample_ind] = index
-
-            else:
-                ## Take a random step in state space
-                new_state = np.random.randint(self.nstates)
-                actual_sample_ind = [len(temp_parameters)]  # actual parameters being sampled, if it's state then it's the last one in the list
-            if debug:
-                print('*****************************************')
-                #print('new_rest_index ', new_rest_index )
-                #print('new_para_index ', new_para_index )
-                print('new_state ', new_state )
-                #print('new_sigma ', temp_parameters[to_sample_ind] )
-                #print('new_sigma_index ', temp_parameter_indices[to_sample_ind] )
-                #print('new_allowed_parameters ', allowed_parameters )
-                print('parameter_indices ', temp_parameter_indices )
-                print('parameters ',temp_parameters)
-                print('*****************************************')
-
-            # recreate a list with the same shape of the original list required by the neglogP function
-            new_parameters=[[] for l in range(len(parameter_indices))]
-            new_parameter_indices=[[] for l in range(len(parameter_indices))]
-            for m in range(len(original_index)):
-                new_parameters[original_index[m]].append(temp_parameters[m])
-                new_parameter_indices[original_index[m]].append(temp_parameter_indices[m])
-            # record which nuisance parameters space is sampled
-            sampled[to_sample_ind] += 1.0
-
+            state, E = self.state.copy(), self.E
+            indices = self.indices.copy() # e.g. [161, 142]
+            #values = self.values # e.g. [1.2122652, 0.832136160]
+            # All sample-space will share the same probability to be sampled
+            RAND = 1. - 1./(n_rest + 1.)   # + 1. is the term to include state-space
+            dice = np.random.random() # rolling the dice
+            if dice < RAND: # Take a random step in Restraint space
+                ind = []
+                # Make sure the index doesn't fall out of the boundry of the allowed values
+                for k in np.where(np.array(rest_index)==np.random.randint(n_rest))[0]:
+                    indices[k] = (indices[k]+(np.random.randint(3)-1))%len(allowed[k])
+                    ind.append(k)
+            else: ## Take a random step in state space
+                state = np.random.randint(low=0, high=self.nstates, size=self.nreplicas)
+                ind = [len(indices)]
+            # values e.g., [1.2122652, 0.832136160, ...]
+            values = [allowed[i][indices[i]] for i in range(len(indices))]
+            # Convert the list of indices and values into a list of list for each restraint
+            sep_indices = [[] for i in range(n_rest)]
+            sep_values = [[] for i in range(n_rest)]
+            for n,m in enumerate(rest_index):
+                sep_indices[m].append(indices[n])
+                sep_values[m].append(values[n])
+            #print(f"sep_indices: {sep_indices}")
             # Compute new "energy"
-            new_E = self.neglogP(new_state, new_parameters, new_parameter_indices, verbose=False)
-
+            E = self.neglogP(state, sep_values, sep_indices)
             # Accept or reject the MC move according to Metroplis criterion
-            accept = False
-#            print('new_E',new_E,'self.E',self.E)
-            if new_E < self.E:
-                accept = True
-
+            self.accept = False
+            if E < self.E:
+                self.accept = True
             else:
-                if np.random.random() < np.exp( self.E - new_E ):
-                    accept = True
-            # Update parameters based upon acceptance (Metroplis criterion)
-            if accept:
-                self.E = new_E
-                self.new_state = new_state
-                _parameter_indices = new_parameter_indices
-                _parameters = new_parameters
-                for ind in actual_sample_ind:
-                    sep_accepted[ind] += 1.0
-                #sep_accepted[actual_sample_ind] += 1.0  # keep recording accepted step based on which parameters sampled
+                if np.random.random() < np.exp( self.E - E ):
+                    self.accept = True
+
+            # Update values based upon acceptance (Metroplis criterion)
+            if self.accept:
+                self.E = E
+                self.state = state.copy()
+                self.indices = indices.copy()
+                self.values = values.copy()
+                for k in ind:
+                    sep_accepted[k] += 1.0
                 self.accepted += 1.0
-                #if actual_sample_ind == len(temp_parameters):
-                #    grid[to_sample_ind][ind1,ind1] += 1.0
-                #else:
-                #    grid[to_sample_ind][ind1,ind2] += 1.0
             self.total += 1.0
-
-            if debug:
-                if accept:
-                    print('*****************************************')
-                    print('self.E', self.E)
-                    print('self.new_state ', self.new_state )
-                    print('self.new_rest_index ', self.new_rest_index )
-                    #print('self.new_para_index ', new_para_index)
-                    print('self.accepted', self.accepted)
-                    print('*****************************************')
-
-            #NOTE: There will need to be additional parameters here for protection factor.
-
-
-            self.traj.state_counts[int(self.new_state)] += 1
-            self.traj.state_trace.append(int(self.new_state))
-
+            # Store sampled states along trajectory
+            for i in range(len(self.state)):
+                self.traj.state_counts[int(self.state[i])] += 1
+                self.traj.state_trace.append(int(self.state[i]))
             # Store the counts of sampled sigma along the trajectory
-            for i in range(len(np.concatenate(_parameter_indices))):
-                self.traj.sampled_parameters[i][np.concatenate(_parameter_indices)[i]] += 1
-
+            for i in range(len(self.indices)):
+                self.traj.sampled_parameters[i][self.indices[i]] += 1
             # Store trajectory samples
-            temp=[[] for i in range(len(_parameter_indices))]
-            for i in range(len(_parameter_indices)):
-                for j in _parameter_indices[i]:
-                    temp[i].append(int(j))
-
+            temp=[[] for i in range(n_rest)]
+            for n,m in enumerate(rest_index):
+                temp[m].append(self.indices[n])
             # Store trajectory samples
             if step%self.traj_every == 0:
                 self.traj.trajectory.append( [int(step), float(self.E),
-                    int(accept), int(self.new_state), list(temp)])
-                self.traj.traces.append(np.concatenate(_parameters))
+                    int(self.accept), list(self.state.copy()), list(temp.copy())])
+                    #int(self.accept), int(self.state), list(temp.copy())])
+                self.traj.traces.append(self.values.copy())
 
             if verbose:
                 if step%print_freq == 0:
-                    output = """%i\t\t%i\t%s\t%.3f\t\t%.2f"""%(step,self.new_state,
-                            _parameter_indices,self.E,self.accepted/self.total*100.)
+                    output = """%i\t\t%s\t%s\t\t%.3f\t\t%.2f\t%s"""%(step, self.state,
+                            self.indices, self.E/self.nreplicas, self.accepted/self.total*100., self.accept)
                     print(output)
+            step += 1
+        restraints = list(dict.fromkeys([r.split("_")[-1] for r in self.rest_type]))
 
         print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
         print('\nAccepted [ ...Nuisance paramters..., state] %')
         print('Accepted %s %% \n'%(sep_accepted/self.total*100.))
         self.traj.sep_accept.append(sep_accepted/self.total*100.)    # separate accepted ratio
         self.traj.sep_accept.append(self.accepted/self.total*100.)   # the total accepted ratio
-        #for g in range(len(grid)):
-        #    self.traj.grid.append(grid[g]/sampled[g]*100.)
-
 
 
 
 class PosteriorSamplingTrajectory(object):
-    def __init__(self, ensemble):
+    def __init__(self, ensemble, nreplicas):
         """A container class to store and perform operations on the trajectories of
         sampling runs.
 
         Args:
-            ensemble(list): ensemble of :attr:`Restraint` objects
+            ensemble(list): ensemble of :attr:`biceps.Restraint.Restraint` objects
+            nreplicas(int): number of replicas
         """
 
         self.ensemble = ensemble
+        self.nreplicas = nreplicas
         self.nstates = len(self.ensemble)
         self.state_counts = np.ones(self.nstates)  # add a pseudo-count to avoid log(0) errors
 
@@ -524,46 +385,43 @@ class PosteriorSamplingTrajectory(object):
         self.ref = [ []  for i in range(len(ensemble[0]))]  # parameters of reference potentials
         self.model = [ [] for i in range(len(ensemble[0]))]  # restraints model data
         self.sep_accept = []     # separate accepted ratio
-        #self.grid = []   # for acceptance ratio plot
         self.state_trace = []
         s = self.ensemble[0]
-
-        for rest_index in range(len(s)):
-            # TODO: Is there a better wat to call on these variables?
-            # right now it is a list of strings
-            nuisance_parameters = getattr(s[rest_index], "_nuisance_parameters")
-            for para in nuisance_parameters:
-                self.allowed_parameters.append(getattr(s[rest_index], para))
-                self.sampled_parameters.append(np.zeros(len(getattr(s[rest_index], para))))
-
         # Generate a list of the names of the parameter indices for the traj header
         parameter_indices = []
-        for rest_index in range(len(s)):
-            # TODO: Is there a better wat to call on these variables?
-            # right now it is a list of strings
-            parameter_indices.append( getattr(s[rest_index], '_parameter_indices') )
-
         self.rest_type = []
-        for rest_index in range(len(s)):
-            # TODO: Is there a better wat to call on these variables?
-            for rest_type in getattr(s[rest_index], '_rest_type'):
-                self.rest_type.append(rest_type)
+        for i,R in enumerate(s):
+            keys = R.__dict__.keys() # all attributes of the Child Restraint class
+            for j in [key for key in keys if "allowed_" in key]: # get the allowed parameters
+                self.allowed_parameters.append(getattr(R, j))
+                self.sampled_parameters.append(np.zeros(len(getattr(R, j))))
+            for j in [key for key in keys if "index" in key]: # get the parameter indices
+                parameter_indices.append(getattr(R, j))
+            for j in [key.split("_")[-1] for key in keys if "allowed_" in key]: #
+                self.rest_type.append(str(j)+"_"+str(R.__repr__).split("_")[-1].split()[0])
 
         self.trajectory_headers = ["step", "E", "accept", "state",
                 "para_index = %s"%parameter_indices]
-
         self.trajectory = []
         self.traces = []
         self.results = {}
 
-    def process_results(self, outfilename='traj.npz'):
+    def process_results(self, filename='traj.npz'):
         """Process the trajectory, computing sampling statistics,
         ensemble-average NMR observables.
 
-        Args:
-            outfilename(str): path and filename of output MCMC trajectory
+        Benefits of using Numpy Z compression (npz) formatting:
+        1) Standardized Python library (NumPy), 2) writes a compact file
+        of several arrays into binary format and 3) significantly smaller
+        size over many other formats.
 
-        .. tip:: [Future] Returns: Pandas DataFrame
+        Args:
+            filename(str): relative path and filename for MCMC trajectory
+
+        .. tip::
+
+            It is possible to convert the trajectory file to a Pandas DataFrame
+            (pickle file) with the following: :attr:`biceps.toolbox.npz_to_DataFrame`
 
         """
 
@@ -581,12 +439,10 @@ class PosteriorSamplingTrajectory(object):
 
         #TODO: Check to make sure that there hasn't been an update in Py3
         # that will allow datatype convervation in the method `getattr()`
-
         self.results['rest_type'] = self.rest_type
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
         self.results['sep_accept'] = self.sep_accept
-        #self.results['grid'] = self.grid
         self.results['allowed_parameters'] = self.allowed_parameters
         self.results['sampled_parameters'] = self.sampled_parameters
         self.results['model'] = self.model
@@ -594,24 +450,24 @@ class PosteriorSamplingTrajectory(object):
         self.results['traces'] = self.traces
         self.results['state_trace'] = self.state_trace
 
-        self.write(outfilename, self.results)
+        self.write(filename, self.results)
         #TODO: Return a Pandas Dataframe of the results to be passed into
         # Analysis so time isn't wasted loading in long trajectories
         #return self.results
         #return pd.DataFrame(self.results)
 
 
-    def write(self, outfilename='traj.npz', *args, **kwds): # new
+    def write(self, filename='traj.npz', *args, **kwds):
         """Writes a compact file of several arrays into binary format.
         Standardized: Yes ; Binary: Yes; Human Readable: No;
 
         Args:
-            outfilename(str): path and filename of output MCMC trajectory
+            filename(str): path and filename of output MCMC trajectory
 
         :rtype: npz (numpy compressed file)
         """
 
-        np.savez_compressed(outfilename, *args, **kwds)
+        np.savez_compressed(filename, *args, **kwds)
 
 
 
