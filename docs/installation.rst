@@ -64,8 +64,6 @@ Dependencies
     Python versions 2.7-3.7)</li>
    </ul>
 
-
-
 Testing Your Installation
 -------------------------
 

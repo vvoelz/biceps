@@ -62,7 +62,7 @@ BICePs supports Python 2.7 (see [tag v1.0](https://github.com/vvoelz/biceps/rele
 Dependencies of BICePs
 ----------------------
 
-> -   [pymbar](https://pymbar.readthedocs.io) == 3.0.2
+> -   [pymbar](https://pymbar.readthedocs.io) >= 3.0
 > -   [mdtraj](https://mdtraj.org) >= 1.5.0
 > -   matplotlib >= 2.1.2
 > -   numpy >= 1.14.0
