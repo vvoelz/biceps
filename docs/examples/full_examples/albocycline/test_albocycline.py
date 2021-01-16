@@ -7,7 +7,10 @@ import os, sys
 os.system('jupyter nbconvert --to python albocycline.ipynb')
 # ... this should output albocycline.py
 
-import albocycline 
 
-# test_albocycline()
+def test_albocycline():
+    """Tests the code in albocycline.py by importing it.""" 
+    import albocycline 
+
+test_albocycline()
 
