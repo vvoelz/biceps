@@ -64,11 +64,11 @@ print(pd.DataFrame(parameters))
 def mp_lambdas(lam):
     ensemble = biceps.Ensemble(lam, energies)
     ensemble.initialize_restraints(input_data, parameters)
-    sampler = biceps.PosteriorSampler(ensemble.to_list())
+    sampler = biceps.PosteriorSampler(ensemble)
     sampler.sample(nsteps=nsteps, print_freq=1000, verbose=False)
     sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
-    filename = outdir+'/sampler_lambda%2.2f.pkl'%(lam)
-    biceps.toolbox.save_object(sampler, filename)
+    #filename = outdir+'/sampler_lambda%2.2f.pkl'%(lam)
+    #biceps.toolbox.save_object(sampler, filename)
 
 '''
 ####### Convergence Check #######
