@@ -68,6 +68,8 @@ Dependencies of BICePs
 > -   numpy >= 1.14.0
 > -   multiprocessing (works with Python versions 3.0-3.7)
 
+NOTE: for pymbar, try: `$ pip install git+https://github.com/choderalab/pymbar.git@3.0.2`
+
 -------------------------------------------
 
 
