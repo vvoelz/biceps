@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -10,7 +11,7 @@ from scipy.optimize import curve_fit
 
 class Convergence(object):
 
-    def __init__(self, filename, outdir="./", verbose=False):
+    def __init__(self, filename, outdir=None, verbose=False):
         """Convergence submodule for BICePs.
 
         Args:
@@ -30,8 +31,8 @@ class Convergence(object):
         self.sampled_parameters = self.get_sampled_parameters()
         self.labels = self.get_labels()
         self.exp_function = "single"
-        if outdir.endswith("/"): self.outdir = outdir
-        else: self.outdir = outdir+"/"
+        if outdir is None: self.outdir = os.getcwd()
+        else: self.outdir = outdir
 
 
     def get_sampled_parameters(self):
@@ -85,7 +86,7 @@ class Convergence(object):
             plt.yticks(fontsize=14)
             if xlim: plt.xlim(left=xlim[0], right=xlim[1])
         plt.tight_layout()
-        plt.savefig(self.outdir+figname)
+        plt.savefig(os.path.join(self.outdir,figname))
         if self.verbose: print('Done!')
 
     def plot_auto_curve(self, xlim=None, figname="autocorrelation_curve.png",
@@ -137,7 +138,7 @@ class Convergence(object):
             if xlim:
                 plt.xlim(left=xlim[0], right=xlim[1])
         plt.tight_layout()
-        plt.savefig(self.outdir+figname)
+        plt.savefig(os.path.join(self.outdir,figname))
         if self.verbose: print('Done!')
 
     def plot_auto_curve_with_exp_fitting(self, figname="autocorrelation_curve_with_exp_fitting.png"):
@@ -161,7 +162,7 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(self.outdir+figname)
+        plt.savefig(os.path.join(self.outdir,figname))
         if self.verbose: print('Done!')
 
 
@@ -405,8 +406,8 @@ class Convergence(object):
                         temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
                     all_JSDs[i][subset].append(self.compute_JSD(temp_T1,temp_T2,T_total,ind,self.allowed_parameters[i]))
         if savefile:
-            np.save(self.outdir+"all_JSD.npy", all_JSD)
-            np.save(self.outdir+"all_JSDs.npy", all_JSDs)
+            np.save(os.path.join(self.outdir,"all_JSD.npy"), all_JSD)
+            np.save(os.path.join(self.outdir,"all_JSDs.npy"), all_JSDs)
         if self.verbose: print('Done!')
         self.plot_JSD_distribution(np.array(all_JSD), np.array(all_JSDs), nround, nfold)
         self.plot_JSD_conv(np.array(all_JSD), np.array(all_JSDs))
@@ -436,7 +437,7 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(self.outdir+figname)
+        plt.savefig(os.path.join(self.outdir,figname))
 
 
     def compute_JSD(self, T1, T2, T_total, ind, allowed_parameters):
@@ -526,7 +527,7 @@ class Convergence(object):
                 plt.title('%d'%(10*(j+1))+'%',fontsize=10)
                 plt.legend(loc='best',fontsize=6)
             plt.tight_layout()
-            plt.savefig(self.outdir+'JSD_conv_%s.pdf'%self.rest_type[k])
+            plt.savefig(os.path.join(self.outdir,'JSD_conv_%s.pdf'%self.rest_type[k]))
         if self.verbose: print('Done')
 
 
@@ -573,7 +574,7 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(self.outdir+figname)
+        plt.savefig(os.path.join(self.outdir,figname))
 
 
 
