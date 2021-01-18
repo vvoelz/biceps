@@ -36,10 +36,10 @@ def mp_lambdas(lam):
     ensemble.initialize_restraints(input_data, parameters)
     sampler = biceps.PosteriorSampler(ensemble)
     sampler.sample(nsteps, verbose=False)
-    sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
+    sampler.traj.process_results(f"{outdir}/traj_lambda{lam}.npz")
 
 ####### Posterior Analysis #######
-A = biceps.Analysis(nstates=states, outdir=outdir)
+A = biceps.Analysis(trajs=f"{outdir}/traj*.npz", nstates=states)
 A.plot()
 
 

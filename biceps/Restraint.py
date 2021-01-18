@@ -801,7 +801,7 @@ class Restraint_pf(Restraint):
 
 class Preparation(object):
 
-    def __init__(self, nstates=0,  top_file=None, outdir="./"):
+    def __init__(self, nstates=0,  top_file=None, outdir=None):
         """A class to prepare **input_data** for the :attr:`biceps.Ensemble.initialize_restraints` method.
 
         Args:
@@ -812,7 +812,8 @@ class Preparation(object):
 
         self.nstates = nstates
         self.topology = md.load(top_file).topology
-        self.outdir = outdir
+        if outdir is None: self.outdir = os.getcwd()
+        else: self.outdir = outdir
 
     def to_sorted_list(self):
         """Uses ``biceps.toolbox.sort_data()`` to return sorted list of **input_data**."""
@@ -878,8 +879,7 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.cs_%s"%(j, extension)
-            if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
+            self.write_DataFrame(filename=os.path.join(self.outdir,filename), verbose=verbose)
 
 
 
@@ -922,8 +922,7 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.noe"%(j)
-            if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
+            self.write_DataFrame(filename=os.path.join(self.outdir,filename), verbose=verbose)
 
 
 
@@ -974,8 +973,7 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.J"%(j)
-            if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
+            self.write_DataFrame(filename=os.path.join(self.outdir,filename), verbose=verbose)
 
 
     def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, verbose=False):
@@ -1017,8 +1015,7 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.pf"%(j)
-            if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
+            self.write_DataFrame(filename=os.path.join(self.outdir,filename), verbose=verbose)
 
 
 

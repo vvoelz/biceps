@@ -27,21 +27,21 @@ def mp_lambdas(lam):
     ensemble.initialize_restraints(input_data, parameters)
     sampler = biceps.PosteriorSampler(ensemble)
     sampler.sample(nsteps=nsteps, burn=0, print_freq=1000, verbose=0)
-    sampler.traj.process_results(outdir+'/traj_lambda%2.2f.npz'%(lam))
+    sampler.traj.process_results(f"{outdir}/traj_lambda{lam}.npz")
 
-'''
+#'''
 ####### Convergence Check #######
 maxtau=1000
-C = biceps.Convergence(filename=outdir+"/traj_lambda0.00.npz",
+C = biceps.Convergence(filename=outdir+"/traj_lambda0.0.npz",
         outdir=outdir)
 C.get_autocorrelation_curves(method="auto", maxtau=maxtau)
 C.plot_auto_curve(figname="auto_curve.pdf", xlim=(0, maxtau))
 C.process(nblock=5, nfold=10, nround=100, savefile=True,
         block=True, normalize=True)
-'''
+#'''
 
 ####### Posterior Analysis #######
-A = biceps.Analysis(nstates=states, outdir=outdir)
+A = biceps.Analysis(trajs=f"{outdir}/traj*.npz", nstates=states)
 A.plot()
 
 
