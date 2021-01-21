@@ -4,6 +4,7 @@ import inspect, time
 from .KarplusRelation import *     # Returns J-coupling values from dihedral angles
 from .Restraint import *
 from .toolbox import *
+from tqdm import tqdm # progress bar
 
 class PosteriorSampler(object):
 
@@ -286,6 +287,7 @@ class PosteriorSampler(object):
         sep_accepted = np.zeros(len(self.indices)+1) # all nuisance paramters + state (n_para starts from 1 not 0)
         step=0
         start = time.time()
+        if not verbose: pbar = tqdm(total=nsteps+burn)
         while step < nsteps+burn:
             # Redefine based upon acceptance (Metroplis criterion)
             state, E = self.state.copy(), self.E
@@ -335,6 +337,7 @@ class PosteriorSampler(object):
 
             if (step >= burn):
                 _step = step-burn
+                if not verbose: pbar.update(1)
                 # Store sampled states along trajectory
                 for i in range(len(self.state)):
                     self.traj.state_counts[int(self.state[i])] += 1
@@ -360,6 +363,7 @@ class PosteriorSampler(object):
                         print(output)
             step += 1
         restraints = list(dict.fromkeys([r.split("_")[-1] for r in self.rest_type]))
+        if not verbose: pbar.close()
 
         print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
         print('\nAccepted [ ...Nuisance paramters..., state] %')
