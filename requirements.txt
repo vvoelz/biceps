@@ -15,6 +15,7 @@ sphinx
 sphinx_rtd_theme
 scikit-learn
 numpydoc
+tqdm
 pymbar==3.0.2
 mdtraj==1.9.3
 
