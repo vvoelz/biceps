@@ -32,7 +32,7 @@ sys.path.append('BICePs_2.0/')
 
 setup(
         name="biceps",
-        version="2.0",
+        version="2.0b",
         description='BICePs',
         long_description=long_description,
         long_description_content_type="text/markdown",
@@ -55,16 +55,19 @@ setup(
         author_email='vvoelz@gmail.com',
         license='MIT',
         #packages=exclude=['docs']),
+        packages=find_packages(),
         install_requires=[
-            'numpy>=1.7.0','mdtraj==1.9.3','pymbar==3.0.2'],
-        python_requires='<=3.7',
+            #'numpy>=1.7.0',
+            'mdtraj==1.9.3','pymbar==3.0.2'],
+        python_requires='<3.8',
         #extras_require={  # Optional
         #        'dev': ['check-manifest'],
         #        'test': ['coverage'],
         #    },
         #dependency_links=req_links2,
-        include_package_data=True,
-        zip_safe=True)
+        #include_package_data=True,
+        #zip_safe=True)
+        )
 
 
 

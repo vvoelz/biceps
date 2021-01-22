@@ -343,10 +343,10 @@ class Convergence(object):
 
 
     def process(self, nblock=5, nfold=10, nround=100, savefile=True,
-            block=False, normalize=True):
+            block_avg=False, normalize=True):
         """Process the trajectory and execute :func:`compute_JSD` with
         :func:`plot_JSD_conv` and :func:`plot_JSD_distribution`.
-        If :attr:`block=True`, then block averaging will be executed and
+        If :attr:`block_avg=True`, then block averaging will be executed and
         :func:`plot_block_avg` will be executed as well.
 
         Args:
@@ -354,11 +354,11 @@ class Convergence(object):
              nfold(int): is the number of partitions in the shuffled (subsampled) trajectory
              nround(int): is the number of rounds of bootstrapping when computing JSDs
              savefile(bool):
-             block(bool): use block averaging
+             block_avg(bool): use block averaging
              verbose(bool): verbosity
         """
 
-        if block:
+        if block_avg:
             r_total = [[] for i in range(len(self.rest_type))]
             r_max = [[] for i in range(len(self.rest_type))]
             for i in range(len(self.tau_c)):

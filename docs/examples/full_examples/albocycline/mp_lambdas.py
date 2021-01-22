@@ -39,7 +39,7 @@ C = biceps.Convergence(trajfile=outdir+"/traj_lambda0.00.npz")
 C.get_autocorrelation_curves(maxtau=maxtau)
 C.plot_auto_curve(fname="auto_curve.pdf", xlim=(0, maxtau))
 C.process(nblock=5, nfold=10, nround=100, savefile=True,
-    plot=True, block=True, normalize=True)
+    plot=True, block_avg=True, normalize=True)
 '''
 
 ####### Posterior Analysis #######
