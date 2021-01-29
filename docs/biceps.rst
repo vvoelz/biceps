@@ -24,11 +24,17 @@ Ensemble
 .. automethod:: biceps.Ensemble.to_list
 
 
+
 Restraint
 ---------
 
 .. currentmodule:: biceps
 .. autoclass:: biceps.Restraint.Restraint
+.. automethod:: biceps.Restraint.Restraint_cs.init_restraint
+.. automethod:: biceps.Restraint.Restraint_J.init_restraint
+.. automethod:: biceps.Restraint.Restraint_noe.init_restraint
+.. automethod:: biceps.Restraint.Restraint_pf.init_restraint
+
 
 
 PosteriorSampler
