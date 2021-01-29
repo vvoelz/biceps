@@ -113,15 +113,15 @@ class Convergence(object):
             j = int(round(self.tau_c[i]))
             plt.axvline(self.tau_c[i], color='k', linestyle="--")
 
-            if (std_x or std_y) != None:
+            if isinstance(std_x, np.ndarray) or isinstance(std_y, np.ndarray):
                 plt.annotate("$\\tau_{auto} = %i \\pm %i$"%(round(self.tau_c[i]),round(std_x[i])),
                         (self.tau_c[i], self.autocorr[i][j]),
-                        xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05))
-                if std_x != None:
+                        xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05), fontsize=16)
+                if isinstance(std_x, np.ndarray):
                     plt.errorbar(self.tau_c[i], self.autocorr[i][j], xerr=std_x[i],
                             ecolor='k', fmt='o', capsize=10)
 
-                if std_y != None:
+                if isinstance(std_y, np.ndarray):
                     plt.fill_between(np.arange(self.maxtau+1),
                             self.autocorr[i]-std_y[i], self.autocorr[i]+std_y[i], color='r', alpha=0.4)
 
@@ -154,6 +154,16 @@ class Convergence(object):
                 plt.subplot(len(self.autocorr),1,i+1)
             else:
                 plt.subplot(len(self.autocorr),2,i+1)
+            j = int(round(self.tau_c[i]))
+            # NOTE: Only works for single exponential
+            plt.axvline(self.tau_c[i], color='k', linestyle="--")
+            try:
+                plt.annotate("$\\tau_{auto} = %i$"%(round(self.tau_c[i])),
+                        (self.tau_c[i], self.autocorr[i][j]),
+                        xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05), fontsize=16)
+            except(IndexError) as e:
+                continue
+
             plt.plot(np.arange(self.maxtau+1), self.autocorr[i])
             plt.plot(np.arange(self.maxtau+1), self.yFits[i], 'r--')
             plt.xlabel('$\\tau$', fontsize=18)
@@ -209,14 +219,14 @@ class Convergence(object):
             v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
             popt, pcov = curve_fit(self.single_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
             yFit_data = self.single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
-            print(('Best-fit tau1 = %s +/- %s'%(popt[2],pcov[2][2])))
+            if self.verbose: print(('Best-fit tau1 = %s +/- %s'%(popt[2],pcov[2][2])))
             max_tau = popt[2]
         else:
             v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
             popt, pcov = curve_fit(self.double_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
             yFit_data = self.double_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2], popt[3], popt[4])
-            print(('Best-fit tau1 = %s +/- %s'%(popt[3],pcov[3][3])))
-            print(('Best-fit tau2 = %s +/- %s'%(popt[4],pcov[4][4])))
+            if self.verbose: print(('Best-fit tau1 = %s +/- %s'%(popt[3],pcov[3][3])))
+            if self.verbose: print(('Best-fit tau2 = %s +/- %s'%(popt[4],pcov[4][4])))
             #NOTE: This may need to be fixed later
             max_tau = max(popt[3],popt[4])
         return yFit_data,max_tau
@@ -329,13 +339,13 @@ class Convergence(object):
 
         if method == "exp":
             from scipy.optimize import curve_fit
-            self.yFits,popts = [],[]
+            self.yFits,self.popts = [],[]
             for i in range(len(self.autocorr)):
                 yFit,popt = self.exponential_fit(self.autocorr[i], exp_function=self.exp_function)
-                popts.append(popt)
+                self.popts.append(popt)
                 self.yFits.append(yFit)
-            self.tau_c = np.array(popts) #np.max(popts)
-            print(("self.tau_c = %s"%self.tau_c))
+            self.tau_c = np.array(self.popts) #np.max(popts)
+            #print(("self.tau_c = %s"%self.tau_c))
             self.plot_auto_curve_with_exp_fitting()
 
         if plot_traces:
