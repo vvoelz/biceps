@@ -259,8 +259,7 @@ class PosteriorSampler(object):
             verbose(bool): control over verbosity
 
         .. tip::
-            Keep `verbose=False` when using multiprocessing. Otherwise, it is very
-            convenient to have `verbose=True`.
+            Set `verbose=False` when using multiprocessing.
         """
 
         # Generate a matrix of nuisance parameters
