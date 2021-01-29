@@ -53,7 +53,14 @@ class Ensemble(object):
             input_data(list of str): a sorted collection of filenames (files\
                     contain `exp` (experimental) and `model` (theoretical) observables)
             parameters(list of dict): dictionary containing keys that match \
-                    :attr:`biceps.Restraint.Restraint` parameters and values are lists for each restraint.
+                    :attr:`biceps.Restraint.Restraint` parameters and values are lists for each restraint.\
+
+        .. code-block:: python
+            # In general:
+            parameters = [dict(**kwargs),...,dict(**kwargs)]
+            # More specifically, for J and NOE data restraints, respectively:
+            parameters = [dict(ref='uniform', sigma=(0.05, 20.0, 1.02)),
+                          dict(ref='exp', sigma=(0.05, 5.0, 1.02), gamma=(0.2, 5.0, 1.02))]
         """
 
         verbose = self.debug
@@ -385,25 +392,24 @@ class Restraint_J(Restraint):
 
 
 class Restraint_noe(Restraint):
-    """A :attr:`biceps.Restraint.Restraint` child class for NOE distances."""
 
     _ext = ['noe']
 
     def init_restraint(self, data, energy, weight=1, verbose=False,
-            log_normal=False, gamma=(0.2, 10.0, 1.01)):
-        """Initialize the NOE distance restraints for each **exp** (experimental)
-        and **model** (theoretical) observable given **data**.
+            log_normal=False, gamma=[0.2, 10.0, 1.01]):
+        """
+        Initialize the NOE distance restraints for each experimental
+        and theoretical observable given data.
+        When :attr:`log_normal=True`, the modified sum of squared errors is used
+        :math:`\chi_{d}^{2}(X)=\sum_{j} w_{j}( \ln ( r_{j}(X) / \gamma' r_{j}^{exp} ))^{2}`
 
-        When using :attr:`log_normal` the modified sum of squared errors is used:
-        :math:`\chi_{\mathrm{d}}^{2}(X)=\sum_{j} w_{j}\left(\ln \left(r_{j}(X) / \gamma^{\prime} r_{j}^{\exp }\right)\right)^{2}`
 
         Args:
             data(str): filename of data
             energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
             weight(float): weight for restraint
-            log_normal(bool):
-            gamma(tuple): (gamma_min, gamma_max, dgamma) in log space
-        """
+            log_normal(bool): use log normal distribution
+            gamma(list): [gamma_min, gamma_max, dgamma] in log space"""
 
         # Store info about gamma^(-1/6) scaling parameter array
         self.dloggamma = np.log(gamma[2])
@@ -505,9 +511,9 @@ class Restraint_pf(Restraint):
     _ext = ['pf']
 
     def init_restraint(self, data, energy, precomputed=False, pf_prior=None,
-            Ncs_fi=None, Nhs_fi=None, beta_c=(0.05, 0.25, 0.01), beta_h=(0.0, 5.2, 0.2),
-            beta_0=(-10.0, 0.0, 0.2), xcs=(5.0, 8.5, 0.5), xhs=(2.0, 2.7, 0.1),
-            bs=(15.0, 16.0, 1.0), weight=1, states=None, verbose=False):
+            Ncs_fi=None, Nhs_fi=None, beta_c=[0.05, 0.25, 0.01], beta_h=[0.0, 5.2, 0.2],
+            beta_0=[-10.0, 0.0, 0.2], xcs=[5.0, 8.5, 0.5], xhs=[2.0, 2.7, 0.1],
+            bs=[15.0, 16.0, 1.0], weight=1, states=None, verbose=False):
         """Initialize protection factor restraints for each **exp** (experimental)
         and **model** (theoretical) observable given **data**.
 
@@ -515,12 +521,12 @@ class Restraint_pf(Restraint):
             data(str): filename of data
             energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
             weight(float): weight for restraint
-            beta_c(tuple): [min, max, spacing]
-            beta_h(tuple):
-            beta_0(tuple):
-            xcs(tuple):
-            xhs(tuple):
-            bs(tuple):
+            beta_c(list): [min, max, spacing]
+            beta_h(list): [min, max, spacing]
+            beta_0(list): [min, max, spacing]
+            xcs(list): [min, max, spacing]
+            xhs(list): [min, max, spacing]
+            bs(list): [min, max, spacing]
 
         """
 
