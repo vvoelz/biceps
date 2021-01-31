@@ -61,6 +61,19 @@ class Ensemble(object):
             # More specifically, for J and NOE data restraints, respectively:
             parameters = [dict(ref='uniform', sigma=(0.05, 20.0, 1.02)),
                           dict(ref='exp', sigma=(0.05, 5.0, 1.02), gamma=(0.2, 5.0, 1.02))]
+
+        .. tip::
+
+            See the following class methods for the full list of keyword arguments (**kwargs)
+            for each restraint used inside `parameters`:
+
+            :attr:`biceps.Restraint.Restraint_cs.init_restraint`
+
+            :attr:`biceps.Restraint.Restraint_J.init_restraint`
+
+            :attr:`biceps.Restraint.Restraint_noe.init_restraint`
+
+            :attr:`biceps.Restraint.Restraint_pf.init_restraint`
         """
 
         verbose = self.debug

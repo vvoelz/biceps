@@ -292,7 +292,7 @@ class Convergence(object):
         Saves a figure of autocorrelation curves for each restraint.
 
         Args:
-            method(str): method for computing autocorrelation time; "block-avg" or "exp" or "auto"
+            method(str): method for computing autocorrelation time; "block-avg-auto" or "exp" or "auto"
             nblocks(int): number of blocks to split up the trajectory
             maxtau(int): the upper bound of autocorrelation lag time
             plot_traces(bool): plot the trajectory traces?
@@ -313,9 +313,8 @@ class Convergence(object):
         self.tau_c = self.autocorrelation_time(self.autocorr)
         if self.verbose: print("Done!")
 
-        if method in ["block-avg","auto"]:
-            if method == "auto":
-                nblocks = 1
+        if method in ["block-avg-auto","auto"]:
+            if method == "auto": nblocks = 1
             blocks = self.get_blocks(sampled_parameters, nblocks)
             x,y = [],[]
             for i in range(len(blocks)):
