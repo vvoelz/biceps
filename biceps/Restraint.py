@@ -43,12 +43,6 @@ class Ensemble(object):
         """Initialize corresponding :attr:`biceps.Restraint.Restraint` classes based on experimental
         observables from **input_data** for each conformational state.
 
-        .. tip::
-
-            Print possible restraints with: :attr:`biceps.toolbox.list_possible_restraints`
-
-            Print possible extensions with: :attr:`biceps.toolbox.list_possible_extensions`
-
         Args:
             input_data(list of str): a sorted collection of filenames (files\
                     contain `exp` (experimental) and `model` (theoretical) observables)
@@ -56,6 +50,7 @@ class Ensemble(object):
                     :attr:`biceps.Restraint.Restraint` parameters and values are lists for each restraint.\
 
         .. code-block:: python
+
             # In general:
             parameters = [dict(**kwargs),...,dict(**kwargs)]
             # More specifically, for J and NOE data restraints, respectively:
@@ -64,7 +59,8 @@ class Ensemble(object):
 
         .. tip::
 
-            See the following class methods for the full list of keyword arguments (**kwargs)
+            See the following parent :attr:`biceps.Restraint.Restraint` and
+            child class methods for the full list of keyword arguments (**kwargs)
             for each restraint used inside `parameters`:
 
             :attr:`biceps.Restraint.Restraint_cs.init_restraint`
@@ -74,6 +70,11 @@ class Ensemble(object):
             :attr:`biceps.Restraint.Restraint_noe.init_restraint`
 
             :attr:`biceps.Restraint.Restraint_pf.init_restraint`
+
+            Print possible restraints with: :attr:`biceps.toolbox.list_possible_restraints`
+
+            Print possible extensions with: :attr:`biceps.toolbox.list_possible_extensions`
+
         """
 
         verbose = self.debug
