@@ -9,6 +9,165 @@ warnings.filterwarnings("ignore",category=DeprecationWarning)
 warnings.filterwarnings("ignore",category=RuntimeWarning)
 from scipy.optimize import curve_fit
 
+def single_exp_decay(x, a0, a1, tau1):
+    """Function of a single exponential decay fitting.
+
+    :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1}))`
+
+    :param np.array x:
+    :param float a0:
+    :param float a1:
+    :param float tau1:
+    :return np.array: """
+
+    return a0 + a1*np.exp(-(x/tau1))
+
+def double_exp_decay(x, a0, a1, a2, tau1, tau2):
+    """Function of a double exponential decay fitting.
+
+    :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1})) + a_{2}*exp(-(x/\tau_{2}))`
+
+    :param np.array x:
+    :param float a0:
+    :param float a1:
+    :param float a2:
+    :param float tau1:
+    :param float tau2:
+    :return np.array: """
+
+    return a0 + a1*np.exp(-(x/tau1)) + a2*np.exp(-(x/tau2))
+
+def exponential_fit(ac, exp_function='single', verbose=False):
+    """Calls on :attr:`single_exp_decay` ('single') or :attr:`double_exp_decay`
+    ('double') for an exponential fitting of an autocorrelation curve.
+    See `SciPy curve fit <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html>`_
+    for more details.
+
+    :param np.ndarray ac:
+    :param str default='single' exp_function:
+    :return np.array yFit: the y-values of the fit curve."""
+
+    nsteps = ac.shape[0]
+    if exp_function == 'single':
+        v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
+        popt, pcov = curve_fit(single_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
+        yFit_data = single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
+        if verbose: print(('Best-fit tau1 = %s +/- %s'%(popt[2],pcov[2][2])))
+        max_tau = popt[2]
+    else:
+        v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
+        popt, pcov = curve_fit(double_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
+        yFit_data = double_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2], popt[3], popt[4])
+        if verbose: print(('Best-fit tau1 = %s +/- %s'%(popt[3],pcov[3][3])))
+        if verbose: print(('Best-fit tau2 = %s +/- %s'%(popt[4],pcov[4][4])))
+        #NOTE: This may need to be fixed later
+        max_tau = max(popt[3],popt[4])
+    return yFit_data,max_tau
+
+def compute_autocorrelation_curves(data, max_tau, normalize=True):
+    """Calculates the autocorrelation
+
+    Args:
+        data(list): list of separate timeseries
+        maxtau(int): the upper bound of autocorrelation lag time
+        normalize(bool): to normalize
+
+    Returns: np.ndarray
+    """
+
+    return np.array([g(np.array(timeseries), max_tau, normalize) for timeseries in data])
+
+
+def g(f, max_tau=10000, normalize=True):
+    """Calculate the autocorrelaton function for a time-series f(t).
+
+    :param np.array f:  a 1D numpy array containing the time series f(t)
+    :param int max_tau: the maximum autocorrelation time to consider.
+    :param bool normalize: if True, return g(tau)/g[0]
+    :return np.array: a numpy array of size (max_tau+1,) containing g(tau)
+    """
+
+    f_zeroed = f-f.mean()
+    T = f_zeroed.shape[0]
+    result = np.zeros(max_tau+1)
+    for tau in range(max_tau+1):
+        result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
+
+    if normalize: return result/result[0]
+    else: return result
+
+
+def compute_autocorrelation_time(autocorr):
+    """Computes the autocorrelation time :math:`\\tau_{auto} = \int C_{\\tau} d\\tau`
+
+    Args:
+        autocorr(np.ndarray): an array containing the autocorrelation for \
+                each restraint.
+
+    Returns:
+        np.ndarray
+    """
+
+    result = [sum(autocorr[i]) for i in range(len(autocorr))]
+    return np.array(result)
+
+
+def get_blocks(data, nblocks=5):
+    """Method used to partition data into blocks"""
+
+    # slice the data into nblocks
+    blocks = []
+    for vec in data:
+        dx = int(len(vec)/nblocks)
+        blocks.append([vec[dx*n:dx*(n+1)] for n in range(nblocks)])
+    return blocks
+
+
+
+def compute_JSD(T1, T2, T_total, ind, allowed_parameters):
+    """Compute JSD for a given part of trajectory.
+
+    :math:`JSD = H(P_{comb}) - {\pi_{1}}{H(P_{1})} - {\pi_{2}}{H(P_{2})}`,
+    where :math:`P_{comb}` is the combined data (:math:`P_{1} \cup P_{2}`).
+    :math:`H` is the Shannon entropy of distribution :math:`P_{i}` and
+    :math:`\pi_{i}` is the weight for the probability distribution :math:`P_{i}`.
+    :math:`H(P_{i}) = \sum -\\frac{r_{i}}{N_{i}}*ln(\\frac{r_{i}}{N_{i}})`,
+    where :math:`r_{i}` and :math:`N_{i}` represents sampled times of a
+    specific parameter index and the total number of samples of the
+    parameter, respectively
+
+    :var T1, T2, T_total: part 1, part2 and total (part1 + part2)
+    :var rest_type: experimental restraint type
+    :var allowed_parameters: nuisacne parameters range
+    :return float: Jensen–Shannon divergence
+    """
+
+    r1,r2,r_total = np.zeros(len(allowed_parameters)),np.zeros(len(allowed_parameters)),np.zeros(len(allowed_parameters))
+    for frame in T1:
+        parameter_indices = np.concatenate(frame[4])
+        r1[parameter_indices[ind]]+=1
+    for frame in T2:
+        parameter_indices = np.concatenate(frame[4])
+        r2[parameter_indices[ind]]+=1
+    for frame in T_total:
+        parameter_indices = np.concatenate(frame[4])
+        r_total[parameter_indices[ind]]+=1
+    N1=sum(r1)
+    N2=sum(r2)
+    N_total = sum(r_total)
+    H1 = -1.*r1/N1*np.log(r1/N1)
+    H1 = sum(np.nan_to_num(H1))
+    H2 = -1.*r2/N2*np.log(r2/N2)
+    H2 = sum(np.nan_to_num(H2))
+    H = -1.*r_total/N_total*np.log(r_total/N_total)
+    H = sum(np.nan_to_num(H))
+    JSD = H-(N1/N_total)*H1-(N2/N_total)*H2
+    return JSD
+
+
+
+
+
 class Convergence(object):
 
     def __init__(self, filename, outdir=None, verbose=False):
@@ -89,6 +248,7 @@ class Convergence(object):
         plt.savefig(os.path.join(self.outdir,figname))
         if self.verbose: print('Done!')
 
+
     def plot_auto_curve(self, xlim=None, figname="autocorrelation_curve.png",
             std_x=None, std_y=None):
         """Plot auto-correlation curve. This function saves a figure of
@@ -141,6 +301,7 @@ class Convergence(object):
         plt.savefig(os.path.join(self.outdir,figname))
         if self.verbose: print('Done!')
 
+
     def plot_auto_curve_with_exp_fitting(self, figname="autocorrelation_curve_with_exp_fitting.png"):
         """Plot auto-correlation curve with an exponential fitting.
 
@@ -176,115 +337,6 @@ class Convergence(object):
         if self.verbose: print('Done!')
 
 
-    def single_exp_decay(self, x, a0, a1, tau1):
-        """Function of a single exponential decay fitting.
-
-        :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1}))`
-
-        :param np.array x:
-        :param float a0:
-        :param float a1:
-        :param float tau1:
-        :return np.array: """
-
-        return a0 + a1*np.exp(-(x/tau1))
-
-    def double_exp_decay(self, x, a0, a1, a2, tau1, tau2):
-        """Function of a double exponential decay fitting.
-
-        :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1})) + a_{2}*exp(-(x/\tau_{2}))`
-
-        :param np.array x:
-        :param float a0:
-        :param float a1:
-        :param float a2:
-        :param float tau1:
-        :param float tau2:
-        :return np.array: """
-
-        return a0 + a1*np.exp(-(x/tau1)) + a2*np.exp(-(x/tau2))
-
-    def exponential_fit(self, ac, exp_function='single'):
-        """Calls on :attr:`single_exp_decay` ('single') or :attr:`double_exp_decay`
-        ('double') for an exponential fitting of an autocorrelation curve.
-        See `SciPy curve fit <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html>`_
-        for more details.
-
-        :param np.ndarray ac:
-        :param str default='single' exp_function:
-        :return np.array yFit: the y-values of the fit curve."""
-
-        nsteps = ac.shape[0]
-        if exp_function == 'single':
-            v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
-            popt, pcov = curve_fit(self.single_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
-            yFit_data = self.single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
-            if self.verbose: print(('Best-fit tau1 = %s +/- %s'%(popt[2],pcov[2][2])))
-            max_tau = popt[2]
-        else:
-            v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
-            popt, pcov = curve_fit(self.double_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
-            yFit_data = self.double_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2], popt[3], popt[4])
-            if self.verbose: print(('Best-fit tau1 = %s +/- %s'%(popt[3],pcov[3][3])))
-            if self.verbose: print(('Best-fit tau2 = %s +/- %s'%(popt[4],pcov[4][4])))
-            #NOTE: This may need to be fixed later
-            max_tau = max(popt[3],popt[4])
-        return yFit_data,max_tau
-
-    def cal_auto(self, data):
-        """Calculates the autocorrelation"""
-
-        autocorrs = []
-        for timeseries in data:
-            autocorrs.append( self.g(np.array(timeseries), max_tau=self.maxtau) )
-        return autocorrs
-
-
-    def g(self, f, max_tau = 10000, normalize=True):
-        """Calculate the autocorrelaton function for a time-series f(t).
-
-        :param np.array f:  a 1D numpy array containing the time series f(t)
-        :param int max_tau: the maximum autocorrelation time to consider.
-        :param bool normalize: if True, return g(tau)/g[0]
-        :return np.array: a numpy array of size (max_tau+1,) containing g(tau)
-        """
-
-        f_zeroed = f-f.mean()
-        T = f_zeroed.shape[0]
-        result = np.zeros(max_tau+1)
-        for tau in range(max_tau+1):
-            result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
-
-        if normalize:
-            return result/result[0]
-        else:
-            return result
-
-
-    def autocorrelation_time(self, autocorr):
-        """Computes the autocorrelation time :math:`\\tau_{auto} = \int C_{\\tau} d\\tau`
-
-        Args:
-            autocorr(np.ndarray): an array containing the autocorrelation for \
-                    each restraint.
-
-        """
-
-        result = [sum(autocorr[i]) for i in range(len(autocorr))]
-        return np.array(result)
-
-
-    def get_blocks(self, data, nblocks=5):
-        """Method used to partition data into blocks"""
-
-        # slice the data into nblocks
-        blocks = []
-        for vec in data:
-            dx = int(len(vec)/nblocks)
-            blocks.append([vec[dx*n:dx*(n+1)] for n in range(nblocks)])
-        return blocks
-
-
     def get_autocorrelation_curves(self, method="auto", nblocks=5, maxtau=10000,
             plot_traces=False):
         """Compute autocorrelaton function for a time-series f(t), partition the
@@ -307,19 +359,19 @@ class Convergence(object):
 
         # Python
         if self.verbose: print('Calculating autocorrelation ...')
-        self.autocorr = self.cal_auto(sampled_parameters)
+        self.autocorr = compute_autocorrelation_curves(sampled_parameters, max_tau=self.maxtau, normalize=True)
         if self.verbose: print("Done!")
         if self.verbose: print('Calculating autocorrelation times...')
-        self.tau_c = self.autocorrelation_time(self.autocorr)
+        self.tau_c = compute_autocorrelation_time(self.autocorr)
         if self.verbose: print("Done!")
 
         if method in ["block-avg-auto","auto"]:
             if method == "auto": nblocks = 1
-            blocks = self.get_blocks(sampled_parameters, nblocks)
+            blocks = get_blocks(sampled_parameters, nblocks)
             x,y = [],[]
             for i in range(len(blocks)):
-                y.append(self.cal_auto(blocks[i]))
-                x.append(self.autocorrelation_time(y[i]))
+                y.append(compute_autocorrelation_curves(blocks[i], max_tau=self.maxtau, normalize=True))
+                x.append(compute_autocorrelation_time(y[i]))
             self.autocorr = np.average(y, axis=1)
             self.tau_c = np.average(x, axis=1)
 
@@ -340,7 +392,7 @@ class Convergence(object):
             from scipy.optimize import curve_fit
             self.yFits,self.popts = [],[]
             for i in range(len(self.autocorr)):
-                yFit,popt = self.exponential_fit(self.autocorr[i], exp_function=self.exp_function)
+                yFit,popt = exponential_fit(self.autocorr[i], exp_function=self.exp_function)
                 self.popts.append(popt)
                 self.yFits.append(yFit)
             self.tau_c = np.array(self.popts) #np.max(popts)
@@ -404,7 +456,7 @@ class Convergence(object):
                 T1 = T_new[:half]     # first half of the trajectory
                 T2 = T_new[half:dx*(subset+1)]    # second half of the trajectory
                 T_total = T_new[:dx*(subset+1)]     # total trajectory
-                all_JSD[i].append(self.compute_JSD(T1,T2,T_total,ind,self.allowed_parameters[i]))   # compute JSD
+                all_JSD[i].append(compute_JSD(T1,T2,T_total,ind,self.allowed_parameters[i]))   # compute JSD
                 for r in range(nround):      # now let's mix this dataset
                     mT1 = np.random.choice(len(T_total),int(len(T_total)/2),replace=False)    # randomly pickup snapshots (index) as the first part
                     mT2 = np.delete(np.arange(0,len(T_total),1),mT1)           # take the rest (index) as the second part
@@ -413,7 +465,7 @@ class Convergence(object):
                         temp_T1.append(T_total[snapshot])      # take the first part dataset from the trajectory
                     for snapshot in mT2:
                         temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
-                    all_JSDs[i][subset].append(self.compute_JSD(temp_T1,temp_T2,T_total,ind,self.allowed_parameters[i]))
+                    all_JSDs[i][subset].append(compute_JSD(temp_T1,temp_T2,T_total,ind,self.allowed_parameters[i]))
         if savefile:
             np.save(os.path.join(self.outdir,"all_JSD.npy"), all_JSD)
             np.save(os.path.join(self.outdir,"all_JSDs.npy"), all_JSDs)
@@ -448,46 +500,6 @@ class Convergence(object):
         plt.tight_layout()
         plt.savefig(os.path.join(self.outdir,figname))
 
-
-    def compute_JSD(self, T1, T2, T_total, ind, allowed_parameters):
-        """Compute JSD for a given part of trajectory.
-
-        :math:`JSD = H(P_{comb}) - {\pi_{1}}{H(P_{1})} - {\pi_{2}}{H(P_{2})}`,
-        where :math:`P_{comb}` is the combined data (:math:`P_{1} \cup P_{2}`).
-        :math:`H` is the Shannon entropy of distribution :math:`P_{i}` and
-        :math:`\pi_{i}` is the weight for the probability distribution :math:`P_{i}`.
-        :math:`H(P_{i}) = \sum -\\frac{r_{i}}{N_{i}}*ln(\\frac{r_{i}}{N_{i}})`,
-        where :math:`r_{i}` and :math:`N_{i}` represents sampled times of a
-        specific parameter index and the total number of samples of the
-        parameter, respectively
-
-        :var T1, T2, T_total: part 1, part2 and total (part1 + part2)
-        :var rest_type: experimental restraint type
-        :var allowed_parameters: nuisacne parameters range
-        :return float: Jensen–Shannon divergence
-        """
-
-        r1,r2,r_total = np.zeros(len(allowed_parameters)),np.zeros(len(allowed_parameters)),np.zeros(len(allowed_parameters))
-        for frame in T1:
-            parameter_indices = np.concatenate(frame[4])
-            r1[parameter_indices[ind]]+=1
-        for frame in T2:
-            parameter_indices = np.concatenate(frame[4])
-            r2[parameter_indices[ind]]+=1
-        for frame in T_total:
-            parameter_indices = np.concatenate(frame[4])
-            r_total[parameter_indices[ind]]+=1
-        N1=sum(r1)
-        N2=sum(r2)
-        N_total = sum(r_total)
-        H1 = -1.*r1/N1*np.log(r1/N1)
-        H1 = sum(np.nan_to_num(H1))
-        H2 = -1.*r2/N2*np.log(r2/N2)
-        H2 = sum(np.nan_to_num(H2))
-        H = -1.*r_total/N_total*np.log(r_total/N_total)
-        H = sum(np.nan_to_num(H))
-        JSD = H-(N1/N_total)*H1-(N2/N_total)*H2
-        return JSD
 
 
     def plot_JSD_conv(self, JSD, JSDs, p_limit=0.99):

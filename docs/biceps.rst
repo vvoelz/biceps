@@ -115,6 +115,14 @@ Convergence
 ------------
 
 .. currentmodule:: biceps
+.. automethod:: biceps.convergence.single_exp_decay
+.. automethod:: biceps.convergence.double_exp_decay
+.. automethod:: biceps.convergence.exponential_fit
+.. automethod:: biceps.convergence.compute_autocorrelation_curves
+.. automethod:: biceps.convergence.g
+.. automethod:: biceps.convergence.compute_autocorrelation_time
+.. automethod:: biceps.convergence.get_blocks
+.. automethod:: biceps.convergence.compute_JSD
 .. autoclass:: biceps.Convergence
 .. automethod:: biceps.Convergence.plot_traces
 .. automethod:: biceps.Convergence.plot_auto_curve
