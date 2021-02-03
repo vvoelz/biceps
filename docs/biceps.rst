@@ -115,14 +115,12 @@ Convergence
 ------------
 
 .. currentmodule:: biceps
-.. automethod:: biceps.convergence.single_exp_decay
-.. automethod:: biceps.convergence.double_exp_decay
-.. automethod:: biceps.convergence.exponential_fit
-.. automethod:: biceps.convergence.compute_autocorrelation_curves
-.. automethod:: biceps.convergence.g
-.. automethod:: biceps.convergence.compute_autocorrelation_time
-.. automethod:: biceps.convergence.get_blocks
-.. automethod:: biceps.convergence.compute_JSD
+.. autofunction:: biceps.convergence.exponential_fit
+.. autofunction:: biceps.convergence.compute_autocorrelation_curves
+.. autofunction:: biceps.convergence.g
+.. autofunction:: biceps.convergence.compute_autocorrelation_time
+.. autofunction:: biceps.convergence.get_blocks
+.. autofunction:: biceps.convergence.compute_JSD
 .. autoclass:: biceps.Convergence
 .. automethod:: biceps.Convergence.plot_traces
 .. automethod:: biceps.Convergence.plot_auto_curve
@@ -135,14 +133,14 @@ toolbox
 -------
 
 .. currentmodule:: biceps
-.. automethod:: biceps.toolbox.sort_data
-.. automethod:: biceps.toolbox.get_files
-.. automethod:: biceps.toolbox.list_res
-.. automethod:: biceps.toolbox.list_possible_restraints
-.. automethod:: biceps.toolbox.list_extensions
-.. automethod:: biceps.toolbox.list_possible_extensions
-.. automethod:: biceps.toolbox.npz_to_DataFrame
-.. automethod:: biceps.toolbox.save_object
+.. autofunction:: biceps.toolbox.sort_data
+.. autofunction:: biceps.toolbox.get_files
+.. autofunction:: biceps.toolbox.list_res
+.. autofunction:: biceps.toolbox.list_possible_restraints
+.. autofunction:: biceps.toolbox.list_extensions
+.. autofunction:: biceps.toolbox.list_possible_extensions
+.. autofunction:: biceps.toolbox.npz_to_DataFrame
+.. autofunction:: biceps.toolbox.save_object
 
 
 

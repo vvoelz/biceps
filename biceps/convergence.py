@@ -12,7 +12,7 @@ from scipy.optimize import curve_fit
 def single_exp_decay(x, a0, a1, tau1):
     """Function of a single exponential decay fitting.
 
-    :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1}))`
+    :math:`f(x) = a_{0} + a_{1}*exp(-(x/ \tau_{1}))`
 
     :param np.array x:
     :param float a0:
@@ -25,7 +25,7 @@ def single_exp_decay(x, a0, a1, tau1):
 def double_exp_decay(x, a0, a1, a2, tau1, tau2):
     """Function of a double exponential decay fitting.
 
-    :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1})) + a_{2}*exp(-(x/\tau_{2}))`
+    :math:`f(x) = a_{0} + a_{1}*exp(-(x/ \tau_{1})) + a_{2}*exp(-(x/ \tau_{2}))`
 
     :param np.array x:
     :param float a0:
@@ -37,26 +37,36 @@ def double_exp_decay(x, a0, a1, a2, tau1, tau2):
 
     return a0 + a1*np.exp(-(x/tau1)) + a2*np.exp(-(x/tau2))
 
-def exponential_fit(ac, exp_function='single', verbose=False):
+def exponential_fit(autocorrelation, exp_function='single', v0=None, verbose=False):
     """Calls on :attr:`single_exp_decay` ('single') or :attr:`double_exp_decay`
     ('double') for an exponential fitting of an autocorrelation curve.
     See `SciPy curve fit <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html>`_
     for more details.
 
-    :param np.ndarray ac:
-    :param str default='single' exp_function:
-    :return np.array yFit: the y-values of the fit curve."""
+    Args:
+        autocorrelation(np.ndarray): the autocorrelation of some timeseries
+        exp_function(str): default='single' ('single' or 'double'
+        v0(list): Initial conditions for exponential fitting. Default for 'single' \
+                is v0=[0.0, 1.0, 4000.]=[a0, a1, tau1] where :math:`a_{0} + a_{1}*exp(-(x/ \tau_{1}))` and\
+                default for 'double' is v0=[0.0, 0.9, 0.1, 4000., 200.0]=[a0, a1, a2, tau1, tau2] where\
+                :math:`f(x) = a_{0} + a_{1}*exp(-(x/ \tau_{1})) + a_{2}*exp(-(x/ \tau_{2}))`
 
-    nsteps = ac.shape[0]
+    Returns:
+        yfit(np.ndarray): the y-values of the fitted curve.
+
+    """
+
+
+    nsteps = autocorrelation.shape[0]
     if exp_function == 'single':
-        v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
-        popt, pcov = curve_fit(single_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
+        if v0 is None: v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
+        popt, pcov = curve_fit(single_exp_decay, np.arange(nsteps), autocorrelation, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
         yFit_data = single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
         if verbose: print(('Best-fit tau1 = %s +/- %s'%(popt[2],pcov[2][2])))
         max_tau = popt[2]
     else:
-        v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
-        popt, pcov = curve_fit(double_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
+        if v0 is None: v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
+        popt, pcov = curve_fit(double_exp_decay, np.arange(nsteps), autocorrelation, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
         yFit_data = double_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2], popt[3], popt[4])
         if verbose: print(('Best-fit tau1 = %s +/- %s'%(popt[3],pcov[3][3])))
         if verbose: print(('Best-fit tau2 = %s +/- %s'%(popt[4],pcov[4][4])))
@@ -65,7 +75,8 @@ def exponential_fit(ac, exp_function='single', verbose=False):
     return yFit_data,max_tau
 
 def compute_autocorrelation_curves(data, max_tau, normalize=True):
-    """Calculates the autocorrelation
+    """Calculates the autocorrelation for a list of arrays, where each array is a
+    separate time-series.
 
     Args:
         data(list): list of separate timeseries
@@ -97,23 +108,29 @@ def g(f, max_tau=10000, normalize=True):
     else: return result
 
 
-def compute_autocorrelation_time(autocorr):
+def compute_autocorrelation_time(autocorrelations):
     """Computes the autocorrelation time :math:`\\tau_{auto} = \int C_{\\tau} d\\tau`
 
     Args:
-        autocorr(np.ndarray): an array containing the autocorrelation for \
-                each restraint.
+        autocorrelations(np.ndarray): an array containing the autocorrelations for \
+                each time-series.
 
     Returns:
         np.ndarray
     """
 
-    result = [sum(autocorr[i]) for i in range(len(autocorr))]
+    result = [sum(autocorrelations[i]) for i in range(len(autocorrelations))]
     return np.array(result)
 
 
 def get_blocks(data, nblocks=5):
-    """Method used to partition data into blocks"""
+    """Method used to partition data into blocks. The data is a list of arrays,
+    where each array is a separate time-series or autocorrelation.
+
+    Args:
+        data(list): list of separate timeseries
+
+    """
 
     # slice the data into nblocks
     blocks = []
