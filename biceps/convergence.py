@@ -74,6 +74,7 @@ def exponential_fit(autocorrelation, exp_function='single', v0=None, verbose=Fal
         max_tau = max(popt[3],popt[4])
     return yFit_data,max_tau
 
+
 def compute_autocorrelation_curves(data, max_tau, normalize=True):
     """Calculates the autocorrelation for a list of arrays, where each array is a
     separate time-series.
@@ -92,10 +93,12 @@ def compute_autocorrelation_curves(data, max_tau, normalize=True):
 def g(f, max_tau=10000, normalize=True):
     """Calculate the autocorrelaton function for a time-series f(t).
 
-    :param np.array f:  a 1D numpy array containing the time series f(t)
-    :param int max_tau: the maximum autocorrelation time to consider.
-    :param bool normalize: if True, return g(tau)/g[0]
-    :return np.array: a numpy array of size (max_tau+1,) containing g(tau)
+    Args:
+        f(np.ndarray): a 1D numpy array containing the time series f(t)
+        maxtau(int):  the maximum autocorrelation time to consider.
+        normalize(bool): if True, return g(tau)/g[0]
+
+    Returns: np.array: a numpy array of size (max_tau+1,) containing g(tau)
     """
 
     f_zeroed = f-f.mean()
@@ -115,8 +118,7 @@ def compute_autocorrelation_time(autocorrelations):
         autocorrelations(np.ndarray): an array containing the autocorrelations for \
                 each time-series.
 
-    Returns:
-        np.ndarray
+    Returns: np.ndarray
     """
 
     result = [sum(autocorrelations[i]) for i in range(len(autocorrelations))]
