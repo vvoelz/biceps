@@ -57,12 +57,12 @@ setup(
         license='MIT',
         #packages=exclude=['docs']),
         packages=find_packages(),
-        setup_requires=['numpy'],
-        install_requires=[
-            'numpy',
-            'mdtraj',
-            #'git+https://github.com/mdtraj/mdtraj.git'
-            'pymbar==3.0.3'],
+        #setup_requires=['numpy'],
+        #install_requires=[
+        #    'numpy',
+        #    'mdtraj',
+        #    #'git+https://github.com/mdtraj/mdtraj.git'
+        #    'pymbar==3.0.3'],
             #'mdtraj==1.9.4','pymbar==3.0.2'],
         # conda install -c conda-forge mdtraj
 
