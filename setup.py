@@ -3,10 +3,10 @@
 from setuptools import setup, find_packages
 from os import path
 from io import open
-try: # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError: # for pip <= 9.0.3
-    from pip.req import parse_requirements
+#try: # for pip >= 10
+#    from pip._internal.req import parse_requirements
+#except ImportError: # for pip <= 9.0.3
+#    from pip.req import parse_requirements
 import sys
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
@@ -25,14 +25,14 @@ import sys
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), "r", encoding='utf-8') as f:
     long_description = f.read()
 
 sys.path.append('BICePs_2.0/')
 
 setup(
         name="biceps",
-        version="2.0b",
+        version="2.0b9",
         description='BICePs',
         long_description=long_description,
         long_description_content_type="text/markdown",
@@ -40,8 +40,9 @@ setup(
         #'Programming Language :: Python :: 2.7',
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: Unix",
         "Operating System :: MacOS",
+        "Operating System :: Unix",
+        #"Operating System :: OS Independent"
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         'Topic :: Scientific/Engineering :: Chemistry',
@@ -51,20 +52,34 @@ setup(
                 "Github": "https://github.com/vvoelz/biceps",
                 "Documentation": "https://biceps.readthedocs.io/en/latest/index.html",
             },
-        author='Yunhui Ge, Robert M. Raddi, Vincent A. Voelz',
+        author='Robert M. Raddi,Yunhui Ge, Vincent A. Voelz',
         author_email='vvoelz@gmail.com',
         license='MIT',
         #packages=exclude=['docs']),
         packages=find_packages(),
+        setup_requires=['numpy'],
         install_requires=[
-            #'numpy>=1.7.0',
-            'mdtraj==1.9.3','pymbar==3.0.2'],
+            'numpy',
+            'mdtraj',
+            #'git+https://github.com/mdtraj/mdtraj.git'
+            'pymbar==3.0.3'],
+            #'mdtraj==1.9.4','pymbar==3.0.2'],
+        # conda install -c conda-forge mdtraj
+
         python_requires='<3.8',
         #extras_require={  # Optional
         #        'dev': ['check-manifest'],
         #        'test': ['coverage'],
         #    },
-        #dependency_links=req_links2,
+        #dependency_links=[
+            #"git+https://github.com/username/repo.git@MyTag"
+
+            #'git+https://github.com/mdtraj/mdtraj.git'
+            #'https://github.com/mdtraj/mdtraj/archive/1.9.4.tar.gz',
+            #'git+https://github.com/mdtraj/mdtraj.git@1.9.3'
+            #'https://github.com/mdtraj/mdtraj/tarball/master#eggmdtraj-1.9.4',
+            #'git+https://github.com/choderalab/pymbar.git@3.0.3'
+        #    ]
         #include_package_data=True,
         #zip_safe=True)
         )
