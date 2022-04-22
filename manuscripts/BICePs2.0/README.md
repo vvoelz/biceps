@@ -1,6 +1,12 @@
 # BICePs 2.0 Manuscript Prep.
 #### Last Modified: 01/10/20
 
+```bash
+conda install -c conda-forge nbconvert=5.6.1
+jupyter nbconvert --to html --template notebook_theme.tpl *.ipynb
+```
+
+
 ## Figures:
 ## Listing of the figures and how they were generated:
 ##### Note that the following listing can easily be created (first removing any commented-out figures) with the following command:
