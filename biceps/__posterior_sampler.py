@@ -1,36 +1,34 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import inspect, time
-from .KarplusRelation import *     # Returns J-coupling values from dihedral angles
 from .Restraint import *
 from .toolbox import *
 from tqdm import tqdm # progress bar
 
 class PosteriorSampler(object):
 
-    def __init__(self, ensemble, freq_write_traj=100., freq_save_traj=100., verbose=False):
+    def __init__(self, ensemble, nreplicas=1, write_every=100, verbose=False):
         """A class to perform posterior sampling of conformational populations.
 
         Args:
-            ensemble(list): a list of lists of :attr:`biceps.Restraint.Restraint` objects, one list for each conformation.
-            freq_write_traj(int): the frequency (in steps) to write the MCMC trajectory
+            ensemble(list): a list of lists of Restraint objects, one list for each conformation.
+            write_every(int): the frequency (in steps) to write the MCMC trajectory
             freq_print(int): the frequency (in steps) to print status
-            freq_save_traj(int): the frequency (in steps) to store the MCMC trajectory
         """
 
+        self.lam = ensemble.lam
         self.ensemble = ensemble.to_list() # Allow the ensemble to pass through the class
-        self.nreplicas = 1
-        self.write_traj = freq_write_traj # Step frequencies to write trajectory info
-        self.traj_every = freq_save_traj # Frequency of storing trajectory samples
+        self.nreplicas = nreplicas
+        self.traj_every = write_every # Frequency of storing trajectory samples
         self.nstates = len(self.ensemble) # Ensemble is a list of Restraint objects
         # The initial state of the structural ensemble we're sampling from
-        self.state = 0    # index in the ensemble
+        #self.state = 0    # index in the ensemble
         self.state = np.random.randint(low=0, high=self.nstates, size=self.nreplicas)
         self.E = 1.0e99   # initial energy
         self.accepted = 0
         self.total = 0
         # keep track of what we sampled in a trajectory
-        self.traj = PosteriorSamplingTrajectory(self.ensemble, self.nreplicas)
+        self.traj = PosteriorSamplingTrajectory(ensemble=self.ensemble, sampler=self, nreplicas=self.nreplicas)
         # for each Restraint, calculate global reference potential parameters
         # ..by looking across all structures
         # TODO: can't this be more general?!?
@@ -38,7 +36,7 @@ class PosteriorSampler(object):
             if R.ref == "uniform":
                 self.traj.ref[i].append('Nan')
                 pass
-            elif R.ref == 'exponential':
+            elif R.ref == 'exp':
                 if hasattr(R, 'precomputed'):
                     if not R.precomputed:
                         self.build_exp_ref_pf(i)
@@ -55,9 +53,19 @@ class PosteriorSampler(object):
                 self.traj.ref[i].append(R.ref_sigma)
             else:
                 raise ValueError('Please choose a reference potential of the following:\n \
-                    {%s,%s,%s}'%('uniform','exponential','gaussian'))
+                    {%s,%s,%s}'%('uniform','exp','gaussian'))
         # Compute ref state logZ for the free energies to normalize.
         self.compute_logZ()
+        self.model = self.get_model()
+        #print(self.model)
+        #mean = np.mean(np.transpose(self.model), axis=1)
+        #self.mean_r = np.array([[np.mean(self.model[i][k], axis=0) for i in range(len(self.model))] for k in range(len(self.model[i]))])
+        #self.mean_r = self.mean_r.transpose()
+        #self.sem0 = np.array([np.std(mean[i]) for i in range(len(mean))])
+        #print(f"self.sem0 = {self.sem0}")
+        #self.sem0 /= np.sqrt(self.nreplicas)
+        #print(f"self.sem0/sqrt(N) = {self.sem0}")
+        #self.sem = self.sem0
         self.verbose = verbose
 
     def compute_logZ(self):
@@ -65,7 +73,6 @@ class PosteriorSampler(object):
 
         Z = 0.0
         for s in self.ensemble:
-            #Z +=  np.exp( -np.array(s[0].energy, dtype=np.float128) )
             Z +=  np.exp( -np.array(s[0].energy, dtype=np.float64) )
         self.logZ = np.log(Z)
 
@@ -73,7 +80,7 @@ class PosteriorSampler(object):
     def build_exp_ref(self, rest_index, verbose=False):
         """Looks at each structure to find the average observables
         :math:`<r_{j}>`, then stores the reference potential info for each
-        :attr:`biceps.Restraint.Restraint` of this type for each structure.
+        :attr:`Restraint` of this type for each structure.
 
         ``beta_j = np.array(distributions[j]).sum()/(len(distributions[j])+1.0)``
 
@@ -208,6 +215,16 @@ class PosteriorSampler(object):
             s[rest_index].compute_neglog_gaussian_ref_pf()
 
 
+    def get_model(self):
+        """Returns the model with all model data"""
+
+        model = [[] for i in range(self.nstates)]
+        for s in range(self.nstates):
+            for R in self.ensemble[s]:
+                model[s].append(np.array([R.restraints[j]["model"] for j in range(R.n)]))
+        return np.array(model, dtype=object)
+
+
     def compile_nuisance_parameters(self, verbose=False):
         """Compiles numpy arrays of allowed parameters for each nuisance parameter.
 
@@ -247,6 +264,8 @@ class PosteriorSampler(object):
         return result
 
 
+
+
     def sample(self, nsteps, burn=0, print_freq=1000, verbose=False, progress=True):
         """Perform n number of steps (nsteps) of posterior sampling, where Monte
         Carlo moves are accepted or rejected according to Metroplis criterion.
@@ -255,15 +274,14 @@ class PosteriorSampler(object):
         Args:
             nsteps(int): number of steps of sampling.
             print_freq(int): frequency of printing to the screen
-            verbose(bool): control over verbosity
-
-        .. tip::
-            Keep `verbose=False` when using multiprocessing. Otherwise, it is very
-            convenient to have `verbose=True`.
         """
 
         # Generate a matrix of nuisance parameters
         allowed = self.compile_nuisance_parameters()
+        #print(allowed)
+        #exit()
+        #TODO
+        #print(f"allowed sample space = {allowed}")
         # Store a list of nuisance parameters for each restraint
         self.rest_type = []
         # Store a list of parameter indices for each restraint inside a list
@@ -279,7 +297,7 @@ class PosteriorSampler(object):
                 self.rest_type.append(str(j)+"_"+str(R.__repr__).split("_")[-1].split()[0])
                 rest_index.append(i)
         if verbose:
-            header = """Step\t\tState\tPara Indices\t\tAvg Energy\tAcceptance (%)"""
+            header = """Step\t\tState\tPara Indices\t\tAvg Energy\t\tAcceptance (%)"""
             print(header)
         # Create separate accepted ratio recorder list
         n_rest = max(rest_index)+1
@@ -293,16 +311,25 @@ class PosteriorSampler(object):
             indices = self.indices.copy() # e.g. [161, 142]
             #values = self.values # e.g. [1.2122652, 0.832136160]
             # All sample-space will share the same probability to be sampled
+
+            # NOTE: TODO: parameters = [dict(sample_sigma=True, sample_gamma=False)]
+
+            #_rest_ind = [0]
+            #RAND = 1. - 1./(len(_rest_ind) + 1.)   # + 1. is the term to include state-space
             RAND = 1. - 1./(n_rest + 1.)   # + 1. is the term to include state-space
             dice = np.random.random() # rolling the dice
             if dice < RAND: # Take a random step in Restraint space
                 ind = []
                 # Make sure the index doesn't fall out of the boundry of the allowed values
+                #for k in np.where(np.array(rest_index)==np.random.choice(_rest_ind))[0]:
                 for k in np.where(np.array(rest_index)==np.random.randint(n_rest))[0]:
                     indices[k] = (indices[k]+(np.random.randint(3)-1))%len(allowed[k])
                     ind.append(k)
             else: ## Take a random step in state space
-                state = np.random.randint(low=0, high=self.nstates, size=self.nreplicas)
+                #for s in np.random.randint(low=0, high=self.nstates, size=np.random.randint(self.nreplicas)+1):
+                #    state[np.random.randint(self.nreplicas)] = s
+                state[np.random.randint(self.nreplicas)] = np.random.randint(low=0, high=self.nstates, size=1)
+                #state = np.random.randint(low=0, high=self.nstates, size=self.nreplicas)
                 ind = [len(indices)]
             # values e.g., [1.2122652, 0.832136160, ...]
             values = [allowed[i][indices[i]] for i in range(len(indices))]
@@ -337,11 +364,10 @@ class PosteriorSampler(object):
             if (step >= burn):
                 _step = step-burn
                 if (not verbose) and progress: pbar.update(1)
-
                 # Store sampled states along trajectory
                 for i in range(len(self.state)):
                     self.traj.state_counts[int(self.state[i])] += 1
-                    self.traj.state_trace.append(int(self.state[i]))
+                self.traj.state_trace.append(list(self.state.copy()))
                 # Store the counts of sampled sigma along the trajectory
                 for i in range(len(self.indices)):
                     self.traj.sampled_parameters[i][self.indices[i]] += 1
@@ -350,38 +376,42 @@ class PosteriorSampler(object):
                 for n,m in enumerate(rest_index):
                     temp[m].append(self.indices[n])
                 # Store trajectory samples
-                if step%self.traj_every == 0:
-                    self.traj.trajectory.append( [int(step), float(self.E),
+                if _step%self.traj_every == 0:
+                    self.traj.trajectory.append( [int(_step), float(self.E),
                         int(self.accept), list(self.state.copy()), list(temp.copy())])
                         #int(self.accept), int(self.state), list(temp.copy())])
                     self.traj.traces.append(self.values.copy())
+                    #self.traj.sem_trace.append({str(self.rest_type[i]):sem for i,sem in enumerate(self.sem)})
+                    #self.traj.sse_trace.append({str(self.rest_type[i]):sse for i,sse in enumerate(self.sse)})
 
                 if verbose:
-                    if step%print_freq == 0:
-                        output = """%i\t\t%s\t%s\t\t%.3f\t\t%.2f\t%s"""%(step, self.state,
+                    if _step%print_freq == 0:
+                        output = """%i\t\t%s\t%s\t\t%.3f\t\t%.2f\t%s"""%(_step, self.state,
                                 self.indices, self.E/self.nreplicas, self.accepted/self.total*100., self.accept)
                         print(output)
             step += 1
         restraints = list(dict.fromkeys([r.split("_")[-1] for r in self.rest_type]))
+        if (not verbose) and progress: pbar.close()
 
-        print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
-        print('\nAccepted [ ...Nuisance paramters..., state] %')
-        print('Accepted %s %% \n'%(sep_accepted/self.total*100.))
+        if verbose: print('\nAccepted %s %% \n'%(self.accepted/self.total*100.))
+        if verbose: print('\nAccepted [ ...Nuisance paramters..., state] %')
+        if verbose: print('Accepted %s %% \n'%(sep_accepted/self.total*100.))
         self.traj.sep_accept.append(sep_accepted/self.total*100.)    # separate accepted ratio
         self.traj.sep_accept.append(self.accepted/self.total*100.)   # the total accepted ratio
 
 
 
 class PosteriorSamplingTrajectory(object):
-    def __init__(self, ensemble, nreplicas):
+    def __init__(self, ensemble, sampler, nreplicas):
         """A container class to store and perform operations on the trajectories of
         sampling runs.
 
         Args:
-            ensemble(list): ensemble of :attr:`biceps.Restraint.Restraint` objects
+            ensemble(list): ensemble of :attr:`Restraint` objects
             nreplicas(int): number of replicas
         """
 
+        self.sampler = sampler
         self.ensemble = ensemble
         self.nreplicas = nreplicas
         self.nstates = len(self.ensemble)
@@ -394,6 +424,8 @@ class PosteriorSamplingTrajectory(object):
         self.model = [ [] for i in range(len(ensemble[0]))]  # restraints model data
         self.sep_accept = []     # separate accepted ratio
         self.state_trace = []
+        self.sem_trace = [dict() for i in self.ensemble[0]]
+        self.sse_trace = [dict() for i in self.ensemble[0]]
         s = self.ensemble[0]
         # Generate a list of the names of the parameter indices for the traj header
         parameter_indices = []
@@ -418,25 +450,13 @@ class PosteriorSamplingTrajectory(object):
         """Process the trajectory, computing sampling statistics,
         ensemble-average NMR observables.
 
-        Benefits of using Numpy Z compression (npz) formatting:
-        1) Standardized Python library (NumPy), 2) writes a compact file
-        of several arrays into binary format and 3) significantly smaller
-        size over many other formats.
-
         Args:
-            filename(str): relative path and filename for MCMC trajectory
+            filename(str): path and filename of output MCMC trajectory
 
-        .. tip::
-
-            It is possible to convert the trajectory file to a Pandas DataFrame
-            (pickle file) with the following: :attr:`biceps.toolbox.npz_to_DataFrame`
-
+        .. tip:: [Future] Returns: Pandas DataFrame
         """
 
-        # Store the name of the restraints in a list corresponding to the correct order
-        saving = ['rest_type','trajectory_headers','trajectory','sep_accept',
-                'allowed_parameters','sampled_parameters','model','ref','traces','state_trace']
-
+        stime = time.time()
         for rest_index in range(len(self.ensemble[0])):
             n_observables  = self.ensemble[0][rest_index].n
             for n in range(n_observables):
@@ -444,28 +464,46 @@ class PosteriorSamplingTrajectory(object):
                 for s in range(len(self.ensemble)):
                     model.append(self.ensemble[s][rest_index].restraints[n]['model'])
                 self.model[rest_index].append(model)
+        #for key,val in saving.items():
+        #    try:
+        #        self.results[str(key).split('.')[-1]] = val(object(key))
+        #    except TypeError:
+        #        print(f"Attempted: self.results['{str(key).split('.')[-1]}'] = {val}({key})")
+        #        exit()
 
-        #TODO: Check to make sure that there hasn't been an update in Py3
-        # that will allow datatype convervation in the method `getattr()`
+        # Saving sse and sem traces as pkl
+        outdir = filename.replace(filename.split("/")[-1],"")
+        out = f"{outdir}/Sigma_SEM_trace_{filename.split('/')[-1].split('.npz')[0]}.pkl"
+        df = pd.DataFrame(self.sem_trace)
+        df.to_pickle(out)
+        out = f"{outdir}/Sigma_SSE_trace_{filename.split('/')[-1].split('.npz')[0]}.pkl"
+        df = pd.DataFrame(self.sse_trace)
+        df.to_pickle(out)
+
+        # Saving results as npz
+        self.results['model'] = self.model
         self.results['rest_type'] = self.rest_type
         self.results['trajectory_headers'] = self.trajectory_headers
         self.results['trajectory'] = self.trajectory
         self.results['sep_accept'] = self.sep_accept
         self.results['allowed_parameters'] = self.allowed_parameters
         self.results['sampled_parameters'] = self.sampled_parameters
-        self.results['model'] = self.model
         self.results['ref'] = self.ref
         self.results['traces'] = self.traces
         self.results['state_trace'] = self.state_trace
-
         self.write(filename, self.results)
+        # Save Sampler object
+        save_object(self.sampler, filename.replace(".npz",".pkl"))
+        print(f"Time for processing: %.3f s" % (time.time() - stime));
+
+        #save_object(filename, self.results)
         #TODO: Return a Pandas Dataframe of the results to be passed into
         # Analysis so time isn't wasted loading in long trajectories
         #return self.results
         #return pd.DataFrame(self.results)
 
 
-    def write(self, filename='traj.npz', *args, **kwds):
+    def write(self, file='traj.npz', *args, **kwds):
         """Writes a compact file of several arrays into binary format.
         Standardized: Yes ; Binary: Yes; Human Readable: No;
 
@@ -473,10 +511,13 @@ class PosteriorSamplingTrajectory(object):
             filename(str): path and filename of output MCMC trajectory
 
         :rtype: npz (numpy compressed file)
+
+        https://numpy.org/doc/stable/reference/generated/numpy.savez_compressed.html
         """
 
-        np.savez_compressed(filename, *args, **kwds)
-
+        #if compress:
+        np.savez_compressed(file, *args, **kwds)
+        #else: np.savez(file, *args, **kwds)
 
 
 

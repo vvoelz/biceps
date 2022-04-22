@@ -714,7 +714,7 @@ def compute_nonaa_scalar_coupling(states, index, karplus_key, outdir="./", top=N
             [type(key) for key in karplus_key if type(key)==str]))
     if len(karplus_key) != len(index):
         raise ValueError("The number of index must equale the number of karplus_key.")
-    states = get_files(states)
+    #states = get_files(states)
     nstates = len(states)
     for state in range(nstates):
         conf = md.load(states[state], index)

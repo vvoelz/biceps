@@ -1,11 +1,12 @@
 '''
 Author: Rob Raddi
-Edits on: May 13th, 2020
+Edits on: April 4th, 2022
 '''
 
 import multiprocessing as mp
 from multiprocessing import Manager
 import numpy as np
+from platform import python_version
 
 def multiprocess(*args, **kwargs):
     """Decorator method for multiprocessing functions.
@@ -17,16 +18,21 @@ def multiprocess(*args, **kwargs):
     #process = p.Process(target=function, args=(iter,), ctx=mp.get_context(method='fork'))
     """
 
+    pyVersion = python_version()
+    pyVersion = float(".".join(pyVersion.split(".")[:2]))
+
     def wrapper(function):
         n = len(kwargs['iterable'])
         print("Number of CPUs: %s"%(mp.cpu_count()))
-        p = mp.Pool(processes=mp.cpu_count())
+        p = mp.Pool(processes=n)
         print(f"Number of processes: {n}")
         jobs = []
+        mp.freeze_support()
         for iter in kwargs['iterable']:
-            process = p.Process(target=function, args=(iter,))
-            # FIXME: Python >= 3.8
-            #process = p.Process(target=function, args=(iter,), ctx=mp.get_context(method='fork'))
+            if pyVersion >= 3.8:
+                process = p.Process(target=function, args=(iter,), ctx=mp.get_context(method='fork'))
+            else:
+                process = p.Process(target=function, args=(iter,))
             jobs.append(process)
             jobs[-1].start()
             active_processors = [jobs[i].is_alive() for i in range(len(jobs))]
@@ -56,7 +62,9 @@ with Manager() as manager:
 '''
 
 
-
+if __name__ == "__main__":
+    mp.freeze_support()
+    multiprocess()
 
 
 

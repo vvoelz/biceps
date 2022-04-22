@@ -7,6 +7,78 @@ import mdtraj as md
 import biceps
 from biceps.KarplusRelation import * # Returns J-coupling values from dihedral angles
 
+
+def get_restraint_options(input_data=None):
+    """Return a Pandas DataFrame of all the parameters for each of the restraint
+    classes. If input_data is provided, then the DataFrame returned will only
+    contain restraint parameters that corresponds to the data.  When providing
+    input_data, the order of restraints (rows) corresponds to the order of
+    the data.
+
+    NOTE: If you want to use these default options, then use `options.to_dict('records')`
+
+    Args:
+        input_data(list) - ordered list of data for each state
+
+    Returns:
+        options(pd.DataFrame)
+    """
+
+    options = []
+    current_module = sys.modules[__name__]
+    # Pick the Restraint class upon file extension
+    #restraints = [ key for key in vars(current_module).keys() if key.startswith("Restraint_") ]
+    restraints = biceps.toolbox.list_possible_restraints()
+
+    # NOTE: if input_data is given, then remove information regarding all other restraints
+    if input_data != None:
+        scheme = biceps.toolbox.list_res(input_data)
+        extensions = [ res.split("_")[-1] for res in scheme ]
+        _restraints = []
+        for rest in scheme:
+            for restraint in restraints:
+                if restraint.split("_")[-1] in rest:
+                    _restraints.append(restraint)
+        restraints = _restraints
+
+    keys_to_remove = ["data", "energy", "self", "verbose"]
+    for k,restraint in enumerate(restraints):
+        _options = {}
+        R = getattr(current_module, "%s"%(restraint))
+
+        # Get all the arguments for the Parent Restraint Class if given
+        args1 = inspect.getfullargspec(R)
+        args2 = inspect.getfullargspec(R.init_restraint)
+
+        sig1 = inspect.signature(R)
+        for key in sig1.parameters.keys():
+            value = sig1.parameters[key].default
+            if value == inspect._empty:
+                _options[key] = []
+            else:
+                _options[key] = [value]
+
+        sig2 = inspect.signature(R.init_restraint)
+        for key in sig2.parameters.keys():
+            value = sig2.parameters[key].default
+            if value == inspect._empty:
+                _options[key] = [np.nan]
+            else:
+                _options[key] = [value]
+        # remove all args that user doesn't control
+        [_options.pop(key, None) for key in keys_to_remove]
+        # if given input_data, replace the extension with suggested
+        if input_data != None: _options["extension"] = [extensions[k]]
+        # construct a dataframe for each restraint type
+        df = pd.DataFrame(_options, index=[R.__name__])
+        options.append(df.to_dict('records')[0])
+
+    return options
+
+
+
+
+
 class Ensemble(object):
     def __init__(self, lam, energies, debug=False):
         """Container class for :attr:`biceps.Restraint.Restraint` objects.
@@ -39,7 +111,7 @@ class Ensemble(object):
         return self.ensemble
 
 
-    def initialize_restraints(self, input_data, parameters=None):
+    def initialize_restraints(self, input_data, options=None):
         """Initialize corresponding :attr:`biceps.Restraint.Restraint` classes based on experimental
         observables from **input_data** for each conformational state.
 
@@ -52,12 +124,13 @@ class Ensemble(object):
         Args:
             input_data(list of str): a sorted collection of filenames (files\
                     contain `exp` (experimental) and `model` (theoretical) observables)
-            parameters(list of dict): dictionary containing keys that match \
-                    :attr:`biceps.Restraint.Restraint` parameters and values are lists for each restraint.
+            options(list of dict): dictionary containing keys that match \
+                    :attr:`biceps.Restraint.Restraint` options and values are lists for each restraint.
         """
 
         verbose = self.debug
-        if parameters is None: parameters = [dict() for i in range(len(input_data[0]))]
+        self.options = options
+        if options is None: options = [dict() for i in range(len(input_data[0]))]
         extensions = biceps.toolbox.list_extensions(input_data)
         lam = self.lam
         for i in range(self.energies.shape[0]):
@@ -78,8 +151,8 @@ class Ensemble(object):
                 args2 = {"%s"%key: val for key,val in locals().items()
                         if key in inspect.getfullargspec(R.init_restraint)[0] if key != 'self'}
                 # It shouldn't matter the ordering of the keys and values
-                # All parameters are parsed as respective Restraint child class arguments
-                for key,val in parameters[k].items():
+                # All options are parsed as respective Restraint child class arguments
+                for key,val in options[k].items():
                     if key in inspect.getfullargspec(R)[0]:
                         args1[key] = val
                     elif key in inspect.getfullargspec(R.init_restraint)[0]:
@@ -91,7 +164,7 @@ class Ensemble(object):
                         possible_args = np.delete(possible_args, np.where(possible_args == "self"))
                         possible_args = np.delete(possible_args, np.where(possible_args == "data"))
                         raise TypeError(f"{key} is an invalid keyword argument for {R}\n\n\
-Please check your parameters... \n\
+Please check your options... \n\
 The input data provided suggests the ordering of dictionaries should be: {biceps.toolbox.list_extensions(input_data)}\n\
 Dictionary keys for {R.__name__} are any of: {possible_args}")
                 if self.debug:
@@ -216,7 +289,7 @@ class Restraint_cs(Restraint):
         else:
             pass
 
-    def init_restraint(self, data, energy, extension, weight=1, verbose=False):
+    def init_restraint(self, data, energy, extension="H", weight=1, verbose=False):
         """Initialize the chemical shift restraints for each experimental
         and theoretical observable given data.
 
@@ -283,7 +356,7 @@ class Restraint_cs(Restraint):
         result += (self.Ndof)*np.log(parameters[0])
         result += sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
-        if self.ref == "exp":
+        if self.ref == "exponential":
             result -= self.sum_neglog_exp_ref
         if self.ref == "gaussian":
             result -= self.sum_neglog_gaussian_ref
@@ -295,7 +368,7 @@ class Restraint_J(Restraint):
 
     _ext = ['J']
 
-    def init_restraint(self, data, energy, weight=1, verbose=False):
+    def init_restraint(self, data, energy, extension="J", weight=1, verbose=False):
         """Initialize the sclar coupling constant restraints for each **exp**
         (experimental) and **model** (theoretical) observable given **data**.
 
@@ -305,6 +378,7 @@ class Restraint_J(Restraint):
             weight(float): weight for restraint
         """
 
+        self.extension = extension
         # The (reduced) free energy f = beta*F of this structure, as predicted by modeling
         self.energy = energy
         self.Ndof = None
@@ -376,7 +450,7 @@ class Restraint_J(Restraint):
         result += (self.Ndof)*np.log(parameters[0])
         result += sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
-        if self.ref == "exp":
+        if self.ref == "exponential":
             result -= self.sum_neglog_exp_ref
         if self.ref == "gaussian":
             result -= self.sum_neglog_gaussian_ref
@@ -389,7 +463,7 @@ class Restraint_noe(Restraint):
 
     _ext = ['noe']
 
-    def init_restraint(self, data, energy, weight=1, verbose=False,
+    def init_restraint(self, data, energy, extension="noe", weight=1, verbose=False,
             log_normal=False, gamma=(0.2, 10.0, 1.01)):
         """Initialize the NOE distance restraints for each **exp** (experimental)
         and **model** (theoretical) observable given **data**.
@@ -405,6 +479,8 @@ class Restraint_noe(Restraint):
             gamma(tuple): (gamma_min, gamma_max, dgamma) in log space
         """
 
+
+        self.extension = extension
         # Store info about gamma^(-1/6) scaling parameter array
         self.dloggamma = np.log(gamma[2])
         self.gamma_min = gamma[0]
@@ -425,7 +501,7 @@ class Restraint_noe(Restraint):
         self.n = len(data.values)
 
         # Group by keys
-        keys = ['atom_index1', 'atom_index2', 'exp', 'model', 'restraint_index']
+        keys = ['exp', 'model', 'restraint_index']
         grouped_data = data[keys].to_dict()
         for row in range(len(grouped_data[keys[0]])):
             d = {key: grouped_data[key][row] for key in grouped_data.keys()}
@@ -492,7 +568,7 @@ class Restraint_noe(Restraint):
         result += (self.Ndof)*np.log(parameters[0])
         result += sse[int(parameter_indices[1])] / (2.0*parameters[0]**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
-        if self.ref == "exp":
+        if self.ref == "exponential":
             result -= self.sum_neglog_exp_ref
         if self.ref == "gaussian":
             result -= self.sum_neglog_gaussian_ref
@@ -507,7 +583,7 @@ class Restraint_pf(Restraint):
     def init_restraint(self, data, energy, precomputed=False, pf_prior=None,
             Ncs_fi=None, Nhs_fi=None, beta_c=(0.05, 0.25, 0.01), beta_h=(0.0, 5.2, 0.2),
             beta_0=(-10.0, 0.0, 0.2), xcs=(5.0, 8.5, 0.5), xhs=(2.0, 2.7, 0.1),
-            bs=(15.0, 16.0, 1.0), weight=1, states=None, verbose=False):
+            bs=(15.0, 16.0, 1.0), extension="pf", weight=1, states=None, verbose=False):
         """Initialize protection factor restraints for each **exp** (experimental)
         and **model** (theoretical) observable given **data**.
 
@@ -524,6 +600,8 @@ class Restraint_pf(Restraint):
 
         """
 
+
+        self.extension = extension
         # TODO: make more general... (there exists two sets of the same variables, see line 585)
         beta_c_min, beta_c_max, dbeta_c = beta_c[0], beta_c[1], beta_c[2]
         beta_h_min, beta_h_max, dbeta_h = beta_h[0], beta_h[1], beta_h[2]
@@ -786,7 +864,7 @@ class Restraint_pf(Restraint):
             result += sse / (2.0*float(parameters[0])**2.0)
         result += (self.Ndof)/2.0*np.log(2.0*np.pi)  # for normalization
         # Which reference potential was used for each restraint?
-        if self.ref == "exp":
+        if self.ref == "exponential":
             if isinstance(self.sum_neglog_exp_ref, float):
                 result -= self.sum_neglog_exp_ref
             else:
@@ -811,13 +889,16 @@ class Preparation(object):
         """
 
         self.nstates = nstates
-        self.topology = md.load(top_file).topology
+        if top_file != None:
+            self.topology = md.load(top_file).topology
+        else:
+            self.topology = None
         self.outdir = outdir
 
     def to_sorted_list(self):
         """Uses ``biceps.toolbox.sort_data()`` to return sorted list of **input_data**."""
 
-        return biceps.toolbox.sort_data(os.path.join(self.outdir,"*"))
+        return biceps.toolbox.sort_data(self.outdir)
 
     def write_DataFrame(self, filename, As="pickle", verbose=False):
         """Write Pandas DataFrame **As** user specified filetype.
@@ -840,7 +921,7 @@ class Preparation(object):
         dfOut = getattr(df, "to_%s"%As)
         dfOut(filename)
 
-    def prep_cs(self, exp_data, model_data, indices, extension, verbose=False):
+    def prepare_cs(self, exp_data, model_data, indices, extension, write_as="pickle", verbose=False):
         """A method for preprocessing chemicalshift **exp_data** and **model_data**.
 
         Args:
@@ -869,8 +950,12 @@ class Preparation(object):
             for i in range(self.ind.shape[0]):
                 a1 = int(self.ind[i])
                 dd['atom_index1'].append(a1)
-                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
-                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                if self.topology != None:
+                    dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                    dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                else:
+                    dd.pop('res1', None)
+                    dd.pop('atom_name1', None)
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 dd['model'].append(np.float64(model_data[i]))
@@ -879,11 +964,11 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.cs_%s"%(j, extension)
             if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
+                self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
 
 
 
-    def prep_noe(self, exp_data, model_data, indices, extension=None, verbose=False):
+    def prepare_noe(self, exp_data, model_data, indices, extension=None, write_as="pickle", verbose=False):
         """A method for preprocessing NOE **exp_data** and **model_data**.
 
         Args:
@@ -911,10 +996,16 @@ class Preparation(object):
                 a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
                 dd['atom_index1'].append(a1)
                 dd['atom_index2'].append(a2)
-                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
-                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
-                dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
-                dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
+                if self.topology != None:
+                    dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                    dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                    dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
+                    dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
+                else:
+                    dd.pop('res1', None)
+                    dd.pop('atom_name1', None)
+                    dd.pop('res2', None)
+                    dd.pop('atom_name2', None)
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 dd['model'].append(np.float64(model_data[i]))
@@ -923,11 +1014,11 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.noe"%(j)
             if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
+                self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
 
 
 
-    def prep_J(self, exp_data, model_data, indices, extension=None, verbose=False):
+    def prepare_J(self, exp_data, model_data, indices, extension=None, write_as="pickle", verbose=False):
         """A method for preprocessing scalar coupling **exp_data** and **model_data**.
 
         Args:
@@ -959,14 +1050,24 @@ class Preparation(object):
                 a1, a2, a3, a4   = int(self.ind[i,0]), int(self.ind[i,1]), int(self.ind[i,2]), int(self.ind[i,3])
                 dd['atom_index1'].append(a1);dd['atom_index2'].append(a2)
                 dd['atom_index3'].append(a3);dd['atom_index4'].append(a4)
-                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
-                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
-                dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
-                dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
-                dd['res3'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a3][0]))
-                dd['atom_name3'].append(str([atom.name for atom in self.topology.atoms if atom.index == a3][0]))
-                dd['res4'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a4][0]))
-                dd['atom_name4'].append(str([atom.name for atom in self.topology.atoms if atom.index == a4][0]))
+                if self.topology != None:
+                    dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                    dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                    dd['res2'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a2][0]))
+                    dd['atom_name2'].append(str([atom.name for atom in self.topology.atoms if atom.index == a2][0]))
+                    dd['res3'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a3][0]))
+                    dd['atom_name3'].append(str([atom.name for atom in self.topology.atoms if atom.index == a3][0]))
+                    dd['res4'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a4][0]))
+                    dd['atom_name4'].append(str([atom.name for atom in self.topology.atoms if atom.index == a4][0]))
+                else:
+                    dd.pop('res1', None)
+                    dd.pop('atom_name1', None)
+                    dd.pop('res2', None)
+                    dd.pop('atom_name2', None)
+                    dd.pop('res3', None)
+                    dd.pop('atom_name3', None)
+                    dd.pop('res4', None)
+                    dd.pop('atom_name4', None)
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 dd['model'].append(np.float64(model_data[i]))
@@ -975,10 +1076,10 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.J"%(j)
             if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
+                self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
 
 
-    def prep_pf(self, exp_data, model_data=None, indices=None, extension=None, verbose=False):
+    def prepare_pf(self, exp_data, model_data=None, indices=None, extension=None, write_as="pickle", verbose=False):
         """A method for preprocessing HDX protection factor **exp_data** and
         **model_data**.
 
@@ -986,7 +1087,7 @@ class Preparation(object):
             exp_data(str): path to experimental data file (units: Hz)
             model_data(str): path to model data file (units: Hz)
             indices(str): path to atom indices
-            extension(str): nuclei for the CS data ("H" or "Ca or "N")
+            extension(str):
         """
 
         if model_data: self.header = ('exp','model', 'restraint_index', 'atom_index1', 'res1', )
@@ -1007,8 +1108,12 @@ class Preparation(object):
             for i in range(self.ind.shape[0]):
                 a1 = int(self.ind[i,0])
                 dd['atom_index1'].append(a1)
-                dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
-                dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                if self.topology != None:
+                    dd['res1'].append(str([atom.residue for atom in self.topology.atoms if atom.index == a1][0]))
+                    dd['atom_name1'].append(str([atom.name for atom in self.topology.atoms if atom.index == a1][0]))
+                else:
+                    dd.pop('res1', None)
+                    dd.pop('atom_name1', None)
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
                 if model_data:
@@ -1018,7 +1123,7 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.pf"%(j)
             if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, verbose=verbose)
+                self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
 
 
 
