@@ -143,7 +143,7 @@ class Analysis(object):
         N_k = np.array( [len(self.traj[i]['trajectory']) for i in range(self.nlambda)] )
         nsnaps = N_k.max()
         u_kln = np.zeros( (self.K, self.K, nsnaps) )
-        nstates = int(self.states)
+        nstates = self.nstates
         if self.verbose: print('nstates', nstates)
 
         states_kn = np.zeros( (self.K, nsnaps, self.nreplicas) )
@@ -331,16 +331,14 @@ Too many distributions for a single figure... only plotting the first {N}.")
         #label key states
         for i in range(len(pops1)):
             if (i==0) or (pops1[i] > 0.05):
-                plt.text( pops0[i], pops1[i], str(i), color='g' )
+                plt.text( pops0[i], pops1[i], str(i), color='g' , fontsize=legend_fontsize)
 
-        ntop = int(int(self.states)/10.)
-        topN = pops1[np.argsort(pops1)[-ntop:]]
-        topN_labels = [np.where(topN[i]==pops1)[0][0] for i in range(len(topN))]
-        if self.verbose: print(f"Top {ntop} states: {topN_labels}")
-        if self.verbose: print(f"Top {ntop} populations: {topN}")
-        #for i in range(len(pops1)):
-        #    if (i==0) or (pops1[i] in topN):
-        #        plt.text( pops0[i], pops1[i], str(i), color='g' )
+        ntop = int(int(self.nstates)/10.)
+        if self.verbose:
+            topN = pops1[np.argsort(pops1)[-ntop:]]
+            topN_labels = [np.where(topN[i]==pops1)[0][0] for i in range(len(topN))]
+            print(f"Top {ntop} states: {topN_labels}")
+            print(f"Top {ntop} populations: {topN}")
 
         axs = []
         ax = plt.gca()

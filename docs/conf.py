@@ -95,7 +95,11 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'BICePs'
-authors = u'Yunhui Ge, Robert M. Raddi, Vincent A. Voelz'
+#authors = u'Robert M. Raddi, Yunhui Ge, Vincent A. Voelz'
+authors = r"""
+.. raw:: latex
+    \noindent Robert M. Raddi, Yunhui Ge, Vincent A. Voelz\\
+"""
 date = datetime.now()
 copyright = f"""{date.today().year}, Temple University, {authors}
 
@@ -194,7 +198,7 @@ html_theme_options = {
 }
 
 # Adding our Temp Logo:
-html_logo = ''
+html_logo = 'logo.png'
 
 #html_static_path = ['_static']
 html_css_files = [
