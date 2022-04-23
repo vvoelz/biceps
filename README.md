@@ -62,11 +62,13 @@ BICePs supports Python 2.7 (see [tag v1.0](https://github.com/vvoelz/biceps/rele
 Dependencies of BICePs
 ----------------------
 
-> -   [pymbar](https://pymbar.readthedocs.io) >= 3.0
+> -   [pymbar](https://pymbar.readthedocs.io) == 3.0.2
 > -   [mdtraj](https://mdtraj.org) >= 1.5.0
 > -   matplotlib >= 2.1.2
 > -   numpy >= 1.14.0
 > -   multiprocessing (works with Python versions 3.0-3.7)
+
+NOTE: for pymbar, try: `$ pip install git+https://github.com/choderalab/pymbar.git@3.0.2`
 
 -------------------------------------------
 

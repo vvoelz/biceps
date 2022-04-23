@@ -115,17 +115,38 @@ class Ensemble(object):
         """Initialize corresponding :attr:`biceps.Restraint.Restraint` classes based on experimental
         observables from **input_data** for each conformational state.
 
+        Args:
+            input_data(list of str): a sorted collection of filenames (files\
+                    contain `exp` (experimental) and `model` (theoretical) observables)
+            options(list of dict): dictionary containing keys that match \
+                    :attr:`biceps.Restraint.Restraint` parameters and values are lists for each restraint.\
+
+        .. code-block:: python
+
+            # In general:
+            parameters = [dict(**kwargs),...,dict(**kwargs)]
+            # More specifically, for J and NOE data restraints, respectively:
+            parameters = [dict(ref='uniform', sigma=(0.05, 20.0, 1.02)),
+                          dict(ref='exp', sigma=(0.05, 5.0, 1.02), gamma=(0.2, 5.0, 1.02))]
+
         .. tip::
+
+            See the following parent :attr:`biceps.Restraint.Restraint` and
+            child class methods for the full list of keyword arguments (**kwargs)
+            for each restraint used inside `parameters`:
+
+            :attr:`biceps.Restraint.Restraint_cs.init_restraint`
+
+            :attr:`biceps.Restraint.Restraint_J.init_restraint`
+
+            :attr:`biceps.Restraint.Restraint_noe.init_restraint`
+
+            :attr:`biceps.Restraint.Restraint_pf.init_restraint`
 
             Print possible restraints with: :attr:`biceps.toolbox.list_possible_restraints`
 
             Print possible extensions with: :attr:`biceps.toolbox.list_possible_extensions`
 
-        Args:
-            input_data(list of str): a sorted collection of filenames (files\
-                    contain `exp` (experimental) and `model` (theoretical) observables)
-            options(list of dict): dictionary containing keys that match \
-                    :attr:`biceps.Restraint.Restraint` options and values are lists for each restraint.
         """
 
         verbose = self.debug
@@ -459,25 +480,22 @@ class Restraint_J(Restraint):
 
 
 class Restraint_noe(Restraint):
-    """A :attr:`biceps.Restraint.Restraint` child class for NOE distances."""
 
     _ext = ['noe']
 
     def init_restraint(self, data, energy, extension="noe", weight=1, verbose=False,
-            log_normal=False, gamma=(0.2, 10.0, 1.01)):
-        """Initialize the NOE distance restraints for each **exp** (experimental)
-        and **model** (theoretical) observable given **data**.
-
-        When using :attr:`log_normal` the modified sum of squared errors is used:
-        :math:`\chi_{\mathrm{d}}^{2}(X)=\sum_{j} w_{j}\left(\ln \left(r_{j}(X) / \gamma^{\prime} r_{j}^{\exp }\right)\right)^{2}`
-
+            log_normal=False, gamma=[0.2, 10.0, 1.01]):
+        """
+        Initialize the NOE distance restraints for each experimental
+        and theoretical observable given data.
+        When :attr:`log_normal=True`, the modified sum of squared errors is used
+        :math:`\chi_{d}^{2}(X)=\sum_{j} w_{j}( \ln ( r_{j}(X) / \gamma' r_{j}^{exp} ))^{2}`
         Args:
             data(str): filename of data
             energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
             weight(float): weight for restraint
-            log_normal(bool):
-            gamma(tuple): (gamma_min, gamma_max, dgamma) in log space
-        """
+            log_normal(bool): use log normal distribution
+            gamma(list): [gamma_min, gamma_max, dgamma] in log space"""
 
 
         self.extension = extension
@@ -591,12 +609,12 @@ class Restraint_pf(Restraint):
             data(str): filename of data
             energy(float): The (reduced) free energy :math:`f=\\beta*F` of the conformation
             weight(float): weight for restraint
-            beta_c(tuple): [min, max, spacing]
-            beta_h(tuple):
-            beta_0(tuple):
-            xcs(tuple):
-            xhs(tuple):
-            bs(tuple):
+            beta_c(list): [min, max, spacing]
+            beta_h(list): [min, max, spacing]
+            beta_0(list): [min, max, spacing]
+            xcs(list): [min, max, spacing]
+            xhs(list): [min, max, spacing]
+            bs(list): [min, max, spacing]
 
         """
 
@@ -879,7 +897,7 @@ class Restraint_pf(Restraint):
 
 class Preparation(object):
 
-    def __init__(self, nstates=0,  top_file=None, outdir="./"):
+    def __init__(self, nstates=0,  top_file=None, outdir=None):
         """A class to prepare **input_data** for the :attr:`biceps.Ensemble.initialize_restraints` method.
 
         Args:
@@ -894,7 +912,7 @@ class Preparation(object):
         else:
             self.topology = None
         self.outdir = outdir
-
+        
     def to_sorted_list(self):
         """Uses ``biceps.toolbox.sort_data()`` to return sorted list of **input_data**."""
 
@@ -963,6 +981,7 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.cs_%s"%(j, extension)
+
             if self.outdir:
                 self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
 
@@ -1013,9 +1032,9 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.noe"%(j)
+
             if self.outdir:
                 self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
-
 
 
     def prepare_J(self, exp_data, model_data, indices, extension=None, write_as="pickle", verbose=False):
@@ -1075,6 +1094,7 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.J"%(j)
+
             if self.outdir:
                 self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
 
@@ -1122,6 +1142,7 @@ class Preparation(object):
             if verbose:
                 print(self.biceps_df)
             filename = "%s.pf"%(j)
+
             if self.outdir:
                 self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
 

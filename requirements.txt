@@ -1,4 +1,4 @@
-pip>=21.1
+pip==21.1
 cython>=0.28
 numpy>=1.7.0
 #prompt_toolkit==1.0.4
@@ -15,6 +15,9 @@ sphinx
 sphinx_rtd_theme
 scikit-learn
 numpydoc
-pymbar==3.0.2
-mdtraj==1.9.3
+tqdm
+pymbar==3.0.3
+mdtraj
+#mdtraj==1.9.3
+
 

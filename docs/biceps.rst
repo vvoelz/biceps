@@ -24,11 +24,17 @@ Ensemble
 .. automethod:: biceps.Ensemble.to_list
 
 
+
 Restraint
 ---------
 
 .. currentmodule:: biceps
 .. autoclass:: biceps.Restraint.Restraint
+.. automethod:: biceps.Restraint.Restraint_cs.init_restraint
+.. automethod:: biceps.Restraint.Restraint_J.init_restraint
+.. automethod:: biceps.Restraint.Restraint_noe.init_restraint
+.. automethod:: biceps.Restraint.Restraint_pf.init_restraint
+
 
 
 PosteriorSampler
@@ -109,6 +115,12 @@ Convergence
 ------------
 
 .. currentmodule:: biceps
+.. autofunction:: biceps.convergence.exponential_fit
+.. autofunction:: biceps.convergence.compute_autocorrelation_curves
+.. autofunction:: biceps.convergence.g
+.. autofunction:: biceps.convergence.compute_autocorrelation_time
+.. autofunction:: biceps.convergence.get_blocks
+.. autofunction:: biceps.convergence.compute_JSD
 .. autoclass:: biceps.Convergence
 .. automethod:: biceps.Convergence.plot_traces
 .. automethod:: biceps.Convergence.plot_auto_curve
@@ -121,14 +133,14 @@ toolbox
 -------
 
 .. currentmodule:: biceps
-.. automethod:: biceps.toolbox.sort_data
-.. automethod:: biceps.toolbox.get_files
-.. automethod:: biceps.toolbox.list_res
-.. automethod:: biceps.toolbox.list_possible_restraints
-.. automethod:: biceps.toolbox.list_extensions
-.. automethod:: biceps.toolbox.list_possible_extensions
-.. automethod:: biceps.toolbox.npz_to_DataFrame
-.. automethod:: biceps.toolbox.save_object
+.. autofunction:: biceps.toolbox.sort_data
+.. autofunction:: biceps.toolbox.get_files
+.. autofunction:: biceps.toolbox.list_res
+.. autofunction:: biceps.toolbox.list_possible_restraints
+.. autofunction:: biceps.toolbox.list_extensions
+.. autofunction:: biceps.toolbox.list_possible_extensions
+.. autofunction:: biceps.toolbox.npz_to_DataFrame
+.. autofunction:: biceps.toolbox.save_object
 
 
 

@@ -5,12 +5,14 @@ import pickle
 from pymbar import MBAR
 from .Restraint import *
 from .PosteriorSampler import *
+from .toolbox import get_files
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import string
 
-def find_all_state_sampled_time(trace, nstates):
+
+def find_all_state_sampled_time(trace, nstates, verbose=True):
     """Determine which states were sampled and the states with zero counts.
 
     Args:
@@ -23,7 +25,7 @@ def find_all_state_sampled_time(trace, nstates):
     init = 0
     while 0 in all_states:
         if init == len(trace):
-            print('not all state sampled, these states', np.where(all_states == 0)[0],'are not sampled')
+            if verbose: print('not all state sampled, these states', np.where(all_states == 0)[0],'are not sampled')
             return 'null', frac
         else:
             all_states[trace[init]] += 1
@@ -39,7 +41,7 @@ class Analysis(object):
 
         Args:
             nstates(int): number of conformational states
-            outdir(str): relative path to trajectories (will alos be used to output files and figures)
+            trajs(str): relative path to glob '*.npz' trajectories (analysis files and figures will be placed inside this directory)
             precheck(bool): find the all the states that haven't been sampled if any
             BSdir(str): relative path for BICePs score file name
             popdir(str): relative path for BICePs reweighted populations file name
@@ -66,15 +68,13 @@ class Analysis(object):
         self.MBAR_analysis()
 
 
-    def load_data(self, debug=True):
+    def load_data(self):
         """Load input data from BICePs sampling (*npz and *pkl files)."""
 
         # Load in npz trajectories
-        exp_files = glob.glob( os.path.join(self.resultdir,'traj_lambda*.npz') )
-        exp_files.sort()
+        exp_files = get_files(self.trajs)
         for filename in exp_files:
-            if debug:
-                print('Loading %s ...'%filename)
+            if self.verbose: print('Loading %s ...'%filename)
             traj = np.load(filename, allow_pickle=True )['arr_0'].item()
             self.traj.append(traj)
         self.nreplicas = len(traj['trajectory'][0][3])
@@ -99,19 +99,16 @@ class Analysis(object):
             #    exit()
 
         # Load in cpickled sampler objects
-        sampler_files = glob.glob( os.path.join(self.resultdir,'sampler_lambda*.pkl') )
-        sampler_files.sort()
+        sampler_files = get_files(self.trajs.replace('.npz','.pkl'))
         for pkl_filename in sampler_files:
-            if debug:
-                print('Loading %s ...'%pkl_filename)
+            if self.verbose: print('Loading %s ...'%pkl_filename)
             pkl_file = open(pkl_filename, 'rb')
             self.sampler.append( pickle.load(pkl_file) )
 
         # parse the lambda* filenames to get the full list of lambdas
         self.nlambda = len(exp_files)
         self.lam = [float( (s.split('lambda')[1]).replace('.npz','') ) for s in exp_files ]
-        if debug:
-            print('lam =', self.lam)
+        if self.verbose: print('lam =', self.lam)
         self.scheme = self.traj[0]['rest_type']
 
 
@@ -146,8 +143,9 @@ class Analysis(object):
         N_k = np.array( [len(self.traj[i]['trajectory']) for i in range(self.nlambda)] )
         nsnaps = N_k.max()
         u_kln = np.zeros( (self.K, self.K, nsnaps) )
-        nstates = int(self.nstates)
-        print('nstates', nstates)
+        nstates = int(self.states)
+        if self.verbose: print('nstates', nstates)
+
         states_kn = np.zeros( (self.K, nsnaps, self.nreplicas) )
 
         # special treatment for neglogP function
@@ -163,23 +161,22 @@ class Analysis(object):
         for n in range(nsnaps):
             for k in range(self.K):
                 for l in range(self.K):
-                    if debug:
-                        print('step', self.traj[k]['trajectory'][n][0], end=' ')
+                    if debug: print('step', self.traj[k]['trajectory'][n][0], end=' ')
                     if k==l:
                         u_kln[k,k,n] = self.traj[k]['trajectory'][n][1]
-                    state, sigma_index = self.traj[k]['trajectory'][n][3:]
-                    for r in range(self.nreplicas):
-                        states_kn[k,n,r] = state[r]
-                    temp_parameters = []
-                    new_parameters=[[] for i in range(len(temp_parameters_indices))]
-                    temp_parameter_indices = np.concatenate(sigma_index)
-                    for ind in range(len(temp_parameter_indices)):
-                        temp_parameters.append(self.traj[k]['allowed_parameters'][ind][temp_parameter_indices[ind]])
-                    for m in range(len(original_index)):
-                        new_parameters[original_index[m]].append(temp_parameters[m])
-                    u_kln[k,l,n] = self.sampler[l].neglogP(state, new_parameters, sigma_index)
-                    if debug:
-                        print('E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n])
+                    else:
+                        state, sigma_index = self.traj[k]['trajectory'][n][3:]
+                        for r in range(self.nreplicas):
+                            states_kn[k,n,r] = state[r]
+                        temp_parameters = []
+                        new_parameters=[[] for i in range(len(temp_parameters_indices))]
+                        temp_parameter_indices = np.concatenate(sigma_index)
+                        for ind in range(len(temp_parameter_indices)):
+                            temp_parameters.append(self.traj[k]['allowed_parameters'][ind][temp_parameter_indices[ind]])
+                        for m in range(len(original_index)):
+                            new_parameters[original_index[m]].append(temp_parameters[m])
+                        u_kln[k,l,n] = self.sampler[l].neglogP(state, new_parameters, sigma_index)
+                        if debug: print('E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n])
 
 
         # Initialize MBAR with reduced energies u_kln and number of uncorrelated configurations from each state N_k.
@@ -205,8 +202,7 @@ class Analysis(object):
         # Here, A_kn[k,n] = A(x_{kn})
         #(A_k, dA_k) = mbar.computeExpectations(A_kn)
         self.P_dP = np.zeros( (nstates, 2*self.K) )  # left columns are P, right columns are dP
-        if debug:
-            print('state\tP\tdP')
+        if debug: print('state\tP\tdP')
         states_kn = np.array(states_kn)
         for i in range(nstates):
             sampled = np.array([np.where(states_kn[:,:,r]==i,1,0) for r in range(self.nreplicas)])
@@ -222,13 +218,11 @@ class Analysis(object):
     def save_MBAR(self):
         """save results (BICePs score and populations) from MBAR analysis"""
 
-        print('Writing %s...'%self.BSdir)
+        if self.verbose: print('Writing %s...'%self.BSdir)
         np.savetxt(self.BSdir, self.f_df)
-        print('...Done.')
 
-        print('Writing %s...'%self.popdir)
+        if self.verbose: print('Writing %s...'%self.popdir)
         np.savetxt(self.popdir, self.P_dP)
-        print('...Done.')
 
 
     def get_traces(self, traj_index=-1):
@@ -337,14 +331,13 @@ Too many distributions for a single figure... only plotting the first {N}.")
         #label key states
         for i in range(len(pops1)):
             if (i==0) or (pops1[i] > 0.05):
-                plt.text( pops0[i], pops1[i], str(i), color='g' , fontsize=legend_fontsize)
+                plt.text( pops0[i], pops1[i], str(i), color='g' )
 
-        ntop = int(int(self.nstates)/10.)
-        if self.verbose:
-            topN = pops1[np.argsort(pops1)[-ntop:]]
-            topN_labels = [np.where(topN[i]==pops1)[0][0] for i in range(len(topN))]
-            print(f"Top {ntop} states: {topN_labels}")
-            print(f"Top {ntop} populations: {topN}")
+        ntop = int(int(self.states)/10.)
+        topN = pops1[np.argsort(pops1)[-ntop:]]
+        topN_labels = [np.where(topN[i]==pops1)[0][0] for i in range(len(topN))]
+        if self.verbose: print(f"Top {ntop} states: {topN_labels}")
+        if self.verbose: print(f"Top {ntop} populations: {topN}")
         #for i in range(len(pops1)):
         #    if (i==0) or (pops1[i] in topN):
         #        plt.text( pops0[i], pops1[i], str(i), color='g' )
