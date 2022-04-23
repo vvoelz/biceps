@@ -9,6 +9,7 @@ from .toolbox import get_files
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
+import string
 
 
 def find_all_state_sampled_time(trace, nstates, verbose=True):
@@ -34,8 +35,8 @@ def find_all_state_sampled_time(trace, nstates, verbose=True):
 
 
 class Analysis(object):
-    def __init__(self, trajs, nstates=0, precheck=True, BSdir='BS.dat',
-            popdir='populations.dat', picfile='BICePs.pdf', verbose=True):
+    def __init__(self, outdir, nstates=0, precheck=True, BSdir='BS.dat',
+            popdir='populations.dat', picfile='BICePs.pdf', verbose=False):
         """A class to perform analysis and plot figures.
 
         Args:
@@ -47,10 +48,8 @@ class Analysis(object):
             picfile(str): relative path for BICePs figure
         """
 
-        self.states = nstates
-        self.trajs = trajs
-        self.resultdir = os.path.dirname(trajs)
         self.verbose = verbose
+        self.resultdir = outdir
         self.BSdir = os.path.join(self.resultdir,BSdir)
         self.popdir = os.path.join(self.resultdir,popdir)
         self.picfile = os.path.join(self.resultdir,picfile)
@@ -61,8 +60,10 @@ class Analysis(object):
         self.f_df = None
         self.P_dp = None
         self.precheck = precheck
-        if self.states == 0:
+        self.nstates = nstates
+        if self.nstates == 0:
             raise ValueError("State number cannot be zero.")
+
         # next get MABR sampling done
         self.MBAR_analysis()
 
@@ -81,7 +82,7 @@ class Analysis(object):
             steps = []
             fractions = []
             for i in range(len(self.traj)):
-                s,f = find_all_state_sampled_time(self.traj[i]['state_trace'],self.states)
+                s,f = find_all_state_sampled_time(self.traj[i]['state_trace'],self.nstates)
                 steps.append(s)
                 fractions.append(f)
             total_fractions = np.concatenate(fractions)
@@ -111,6 +112,24 @@ class Analysis(object):
         self.scheme = self.traj[0]['rest_type']
 
 
+    def get_max_likelihood_parameters(self, model=0, sigma_only=False):
+        #nParameters = self.nstates + len(self.scheme)
+        if sigma_only:
+            indices = [i for i,rest in enumerate(self.scheme) if "sigma" in rest]
+        else:
+            indices = [i for i,rest in enumerate(self.scheme)]
+
+        t1 = self.traj[model]
+        max_likelihood = {}
+        for k in indices:
+            x, y = t1['allowed_parameters'][k], t1['sampled_parameters'][k]
+            max_likelihood[self.scheme[k]] = [x[np.argmax(y)]]
+        max_likelihood = pd.DataFrame(max_likelihood)
+        return max_likelihood
+
+
+
+
     def MBAR_analysis(self, debug=False):
         """MBAR analysis for populations and BICePs score"""
 
@@ -126,6 +145,7 @@ class Analysis(object):
         u_kln = np.zeros( (self.K, self.K, nsnaps) )
         nstates = int(self.states)
         if self.verbose: print('nstates', nstates)
+
         states_kn = np.zeros( (self.K, nsnaps, self.nreplicas) )
 
         # special treatment for neglogP function
@@ -204,15 +224,62 @@ class Analysis(object):
         if self.verbose: print('Writing %s...'%self.popdir)
         np.savetxt(self.popdir, self.P_dP)
 
-    def plot(self, show=False):
+
+    def get_traces(self, traj_index=-1):
+        npz = self.traj[traj_index]
+        traj = npz["trajectory"]
+        rest_type = []
+        n = 0
+        rests = np.array(npz["rest_type"])
+        for g in np.array(traj[0][4]):
+            rest_type.append(rests[n:n+len(g)].tolist())
+            n += len(g)
+            if n >= len(np.array(npz["rest_type"])): break
+        rest_type = np.array(rest_type)
+        # Find the unique restraints
+        unique = []
+        r = ""
+        for restraint in rests:
+            if restraint not in unique:
+                if restraint != r:
+                    r = restraint
+                    unique.append(restraint)
+
+        n_rests_dict = {f"{r}":0 for r in unique}
+        columns = []
+        for k, rest in enumerate(npz['rest_type']):
+            columns.append(str(rest)+f"{n_rests_dict[rest]}")
+            n_rests_dict[rests[k]] += 1
+        df = pd.DataFrame(np.array(npz["traces"]).transpose(), columns)
+        df = df.transpose()
+        return df
+
+
+
+
+    def plot(self, plottype="hist", figname="BICePs.pdf", figsize=None,
+            label_fontsize=12, legend_fontsize=10):
         """Plot figures for population and sampled nuisance parameters.
 
         Args:
             show(bool): show the plot in Jupyter Notebook.
         """
 
-        # first figure out what scheme is used
-        #self.list_scheme()
+        df0 = self.get_traces(traj_index=0)
+        df1 = self.get_traces(traj_index=-1)
+        N = 20
+        if df0.shape[1] > N:
+            if self.verbose:
+                print(f"Number of posterior distributions of \
+nuisance parameters: {df0.shape[1]}\n\
+Too many distributions for a single figure... only plotting the first {N}.")
+            df0 = df0[df0.columns.to_list()[:N]]
+            df1 = df1[df1.columns.to_list()[:N]]
+        else:
+            N = len(df0.columns.to_list())
+
+        #df0 = self.get_sigmaB_trace(traj_index=0)
+        #df1 = self.get_sigmaB_trace(traj_index=-1)
 
         ## next get MABR sampling done
         #self.MBAR_analysis()
@@ -224,19 +291,22 @@ class Analysis(object):
         t1 = self.traj[self.K-1]
 
         # Figure Plot SETTINGS
-        label_fontsize = 12
-        legend_fontsize = 10
+        #label_fontsize = 12
+        #legend_fontsize = 10
         fontfamily={'family':'sans-serif','sans-serif':['Arial']}
         plt.rc('font', **fontfamily)
 
         # determine number of row and column
-        if (len(self.scheme)+1)%2 != 0:
-            c,r = 2, (len(self.scheme)+2)/2
+        if (len(self.scheme[:N])+1)%2 != 0:
+            c,r = 2, (len(self.scheme[:N])+2)/2
         else:
-            c,r = 2, (len(self.scheme)+1)/2
-        plt.figure( figsize=(4*c,5*r) )
+            c,r = 2, (len(self.scheme[:N])+1)/2
+        if figsize:
+            plt.figure( figsize=figsize )
+        else:
+            plt.figure( figsize=(4*c,5*r) )
         # Make a subplot in the upper left
-        plt.subplot(r,c,1)
+        plt.subplot(int(r),int(c),1)
         plt.errorbar( pops0, pops1, xerr=dpops0, yerr=dpops1, fmt='k.')
 
         #plt.hold(True)
@@ -271,9 +341,33 @@ class Analysis(object):
         #for i in range(len(pops1)):
         #    if (i==0) or (pops1[i] in topN):
         #        plt.text( pops0[i], pops1[i], str(i), color='g' )
-        for k in range(len(self.scheme)):
+
+        axs = []
+        ax = plt.gca()
+        axs.append(ax)
+
+        s = 0
+        for k in range(len(self.scheme[:N])):
+            df0_array = df0["%s"%(df0.columns.to_list()[k])].to_numpy()
+            if all(df0_array == np.ones(df0_array.shape)): continue
+            df1_array = df1["%s"%(df1.columns.to_list()[k])].to_numpy()
+            if all(df1_array == np.ones(len(df1_array))): continue
+            s += 2
+            #plt.subplot(r,c,s)
             plt.subplot(r,c,k+2)
-            plt.step(t0['allowed_parameters'][k], t0['sampled_parameters'][k], 'b-')
+            ax = plt.gca()
+            axs.append(ax)
+            if plottype == "step":
+                plt.step(t0['allowed_parameters'][k], t0['sampled_parameters'][k], 'b-', label='exp')
+                plt.fill_between(t0['allowed_parameters'][k], t0['sampled_parameters'][k], color='b', step="pre", alpha=0.4, label=None)
+            if plottype == "hist":
+                #counts, bins = np.histogram(t0['sampled_parameters'][k])
+                #width = 0.1
+                #plt.bar(x=t0['allowed_parameters'][k], height=t0['sampled_parameters'][k],
+                #        width=width,
+                #        facecolor='b', alpha=0.5, edgecolor="k", linewidth=1.2)
+                df0["%s"%(df0.columns.to_list()[k])].hist(bins='auto', facecolor='b', alpha=0.5, edgecolor="k", ax=ax, label='exp')
+
             xmax0 = [l for l,e in enumerate(t0['sampled_parameters'][k]) if e != 0.][-1]
             xmin0 = [l for l,e in enumerate(t0['sampled_parameters'][k]) if e != 0.][0]
             xmax1 = [l for l,e in enumerate(t1['sampled_parameters'][k]) if e != 0.][-1]
@@ -281,8 +375,19 @@ class Analysis(object):
             xmax = max(xmax0,xmax1)
             xmin = min(xmin0, xmin1)
             plt.xlim(t0['allowed_parameters'][k][xmin], t0['allowed_parameters'][k][xmax])
-            plt.step(t1['allowed_parameters'][k], t1['sampled_parameters'][k], 'r-')
-            plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
+            if plottype == "step":
+                plt.step(t1['allowed_parameters'][k], t1['sampled_parameters'][k], 'r-', label='sim+exp')
+                plt.fill_between(t1['allowed_parameters'][k], t1['sampled_parameters'][k], color='r', step="pre", alpha=0.4, label=None)
+            if plottype == "hist":
+                #counts, bins = np.histogram(t1['sampled_parameters'][k])
+                #plt.bar(x=t1['allowed_parameters'][k], height=t1['sampled_parameters'][k],
+                #        width=width,
+                #        facecolor='r', alpha=0.5, edgecolor="k", linewidth=1.2)
+                df1["%s"%(df1.columns.to_list()[k])].hist(bins='auto', facecolor='r', alpha=0.5, edgecolor="k", ax=ax, label='sim+exp')
+                ax.set_xlim(left=0, right=df1["%s"%(df1.columns.to_list()[k])].max()*1.1)
+
+            #plt.legend(['exp', 'sim+exp'], loc='best',fontsize=legend_fontsize)
+            plt.legend(loc='best',fontsize=legend_fontsize)
             if self.scheme[k].count('_') == 0:
                 if self.scheme[k] == 'gamma':
                     plt.xlabel("$\%s$"%self.scheme[k],fontsize=label_fontsize)
@@ -293,16 +398,39 @@ class Analysis(object):
                 plt.yticks([])
 
             elif self.scheme[k].count('_') == 1:
-                plt.xlabel("$\%s_{%s}$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]),fontsize=label_fontsize)
-                plt.ylabel("$P(\%s_{%s})$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]), fontsize=label_fontsize)
-                plt.yticks([])
+                if 'gamma' in self.scheme[k]:
+                    plt.xlabel("${\%s_{%s}}^{-1/6}$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]),fontsize=label_fontsize)
+                    plt.ylabel("${P(\%s_{%s}}^{-1/6})$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]), fontsize=label_fontsize)
+                    plt.yticks([])
+                else:
+                    plt.xlabel("$\%s_{%s}$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]),fontsize=label_fontsize)
+                    plt.ylabel("$P(\%s_{%s})$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1]), fontsize=label_fontsize)
+                    plt.yticks([])
             elif self.scheme[k].count('_') == 2:
                 plt.xlabel("$\%s_{{%s}_{%s}}$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1],self.scheme[k].split('_')[2]),fontsize=label_fontsize)
                 plt.ylabel("$P(\%s_{{%s}_{%s}})$"%(self.scheme[k].split('_')[0],self.scheme[k].split('_')[1],self.scheme[k].split('_')[2]),fontsize=label_fontsize)
                 plt.yticks([])
+
+
+        for n, ax in enumerate(axs):
+            #ax.imshow(np.random.randn(10,10), interpolation='none')
+            ax.text(-0.12, 1.02, string.ascii_lowercase[n], transform=ax.transAxes,
+                    size=20, weight='bold')
+            # Setting the ticks and tick marks
+            ticks = [ax.xaxis.get_minor_ticks(),
+                     ax.xaxis.get_major_ticks()]
+            marks = [ax.get_xticklabels(),
+                    ax.get_yticklabels()]
+            for k in range(0,len(ticks)):
+                for tick in ticks[k]:
+                    tick.label.set_fontsize(label_fontsize)
+            for k in range(0,len(marks)):
+                for mark in marks[k]:
+                    mark.set_size(fontsize=label_fontsize-2)
+                    #mark.set_rotation(s=65)
+
         plt.tight_layout()
-        plt.savefig(self.picfile)
-        if show: plt.show()
+        plt.savefig(os.path.join(self.resultdir,figname))
 
 
 

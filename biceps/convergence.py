@@ -189,7 +189,7 @@ def compute_JSD(T1, T2, T_total, ind, allowed_parameters):
 
 class Convergence(object):
 
-    def __init__(self, filename, outdir=None, verbose=False):
+    def __init__(self, traj=None, filename=None, outdir="./", verbose=False):
         """Convergence submodule for BICePs.
 
         Args:
@@ -197,9 +197,18 @@ class Convergence(object):
             outdir(str): relative path for output files
         """
 
+        if (traj == None) and (filename == None):
+            #raise()
+            print("Must provide a trajectory or a relative path to a trajectory file.")
+            exit()
+
         self.verbose = verbose
         if self.verbose: print(f'Loading {filename}...')
-        self.traj = np.load(filename, allow_pickle=True)['arr_0'].item()
+        if filename:
+            self.traj = np.load(filename, allow_pickle=True)['arr_0'].item()
+        if traj:
+            self.traj = traj
+
         self.freq_save_traj = int(self.traj["trajectory"][1][0] - self.traj["trajectory"][0][0])
         if self.verbose: print('Collecting rest_type...')
         self.rest_type = self.traj['rest_type']
@@ -301,6 +310,17 @@ class Convergence(object):
                             ecolor='k', fmt='o', capsize=10)
 
                 if isinstance(std_y, np.ndarray):
+
+            #if (type(std_x) == np.ndarray) or (type(std_y) == np.ndarray):
+            #    plt.annotate("$\\tau_{auto} = %i \\pm %i$"%(round(self.tau_c[i]),round(std_x[i])),
+            #            (self.tau_c[i], self.autocorr[i][j]),
+            #            xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05))
+            #    if (type(std_x) == np.ndarray):
+            #        plt.errorbar(self.tau_c[i], self.autocorr[i][j], xerr=std_x[i],
+            #                ecolor='k', fmt='o', capsize=10)
+            # 
+            #    if (type(std_y) == np.ndarray):
+
                     plt.fill_between(np.arange(self.maxtau+1),
                             self.autocorr[i]-std_y[i], self.autocorr[i]+std_y[i], color='r', alpha=0.4)
 
@@ -389,8 +409,13 @@ class Convergence(object):
             blocks = get_blocks(sampled_parameters, nblocks)
             x,y = [],[]
             for i in range(len(blocks)):
+
                 y.append(compute_autocorrelation_curves(blocks[i], max_tau=self.maxtau, normalize=True))
                 x.append(compute_autocorrelation_time(y[i]))
+           #     y.append(self.cal_auto(blocks[i]))
+           #     x.append(self.autocorrelation_time(y[i]))
+           # x, y = np.array(x),np.array(y)
+
             self.autocorr = np.average(y, axis=1)
             self.tau_c = np.average(x, axis=1)
 
@@ -405,6 +430,7 @@ class Convergence(object):
             else:
                 std_y = np.std(y, axis=1)
                 std_x = np.std(x, axis=1)
+
             self.plot_auto_curve(std_x=std_x, std_y=std_y)
 
         if method == "exp":
