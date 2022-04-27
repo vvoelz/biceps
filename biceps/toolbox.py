@@ -61,18 +61,35 @@ def sort_data(dataFiles):
     return data
 
 
-
 def get_files(path):
-    """Uses a sorted glob to return a list of files in numerical order.
+    """Return a sorted list of files that will be globbed from the path given.
+    First, this function can handle decimals and multiple numbers that are
+    seperated by characters.
+    https://pypi.org/project/natsort/
 
     Args:
-        path(str): path to glob (able to use *)
-
-    >>> biceps.toolbox.get_files()
+        path(str) - path that will be globbed
+    Returns:
+        sorted list
     """
 
-    convert = lambda txt: int(txt) if txt.isdigit() else txt
-    return sorted(glob.glob(path), key=lambda x:[convert(s) for s in re.split("([0-9]+)",x)])
+    from natsort import natsorted
+    globbed = glob.glob(path)
+    return natsorted(globbed)
+
+
+
+#def get_files(path):
+#    """Uses a sorted glob to return a list of files in numerical order.
+#
+#    Args:
+#        path(str): path to glob (able to use *)
+#
+#    >>> biceps.toolbox.get_files()
+#    """
+#
+#    convert = lambda txt: int(txt) if txt.isdigit() else txt
+#    return sorted(glob.glob(path), key=lambda x:[convert(s) for s in re.split("([0-9]+)",x)])
 
 
 
