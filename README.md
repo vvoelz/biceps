@@ -22,7 +22,12 @@ models. Supported experimental observables include:
 
 - [Hydrogen--deuterium exchange](https://en.wikipedia.org/wiki/Hydrogen–deuterium_exchange) (`HDX`).
 
+<!--
 Citation [![DOI for Citing BICePs](https://img.shields.io/badge/DOI-10.1021.acs.jpcb.7b11871-green.svg)](http://doi.org/10.1021/acs.jpcb.7b11871)
+-->
+
+Citation [![DOI for Citing BICePs](https://img.shields.io/badge/DOI-10.26434%2Fchemrxiv--2022--1b24c-green.svg)](https://doi.org/10.26434/chemrxiv-2022-1b24c)
+
 
 ### Check our [BICePs website](https://biceps.readthedocs.io/en/latest/) for more details!
 
@@ -62,13 +67,11 @@ BICePs supports Python 2.7 (see [tag v1.0](https://github.com/vvoelz/biceps/rele
 Dependencies of BICePs
 ----------------------
 
-> -   [pymbar](https://pymbar.readthedocs.io) == 3.0.2
+> -   [pymbar](https://pymbar.readthedocs.io) >= 4.0.1
 > -   [mdtraj](https://mdtraj.org) >= 1.5.0
 > -   matplotlib >= 2.1.2
 > -   numpy >= 1.14.0
-> -   multiprocessing (works with Python versions 3.0-3.7)
-
-NOTE: for pymbar, try: `$ pip install git+https://github.com/choderalab/pymbar.git@3.0.2`
+> -   multiprocessing 
 
 -------------------------------------------
 
