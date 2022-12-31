@@ -3,6 +3,7 @@ import os, glob
 import numpy as np
 import pickle
 from pymbar import MBAR
+from pymbar.utils import kln_to_kn
 from .Restraint import *
 from .PosteriorSampler import *
 from .toolbox import get_files
@@ -50,6 +51,7 @@ class Analysis(object):
 
         self.verbose = verbose
         self.resultdir = outdir
+        self.trajs = os.path.join(outdir,"*.npz")
         self.BSdir = os.path.join(self.resultdir,BSdir)
         self.popdir = os.path.join(self.resultdir,popdir)
         self.picfile = os.path.join(self.resultdir,picfile)
@@ -68,14 +70,15 @@ class Analysis(object):
         self.MBAR_analysis()
 
 
+
     def load_data(self):
         """Load input data from BICePs sampling (*npz and *pkl files)."""
 
         # Load in npz trajectories
-        exp_files = get_files(self.trajs)
-        for filename in exp_files:
-            if self.verbose: print('Loading %s ...'%filename)
-            traj = np.load(filename, allow_pickle=True )['arr_0'].item()
+        files = get_files(self.trajs)
+        for file in files:
+            if self.verbose: print('Loading %s ...'%file)
+            traj = np.load(file, allow_pickle=True)['arr_0'].item()
             self.traj.append(traj)
         self.nreplicas = len(traj['trajectory'][0][3])
         if self.precheck:
@@ -106,8 +109,8 @@ class Analysis(object):
             self.sampler.append( pickle.load(pkl_file) )
 
         # parse the lambda* filenames to get the full list of lambdas
-        self.nlambda = len(exp_files)
-        self.lam = [float( (s.split('lambda')[1]).replace('.npz','') ) for s in exp_files ]
+        self.nlambda = len(files)
+        self.lam = [float( (s.split('lambda')[1]).replace('.npz','') ) for s in files ]
         if self.verbose: print('lam =', self.lam)
         self.scheme = self.traj[0]['rest_type']
 
@@ -177,43 +180,50 @@ class Analysis(object):
                             new_parameters[original_index[m]].append(temp_parameters[m])
                         u_kln[k,l,n] = self.sampler[l].neglogP(state, new_parameters, sigma_index)
                         if debug: print('E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n])
-
-
+#
+        self.u_kln, self.N_k, self.states_kn = u_kln, N_k, states_kn
         # Initialize MBAR with reduced energies u_kln and number of uncorrelated configurations from each state N_k.
         # u_kln[k,l,n] is the reduced potential energy beta*U_l(x_kn), where U_l(x) is the potential energy function for state l,
         # beta is the inverse temperature, and and x_kn denotes uncorrelated configuration n from state k.
         # N_k[k] is the number of configurations from state k stored in u_knm
         # Note that this step may take some time, as the relative dimensionless free energies f_k are determined at this point.
-        mbar = MBAR(u_kln, N_k)
+        mbar = MBAR(self.u_kln, self.N_k)
 
         # Extract dimensionless free energy differences and their statistical uncertainties.
 #       (Deltaf_ij, dDeltaf_ij) = mbar.getFreeEnergyDifferences()
         #(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='svd-ew')
-        (Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='approximate')
-        #print 'Deltaf_ij', Deltaf_ij
-        #print 'dDeltaf_ij', dDeltaf_ij
+        # NOTE: Get biceps score
+        # NOTE: This function may need to be altered to gather more information about individual models
+        #(Deltaf_ij, dDeltaf_ij, Theta_ij) = mbar.getFreeEnergyDifferences(uncertainty_method='approximate')
+        #_results = mbar.getFreeEnergyDifferences(uncertainty_method='approximate', return_theta=True, return_dict=True)
+        _results = mbar.compute_free_energy_differences(uncertainty_method='approximate', return_theta=True)
+        #print(_results.keys())
+        Deltaf_ij, dDeltaf_ij, Theta_ij = _results["Delta_f"], _results["dDelta_f"], _results["Theta"]
+        self.Deltaf_ij = Deltaf_ij
+        self.dDeltaf_ij = dDeltaf_ij
         beta = 1.0 # keep in units kT
         #print 'Unit-bearing (units kT) free energy difference f_1K = f_K - f_1: %f +- %f' % ( (1./beta) * Deltaf_ij[0,K-1], (1./beta) * dDeltaf_ij[0,K-1])
         self.f_df = np.zeros( (self.nlambda, 2) )  # first column is Deltaf_ij[0,:], second column is dDeltaf_ij[0,:]
-        self.f_df[:,0] = Deltaf_ij[0,:]
-        self.f_df[:,1] = dDeltaf_ij[0,:]
+        self.f_df[:,0] = Deltaf_ij[0,:]  # NOTE: biceps score
+        self.f_df[:,1] = dDeltaf_ij[0,:] # NOTE: biceps score std
 
-        # Compute the expectation of some observable A(x) at each state i, and associated uncertainty matrix.
-        # Here, A_kn[k,n] = A(x_{kn})
-        #(A_k, dA_k) = mbar.computeExpectations(A_kn)
-        self.P_dP = np.zeros( (nstates, 2*self.K) )  # left columns are P, right columns are dP
+        self.P_dP = np.zeros( (self.nstates, 2*self.K) )  # left columns are P, right columns are dP
         if debug: print('state\tP\tdP')
-        states_kn = np.array(states_kn)
-        for i in range(nstates):
-            sampled = np.array([np.where(states_kn[:,:,r]==i,1,0) for r in range(self.nreplicas)])
-            A_kn = sampled.sum(axis=0)
-            (p_i, dp_i) = mbar.computeExpectations(A_kn, uncertainty_method='approximate')
+        self.u_kn = kln_to_kn(self.u_kln, N_k=self.N_k)
+        self.compute_perturbed_free_energies = mbar.compute_perturbed_free_energies
+        self.nreplicas = len(self.states_kn[-1,-1])
+        for i in range(self.nstates):
+            sampled = np.array([np.where(self.states_kn[:,:,r]==i,1,0) for r in range(self.nreplicas)])
+            A_kn = sampled.sum(axis=0)/self.nreplicas
+            output = mbar.compute_expectations(A_kn, uncertainty_method='approximate')
+            p_i, dp_i = output["mu"],output["sigma"]
             self.P_dP[i,0:self.K] = p_i
             self.P_dP[i,self.K:2*self.K] = dp_i
         pops, dpops = self.P_dP[:, 0:self.K], self.P_dP[:, self.K:2*self.K]
-
+        if self.verbose: print(f"Time for MBAR: %.3f s" % (time.time() - stime));
         # save results
         self.save_MBAR()
+
 
     def save_MBAR(self):
         """save results (BICePs score and populations) from MBAR analysis"""
@@ -302,9 +312,9 @@ Too many distributions for a single figure... only plotting the first {N}.")
         else:
             c,r = 2, (len(self.scheme[:N])+1)/2
         if figsize:
-            plt.figure( figsize=figsize )
+            fig = plt.figure( figsize=figsize )
         else:
-            plt.figure( figsize=(4*c,5*r) )
+            fig = plt.figure( figsize=(4*c,5*r) )
         # Make a subplot in the upper left
         plt.subplot(int(r),int(c),1)
         plt.errorbar( pops0, pops1, xerr=dpops0, yerr=dpops1, fmt='k.')
@@ -314,14 +324,6 @@ Too many distributions for a single figure... only plotting the first {N}.")
         plt.plot([limit, 1], [limit, 1], color='k', linestyle='-', linewidth=2)
         plt.xlim(limit, 1.)
         plt.ylim(limit, 1.)
-
-        #x0,x1 = np.min(pops0), np.max(pops0)
-        #y0,y1 = np.min(pops1), np.max(pops1)
-        #spacing = 0.0  # not sure yet...
-        #low, high = np.min([x0, y0])-spacing, np.max([x1,y1])+spacing
-        #plt.plot([low, high], [low, high], color='k', linestyle='-', linewidth=2)
-        #plt.xlim(low, high)
-        #plt.ylim(low, high)
 
         plt.xlabel('$p_i$ (exp)', fontsize=label_fontsize)
         plt.ylabel('$p_i$ (sim+exp)', fontsize=label_fontsize)
@@ -429,6 +431,7 @@ Too many distributions for a single figure... only plotting the first {N}.")
 
         plt.tight_layout()
         plt.savefig(os.path.join(self.resultdir,figname))
+        return fig
 
 
 

@@ -207,7 +207,8 @@ class Convergence(object):
         if filename:
             self.traj = np.load(filename, allow_pickle=True)['arr_0'].item()
         if traj:
-            self.traj = traj
+            if type(traj) == dict: self.traj = traj
+            else: self.traj = traj.__dict__
 
         self.freq_save_traj = int(self.traj["trajectory"][1][0] - self.traj["trajectory"][0][0])
         if self.verbose: print('Collecting rest_type...')
@@ -318,7 +319,7 @@ class Convergence(object):
             #    if (type(std_x) == np.ndarray):
             #        plt.errorbar(self.tau_c[i], self.autocorr[i][j], xerr=std_x[i],
             #                ecolor='k', fmt='o', capsize=10)
-            # 
+            #
             #    if (type(std_y) == np.ndarray):
 
                     plt.fill_between(np.arange(self.maxtau+1),
@@ -430,10 +431,9 @@ class Convergence(object):
             else:
                 std_y = np.std(y, axis=1)
                 std_x = np.std(x, axis=1)
-
             self.plot_auto_curve(std_x=std_x, std_y=std_y)
 
-        if method == "exp":
+        elif method == "exp":
             from scipy.optimize import curve_fit
             self.yFits,self.popts = [],[]
             for i in range(len(self.autocorr)):
@@ -443,6 +443,10 @@ class Convergence(object):
             self.tau_c = np.array(self.popts) #np.max(popts)
             #print(("self.tau_c = %s"%self.tau_c))
             self.plot_auto_curve_with_exp_fitting()
+        else:
+            raise KeyError(f"Method must be 'block-avg-auto' or 'exp' or 'auto'. You provided: {method}")
+
+
 
         if plot_traces:
             self.plot_traces()

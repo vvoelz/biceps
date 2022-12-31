@@ -21,7 +21,8 @@ class KarplusRelation(object):
         pass
 
     def J(self, angle, key):
-        """Returns the predicted J-coupling constant given an angle in degrees, and a key 'Karplus_HH', e.g.>"""
+        """Returns the predicted J-coupling constant given an angle in degrees,
+        and a key e.g., 'Karplus_HH'"""
 
         if key == 'Karplus_HH':
             return self.Karplus_HH(angle)
@@ -171,7 +172,7 @@ if __name__ == '__main__':
     plt.legend(['Karplus', 'Bothner-By', 'Karplus2'], 'upper left')
     plt.xlabel('angle (degrees)')
     plt.ylabel('$^3 J_{HH}$')
-    plt.show()
+    plt.savefig('karplus_relation_test.png')
 
 
 

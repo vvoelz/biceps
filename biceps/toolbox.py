@@ -11,6 +11,8 @@ from matplotlib import pyplot as plt
 import biceps.Restraint as Restraint
 from scipy.optimize import curve_fit
 
+
+
 def sort_data(dataFiles):
     """Sorting the data by extension into lists. Data can be located in various
     directories.  Provide a list of paths where the data can be found.
@@ -145,6 +147,34 @@ def list_possible_extensions():
         #NOTE: can use _ext variable or the suffix of Restraint class
             possible.append(ext)
     return possible
+
+
+def check_indices(indices):
+    if type(indices) == str:
+         indices = np.loadtxt(indices)
+    elif (type(indices) != np.ndarray) and (type(indices) != list):
+        raise TypeError(f"Requires a path to a file (str) OR data as \
+                list/np.ndarray object. You provides {type(indices)}.")
+    indices = np.array(indices).astype(int)
+    return indices
+
+def check_exp_data(exp_data):
+    if type(exp_data) == str:
+         exp_data = np.loadtxt(exp_data)
+    elif (type(exp_data) != np.ndarray) and (type(exp_data) != list):
+        raise TypeError(f"Requires a path to a file (str) OR data as \
+                list/np.ndarray object. You provides {type(exp_data)}.")
+    return exp_data
+
+def check_model_data(model_data):
+    if type(model_data) == str:
+        model_data = get_files(model_data)
+    elif (type(model_data) != np.ndarray) and (type(model_data) != list):
+        raise TypeError(f"Requires a path to glob files (str) OR data as \
+                list/np.ndarray object. You provides {type(model_data)}.")
+    return model_data
+
+
 
 
 def mkdir(path):
@@ -676,11 +706,11 @@ def plot_grid(traj, rest_type=None):
         plt.close()
 
 
-def compute_distances(states, ind, outdir):
+def compute_distances(states, indices, outdir):
     """Function that uses MDTraj to compute distances given index pairs.
     Args:
         states(list): list of conformatonal state topology files
-        ind(str): relative path and filename of indices for pair distances
+        indices(str): relative path and filename of indices for pair distances
         outdir(str): relative path for output directory
 
     Returns:
@@ -688,9 +718,12 @@ def compute_distances(states, ind, outdir):
     """
 
     distances = []
-    ind = np.loadtxt(ind, dtype=int)
+    if (type(indices) != np.ndarray) and (type(indices) != list):
+         indices = np.loadtxt(indices)
+    indices = np.array(indices).astype(int)
+
     for i in range(len(states)):
-        d = md.compute_distances(md.load(states[i]), ind)*10. # convert nm to Å
+        d = md.compute_distances(md.load(states[i]), indices)*10. # convert nm to Å
         np.savetxt(outdir+'/%d.txt'%i,d)
     return distances
 
@@ -716,30 +749,35 @@ def compute_chemicalshifts(states, temp=298.0, pH=5.0, outdir="./"):
         #shifts.to_pickle(out)
 
 
-def compute_nonaa_scalar_coupling(states, index, karplus_key, outdir="./", top=None):
+def compute_nonaa_scalar_coupling(states, indices, karplus_key, outdir="./", top=None):
     """Compute J couplings for small molecules.
 
     :param mdtraj.Trajectory traj: Trajectory or *.pdb/*.gro files
-    :param int index: index file for atoms
+    :param int indices: indices file for atoms
     :param list karplus_key: karplus relation for each J coupling
     :param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)"""
 
 
-    #ind = np.loadtxt(index, dtype=int)
+    #ind = np.loadtxt(indices, dtype=int)
+    if (type(indices) != np.ndarray) and (type(indices) != list):
+         indices = np.loadtxt(indices)
+    indices = np.array(indices).astype(int)
+
+
     if [type(key) for key in karplus_key if type(key)==str] == [str for i in range(len(karplus_key))]:
         raise TypeError("Each karplus key must be a string. You provided: \n%s"%(
             [type(key) for key in karplus_key if type(key)==str]))
-    if len(karplus_key) != len(index):
-        raise ValueError("The number of index must equale the number of karplus_key.")
+    if len(karplus_key) != len(indices):
+        raise ValueError("The number of indices must equale the number of karplus_key.")
     #states = get_files(states)
     nstates = len(states)
     for state in range(nstates):
-        conf = md.load(states[state], index)
-        J = np.zeros((len(conf),len(index)))
+        conf = md.load(states[state], indices)
+        J = np.zeros((len(conf),len(indices)))
         karplus = KarplusRelation()
         for i in range(len(J)):
-            for j in range(len(index)):
-                ri, rj, rk, rl = [conf.xyz[0,x,:] for x in index[j]]
+            for j in range(len(indices)):
+                ri, rj, rk, rl = [conf.xyz[0,x,:] for x in indices[j]]
                 model_angle = dihedral_angle(ri, rj, rk, rl)
                 J[i,j] = karplus.J(angle=model_angle, key=karplus_key[j])
 
@@ -814,20 +852,24 @@ def dihedral_angle(x0, x1, x2, x3):
     phi*=180./np.pi
     return(phi)
 
-def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
+def compute_nonaa_Jcoupling(traj, indices, karplus_key, top=None):
     """Compute J couplings for small molecules.
 
     :param mdtraj.Trajectory traj: Trajectory or *.pdb/*.gro files
-    :param int index: index file for atoms
+    :param int indices: indices file for atoms
     :param list karplus_key: karplus relation for each J coupling
     :param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)"""
+
+    if (type(indices) != np.ndarray) and (type(indices) != list):
+         indices = np.loadtxt(indices)
+    indices = np.array(indices).astype(int)
 
 
     if [type(key) for key in karplus_key if type(key)==str] == [str for i in range(len(karplus_key))]:
         raise TypeError("Each karplus key must be a string. You provided: \n%s"%(
             [type(key) for key in karplus_key if type(key)==str]))
-    if len(karplus_key) != len(index):
-        raise ValueError("The number of index must equale the number of karplus_key.")
+    if len(karplus_key) != len(indices):
+        raise ValueError("The number of indices must equale the number of karplus_key.")
     if traj.endswith('.gro'):
         conf = md.load(traj)
     elif traj.endswith('.pdb'):
@@ -836,11 +878,11 @@ def compute_nonaa_Jcoupling(traj, index, karplus_key, top=None):
         if top == None:
             raise TypeError("To load a trajectory file, a topology file must be provided.")
         conf = md.load(traj,top=top)
-    J = np.zeros((len(conf),len(index)))
+    J = np.zeros((len(conf),len(indices)))
     karplus = KarplusRelation()
     for i in range(len(J)):
-        for j in range(len(index)):
-            ri, rj, rk, rl = [conf.xyz[0,x,:] for x in index[j]]
+        for j in range(len(indices)):
+            ri, rj, rk, rl = [conf.xyz[0,x,:] for x in indices[j]]
             model_angle = dihedral_angle(ri, rj, rk, rl)
             J[i,j] = karplus.J(angle=model_angle, key=karplus_key[j])
     return J

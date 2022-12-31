@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 import os, sys, inspect
 import numpy as np
@@ -895,6 +894,9 @@ class Restraint_pf(Restraint):
         return result
 
 
+
+
+
 class Preparation(object):
 
     def __init__(self, nstates=0,  top_file=None, outdir=None):
@@ -912,7 +914,7 @@ class Preparation(object):
         else:
             self.topology = None
         self.outdir = outdir
-        
+
     def to_sorted_list(self):
         """Uses ``biceps.toolbox.sort_data()`` to return sorted list of **input_data**."""
 
@@ -943,28 +945,29 @@ class Preparation(object):
         """A method for preprocessing chemicalshift **exp_data** and **model_data**.
 
         Args:
-            exp_data(str): path to experimental data file (units: ppm)
-            model_data(str): path to model data file (units: ppm)
-            indices(str): path to atom indices
+            exp_data(list,str): experimental data, path to experimental data file (units: ppm)
+            model_data(list,str): model data, path to model data file (units: ppm)
+            indices(list,str): indices, path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
         """
 
+        #self.header = ('exp', 'exp err', 'model', 'restraint_index', 'atom_index1', 'res1',
         self.header = ('exp', 'model', 'restraint_index', 'atom_index1', 'res1',
                 'atom_name1', )
-        self.exp_data = np.loadtxt(exp_data)
-        self.model_data = model_data
-        self.ind = np.loadtxt(indices)
-        self.ind = np.array(self.ind).astype(int)
+        self.ind = biceps.toolbox.check_indices(indices)
+        self.exp_data = biceps.toolbox.check_exp_data(exp_data)
+        self.model_data = biceps.toolbox.check_model_data(model_data)
 
-        if type(self.model_data) is not list or np.ndarray:
-            self.model_data = biceps.toolbox.get_files(model_data)
         if int(len(self.model_data)) != int(self.nstates):
             raise ValueError("The number of states doesn't equal to file numbers")
         if self.ind.shape[0] != self.exp_data.shape[0]:
             raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
+
         for j in range(len(self.model_data)):
             dd = { self.header[i]: [] for i in range(len(self.header)) }
-            model_data = np.loadtxt(self.model_data[j])
+            if type(self.model_data[j]) == str: model_data = np.loadtxt(self.model_data[j])
+            else: model_data = self.model_data[j]
+
             for i in range(self.ind.shape[0]):
                 a1 = int(self.ind[i])
                 dd['atom_index1'].append(a1)
@@ -976,12 +979,12 @@ class Preparation(object):
                     dd.pop('atom_name1', None)
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
+                #if exp_err.shape[1] > 1: dd['exp err'].append(np.float64(self.exp_data[i,2]))
                 dd['model'].append(np.float64(model_data[i]))
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
             filename = "%s.cs_%s"%(j, extension)
-
             if self.outdir:
                 self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
 
@@ -991,26 +994,27 @@ class Preparation(object):
         """A method for preprocessing NOE **exp_data** and **model_data**.
 
         Args:
-            exp_data(str): path to experimental data file (units: :math:`Å`)
-            model_data(str): path to model data file (units: :math:`Å`)
-            indices(str): path to atom indices
+            exp_data(list,str): experimental data, path to experimental data file (units: :math:`Å`)
+            model_data(list,str): model data, path to model data file (units: :math:`Å`)
+            indices(list,str): indices, path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
         """
 
         self.header = ('exp', 'model', 'restraint_index', 'atom_index1', 'res1',
                 'atom_name1', 'atom_index2', 'res2', 'atom_name2', )
-        self.exp_data = np.loadtxt(exp_data)
-        self.model_data = model_data
-        self.ind = np.loadtxt(indices, dtype=int)
-        if type(self.model_data) is not list or np.ndarray:
-            self.model_data = biceps.toolbox.get_files(model_data)
+        self.ind = biceps.toolbox.check_indices(indices)
+        self.exp_data = biceps.toolbox.check_exp_data(exp_data)
+        self.model_data = biceps.toolbox.check_model_data(model_data)
+
         if int(len(self.model_data)) != int(self.nstates):
             raise ValueError("The number of states doesn't equal to file numbers")
         if self.ind.shape[0] != self.exp_data.shape[0]:
             raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
         for j in range(len(self.model_data)):
             dd = { self.header[i]: [] for i in range(len(self.header)) }
-            model_data = np.loadtxt(self.model_data[j])
+            if type(self.model_data[j]) == str: model_data = np.loadtxt(self.model_data[j])
+            else: model_data = self.model_data[j]
+
             for i in range(self.ind.shape[0]):
                 a1, a2 = int(self.ind[i,0]), int(self.ind[i,1])
                 dd['atom_index1'].append(a1)
@@ -1027,12 +1031,12 @@ class Preparation(object):
                     dd.pop('atom_name2', None)
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
+                #if exp_err.shape[1] > 1: dd['exp err'].append(np.float64(self.exp_data[i,2]))
                 dd['model'].append(np.float64(model_data[i]))
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
             filename = "%s.noe"%(j)
-
             if self.outdir:
                 self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
 
@@ -1041,30 +1045,30 @@ class Preparation(object):
         """A method for preprocessing scalar coupling **exp_data** and **model_data**.
 
         Args:
-            exp_data(str): path to experimental data file (units: Hz)
-            model_data(str): path to model data file (units: Hz)
-            indices(str): path to atom indices
+            exp_data(list,str): experimental data, path to experimental data file (units: Hz)
+            model_data(list,str): model data, path to model data file (units: Hz)
+            indices(list,str): indices, path to atom indices
             extension(str): nuclei for the CS data ("H" or "Ca or "N")
         """
 
         self.header = ('exp', 'model', 'restraint_index', 'atom_index1', 'res1', 'atom_name1',
                 'atom_index2', 'res2', 'atom_name2', 'atom_index3', 'res3', 'atom_name3',
                 'atom_index4', 'res4', 'atom_name4',  )
-        self.exp_data = np.loadtxt(exp_data)
-        self.model_data = model_data
-        if type(indices) is not str:
-            self.ind = indices
-        else:
-            self.ind = np.loadtxt(indices, dtype=int)
-        if type(self.model_data) is not list or np.ndarray:
-            self.model_data = biceps.toolbox.get_files(model_data)
+
+        self.ind = biceps.toolbox.check_indices(indices)
+        self.exp_data = biceps.toolbox.check_exp_data(exp_data)
+        self.model_data = biceps.toolbox.check_model_data(model_data)
+
         if int(len(self.model_data)) != int(self.nstates):
             raise ValueError("The number of states doesn't equal to file numbers")
         if self.ind.shape[0] != self.exp_data.shape[0]:
             raise ValueError('The number of atom pairs (%d) does not match the number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
         for j in range(len(self.model_data)):
             dd = { self.header[i]: [] for i in range(len(self.header)) }
-            model_data = np.loadtxt(self.model_data[j])
+
+            if type(self.model_data[j]) == str: model_data = np.loadtxt(self.model_data[j])
+            else: model_data = self.model_data[j]
+
             for i in range(self.ind.shape[0]):
                 a1, a2, a3, a4   = int(self.ind[i,0]), int(self.ind[i,1]), int(self.ind[i,2]), int(self.ind[i,3])
                 dd['atom_index1'].append(a1);dd['atom_index2'].append(a2)
@@ -1089,14 +1093,15 @@ class Preparation(object):
                     dd.pop('atom_name4', None)
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
+                #if exp_err.shape[1] > 1: dd['exp err'].append(np.float64(self.exp_data[i,2]))
                 dd['model'].append(np.float64(model_data[i]))
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
             filename = "%s.J"%(j)
-
             if self.outdir:
                 self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
+
 
 
     def prepare_pf(self, exp_data, model_data=None, indices=None, extension=None, write_as="pickle", verbose=False):
@@ -1104,27 +1109,27 @@ class Preparation(object):
         **model_data**.
 
         Args:
-            exp_data(str): path to experimental data file (units: Hz)
-            model_data(str): path to model data file (units: Hz)
-            indices(str): path to atom indices
+            exp_data(list,str): experimental data, path to experimental data file (units: Hz)
+            model_data(list,str): model data, path to model data file (units: Hz)
+            indices(list,str): indices, path to atom indices
             extension(str):
         """
 
         if model_data: self.header = ('exp','model', 'restraint_index', 'atom_index1', 'res1', )
         else: self.header = ('exp', 'restraint_index', 'atom_index1', 'res1',)
-        self.exp_data = np.loadtxt(exp_data)
-        self.model_data = model_data
-        self.ind = np.loadtxt(indices, dtype=int)
-        if type(self.model_data) is not list or np.ndarray or None:
-            self.model_data = biceps.toolbox.get_files(model_data)
-            if int(len(self.model_data)) != int(self.nstates):
-                raise ValueError("The number of states doesn't equal to file numbers")
+        self.ind = biceps.toolbox.check_indices(indices)
+        self.exp_data = biceps.toolbox.check_exp_data(exp_data)
+        self.model_data = biceps.toolbox.check_model_data(model_data)
+
+        if int(len(self.model_data)) != int(self.nstates):
+            raise ValueError("The number of states doesn't equal to file numbers")
         if self.ind.shape[0] != self.exp_data.shape[0]:
             raise ValueError('The number of atom pairs (%d) does not match the\
                     number of restraints (%d)! Exiting.'%(self.ind.shape[0],self.exp_data.shape[0]))
         for j in range(len(self.model_data)):
             dd = { self.header[i]: [] for i in range(len(self.header)) }
-            model_data = np.loadtxt(self.model_data[j])
+            if type(self.model_data[j]) == str: model_data = np.loadtxt(self.model_data[j])
+            else: model_data = self.model_data[j]
             for i in range(self.ind.shape[0]):
                 a1 = int(self.ind[i,0])
                 dd['atom_index1'].append(a1)
@@ -1136,17 +1141,15 @@ class Preparation(object):
                     dd.pop('atom_name1', None)
                 dd['restraint_index'].append(int(self.exp_data[i,0]))
                 dd['exp'].append(np.float64(self.exp_data[i,1]))
+                #if exp_err.shape[1] > 1: dd['exp err'].append(np.float64(self.exp_data[i,2]))
                 if model_data:
                     dd['model'].append(np.float64(model_data[i]))
             self.biceps_df = pd.DataFrame(dd)
             if verbose:
                 print(self.biceps_df)
             filename = "%s.pf"%(j)
-
             if self.outdir:
                 self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
-
-
 
 if __name__ == "__main__":
 
