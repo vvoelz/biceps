@@ -16,8 +16,13 @@ sphinx
 sphinx_rtd_theme
 scikit-learn
 numpydoc
+pickle
+pandas
+scipy
+multiprocessing
+re
 tqdm
-pymbar==3.0.3
+pymbar>=4.0.1
 mdtraj
 #mdtraj==1.9.3
 
