@@ -1,20 +1,17 @@
 # These are for RTD
-pickle
-multiprocessing
-re
+sphinx
+nbsphinx
 sphinx_rtd_theme
+sphinx-autoapi
+autoapi
+recommonmark
 numpydoc
 notebook
-pip==21.1
-prompt_toolkit==1.0.4
 nbsphinx
 sphinxcontrib-napoleon
 jinja2
 nbconvert
 pyparsing
-sphinx-autoapi
-autoapi
-sphinx
 
 
 
