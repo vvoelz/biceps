@@ -8,14 +8,20 @@ from io import open
 #except ImportError: # for pip <= 9.0.3
 #    from pip.req import parse_requirements
 import sys
+from pip._internal.req import parse_requirements
 
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
 # We need two seperate requirement files due to the failure to install all at once.
-#install_reqs1 = parse_requirements('requirements1.txt', session=False)
+requirements = parse_requirements('requirements.txt', session=False)
 #install_reqs2 = parse_requirements('requirements2.txt', session=False)
 #
 ## reqs is a list of requirement
 ## e.g. ['django==1.5.1', 'mezzanine==1.4.6']
+requirements = list(requirements)
+try:
+    requirements = [str(ir.req) for ir in requirements]
+except:
+    requirements = [str(ir.requirement) for ir in requirements]
 #reqs1 = [str(ir.req) for ir in install_reqs1]
 #req_links1 = [str(ir.url) for ir in install_reqs1]
 #
@@ -32,7 +38,7 @@ sys.path.append('BICePs_2.0/')
 
 setup(
         name="biceps",
-        version="2.0b9",
+        version="2.0.0",
         description='BICePs',
         long_description=long_description,
         long_description_content_type="text/markdown",
@@ -52,12 +58,13 @@ setup(
                 "Github": "https://github.com/vvoelz/biceps",
                 "Documentation": "https://biceps.readthedocs.io/en/latest/index.html",
             },
-        author='Robert M. Raddi,Yunhui Ge, Vincent A. Voelz',
-        author_email='vvoelz@gmail.com',
+        author='Robert M. Raddi, Yunhui Ge, Vincent A. Voelz',
+        author_email='rraddi@temple.edu, yunhui.ge@gmail.com, vvoelz@gmail.com',
         license='MIT',
         #packages=exclude=['docs']),
         packages=find_packages(),
         #setup_requires=['numpy'],
+        install_requires=requirements,
         #install_requires=[
         #    'numpy',
         #    'mdtraj',
@@ -66,7 +73,7 @@ setup(
             #'mdtraj==1.9.4','pymbar==3.0.2'],
         # conda install -c conda-forge mdtraj
 
-        python_requires='<3.8',
+        python_requires='>=3.7',
         #extras_require={  # Optional
         #        'dev': ['check-manifest'],
         #        'test': ['coverage'],

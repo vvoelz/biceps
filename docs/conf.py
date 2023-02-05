@@ -95,11 +95,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'BICePs'
-#authors = u'Robert M. Raddi, Yunhui Ge, Vincent A. Voelz'
-authors = r"""
-.. raw:: latex
-    \noindent Robert M. Raddi, Yunhui Ge, Vincent A. Voelz\\
-"""
+authors = u'Raddi R., Ge Y., Voelz V.'
 date = datetime.now()
 copyright = f"""{date.today().year}, Temple University, {authors}
 
@@ -184,8 +180,8 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'canonical_url': '',
     'analytics_id': '',
-    'logo_only': False,
-    'display_version': True,
+    'logo_only': True,
+    'display_version': False,
     'prev_next_buttons_location': 'bottom',
     'style_external_links': True, #False,
     #'vcs_pageview_mode': '',

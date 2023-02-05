@@ -1,0 +1,10 @@
+cython>=0.28
+numpy>=1.7.0
+natsort
+matplotlib
+scikit-learn
+pandas
+scipy
+tqdm
+pymbar>=4.0.1
+mdtraj

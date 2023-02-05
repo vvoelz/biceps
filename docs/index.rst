@@ -55,6 +55,12 @@ Please apply BICePs in your research and cite it in any scientific publications.
 
 ::
 
+    @article{raddi2022biceps,
+      title={BICePs v2. 0: Software for Ensemble Reweighting using Bayesian Inference of Conformational Populations},
+      author={Raddi, Robert and Ge, Yunhui and Voelz, Vincent},
+      year={2022}
+    }
+
     @article{VAV-2018,
         title = {Model selection using BICePs: A Bayesian approach to forcefield validation and parameterization},
         author = {Yunhui Ge and Vincent A. Voelz},
@@ -72,7 +78,7 @@ License
 
 
 
-.. |DOI for Citing BICePs| image:: https://img.shields.io/badge/DOI-10.1021.acs.jpcb.7b11871-green.svg
-   :target: http://doi.org/10.1021/acs.jpcb.7b11871
+.. |DOI for Citing BICePs| image:: https://img.shields.io/badge/DOI-10.26434%2Fchemrxiv--2022--1b24c-green.svg
+   :target: https://doi.org/10.26434/chemrxiv-2022-1b24c
 
 .. vim: tw=75

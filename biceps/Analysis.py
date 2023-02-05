@@ -102,7 +102,8 @@ class Analysis(object):
             #    exit()
 
         # Load in cpickled sampler objects
-        sampler_files = get_files(self.trajs.replace('.npz','.pkl'))
+        #sampler_files = get_files(self.trajs.replace('.npz','.pkl'))
+        sampler_files = [file.replace('.npz','.pkl') for file in files]
         for pkl_filename in sampler_files:
             if self.verbose: print('Loading %s ...'%pkl_filename)
             pkl_file = open(pkl_filename, 'rb')
@@ -182,6 +183,7 @@ class Analysis(object):
                         if debug: print('E_%d evaluated in model_%d'%(k,l), u_kln[k,l,n])
 #
         self.u_kln, self.N_k, self.states_kn = u_kln, N_k, states_kn
+        stime = time.time()
         # Initialize MBAR with reduced energies u_kln and number of uncorrelated configurations from each state N_k.
         # u_kln[k,l,n] is the reduced potential energy beta*U_l(x_kn), where U_l(x) is the potential energy function for state l,
         # beta is the inverse temperature, and and x_kn denotes uncorrelated configuration n from state k.

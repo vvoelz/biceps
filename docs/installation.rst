@@ -11,7 +11,7 @@ Installation
 
     <h3 style="align: justify;font-size: 12pt"> We recommend that you install
     <code>biceps</code> with <a href="https://pip.pypa.io/en/stable/">pip</a>. Supporting
-        Python <= 3.7 on Mac, Linux, and Windows.<h3>
+        Python 3 on Mac, Linux, and Windows.<h3>
 
     <div class="highlight-default notranslate">
         <div class="highlight">

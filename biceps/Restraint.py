@@ -309,7 +309,7 @@ class Restraint_cs(Restraint):
         else:
             pass
 
-    def init_restraint(self, data, energy, extension="H", weight=1, verbose=False):
+    def init_restraint(self, data, energy, extension="H", weight=1, file_fmt="pickle", verbose=False):
         """Initialize the chemical shift restraints for each experimental
         and theoretical observable given data.
 
@@ -327,7 +327,7 @@ class Restraint_cs(Restraint):
         self.Ndof = None
 
         # Reading the data from loading in filenames
-        data = self.load_data(data)
+        data = self.load_data(data, As=file_fmt)
         self.n = len(data.values)
 
         # Group by keys
@@ -388,7 +388,7 @@ class Restraint_J(Restraint):
 
     _ext = ['J']
 
-    def init_restraint(self, data, energy, extension="J", weight=1, verbose=False):
+    def init_restraint(self, data, energy, extension="J", weight=1, file_fmt="pickle", verbose=False):
         """Initialize the sclar coupling constant restraints for each **exp**
         (experimental) and **model** (theoretical) observable given **data**.
 
@@ -404,7 +404,7 @@ class Restraint_J(Restraint):
         self.Ndof = None
 
         # Reading the data from loading in filenames
-        data = self.load_data(data)
+        data = self.load_data(data, As=file_fmt)
         self.n = len(data.values)
 
         # Group by keys
@@ -482,7 +482,7 @@ class Restraint_noe(Restraint):
 
     _ext = ['noe']
 
-    def init_restraint(self, data, energy, extension="noe", weight=1, verbose=False,
+    def init_restraint(self, data, energy, extension="noe", weight=1, file_fmt="pickle", verbose=False,
             log_normal=False, gamma=[0.2, 10.0, 1.01]):
         """
         Initialize the NOE distance restraints for each experimental
@@ -514,7 +514,7 @@ class Restraint_noe(Restraint):
         self.Ndof = None
 
         # Reading the data from loading in filenames
-        data = self.load_data(data)
+        data = self.load_data(data, As=file_fmt)
         self.n = len(data.values)
 
         # Group by keys
@@ -600,7 +600,7 @@ class Restraint_pf(Restraint):
     def init_restraint(self, data, energy, precomputed=False, pf_prior=None,
             Ncs_fi=None, Nhs_fi=None, beta_c=(0.05, 0.25, 0.01), beta_h=(0.0, 5.2, 0.2),
             beta_0=(-10.0, 0.0, 0.2), xcs=(5.0, 8.5, 0.5), xhs=(2.0, 2.7, 0.1),
-            bs=(15.0, 16.0, 1.0), extension="pf", weight=1, states=None, verbose=False):
+            bs=(15.0, 16.0, 1.0), extension="pf", weight=1, file_fmt="pickle", states=None, verbose=False):
         """Initialize protection factor restraints for each **exp** (experimental)
         and **model** (theoretical) observable given **data**.
 
@@ -704,7 +704,7 @@ class Restraint_pf(Restraint):
 
 
         # Reading the data from loading in filenames
-        data = self.load_data(data)
+        data = self.load_data(data, As=file_fmt)
         self.n = len(data.values)
 
         # Group by keys
@@ -986,7 +986,7 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.cs_%s"%(j, extension)
             if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
+                self.write_DataFrame(filename=os.path.join(self.outdir,filename), As=write_as, verbose=verbose)
 
 
 
@@ -1038,7 +1038,7 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.noe"%(j)
             if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
+                self.write_DataFrame(os.path.join(self.outdir,filename), As=write_as, verbose=verbose)
 
 
     def prepare_J(self, exp_data, model_data, indices, extension=None, write_as="pickle", verbose=False):
@@ -1100,7 +1100,7 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.J"%(j)
             if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
+                self.write_DataFrame(os.path.join(self.outdir,filename), As=write_as, verbose=verbose)
 
 
 
@@ -1149,7 +1149,7 @@ class Preparation(object):
                 print(self.biceps_df)
             filename = "%s.pf"%(j)
             if self.outdir:
-                self.write_DataFrame(filename=self.outdir+filename, As=write_as, verbose=verbose)
+                self.write_DataFrame(os.path.join(self.outdir,filename), As=write_as, verbose=verbose)
 
 if __name__ == "__main__":
 
