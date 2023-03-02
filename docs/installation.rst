@@ -9,9 +9,9 @@ Installation
 
 .. raw:: html
 
-    <h3 style="align: justify;font-size: 12pt"> We recommend that you install
-    <code>biceps</code> with <a href="https://pip.pypa.io/en/stable/">pip</a>. Supporting
-        Python 3 on Mac, Linux, and Windows.<h3>
+    <h3 style="align: justify;font-size: 12pt"> You can install BICePs from
+    <a href="https://pypi.org/project/biceps/">PyPI</a> using
+    <code>pip</code>:<h3>
 
     <div class="highlight-default notranslate">
         <div class="highlight">
@@ -56,11 +56,8 @@ Dependencies
 .. raw:: html
 
    <ul>
-    <li style="list-style-type: none;"><a href="https://pymbar.readthedocs.io">pymbar</a> == 3.0.2</li>
-    <li style="list-style-type: none;"><a href="https://mdtraj.org">mdtraj</a> >= 1.5.0</li>
-    <li style="list-style-type: none;">matplotlib >= 2.1.2</li>
-    <li style="list-style-type: none;">numpy >= 1.14.0</li>
-    <li style="list-style-type: none;">multiprocessing (currently works for
+    <li style="list-style-type: none;"><a href="https://pymbar.readthedocs.io">pymbar</a> >= 4.0.1</li>
+    <li style="list-style-type: none;"><a href="https://mdtraj.org">mdtraj</a></li>
     Python versions 2.7-3.7)</li>
    </ul>
 

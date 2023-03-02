@@ -37,7 +37,7 @@ Some dependencies of BICePs
 ---------------------------
 
 > -   [pymbar](https://pymbar.readthedocs.io) >= 4.0.1
-> -   [mdtraj](https://mdtraj.org) >= 1.5.0
+> -   [mdtraj](https://mdtraj.org)
 
 
 
