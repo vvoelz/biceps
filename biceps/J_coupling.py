@@ -6,7 +6,7 @@ J3_HN_HA_coefficients = {  # See full citations below in docstring references.
     "Ruterjans1999": dict(phi0=-60 * np.pi/180., A=7.90, B=-1.05, C=0.65),  # From Table 1. in paper.
     "Bax2007": dict(phi0=-60 * np.pi/180., A=8.4, B=-1.36, C=0.33),         # From Table 1. in paper
     "Bax1997": dict(phi0=-60 * np.pi/180., A=7.09, B=-1.42, C=1.55),        # From Table 2. in paper
-    "Habeck" :  dict(phi0=-60 * np.pi/180., A=7.13, B=1.31, C=1.56),        # From Table 1. in paper
+    "Habeck" :  dict(phi0=-60 * np.pi/180., A=7.13, B=-1.31, C=1.56),        # From Table 1. in paper
     "Vuister" : dict(phi0=-60 * np.pi/180., A=6.51, B=-1.76, C=1.60),       # From Figure 4. in paper
     "Pardi"   : dict(phi0=-60 * np.pi/180., A=6.40, B=-1.40, C=1.90),       # From Figure 3. in paper
     }
