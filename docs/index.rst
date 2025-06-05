@@ -55,11 +55,17 @@ Please apply BICePs in your research and cite it in any scientific publications.
 
 ::
 
-    @article{raddi2022biceps,
-      title={BICePs v2. 0: Software for Ensemble Reweighting using Bayesian Inference of Conformational Populations},
-      author={Raddi, Robert and Ge, Yunhui and Voelz, Vincent},
-      year={2022}
-    }
+    @article{raddi2023biceps,
+        title={Biceps v2. 0: software for ensemble reweighting using Bayesian inference of conformational populations},
+        author={Raddi, Robert M and Ge, Yunhui and Voelz, Vincent A},
+        journal={Journal of chemical information and modeling},
+        volume={63},
+        number={8},
+        pages={2370--2381},
+        year={2023},
+        publisher={ACS Publications},
+        doi = {10.1021/acs.jcim.2c01296}
+}
 
     @article{VAV-2018,
         title = {Model selection using BICePs: A Bayesian approach to forcefield validation and parameterization},
@@ -69,7 +75,7 @@ Please apply BICePs in your research and cite it in any scientific publications.
         number = {21},
         pages = {5610 -- 5622},
         year = {2018},
-        doi = {doi:10.1021/acs.jpcb.7b11871}
+        doi = {10.1021/acs.jpcb.7b11871}
     }
 
 
