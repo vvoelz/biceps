@@ -185,5 +185,13 @@ total 8208
 2152 -rwxr-xr-x   1 vv  staff  1100216 Jun 10 12:59 PosteriorSampler.cpython-312-darwin.so
 ```
 
+## Next, testing if I can run the scripts!
+
+In `examples/simple_three_state_reweighting.py`,  I needed to install the following to get it to work:
+```
+conda install h5py Bio uncertainties
+pip install pynmrstar
+```
+
 
 
