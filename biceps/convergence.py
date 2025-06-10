@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import os
+import sys,os,math,string
 import numpy as np
+import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
@@ -8,6 +9,12 @@ import warnings
 warnings.filterwarnings("ignore",category=DeprecationWarning)
 warnings.filterwarnings("ignore",category=RuntimeWarning)
 from scipy.optimize import curve_fit
+import matplotlib.gridspec as gridspec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from .toolbox import format_label
+from .toolbox import mpl_colors
+import string
+
 
 def single_exp_decay(x, a0, a1, tau1):
     """Function of a single exponential decay fitting.
@@ -75,56 +82,6 @@ def exponential_fit(autocorrelation, exp_function='single', v0=None, verbose=Fal
     return yFit_data,max_tau
 
 
-def compute_autocorrelation_curves(data, max_tau, normalize=True):
-    """Calculates the autocorrelation for a list of arrays, where each array is a
-    separate time-series.
-
-    Args:
-        data(list): list of separate timeseries
-        maxtau(int): the upper bound of autocorrelation lag time
-        normalize(bool): to normalize
-
-    Returns: np.ndarray
-    """
-
-    return np.array([g(np.array(timeseries), max_tau, normalize) for timeseries in data])
-
-
-def g(f, max_tau=10000, normalize=True):
-    """Calculate the autocorrelaton function for a time-series f(t).
-
-    Args:
-        f(np.ndarray): a 1D numpy array containing the time series f(t)
-        maxtau(int):  the maximum autocorrelation time to consider.
-        normalize(bool): if True, return g(tau)/g[0]
-
-    Returns: np.array: a numpy array of size (max_tau+1,) containing g(tau)
-    """
-
-    f_zeroed = f-f.mean()
-    T = f_zeroed.shape[0]
-    result = np.zeros(max_tau+1)
-    for tau in range(max_tau+1):
-        result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
-
-    if normalize: return result/result[0]
-    else: return result
-
-
-def compute_autocorrelation_time(autocorrelations):
-    """Computes the autocorrelation time :math:`\\tau_{auto} = \int C_{\\tau} d\\tau`
-
-    Args:
-        autocorrelations(np.ndarray): an array containing the autocorrelations for \
-                each time-series.
-
-    Returns: np.ndarray
-    """
-
-    result = [sum(autocorrelations[i]) for i in range(len(autocorrelations))]
-    return np.array(result)
-
-
 def get_blocks(data, nblocks=5):
     """Method used to partition data into blocks. The data is a list of arrays,
     where each array is a separate time-series or autocorrelation.
@@ -140,7 +97,6 @@ def get_blocks(data, nblocks=5):
         dx = int(len(vec)/nblocks)
         blocks.append([vec[dx*n:dx*(n+1)] for n in range(nblocks)])
     return blocks
-
 
 
 def compute_JSD(T1, T2, T_total, ind, allowed_parameters):
@@ -186,6 +142,58 @@ def compute_JSD(T1, T2, T_total, ind, allowed_parameters):
 
 
 
+def g( f, max_tau = 10000, normalize=True):
+    """Calculate the autocorrelaton function for a time-series f(t).
+
+    :param np.array f:  a 1D numpy array containing the time series f(t)
+    :param int max_tau: the maximum autocorrelation time to consider.
+    :param bool normalize: if True, return g(tau)/g[0]
+    :return np.array: a numpy array of size (max_tau+1,) containing g(tau)
+    """
+
+    f_zeroed = f-f.mean()
+    T = f_zeroed.shape[0]
+    result = np.zeros(max_tau+1)
+    for tau in range(max_tau+1):
+        result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
+
+    if normalize:
+        return result/result[0]
+    else:
+        return result
+
+def cal_auto(data, maxtau):
+    """Calculates the autocorrelation"""
+
+    autocorrs = []
+    for timeseries in data:
+        autocorrs.append( g(np.array(timeseries), max_tau=maxtau) )
+    return autocorrs
+
+
+def autocorrelation_time(autocorr):
+    """Computes the autocorrelation time :math:`\\tau_{auto} = \int C_{\\tau} d\\tau`
+
+    Args:
+        autocorr(np.ndarray): an array containing the autocorrelation for \
+                each restraint.
+    """
+    return autocorr.sum(axis=1)
+
+def get_autocorrelation_time(data, method="auto", maxtau=5000):
+    autocorr = cal_auto(data, maxtau)
+    tau_c = autocorrelation_time(np.array(autocorr))
+    return float(tau_c)
+
+
+def exp_average(Et):
+    result = 0.0
+    for i in range(len(Et)): result += np.exp(-Et[i])
+    result /= len(Et)
+    return result
+
+
+
 
 class Convergence(object):
 
@@ -216,24 +224,27 @@ class Convergence(object):
         if self.verbose: print('Collecting allowed_parameters...')
         self.allowed_parameters = self.traj['allowed_parameters']
         if self.verbose: print('Collecting sampled parameters...')
-        self.sampled_parameters = self.get_sampled_parameters()
-        self.labels = self.get_labels()
-        self.exp_function = "single"
-        if outdir is None: self.outdir = os.getcwd()
-        else: self.outdir = outdir
+        #self.sampled_parameters = self.get_sampled_parameters()
 
-
-    def get_sampled_parameters(self):
-        """Get sampled parameters along time (steps).
-
-        :return list: A list of all nuisance paramters sampled
-        """
-
-        parameters = []
+        s = 0
+        self.cols = []
+        df = self.get_traces()
+        _labels = self.get_labels()
+        self.labels = []
         for i in range(len(self.rest_type)):
-            parameters.append(np.array(self.traj['traces'])[:,i])
-        parameters = np.array(parameters)
-        return parameters
+            df_array = df["%s"%(df.columns.to_list()[i])].to_numpy()
+            if all(df_array == np.ones(df_array.shape)): continue
+            if all(df_array == np.zeros(df_array.shape)): continue
+            self.cols.append(self.rest_type[i])
+            self.labels.append(_labels[i])
+            s += 1
+        n_columns = 1
+        self.sampled_parameters = df[self.cols].to_numpy() # FIXME:
+        self.sampled_parameters = self.sampled_parameters.T
+
+        self.exp_function = "single"
+        if outdir.endswith("/"): self.outdir = outdir
+        else: self.outdir = outdir+"/"
 
     def get_labels(self):
         """Fetches the labels of each of the restraint types."""
@@ -252,7 +263,17 @@ class Convergence(object):
         return labels
 
 
-    def plot_traces(self, figname="traj_traces.png", xlim=None):
+    def get_traces(self, traj_index=-1):
+
+        npz = self.traj
+        columns = self.rest_type #self.get_restraint_labels()
+        df = pd.DataFrame(np.array(npz["traces"]).transpose(), columns)
+        df = df.transpose()
+        return df
+
+
+
+    def plot_traces(self, figname="traj_traces.png", xlim=None, figsize=(14,6)):
         """Plot trajectory traces.
 
         Args:
@@ -262,24 +283,63 @@ class Convergence(object):
         if self.verbose: print('Plotting traces...')
         total_steps = len(self.sampled_parameters[0])
         x = np.arange(1,total_steps+0.1,1)*self.freq_save_traj
-        n_rest = len(self.rest_type)
-        plt.figure(figsize=(3*n_rest,6))
-        for i in range(len(self.rest_type)):
-            plt.subplot(len(self.rest_type), 1, i+1)
-            plt.plot(x, self.sampled_parameters[i],label=self.labels[i])
-            plt.ylabel(self.labels[i], fontsize=18)
-            plt.xlabel('steps', fontsize=18)
-            plt.legend(loc='best')
-            plt.xticks(fontsize=14)
-            plt.yticks(fontsize=14)
-            if xlim: plt.xlim(left=xlim[0], right=xlim[1])
-        plt.tight_layout()
-        plt.savefig(os.path.join(self.outdir,figname))
+        N_rest = len(self.cols) #len(self.traj["trajectory"][0][4])
+        n_rows = 20
+        if N_rest > n_rows:
+            if self.verbose:
+                print(f"Number of nuisance parameter traces: {N_rest}\n\
+Too many plots for a single figure... only plotting the first {n_rows}.")
+        else: n_rows = N_rest
+
+        df = self.get_traces()
+        n_columns = 1
+
+        fig = plt.figure(figsize=figsize)
+        gs = gridspec.GridSpec(n_rows, n_columns)
+        for i in range(len(self.cols)):
+            #print(i)
+            ax = plt.subplot(gs[(i,0)])
+            ax.plot(x, df[self.cols[i]].to_numpy(), color='k',label=[self.cols[i]])
+            ax.set_xlabel('', fontsize=18)
+            ax.set_ylabel(format_label(self.cols[i]), fontsize=16)
+            #ax.legend(loc='best')
+            if xlim: ax.set_xlim(left=xlim[0], right=xlim[1])
+            ax.tick_params(labelbottom=0, labeltop=0, labelleft=1,
+                             labelright=0, bottom=1, top=1, left=1, right=0)
+            ax.text(-0.12, 1.02, string.ascii_lowercase[i],
+                    transform=ax.transAxes,size=20, weight='bold')
+
+            if i == (n_rows-1): break
+
+        ax.set_xlabel('steps', fontsize=18)
+        ax.tick_params(labelbottom=1, labeltop=0, labelleft=1,
+                         labelright=0, bottom=1, top=1, left=1, right=0)
+
+        # Setting the ticks and tick marks
+        ticks = [ax.xaxis.get_minor_ticks(),
+                 ax.xaxis.get_major_ticks()]
+        marks = [ax.get_xticklabels(),
+                ax.get_yticklabels()]
+        for k in range(0,len(ticks)):
+            for tick in ticks[k]:
+                tick.label.set_fontsize(16)
+        for k in range(0,len(marks)):
+            for mark in marks[k]:
+                mark.set_size(fontsize=16)
+                if k == 0:
+                    mark.set_rotation(s=25)
+
+        fig.tight_layout()
+        fig.savefig(self.outdir+figname)
         if self.verbose: print('Done!')
+#        return fig
+
+
+
 
 
     def plot_auto_curve(self, xlim=None, figname="autocorrelation_curve.png",
-            std_x=None, std_y=None):
+            std_x=None, std_y=None, figsize=(12,10)):
         """Plot auto-correlation curve. This function saves a figure of
         auto-correlation with error bars at the 95% confidence interval
         (:math:`\\tau_{auto}` is rounded to the nearest integer).
@@ -292,54 +352,109 @@ class Convergence(object):
         """
 
         if self.verbose: print('Plotting autocorrelation curve ...')
-        plt.figure( figsize=(3*len(self.rest_type),6))
-        for i in range(len(self.autocorr)):
-            if len(self.rest_type) == 2:
-                plt.subplot(len(self.autocorr),1,i+1)
-            else:
-                plt.subplot(len(self.autocorr),2,i+1)
-            plt.plot(np.arange(self.maxtau+1), self.autocorr[i])
-            j = int(round(self.tau_c[i]))
-            plt.axvline(self.tau_c[i], color='k', linestyle="--")
+        #plt.figure( figsize=(3*len(self.rest_type),6))
 
-            if isinstance(std_x, np.ndarray) or isinstance(std_y, np.ndarray):
-                plt.annotate("$\\tau_{auto} = %i \\pm %i$"%(round(self.tau_c[i]),round(std_x[i])),
+        N_rest = len(self.traj["trajectory"][0][4])
+        #print(N_rest)
+        cols = []
+        s = 0
+        for i in range(len(self.autocorr)):
+            if np.isnan(self.autocorr[i]).all(): continue
+            else: cols.append(i); s+=1
+        n_columns = 1
+
+        n_rows = 20
+        if s > n_rows:
+            if self.verbose:
+                print(f"Number of nuisance parameter traces: {s}\n\
+Too many plots for a single figure... only plotting the first {n_rows}.")
+        else: n_rows = s
+
+
+        #figsize = (10*n_columns, n_rows)
+        #figsize /= np.array(figsize).sum()
+        #figsize *= 10
+        #fig = plt.figure( figsize=figsize )
+        fig = plt.figure(figsize=figsize)
+        gs = gridspec.GridSpec(n_rows, n_columns)
+        pos = 0
+        for k,i in enumerate(cols):
+            #print(i)
+            ax = plt.subplot(gs[(k,0)])
+            ax.plot(np.arange(self.maxtau+1), self.autocorr[i], color='k', label=self.labels[i])
+            ax.set_xlabel('', fontsize=18)
+            ax.set_ylabel(r'$C_{\tau}$(%s)'%self.labels[i], fontsize=18)
+            #ax.legend(loc='best')
+            if xlim: ax.set_xlim(left=xlim[0], right=xlim[1])
+            ax.tick_params(labelbottom=0, labeltop=0, labelleft=1,
+                             labelright=0, bottom=1, top=1, left=1, right=0)
+
+            try:
+                j = int(round(self.tau_c[i]))
+                ax.axvline(self.tau_c[i], color='k', linestyle="--")
+            except(Exception) as e:
+                print(e)
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+
+            if (type(std_x) == np.ndarray) or (type(std_y) == np.ndarray):
+                if (any(std_x) or any(std_y)) == np.nan: continue
+                ax.annotate("$\\tau_{auto} = %i \\pm %i$"%(round(self.tau_c[i]),round(std_x[i])),
                         (self.tau_c[i], self.autocorr[i][j]),
-                        xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05), fontsize=16)
-                if isinstance(std_x, np.ndarray):
-                    plt.errorbar(self.tau_c[i], self.autocorr[i][j], xerr=std_x[i],
+                        xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05))
+                if (type(std_x) == np.ndarray):
+                    ax.errorbar(self.tau_c[i], self.autocorr[i][j], xerr=std_x[i],
                             ecolor='k', fmt='o', capsize=10)
 
-                if isinstance(std_y, np.ndarray):
-
-            #if (type(std_x) == np.ndarray) or (type(std_y) == np.ndarray):
-            #    plt.annotate("$\\tau_{auto} = %i \\pm %i$"%(round(self.tau_c[i]),round(std_x[i])),
-            #            (self.tau_c[i], self.autocorr[i][j]),
-            #            xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05))
-            #    if (type(std_x) == np.ndarray):
-            #        plt.errorbar(self.tau_c[i], self.autocorr[i][j], xerr=std_x[i],
-            #                ecolor='k', fmt='o', capsize=10)
-            #
-            #    if (type(std_y) == np.ndarray):
-
-                    plt.fill_between(np.arange(self.maxtau+1),
+                if (type(std_y) == np.ndarray):
+                    ax.fill_between(np.arange(self.maxtau+1),
                             self.autocorr[i]-std_y[i], self.autocorr[i]+std_y[i], color='r', alpha=0.4)
 
-            else:
-                plt.annotate("$\\tau_{auto} = %i$"%(round(self.tau_c[i])),
-                        (self.tau_c[i], self.autocorr[i][j]),
-                        xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05), fontsize=16)
 
-            plt.xlabel('$\\tau$', fontsize=18)
-            plt.ylabel('$C_{\\tau}$ for %s'%self.labels[i], fontsize=18)
-            plt.xlim(left=0)
-            plt.xticks(fontsize=14)
-            plt.yticks(fontsize=14)
+            else:
+                try:
+                    ax.annotate("$\\tau_{auto} = %i$"%(round(self.tau_c[i])),
+                            (self.tau_c[i], self.autocorr[i][j]),
+                            xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05), fontsize=16)
+                except(Exception) as e:
+                    print(e)
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+
+
+            ax.set_xlim(left=0)
+
+            ax.set_xlabel('$\\tau$', fontsize=18)
+            ax.tick_params(labelbottom=1, labeltop=0, labelleft=1,
+                             labelright=0, bottom=1, top=1, left=1, right=0)
+
+            # Setting the ticks and tick marks
+            ticks = [ax.xaxis.get_minor_ticks(),
+                     ax.xaxis.get_major_ticks()]
+            marks = [ax.get_xticklabels(),
+                    ax.get_yticklabels()]
+            for k in range(0,len(ticks)):
+                for tick in ticks[k]:
+                    tick.label.set_fontsize(16)
+            for k in range(0,len(marks)):
+                for mark in marks[k]:
+                    mark.set_size(fontsize=16)
+                    if k == 0:
+                        mark.set_rotation(s=25)
+
             if xlim:
-                plt.xlim(left=xlim[0], right=xlim[1])
-        plt.tight_layout()
-        plt.savefig(os.path.join(self.outdir,figname))
+                ax.xlim(left=xlim[0], right=xlim[1])
+
+            pos += 1
+            if pos == (n_rows): break
+
+
+        fig.tight_layout()
+        fig.savefig(self.outdir+figname)
         if self.verbose: print('Done!')
+
 
 
     def plot_auto_curve_with_exp_fitting(self, figname="autocorrelation_curve_with_exp_fitting.png"):
@@ -355,16 +470,6 @@ class Convergence(object):
                 plt.subplot(len(self.autocorr),1,i+1)
             else:
                 plt.subplot(len(self.autocorr),2,i+1)
-            j = int(round(self.tau_c[i]))
-            # NOTE: Only works for single exponential
-            plt.axvline(self.tau_c[i], color='k', linestyle="--")
-            try:
-                plt.annotate("$\\tau_{auto} = %i$"%(round(self.tau_c[i])),
-                        (self.tau_c[i], self.autocorr[i][j]),
-                        xytext=(self.tau_c[i]+10, self.autocorr[i][j]+0.05), fontsize=16)
-            except(IndexError) as e:
-                continue
-
             plt.plot(np.arange(self.maxtau+1), self.autocorr[i])
             plt.plot(np.arange(self.maxtau+1), self.yFits[i], 'r--')
             plt.xlabel('$\\tau$', fontsize=18)
@@ -373,12 +478,68 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(os.path.join(self.outdir,figname))
+        plt.savefig(self.outdir+figname)
         if self.verbose: print('Done!')
 
 
+    def single_exp_decay(self, x, a0, a1, tau1):
+        """Function of a single exponential decay fitting.
+
+        :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1}))`
+
+        :param np.array x:
+        :param float a0:
+        :param float a1:
+        :param float tau1:
+        :return np.array: """
+
+        return a0 + a1*np.exp(-(x/tau1))
+
+    def double_exp_decay(self, x, a0, a1, a2, tau1, tau2):
+        """Function of a double exponential decay fitting.
+
+        :math:`f(x) = a_{0} + a_{1}*exp(-(x/\tau_{1})) + a_{2}*exp(-(x/\tau_{2}))`
+
+        :param np.array x:
+        :param float a0:
+        :param float a1:
+        :param float a2:
+        :param float tau1:
+        :param float tau2:
+        :return np.array: """
+
+        return a0 + a1*np.exp(-(x/tau1)) + a2*np.exp(-(x/tau2))
+
+    def exponential_fit(self, ac, exp_function='single'):
+        """Calls on :attr:`single_exp_decay` ('single') or :attr:`double_exp_decay`
+        ('double') for an exponential fitting of an autocorrelation curve.
+        See `SciPy curve fit <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html>`_
+        for more details.
+
+        :param np.ndarray ac:
+        :param str default='single' exp_function:
+        :return np.array yFit: the y-values of the fit curve."""
+
+        nsteps = ac.shape[0]
+        if exp_function == 'single':
+            v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
+            popt, pcov = curve_fit(self.single_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
+            yFit_data = self.single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
+            print(('Best-fit tau1 = %s +/- %s'%(popt[2],pcov[2][2])))
+            max_tau = popt[2]
+        else:
+            v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
+            popt, pcov = curve_fit(self.double_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
+            yFit_data = self.double_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2], popt[3], popt[4])
+            print(('Best-fit tau1 = %s +/- %s'%(popt[3],pcov[3][3])))
+            print(('Best-fit tau2 = %s +/- %s'%(popt[4],pcov[4][4])))
+            #NOTE: This may need to be fixed later
+            max_tau = max(popt[3],popt[4])
+        return yFit_data,max_tau
+
+
     def get_autocorrelation_curves(self, method="auto", nblocks=5, maxtau=10000,
-            plot_traces=False):
+            plot_traces=False, figsize=(12,10)):
         """Compute autocorrelaton function for a time-series f(t), partition the
         data into the specified number of blocks and plot the autocorrelation curve.
         Saves a figure of autocorrelation curves for each restraint.
@@ -390,33 +551,28 @@ class Convergence(object):
             plot_traces(bool): plot the trajectory traces?
         """
 
-        sampled_parameters = self.sampled_parameters
         self.maxtau = maxtau
-        # C++
-        #autocorr = np.array(c_conv.autocorrelation(sampled_parameters,
-        #        int(maxtau), bool(normalize)))
-        #self.tau_c = np.array(c_conv.autocorrelation_time(autocorr))
-
         # Python
         if self.verbose: print('Calculating autocorrelation ...')
-        self.autocorr = compute_autocorrelation_curves(sampled_parameters, max_tau=self.maxtau, normalize=True)
+        self.autocorr = cal_auto(self.sampled_parameters, maxtau=maxtau)
         if self.verbose: print("Done!")
         if self.verbose: print('Calculating autocorrelation times...')
-        self.tau_c = compute_autocorrelation_time(self.autocorr)
+        self.tau_c = autocorrelation_time(np.array(self.autocorr))
+        #print(self.tau_c)
         if self.verbose: print("Done!")
 
         if method in ["block-avg-auto","auto"]:
-            if method == "auto": nblocks = 1
-            blocks = get_blocks(sampled_parameters, nblocks)
+            if method == "auto":
+                nblocks = 1
+            blocks = get_blocks(self.sampled_parameters, nblocks)
             x,y = [],[]
             for i in range(len(blocks)):
+                arr = np.array(cal_auto(blocks[i], maxtau=maxtau))
+                y.append(arr)
+                auto_corr = np.array(autocorrelation_time(arr))
+                x.append(auto_corr)
 
-                y.append(compute_autocorrelation_curves(blocks[i], max_tau=self.maxtau, normalize=True))
-                x.append(compute_autocorrelation_time(y[i]))
-           #     y.append(self.cal_auto(blocks[i]))
-           #     x.append(self.autocorrelation_time(y[i]))
-           # x, y = np.array(x),np.array(y)
-
+            x, y = np.array(x),np.array(y)
             self.autocorr = np.average(y, axis=1)
             self.tau_c = np.average(x, axis=1)
 
@@ -431,29 +587,28 @@ class Convergence(object):
             else:
                 std_y = np.std(y, axis=1)
                 std_x = np.std(x, axis=1)
-            self.plot_auto_curve(std_x=std_x, std_y=std_y)
+            self.plot_auto_curve(std_x=std_x, std_y=std_y, figsize=figsize)
 
         elif method == "exp":
             from scipy.optimize import curve_fit
-            self.yFits,self.popts = [],[]
+            self.yFits,popts = [],[]
             for i in range(len(self.autocorr)):
-                yFit,popt = exponential_fit(self.autocorr[i], exp_function=self.exp_function)
-                self.popts.append(popt)
+                yFit,popt = self.exponential_fit(self.autocorr[i], exp_function=self.exp_function)
+                popts.append(popt)
                 self.yFits.append(yFit)
-            self.tau_c = np.array(self.popts) #np.max(popts)
-            #print(("self.tau_c = %s"%self.tau_c))
+            self.tau_c = np.array(popts) #np.max(popts)
+            print(("self.tau_c = %s"%self.tau_c))
             self.plot_auto_curve_with_exp_fitting()
         else:
-            raise KeyError(f"Method must be 'block-avg-auto' or 'exp' or 'auto'. You provided: {method}")
-
-
+            raise KeyError(f"Method must be 'block-avg-auto' or 'exp' or\
+                    'auto'. You provided: {method}")
 
         if plot_traces:
             self.plot_traces()
 
 
     def process(self, nblock=5, nfold=10, nround=100, savefile=True,
-            block_avg=False, normalize=True):
+            block_avg=False, normalize=True, plot=True):
         """Process the trajectory and execute :func:`compute_JSD` with
         :func:`plot_JSD_conv` and :func:`plot_JSD_distribution`.
         If :attr:`block_avg=True`, then block averaging will be executed and
@@ -468,36 +623,50 @@ class Convergence(object):
              verbose(bool): verbosity
         """
 
+        # Only do columns that are sigmas
+        self._cols = [col for col in self.cols if "sigma" in col.lower()]
+        print(self._cols)
+        _tau_c = [self.tau_c[i] for i,col in enumerate(self.cols) if "sigma" in col.lower()]
         if block_avg:
-            r_total = [[] for i in range(len(self.rest_type))]
-            r_max = [[] for i in range(len(self.rest_type))]
-            for i in range(len(self.tau_c)):
-                tau_auto = self.tau_c[i]
+            r_total = [[] for i in range(len(self._cols))]
+            r_max = [[] for i in range(len(self._cols))]
+            for i in range(len(self._cols)):
+                k = int(np.where(self._cols[i] == np.array(self.rest_type))[0])
+                allowed_parameters = self.allowed_parameters[k]
+
+                tau_auto = _tau_c[i]
                 tau = int(1+2*tau_auto)
                 T_new = self.traj['trajectory'][::tau]
                 nsnaps = len(T_new)
                 dx = int(nsnaps/nfold)
                 for subset in range(nblock):
                     T_total = T_new[dx*subset:dx*(subset+1)]
-                    r_grid = np.zeros(len(self.allowed_parameters[i]))
+                    r_grid = np.zeros(len(allowed_parameters))
                     for k in T_total:
                         ind = np.concatenate(k[4])[i]
                         r_grid[ind]+=1
                     r_total[i].append(r_grid)
-                    r_max[i].append(self.allowed_parameters[i][np.argmax(r_grid)])
-            self.plot_block_avg(nblock,r_max)
+                    r_max[i].append(allowed_parameters[np.argmax(r_grid)])
+            if plot: self.plot_block_avg(nblock,r_max)
 
-        all_JSD=[[] for i in range(len(self.tau_c))]      # create JSD list
-        all_JSDs=[[[] for i in range(nfold)] for j in range(len(self.tau_c))]   # create JSD list of distribution
+        all_JSD=[[] for i in range(len(_tau_c))]      # create JSD list
+        all_JSDs=[[[] for i in range(nfold)] for j in range(len(_tau_c))]   # create JSD list of distribution
         if self.verbose: print('Calculating JSDs ...')
-        for i in range(len(self.tau_c)):
-            ind = i
-            tau_auto = self.tau_c[i]
+        for i in range(len(self._cols)):
+            k = int(np.where(self._cols[i] == np.array(self.rest_type))[0])
+            allowed_parameters = self.allowed_parameters[k]
+
+            tau_auto = _tau_c[i]
+            if np.isnan(tau_auto):
+                print(f"Unable to compute tau_auto for {self._cols[i]}")
+                continue
+
             tau = int(1+2*tau_auto)
             T_new = self.traj['trajectory'][::tau]
             nsnaps = len(T_new)
             if nsnaps < 2*nfold:
-                print('Warning: not enough data left after subsampling using auto-correlation time with the given nfold')
+                raise ValueError(f"Not enough data left after subsampling using auto-correlation time with the given nfold:\n"
+                     f"nsnaps < 2*nfold = {nsnaps} < {2 * nfold}")
                 exit()
             dx = int(nsnaps/nfold)
             for subset in range(nfold):
@@ -505,7 +674,7 @@ class Convergence(object):
                 T1 = T_new[:half]     # first half of the trajectory
                 T2 = T_new[half:dx*(subset+1)]    # second half of the trajectory
                 T_total = T_new[:dx*(subset+1)]     # total trajectory
-                all_JSD[i].append(compute_JSD(T1,T2,T_total,ind,self.allowed_parameters[i]))   # compute JSD
+                all_JSD[i].append(compute_JSD(T1,T2,T_total,k,allowed_parameters))   # compute JSD
                 for r in range(nround):      # now let's mix this dataset
                     mT1 = np.random.choice(len(T_total),int(len(T_total)/2),replace=False)    # randomly pickup snapshots (index) as the first part
                     mT2 = np.delete(np.arange(0,len(T_total),1),mT1)           # take the rest (index) as the second part
@@ -514,13 +683,15 @@ class Convergence(object):
                         temp_T1.append(T_total[snapshot])      # take the first part dataset from the trajectory
                     for snapshot in mT2:
                         temp_T2.append(T_total[snapshot])      # take the second part dataset from the trajectory
-                    all_JSDs[i][subset].append(compute_JSD(temp_T1,temp_T2,T_total,ind,self.allowed_parameters[i]))
+                    all_JSDs[i][subset].append(compute_JSD(temp_T1,temp_T2,T_total,k,allowed_parameters))
+
+        self.all_JSD, self.all_JSDs = np.array(all_JSD), np.array(all_JSDs)
         if savefile:
-            np.save(os.path.join(self.outdir,"all_JSD.npy"), all_JSD)
-            np.save(os.path.join(self.outdir,"all_JSDs.npy"), all_JSDs)
+            np.save(os.path.join(self.outdir,"all_JSD.npy"), self.all_JSD)
+            np.save(os.path.join(self.outdir,"all_JSDs.npy"), self.all_JSDs)
         if self.verbose: print('Done!')
-        self.plot_JSD_distribution(np.array(all_JSD), np.array(all_JSDs), nround, nfold)
-        self.plot_JSD_conv(np.array(all_JSD), np.array(all_JSDs))
+        if plot: self.plot_JSD_distribution(self.all_JSD, self.all_JSDs, nround, nfold)
+        if plot: self.plot_JSD_conv(self.all_JSD, self.all_JSDs)
 
 
     def plot_block_avg(self, nblock, r_max, figname="block_avg.png"):
@@ -534,7 +705,11 @@ class Convergence(object):
 
         plt.figure(figsize=(10,5*len(self.rest_type)))
         x=np.arange(1.,nblock+1.,1.)
-        colors=['red','blue','black','green']
+        #colors=['red','blue','black','green']
+        colors=mpl_colors
+        #print(len(self.rest_type))
+        #print(len(r_max))
+        #print(len(self.labels))
         for i in range(len(self.rest_type)):
             total_max = self.allowed_parameters[i][np.argmax(self.traj['sampled_parameters'][i])]
             plt.subplot(len(self.rest_type),1,i+1)
@@ -547,8 +722,7 @@ class Convergence(object):
             plt.xticks(fontsize=14)
             plt.yticks(fontsize=14)
         plt.tight_layout()
-        plt.savefig(os.path.join(self.outdir,figname))
-
+        plt.savefig(self.outdir+figname)
 
 
     def plot_JSD_conv(self, JSD, JSDs, p_limit=0.99):
@@ -597,18 +771,18 @@ class Convergence(object):
                 plt.title('%d'%(10*(j+1))+'%',fontsize=10)
                 plt.legend(loc='best',fontsize=6)
             plt.tight_layout()
-            plt.savefig(os.path.join(self.outdir,'JSD_conv_%s.pdf'%self.rest_type[k]))
+            plt.savefig(self.outdir+'JSD_conv_%s.pdf'%self._cols[k])
         if self.verbose: print('Done')
 
 
 
-    def plot_JSD_distribution(self, all_JSD, all_JSDs, nround, nfold, figname="JSD_distribution.png"):
+    def plot_JSD_distribution(self, all_JSD, all_JSDs, nround, nfold,
+                figname="JSD_distribution.png", label_size=16, figsize=(6,6)):
         """Plots the distributions for JSD"""
 
-
-        colors=['red', 'blue','black','green']
         # convert shape of all_JSD from (fold,n_rest) to (n_rest,fold)
-        n_rest = len(self.rest_type)
+        #n_rest = len(self.rest_type)
+        n_rest = len(all_JSDs)
         # compute mean, std of JSDs from each fold dataset of each restraint
         JSD_dist = [[] for i in range(n_rest)]
         JSD_std = [[] for i in range(n_rest)]
@@ -619,32 +793,27 @@ class Convergence(object):
                     temp_JSD.append(all_JSDs[rest][f][r])
                 JSD_dist[rest].append(np.mean(temp_JSD))
                 JSD_std[rest].append(np.std(temp_JSD))
-        plt.figure(figsize=(10,5*n_rest))
+        plt.figure(figsize=(8,5*n_rest))
         x=np.arange(int(100/nfold),101.,int(100/nfold))   # the dataset was divided into ten folds (this is the only hard coded part)
         for i in range(n_rest):
             plt.subplot(n_rest,1,i+1)
-            plt.plot(x,all_JSD[i].transpose(),'o-',color=colors[i],label=self.labels[i])
-            #plt.hold(True)
-            #plt.plot(x,JSD_dist[i],'*',color=colors[i],label=self.labels[i])
-
-            ## 2 Standard deviations from the mean
-            #plt.fill_between(x,np.array(JSD_dist[i])+2*np.array(JSD_std[i]),
-            #        np.array(JSD_dist[i])-2*np.array(JSD_std[i]),
-            #        color=colors[i],alpha=0.2)
-
+            plt.plot(x,all_JSD[i].transpose(), color=mpl_colors[i], label="__no_legend__")
+            plt.scatter(x, all_JSD[i].transpose(), edgecolor='k', color=mpl_colors[i], label=self._cols[i])
             # at 95% confidence interval
             bounds = np.sort(all_JSDs[i])
             # remove top 50 and lower 50
             lower = bounds[:, int(nround*0.05)]
             upper = bounds[:, int(nround*0.95)]
-            plt.fill_between(x,lower,upper,color=colors[i],alpha=0.2)
-            plt.xlabel('dataset (%)', size=18)
-            plt.ylabel('JSD', size=18)
-            plt.legend(loc='best')
-            plt.xticks(fontsize=14)
-            plt.yticks(fontsize=14)
+            plt.fill_between(x,lower,upper,color=mpl_colors[i],alpha=0.2)
+            plt.xlabel('dataset (%)', size=label_size)
+            ylabel = r"%s}$"%self._cols[i].replace("sigma_", "$\sigma_{")
+            plt.ylabel(f'JSD (%s)'%ylabel, size=label_size)
+            plt.legend(loc='best', fontsize=label_size-2)
+            plt.xticks(fontsize=label_size-2)
+            plt.yticks(fontsize=label_size-2)
         plt.tight_layout()
-        plt.savefig(os.path.join(self.outdir,figname))
+        plt.savefig(self.outdir+figname)
+
 
 
 

@@ -1,0 +1,15 @@
+############################################################################
+### This file detects programming languages used in the module by filetypes
+############################################################################
+
+# First, remove all files from being detected
+* linguist-detectable=false
+
+# Specify which files are the biceps source code
+biceps/*.pyx linguist-detectable=true
+biceps/*.cpp linguist-detectable=true
+biceps/*.h linguist-detectable=true
+biceps/Analysis.py  linguist-detectable=true
+biceps/Restraint.py  linguist-detectable=true
+
+

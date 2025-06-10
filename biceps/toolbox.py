@@ -1,22 +1,357 @@
 # -*- coding: utf-8 -*-
-import os, glob, re, pickle
+import os, glob, re, pickle, inspect
+import h5py
 import numpy as np
 import pandas as pd
+import psutil, gc, sys, time
+
+import biceps
 from biceps.J_coupling import *
 from biceps.KarplusRelation import KarplusRelation
+
 import mdtraj as md
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import biceps.Restraint as Restraint
 from scipy.optimize import curve_fit
+import Bio
+from Bio import SeqUtils
+from natsort import natsorted
+
+
+mpl_colors = matplotlib.colors.get_named_colors_mapping()
+mpl_colors = list(mpl_colors.values())[::5]
+extra_colors = mpl_colors.copy()
+#mpl_colors = ["k","lime","b","brown","c","green",
+mpl_colors = ["b","brown","c","green",
+              "orange", '#894585', '#fcfc81', '#efb435', '#3778bf',
+              #'#acc2d9', "orange", '#894585', '#fcfc81', '#efb435', '#3778bf',
+        '#e78ea5', '#983fb2', '#b7e1a1', '#430541', '#507b9c', '#c9d179',
+            '#2cfa1f', '#fd8d49', '#b75203', '#b1fc99']+extra_colors[::2]+ ["k","grey"]
 
 
 
+def get_PSkwargs(locals={}, exclude=None):
+    PSkwargs = inspect.getfullargspec(biceps.PosteriorSampler)
+    exclude = [] if exclude is None else exclude
+    kwargs = {key: val for key, val in locals.items() if key in PSkwargs.args and key != 'self' and key not in exclude}
+    kwargs.update({key: val for key, val in zip(PSkwargs.args[-len(PSkwargs.defaults):], PSkwargs.defaults) if key not in kwargs})
+    return kwargs
+
+def get_sample_kwargs(locals={}):
+    obj = getattr(biceps.PosteriorSampler, "sample")
+    sample_kwargs = inspect.getfullargspec(obj)
+    kwargs = {key: val for key, val in locals.items() if key in sample_kwargs.args and key != 'self'}
+    kwargs.update({key: val for key, val in zip(sample_kwargs.args[-len(sample_kwargs.defaults):], sample_kwargs.defaults) if key not in kwargs})
+    return kwargs
+
+
+def three2one(string):
+    match = re.match(r"([a-z]+)([0-9]+)", string[0].upper()+string[1:].lower(), re.I)
+    items = match.groups()
+    code = SeqUtils.IUPACData.protein_letters_3to1[items[0]]
+    return code+items[-1]
+
+def one2three(string):
+    match = re.match(r"([a-z]+)([0-9]+)", string[0].upper()+string[1:].lower(), re.I)
+    items = match.groups()
+    code = SeqUtils.IUPACData.protein_letters_1to3[items[0]]
+    return code+items[-1]
+
+
+
+
+
+def get_forward_model(ensemble):
+    """Returns the model with all model data"""
+
+    model = []
+    for s in range(len(ensemble)):
+        _model = []
+        for R in ensemble[s]:
+            m = []
+            for j in range(R.n):
+                m.append(R.restraints[j]["model"])
+            _model.append(m)
+        model.append(_model)
+    return model
+
+
+def format_label(label):
+
+    if label.count('_') == 1:
+        label = "$\%s_{%s}$"%(label.split('_')[0],label.split('_')[1])
+    elif label.count('_') == 2:
+        label = "$\%s_{{%s}_{%s}}$"%(label.split('_')[0],label.split('_')[1],label.split('_')[2])
+
+    if 'gamma' in label: label = label.replace("\gamma", "{\gamma}^{-1/6}")
+    return label
+
+
+
+
+
+
+def ngl_align_CLN001(structure_files, ref=0, gui=True, rep='cartoon', show_resids=None, with_distance=False):
+    """
+    #https://docs.mdanalysis.org/stable/documentation_pages/analysis/align.html#MDAnalysis.analysis.align.alignto
+    #http://nglviewer.org/nglview/latest/api.html#nglview.write_html
+    """
+
+    import nglview as ngl
+    import MDAnalysis as mda
+    from MDAnalysis.analysis import align
+
+    mpl_colors = matplotlib.colors.cnames.keys()
+    mpl_colors = list(mpl_colors)[::5]
+
+    _repr_ = [
+            {"type": rep, "params": {
+                "color": "random",
+                "sele": "all",
+        }}
+    ]
+    frame = mda.Universe(structure_files[ref])
+    t = ngl.MDAnalysisTrajectory(frame)
+    w = ngl.NGLWidget(t, gui=True)
+    w.set_representations(_repr_, component=0)
+
+    if with_distance: w.add_distance(atom_pair=[["3.N", "7.O"]], label_color="black")
+    if with_distance: w.add_distance(atom_pair=[["3.N", "8.OG1"]], label_color="black")
+    if show_resids:
+        for id in show_resids:
+            w.add_ball_and_stick(f'{id}:A')
+
+    _structure_files = structure_files.copy()
+    _structure_files.pop(int(ref))
+    ref = mda.Universe(structure_files[ref])
+    for i,file in enumerate(_structure_files):
+        struct = mda.Universe(file)
+        rmsds = align.alignto(struct, ref,
+                #select='name CA', # selection to operate on
+                select='all', # selection to operate on
+                match_atoms=True) # whether to match atoms
+        t = mda.Merge(struct.atoms, ref.atoms)
+        s = ngl.MDAnalysisTrajectory(t)
+        w.add_structure(s, align=True)
+        _repr_[0]["params"]["color"] = mpl_colors[i]
+        w.set_representations(_repr_, component=int(i+1))
+        w.update_representation(component=int(i+1), repr_index=0, **_repr_[0]["params"])
+        if with_distance: w.add_distance(atom_pair=[["3.N", "7.O"]], label_color="black", component=int(i+1))
+        if with_distance: w.add_distance(atom_pair=[["3.N", "8.OG1"]], label_color="black", component=int(i+1))
+        if show_resids:
+            for id in show_resids:
+                w.add_ball_and_stick(f'{id}:A', component=int(i+1))
+
+    return w
+
+
+
+def ngl_align(structure_files, weights=None, ref=0, gui=True, alignto="all",
+              rep='cartoon', show_resids=None, print_rmsds=False,
+              add_distances=[]):
+    """
+    Aligns and displays structures with transparency levels based on provided weights.
+    Higher weights result in less transparency.
+    """
+
+    import nglview as ngl
+    import MDAnalysis as mda
+    from MDAnalysis.analysis import align
+
+    mpl_colors = matplotlib.colors.cnames.keys()
+    mpl_colors = list(mpl_colors)[::5]
+
+
+    if weights is None:
+        weights = [1] * len(structure_files)  # Default equal weight if none provided
+    max_weight = max(weights)
+
+    mpl_colors = list(matplotlib.colors.cnames.keys())[::5]
+
+    frame = mda.Universe(structure_files[ref])
+    t = ngl.MDAnalysisTrajectory(frame)
+    w = ngl.NGLWidget(t, gui=gui)
+
+    _repr_ = [{
+        "type": rep, "params": {
+            "color": mpl_colors[0 % len(mpl_colors)],
+            "sele": "all",
+            "opacity": weights[0] / max_weight
+        }
+    }]
+    w.set_representations(_repr_, component=0)
+
+    if show_resids:
+        for id in show_resids:
+            w.add_ball_and_stick(f'{id}:A')
+
+    ref_structure = mda.Universe(structure_files[ref])
+    for i, file in enumerate(structure_files):
+        if i == ref:
+            continue  # Skip the reference file as it is already loaded
+        struct = mda.Universe(file)
+        rmsds = align.alignto(struct, ref_structure, select=alignto, match_atoms=True)
+        if print_rmsds:
+            print("%s: %0.2fÅ" % (file.split("/")[-1], rmsds[1]))
+
+        t = mda.Merge(struct.atoms, ref_structure.atoms)
+        s = ngl.MDAnalysisTrajectory(t)
+        w.add_structure(s, align=True)
+        _repr_[0]["params"]["color"] = mpl_colors[i % len(mpl_colors)]
+        _repr_[0]["params"]["opacity"] = weights[i] / max_weight  # Normalize opacity to the max weight
+        w.set_representations(_repr_, component=int(i+1))
+
+        if show_resids:
+            for id in show_resids:
+                w.add_ball_and_stick(f'{id}:A', component=int(i+1))
+
+    return w
+
+#
+#def ngl_align(structure_files, ref=0, gui=True, alignto="all",
+#              rep='cartoon', show_resids=None, print_rmsds=False,
+#              add_distances=[]):
+#    """
+#    #https://docs.mdanalysis.org/stable/documentation_pages/analysis/align.html#MDAnalysis.analysis.align.alignto
+#    #http://nglviewer.org/nglview/latest/api.html#nglview.write_html
+#    """
+#
+#    import nglview as ngl
+#    import MDAnalysis as mda
+#    from MDAnalysis.analysis import align
+#
+#    #mpl_colors = matplotlib.colors.get_named_colors_mapping()
+#    #mpl_colors = list(mpl_colors.values())[::5]
+#    mpl_colors = matplotlib.colors.cnames.keys()
+#    mpl_colors = list(mpl_colors)[::5]
+#
+#    _repr_ = [
+#            {"type": rep, "params": {
+#                "color": "random",
+#                "sele": "all",
+#        }}
+#    ]
+#    frame = mda.Universe(structure_files[ref])
+#    t = ngl.MDAnalysisTrajectory(frame)
+#    w = ngl.NGLWidget(t, gui=True)
+#    w.set_representations(_repr_, component=0)
+#
+#    if show_resids:
+#        for id in show_resids:
+#            w.add_ball_and_stick(f'{id}:A')
+#
+#    _structure_files = structure_files.copy()
+#    _structure_files.pop(int(ref))
+#    ref = mda.Universe(structure_files[ref])
+#    for i,file in enumerate(_structure_files):
+#        struct = mda.Universe(file)
+#        rmsds = align.alignto(struct, ref,
+#                select=alignto, #'name CA', # selection to operate on
+#                #select='all', # selection to operate on
+#                match_atoms=True) # whether to match atoms
+#        if print_rmsds: print("%s: %0.2fÅ"%(file.split("/")[-1], rmsds[1]))
+#        t = mda.Merge(struct.atoms, ref.atoms)
+#        s = ngl.MDAnalysisTrajectory(t)
+#        w.add_structure(s, align=True)
+#        if i == 0:
+#            _repr_[0]["params"]["color"] = "red"
+#        else:
+#            _repr_[0]["params"]["color"] = mpl_colors[i]
+#
+#        #_repr_[0]["params"]["repr"] = rep
+#        #w.update_representation(component=int(i+1), repr_index=0, color=mpl_colors[i])
+#        w.set_representations(_repr_, component=int(i+1))
+#        w.update_representation(component=int(i+1), repr_index=0, **_repr_[0]["params"])
+##        if add_distances != []:
+##            for pair in add_distances:
+##                w.add_distance(atom_pair=[pair], label_color="black", component=int(i+1))
+#        #w.add_distance(atom_pair=[["3.N", "8.OG1"]], label_color="black", component=int(i+1))
+#        if show_resids:
+#            for id in show_resids:
+#                w.add_ball_and_stick(f'{id}:A', component=int(i+1))
+#
+#
+#
+#        #w.set_representations(_repr_, component=int(i+1))
+#        #component = getattr(w, f"component_{i+1}")
+#        #component.set_representations(_repr_, component=int(i+1))
+#
+#        #w.add_representation(rep, selection='*')
+#    return w
+
+
+
+
+def align_and_save_pdbs(pdb_files, output_file):
+    # Load the first pdb file to use as a reference
+    reference = md.load(pdb_files[0])
+
+    with open(output_file, 'w') as output:
+        for pdb_file in pdb_files:
+            # Load and align the pdb file
+            traj = md.load(pdb_file)
+            traj.superpose(reference)
+
+            # Save the aligned trajectory to a temporary file
+            with tempfile.NamedTemporaryFile(mode='w+', suffix='.pdb', delete=False) as tmp_file:
+                traj.save(tmp_file.name)
+
+                # Go back to the start of the temporary file
+                tmp_file.seek(0)
+
+                # Insert a comment line and write the contents of the temporary file
+                output.write(f"REMARK Original file: {pdb_file}\n")
+                for line in tmp_file:
+                    if not line.startswith("CRYST1") and not line.startswith("MODEL") and not line.startswith("END"):
+                        output.write(line)
+                output.write("END\n")
+
+            # Remove the temporary file
+            os.remove(tmp_file.name)
+
+
+
+def get_rmsds(structure_files, ref=0, alignto="all"):
+    """
+    #https://docs.mdanalysis.org/stable/documentation_pages/analysis/align.html#MDAnalysis.analysis.align.alignto
+    #http://nglviewer.org/nglview/latest/api.html#nglview.write_html
+    """
+
+    import nglview as ngl
+    import MDAnalysis as mda
+    from MDAnalysis.analysis import align
+
+    frame = mda.Universe(structure_files[ref])
+    t = ngl.MDAnalysisTrajectory(frame)
+    _structure_files = structure_files.copy()
+    if not isinstance(_structure_files, list):
+        _structure_files = list(_structure_files)
+    _structure_files.pop(int(ref))
+    ref = mda.Universe(structure_files[ref])
+    result = []
+    for i,file in enumerate(_structure_files):
+        struct = mda.Universe(file)
+        rmsds = align.alignto(struct, ref,
+                select=alignto, #'name CA', # selection to operate on
+                match_atoms=True) # whether to match atoms
+        result.append(rmsds[1])
+    return result
+
+
+
+
+
+
+
+###############################################################################
+#TODO: Does sort_data need to be so elaborate? Can't we just sort by order in Restraint.py?
+###############################################################################
 def sort_data(dataFiles):
     """Sorting the data by extension into lists. Data can be located in various
     directories.  Provide a list of paths where the data can be found.
-    Some examples of fileextensions: {.noe,.J,.cs_H,.cs_Ha}.
+    Some examples of file extensions: {.noe,.J,.cs_H,.cs_Ha}.
 
     :param list dataFiles: list of strings where the data can be found
     :raises ValueError: if the data directory does not exist
@@ -25,42 +360,64 @@ def sort_data(dataFiles):
     """
 
     dir_list=[]
-    if not os.path.exists(dataFiles):
+    path, ext = os.path.splitext(dataFiles)
+    if path.endswith("*"): path = path.replace("*","")
+
+    if not os.path.exists(path):
         raise ValueError("data directory doesn't exist")
-    if ',' in dataFiles:
-        print('Sorting out the data...\n')
-        raw_dir = (dataFiles).split(',')
-        for dirt in raw_dir:
-            if dirt[-1] == '/':
-                dir_list.append(dirt+'*')
-            else:
-                dir_list.append(dirt+'/*')
+
+    raw_dir = dataFiles
+
+    # Check if raw_dir ends with os.sep or contains a wildcard (*)
+    if raw_dir.endswith(os.sep) or "*" in raw_dir:
+        dir_path = raw_dir if "*" in raw_dir else os.path.join(dataFiles, '*')
     else:
-        raw_dir = dataFiles
-        if raw_dir[-1] == '/':
-            dir_list.append(dataFiles+'*')
-        else:
-            dir_list.append(dataFiles+'/*')
+        # If raw_dir is a file name with extension, assume all files of this type are needed
+        _, ext = os.path.splitext(raw_dir)
+        dir_path = os.path.join(dataFiles, '*' + ext) if "*" in ext else os.path.join(dataFiles, '*')
+    dir_list.append(dir_path)
+    files = get_files(dir_path)
 
 
-    # list for every extension; 7 possible experimental observables supported
-    data = [[] for x in range(len(list_possible_extensions()))]
+#    if raw_dir.endswith(os.sep):
+#        dir_list.append(os.path.join(dataFiles, '*'))
+#        files = get_files(os.path.join(dataFiles, '*'))
+#    elif "*" in os.path.splitext(raw_dir)[-1]:
+#        dir_list.append(raw_dir)
+#        files = get_files(dataFiles)
+#    else:
+#        _, ext = os.path.split(raw_dir)
+#        if "*" in ext:
+#            dir_list.append(dataFiles)
+#            files = get_files(dataFiles)
+#        else:
+#            dir_list.append(os.path.join(dataFiles, '*'))
+#            files = get_files(os.path.join(dataFiles, '*'))
+
+
+    types = list_extensions(files)
+    #print(types)
+    data = [[] for t in types]
+    #print(data)
+
     # Sorting the data by extension into lists. Various directories is not an issue...
     for i in range(len(dir_list)):
         convert = lambda txt: int(txt) if txt.isdigit() else txt
         # This convert / sorted glob is a bit fishy... needs many tests
         for j in sorted(glob.glob(dir_list[i]),key=lambda x: [convert(s) for s in re.split("([0-9]+)",x)]):
-            if not any([j.endswith(ext) for ext in list_possible_extensions()]):
-                raise ValueError(f"Incompatible File extension. Use:{list_possible_extensions()}")
+            name, ext = os.path.splitext(j)
+            if not any([ext.startswith(possible) for possible in list_possible_extensions()]):
+                raise ValueError(f"Incompatible File extension. You gave: {ext}; Extension should start with:{list_possible_extensions()}")
             else:
-                for k in range(len(list_possible_extensions())):
-                    if j.endswith(list_possible_extensions()[k]):
+                for k,obs_type in enumerate(types):
+                    #if ext.startswith(obs_type):
+                    if ext.endswith(obs_type):
                         data[k].append(j)
-
     data = np.array([_f for _f in data if _f]) # removing any empty lists
     Data = np.stack(data, axis=-1)
     data = Data.tolist()
     return data
+
 
 
 def get_files(path):
@@ -74,57 +431,40 @@ def get_files(path):
     Returns:
         sorted list
     """
-
-    from natsort import natsorted
+#    path = path.replace("[", r"\[").replace("]", r"\]")
+#    path = path.replace('[', '[[]').replace(']', '[]]')
     globbed = glob.glob(path)
     return natsorted(globbed)
 
 
 
-#def get_files(path):
-#    """Uses a sorted glob to return a list of files in numerical order.
-#
-#    Args:
-#        path(str): path to glob (able to use *)
-#
-#    >>> biceps.toolbox.get_files()
-#    """
-#
-#    convert = lambda txt: int(txt) if txt.isdigit() else txt
-#    return sorted(glob.glob(path), key=lambda x:[convert(s) for s in re.split("([0-9]+)",x)])
+
+
 
 
 
 def list_res(input_data):
-    """Determine the ordering of the experimental restraints that
-    will be included in sampling.
-
-    Args:
-        input_data(list): see :attr:`biceps.Ensemble.initialize_restraints`
+    """Determine what scheme is included in sampling
 
     >>> biceps.toolbox.list_res()
     """
-
-    scheme=[]
-    for i in input_data[0]:
-        if not any([i.endswith(ext) for ext in list_possible_extensions()]):
-            raise ValueError(f"Incompatible File extension. Use:{list_possible_extensions()}")
-        else:
-            scheme.append(i.split(".")[-1])
+    scheme = [t[1:] for t in list_extensions(input_data)]
     return scheme
 
 def list_extensions(input_data):
-    """Determine the ordering of the experimental restraints that
-    will be included in sampling.
-
-    Args:
-        input_data(list): see :attr:`biceps.Ensemble.initialize_restraints`
-
-    >>> biceps.toolbox.list_extensions()
-
-    """
-
-    return [ res.split("_")[-1] for res in list_res(input_data) ]
+    if not isinstance(input_data, list): ValueError("input_data is not a list.")
+    if isinstance(input_data[0], list):
+        files = input_data[0]
+    else:
+        files = input_data
+    types = []
+    name, ext = os.path.splitext(files[0])
+    state = int(os.path.basename(name))
+    for file in files:
+        name, ext = os.path.splitext(file)
+        if state != int(os.path.basename(name)): break
+        types.append(ext)
+    return types
 
 
 def list_possible_restraints():
@@ -140,13 +480,44 @@ def list_possible_extensions():
     >>> biceps.toolbox.list_possible_extensions()
     """
     restraint_classes = list_possible_restraints()
-    possible = list()
-    for rest in restraint_classes:
-        R = getattr(Restraint, rest)
-        for ext in getattr(R, "_ext"):
-        #NOTE: can use _ext variable or the suffix of Restraint class
-            possible.append(ext)
-    return possible
+    extensions = ["."+s.replace("Restraint_","") for s in restraint_classes]
+    return extensions
+
+#def list_possible_extensions():
+#    """Function will return a list of all possible input data file extensions.
+#
+#    >>> biceps.toolbox.list_possible_extensions()
+#    """
+#    restraint_classes = list_possible_restraints()
+#    possible = list()
+#    for rest in restraint_classes:
+#        print(rest)
+#        R = getattr(Restraint, rest)
+#        for ext in getattr(R, "_ext"):
+#        #NOTE: can use _ext variable or the suffix of Restraint class
+#            possible.append(ext)
+#    return possible
+
+
+def mkdir(path):
+    """Function will create a directory if given path does not exist.
+
+    >>> toolbox.mkdir("./doctest")
+    """
+    # create a directory for each system
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+def rmdir(path):
+    """Function will remove a directory if given path exists.
+
+    >>> toolbox.rmdir("./doctest")
+    """
+    # create a directory for each system
+    if not os.path.exists(path):
+        import shutil
+        try: shutil.rmtree(path)
+        except(FileNotFoundError) as e: pass
 
 
 def check_indices(indices):
@@ -175,16 +546,6 @@ def check_model_data(model_data):
     return model_data
 
 
-
-
-def mkdir(path):
-    """Function will create a directory if given path does not exist.
-
-    >>> toolbox.mkdir("./doctest")
-    """
-    # create a directory for each system
-    if not os.path.exists(path):
-        os.mkdir(path)
 
 
 def write_results(self, outfilename):
@@ -294,15 +655,14 @@ def print_scores(file):
     return np.loadtxt(file)[1,0]
 
 
-def npz_to_DataFrame(file, out_filename="traj_lambda0.00.pkl", verbose=False):
+def npz_to_DataFrame(file, verbose=False):
     """Converts numpy Z compressed file to Pandas DataFrame (*.pkl)
 
     >>> biceps.toolbox.npz_to_DataFrame(file, out_filename="traj_lambda0.00.pkl")
     """
 
     npz = np.load(file, allow_pickle=True)["arr_0"].item()
-    if verbose:
-        print(npz.keys())
+    if verbose: print(npz.keys())
 
     # get trajectory information
     traj = npz["trajectory"]
@@ -313,7 +673,6 @@ def npz_to_DataFrame(file, out_filename="traj_lambda0.00.pkl", verbose=False):
         for k,header in enumerate(traj_headers):
             t[header].append(traj[i][k])
     df = pd.DataFrame(t, columns=traj_headers)
-    df.to_pickle(out_filename)
     return df
 
 
@@ -371,382 +730,23 @@ def get_rest_type(traj):
     return rest_type
 
 
-def get_allowed_parameters(traj,rest_type=None):
-    """Get nuisance parameters range.
-
-    :param traj: output trajectory from BICePs sampling
-    :var default=None rest_type: experimental restraint type
-    :return list: A list of all nuisance parameters range
-    """
-
-    if not traj.endswith('.npz'):
-        raise TypeError("trajectory file should be in the format of '*npz'")
-    else:
-        t = np.load(traj)['arr_0'].item()
-        parameters = []
-        if rest_type == None:
-            rest_type = get_rest_type(traj)
-        if 'gamma' in rest_type:
-            for i in range(len(rest_type)):
-                if i == len(rest_type)-1:   # means it is gamma
-                    parameters.append(t['allowed_gamma'])
-                else:
-                    parameters.append(t['allowed_sigma'][i])
-        else:
-            parameters.append(t['allowed_sigma'])[i]
-    return parameters
-
-
-def get_sampled_parameters(traj,rest_type=None,allowed_parameters=None):
-    """Get sampled parameters along time (steps).
-
-    :param traj: output trajectory from BICePs sampling
-    :var default=None rest_type: experimental restraint type
-    :return list: A list of all nuisance paramters sampled
-    """
-
-    if not traj.endswith('.npz'):
-        raise TypeError("trajectory file should be in the format of '*npz'")
-    else:
-        t = np.load(traj)['arr_0'].item()
-        parameters = []
-        if rest_type == None:
-            rest_type = get_rest_type(traj)
-        parameters = [[] for i in range(len(rest_type))]
-        if allowed_parameters == None:
-            allowed_parameters = get_allowed_parameters(traj,rest_type=rest_type)
-        if 'gamma' in rest_type:
-            for i in range(len(rest_type)):
-                if i == len(rest_type)-1:   # means it is gamma
-                    for j in range(len(t['trajectory'])):
-                        parameters[i].append(allowed_parameters[i][t['trajectory'][j][4][i-1][1]])
-                else:
-                    for j in range(len(t['trajectory'])):
-                        parameters[i].append(allowed_parameters[i][t['trajectory'][j][4][i][0]])
-        else:
-            for j in range(len(t['trajectory'])):
-                parameters[i].append(allowed_parameters[i][t['trajectory'][4][j][i][0]])
-    return parameters
-
-
-def g(f, max_tau=10000, normalize=True):
-    """Calculate the autocorrelaton function for a time-series f(t).
-    INPUT
-    f         - a 1D numpy array containing the time series f(t)
-
-    PARAMETERS
-    max_tau   - the maximum autocorrelation time to consider.
-    normalize - if True, return g(tau)/g[0]
-
-    RETURNS
-    result    - a numpy array of size (max_tau+1,) containing g(tau).
-    """
-
-    f_zeroed = f-f.mean()
-    T = f_zeroed.shape[0]
-    result = np.zeros(max_tau+1)
-    for tau in range(max_tau+1):
-        result[tau] = np.dot(f_zeroed[0:-1-tau],f_zeroed[tau:-1])/(T-tau)
-
-    if normalize:
-        return result/result[0]
-    else:
-        return result
-
-
-def single_exp_decay(x, a0, a1, tau1):
-    return a0 + a1*np.exp(-(x/tau1))
-
-def double_exp_decay(x, a0, a1, a2, tau1, tau2):
-    return a0 + a1*np.exp(-(x/tau1)) + a2*np.exp(-(x/tau2))
-
-def exponential_fit(ac, use_function='single'):
-    """Perform a single- or double- exponential fit on an autocorrelation curve.
-
-    Args:
-        ac(np.ndarray): autocorrelation
-        use_function(str): 'single' or 'double'
-
-    Returns:
-        yFit_data(np.ndarray): the y-values of the fit curve.
-    """
-
-    nsteps = ac.shape[0]
-    if use_function == 'single':
-        v0 = [0.0, 1.0 , 4000.]  # Initial guess [a0, a1, tau1] for a0 + a1*exp(-(x/tau1))
-        popt, pcov = curve_fit(single_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
-        yFit_data = single_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2])
-        # print('best-fit a0 = ', popt[0], '+/-', pcov[0][0])
-        # print('best-fit a1 = ', popt[1], '+/-', pcov[1][1])
-        print('best-fit tau1 = ', popt[2], '+/-', pcov[2][2])
-    else:
-        v0 = [0.0, 0.9, 0.1, 4000., 200.0]  # Initial guess [a0, a1,a2, tau1, tau2] for a0 + a1*exp(-(x/tau1)) + a2*exp(-(x/tau2))
-        popt, pcov = curve_fit(double_exp_decay, np.arange(nsteps), ac, p0=v0, maxfev=10000)  # ignore last bin, which has 0 counts
-        yFit_data = double_exp_decay(np.arange(nsteps), popt[0], popt[1], popt[2], popt[3], popt[4])
-        # print('best-fit a0 = ', popt[0], '+/-', pcov[0][0])
-        #print('best-fit a1 = ', popt[1], '+/-', pcov[1][1])
-        #print('best-fit a2 = ', popt[2], '+/-', pcov[2][2])
-        print('best-fit tau1 = ', popt[3], '+/-', pcov[3][3])
-        print('best-fit tau2 = ', popt[4], '+/-', pcov[4][4])
-    return yFit_data
-
-
-def autocorr_valid(x,tau):
-    """Cross-correlation of two 1-dimensional sequences.
-
-    :var x: 1-dimensional sequence
-    :var tau: lagtime
-    """
-
-    t = tau
-    y = x[:np.size(x)-t]
-    g = np.correlate(x, y, mode='valid')
-    n = np.array([np.size(x)-t]*len(g))
-    return g/n
-
-
-def compute_ac(traj,tau,rest_type=None,allowed_parameters=None):
-    """Compute auto-correlation time for sampled trajectory of nuisance parameters.
-
-    :param traj: output trajectory from BICePs sampling
-    :var tau: lagtime
-    :var default=None rest_type: experimental restraint type
-    :var default=None allowed_parameters: nuisacne parameters range
-    :return list: a list of auto-correlation results for all nuisacne parameters
-    :return figure: A figure of auto-correlation results for all nuisance parameters
-    """
-
-    if not traj.endswith('.npz'):
-        raise TypeError("trajectory file should be in the format of '*npz'")
-    else:
-        if rest_type == None:
-            rest_type = get_rest_type(traj)
-        elif allowed_parameters == None:
-            allowed_parameters = get_allowed_parameters(traj,rest_type=rest_type)
-        else:
-            sampled_parameters = [[] for i in range(len(rest_type))]
-            t = np.load(traj)['arr_0'].item()['trajectory']
-            if 'gamma' in rest_type:
-                for i in range(len(t)):
-                    for j in range(len(rest_type)):
-                        if j == len(rest_type)-1:   # means it is gamma
-                            sampled_parameters[j].append(allowed_parameters[j][t[i][4:][0][j-1][1]])
-                        else:
-                            sampled_parameters[j].append(allowed_parameters[j][t[i][4:][0][j][0]])
-            else:
-                for i in range(len(t)):
-                    for j in range(len(rest_type)):
-                        sampled_parameters[j].append(allowed_parameters[j][t[i][4:][0][j][0]])
-            #ac_parameters=[[] for i in range(len(rest_type))]
-            ac_parameters=[]
-            for i in range(len(rest_type)):
-                ac_parameters.append(autocorr_valid(np.array(sampled_parameters[i]),tau))
-    n_rest = len(rest_type)
-    time_in_steps = np.arange(1,len(ac_parameters[0])+1,1)
-    colors = ['red','blue','green','black','magenta','gold','navy']
-    plt.figure(figsize=(10,n_rest*5))
-    for i in range(n_rest):
-        plt.subplot(n_rest,1,i+1)
-        plt.plot(time_in_steps,ac_parameters[i],label=rest_type[i],color=colors[i])
-        plt.xlabel(r'$\tau$ (steps)')
-    plt.legend(loc='best')
-    plt.tight_layout()
-    plt.savefig('autocorrelation.pdf')
-    return ac_parameters
-
-def plot_ac(ac_paramters,rest_type):
-    """Plot auto-correlation results.
-
-    :var ac_parameters: computed auto-correlation results
-    :var rest_type: experimental restraint type
-    :return figure: A figure of auto-correlation results for all nuisance parameters
-    """
-
-    n_rest = len(rest_type)
-    time_in_steps = np.arange(1,n_rest+1,1)
-    colors = ['red','blue','green','black','magenta','gold','navy']
-    plt.figure(figsize=(10,n_rest*5))
-    for i in range(n_rest):
-        plt.subplot(n_rest,1,i+1)
-        plt.plot(time_in_steps,ac_parameters[i],label=rest_type[i],color=colors[i])
-        plt.xlabel(r'$\tau$ (steps)')
-    plt.legend(loc='best')
-    plt.tight_layout()
-    plt.savefig('autocorrelation.pdf')
-
-
-def compute_JSD(T1,T2,T_total,rest_type,allowed_parameters):
-    """Compute JSD for a given part of trajectory.
-
-    :var T1, T2, T_total: part 1, part2 and total (part1 + part2)
-    :var rest_type: experimental restraint type
-    :var allowed_parameters: nuisacne parameters range
-    :return float: Jensen–Shannon divergence
-    """
-
-    restraints = rest_type
-    all_JSD = np.zeros(len(restraints))
-    if 'gamma' in rest_type:
-        for i in range(len(restraints)):
-            r1,r2,r_total = np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i]))
-            if i == len(rest_type) - 1:    # means it is gamma
-                for j in T1:
-                    r1[j[4][i-1][1]]+=1
-                for j in T2:
-                    r2[j[4][i-1][1]]+=1
-                for j in T_total:
-                    r_total[j[4][i-1][1]]+=1
-            else:
-                for j in T1:
-                    r1[j[4][i][0]]+=1
-                for j in T2:
-                    r2[j[4][i][0]]+=1
-                for j in T_total:
-                    r_total[j[4][i][0]]+=1
-            N1=sum(r1)
-            N2=sum(r2)
-            N_total = sum(r_total)
-            H1 = -1.*r1/N1*np.log(r1/N1)
-            H1 = sum(np.nan_to_num(H1))
-            H2 = -1.*r2/N2*np.log(r2/N2)
-            H2 = sum(np.nan_to_num(H2))
-            H = -1.*r_total/N_total*np.log(r_total/N_total)
-            H = sum(np.nan_to_num(H))
-            JSD = H-(N1/N_total)*H1-(N2/N_total)*H2
-            all_JSD[i] = JSD
-    else:
-        for i in range(len(restraints)):
-            r1,r2,r_total = np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i])),np.zeros(len(allowed_parameters[i]))
-            for j in T1:
-                r1[j[4:][0][i][0]]+=1
-            for j in T2:
-                r2[j[4:][0][i][0]]+=1
-            for j in T_total:
-                r_total[j[4:][0][i][0]]+=1
-            N1=sum(r1)
-            N2=sum(r2)
-            N_total = sum(r_total)
-            H1 = -1.*r1/N1*np.log(r1/N1)
-            H1 = sum(np.nan_to_num(H1))
-            H2 = -1.*r2/N2*np.log(r2/N2)
-            H2 = sum(np.nan_to_num(H2))
-            H = -1.*r_total/N_total*np.log(r_total/N_total)
-            H = sum(np.nan_to_num(H))
-            JSD = H-(N1/N_total)*H1-(N2/N_total)*H2
-            all_JSD[i] = JSD
-    return all_JSD
-
-
-
-def plot_conv(all_JSD,all_JSDs,rest_type):
-    """Plot Jensen–Shannon divergence (JSD) distribution for convergence check.
-
-    :var all_JSD: JSDs for different amount of total dataset
-    :var all_JSDs: JSDs for different amount of total dataset from bootstrapping
-    :var rest_type: experimental restraint type
-    :return figure: A figure of JSD and JSDs distribution
-    """
-
-    fold = len(all_JSD)
-    rounds = len(all_JSDs[0])
-    n_rest = len(rest_type)
-    new_JSD = [[] for i in range(n_rest)]
-    for i in range(len(all_JSD)):
-        for j in range(n_rest):
-            new_JSD[j].append(all_JSD[i][j])
-    JSD_dist = [[] for i in range(n_rest)]
-    JSD_std = [[] for i in range(n_rest)]
-    for rest in range(n_rest):
-        for f in range(fold):
-            temp_JSD = all_JSDs[f][:,rest]
-            JSD_dist[rest].append(np.mean(temp_JSD))
-            JSD_std[rest].append(np.std(temp_JSD))
-    plt.figure(figsize=(10,5*n_rest))
-    x = np.arange(100./fold,101.,fold)
-    colors = ['red','blue','green','black','magenta','gold','navy']
-    for i in range(n_rest):
-        plt.subplot(n_rest,1,i+1)
-        plt.plot(x,new_JSD[i],'o-',color=colors[i],label=rest_type[i])
-        plt.hold(True)
-        plt.plot(x,JSD_dist[i],'o',color=colors[i],label=rest_type[i])
-        plt.fill_between(x,np.array(JSD_dist[i])+np.array(JSD_std[i]),np.array(JSD_dist[i])-np.array(JSD_std[i]),color=colors[i],alpha=0.2)
-        plt.xlabel('dataset (%)')
-        plt.ylabel('JSD')
-        plt.legend(loc='best')
-    plt.tight_layout()
-    plt.savefig('convergence.pdf')
-
-def plot_grid(traj, rest_type=None):
-    """Plot acceptance ratio for each nuisance parameters jump during MCMC sampling.
-    """
-
-    if rest_type == None:
-        rest = get_rest_type(traj)
-    else:
-        rest = rest_type
-    t = np.load(traj)['arr_0'].item()
-    grid = t['grid']
-    for i in range(len(grid)):
-        plt.figure()
-        cmap=plt.get_cmap('Greys')
-        raw = grid[i]
-        max_n = np.max(raw)
-        raw[raw == 0.] = -1.0*max_n
-        plt.pcolor(raw,cmap=cmap,vmin=-1.0*max_n,vmax=max_n,edgecolors='none')
-        plt.colorbar()
-        if rest[i] == "gamma":
-            plt.xlabel('$\gamma$ $index$')
-            plt.ylabel('$\gamma$ $index$')
-        else:
-            plt.xlabel('$\sigma_{%s}$ $index$'%rest[i])
-            plt.ylabel('$\sigma_{%s}$ $index$'%rest[i])
-        plt.xlim(0,len(raw[i]))
-        plt.ylim(0,len(raw[i]))
-        plt.savefig('grid_%s.pdf'%rest[i])
-        plt.close()
-
-
 def compute_distances(states, indices, outdir):
-    """Function that uses MDTraj to compute distances given index pairs.
-    Args:
-        states(list): list of conformatonal state topology files
-        indices(str): relative path and filename of indices for pair distances
-        outdir(str): relative path for output directory
-
-    Returns:
-        distances(np.ndarray): computed distances
-    """
-
     distances = []
-    if (type(indices) != np.ndarray) and (type(indices) != list):
-         indices = np.loadtxt(indices)
-    indices = np.array(indices).astype(int)
-
+    indices = check_indices(indices)
     for i in range(len(states)):
         d = md.compute_distances(md.load(states[i]), indices)*10. # convert nm to Å
         np.savetxt(outdir+'/%d.txt'%i,d)
     return distances
 
 def compute_chemicalshifts(states, temp=298.0, pH=5.0, outdir="./"):
-    """Chemical shifts are computed using MDTraj, which uses ShiftX2.
-
-    Args:
-        states(list): list of conformatonal state topology files
-        temp(float): solution temperature
-        pH(float): pH of solution
-        outdir(str): relative path for output directory
-    """
 
     states = get_files(states)
     for i in range(len(states)):
         print(f"Loading {states[i]} ...")
         state = md.load(states[i], top=states[0])
         shifts = md.nmr.chemical_shifts_shiftx2(state, pH, temp)
-        out = outdir+"cs_state%d.txt"%i
-        np.savetxt(out, shifts.mean(axis=1))
-        print(f"Saving {out} ...")
-        #out = out.replace(".txt", ".pkl")
-        #shifts.to_pickle(out)
+        shifts = shifts[0].unstack(-1)
+        shifts.to_pickle(outdir+"cs_state%d.pkl"%i)
 
 
 def compute_nonaa_scalar_coupling(states, indices, karplus_key, outdir="./", top=None):
@@ -757,13 +757,7 @@ def compute_nonaa_scalar_coupling(states, indices, karplus_key, outdir="./", top
     :param list karplus_key: karplus relation for each J coupling
     :param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)"""
 
-
-    #ind = np.loadtxt(indices, dtype=int)
-    if (type(indices) != np.ndarray) and (type(indices) != list):
-         indices = np.loadtxt(indices)
-    indices = np.array(indices).astype(int)
-
-
+    indices = check_indices(indices)
     if [type(key) for key in karplus_key if type(key)==str] == [str for i in range(len(karplus_key))]:
         raise TypeError("Each karplus key must be a string. You provided: \n%s"%(
             [type(key) for key in karplus_key if type(key)==str]))
@@ -781,12 +775,14 @@ def compute_nonaa_scalar_coupling(states, indices, karplus_key, outdir="./", top
                 model_angle = dihedral_angle(ri, rj, rk, rl)
                 J[i,j] = karplus.J(angle=model_angle, key=karplus_key[j])
 
-        np.savetxt(outdir+'%d.txt'%state,J)
+        np.savetxt(os.path.join(outdir,'%d.txt'%state),J)
     #return J
 
 
 
-def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
+
+
+def get_J3_HN_HA(top,traj=None, frame=None,  model="Bax2007", outname=None, verbose=False):
     '''Compute J3_HN_HA for frames in a trajectories.
 
     :param mdtraj.Trajectory traj: Trajectory
@@ -814,14 +810,7 @@ def get_J3_HN_HA(top,traj=None, frame=None,  model="Habeck", outname = None):
     else:
         t = md.load(top)
         J = compute_J3_HN_HA(t, model = model)
-    if outname is not None:
-        print('saving output file...')
-        np.save(outname, J)
-        print('Done!')
-    else:
-        print('saving output file ...')
-        np.save('J3_coupling',J)
-        print('Done!')
+    if outname: np.save(outname, J)
     return J
 
 def dihedral_angle(x0, x1, x2, x3):
@@ -860,10 +849,7 @@ def compute_nonaa_Jcoupling(traj, indices, karplus_key, top=None):
     :param list karplus_key: karplus relation for each J coupling
     :param mdtraj.Topology default=None top: topology file (only required if a trajectory is loaded)"""
 
-    if (type(indices) != np.ndarray) and (type(indices) != list):
-         indices = np.loadtxt(indices)
-    indices = np.array(indices).astype(int)
-
+    indices = check_indices(indices)
 
     if [type(key) for key in karplus_key if type(key)==str] == [str for i in range(len(karplus_key))]:
         raise TypeError("Each karplus key must be a string. You provided: \n%s"%(
@@ -963,19 +949,273 @@ def get_indices(traj, top, selection_expression=None, code_expression=None,
 
 
 def save_object(obj, filename):
-    """Saves python object as pickle file.
-    Args:
-        obj(object): python object
-        filename(str): relative path for ouput
-
-    >>> biceps.toolbox.save_object()
-    """
+    """Saves python object as pkl file"""
 
     with open(filename, 'wb') as output:  # Overwrites any existing file.
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
+def load_object(filename):
+    """Loads a python object from pkl file"""
+
+    with open(filename, 'rb') as f:
+        obj = pickle.load(f)
+    return obj
 
 
+def save_h5_object(obj, filename):
+    """Saves python object as pkl file"""
+
+    with h5py.File(filename, 'w') as f:
+        f.create_dataset(filename, obj)
+
+def load_h5(filename):
+    """Saves python object as pkl file"""
+
+    return h5py.File(filename, 'r')
+def swapXY(array):
+    return [(val[1],val[0]) for val in array]
+
+def get_seperate_columns(grid_positions, transpose=0):
+    """Seperate grid into left, bottom and other"""
+    x = grid_positions.copy()
+    x = np.array(x)
+    X,Y = 0,1
+    bottom_cols = list(filter(lambda i: i[X]==np.max(x), x))
+    if bottom_cols == []:
+        bottom_cols = list(filter(lambda i: i[X]==0, x))
+    left_cols = list(filter(lambda i: i[Y]==np.min(x), x))
+    both_cols = np.concatenate([left_cols,bottom_cols])
+
+    other_cols = []
+    for pos in x:
+        if [val for val in both_cols if np.array_equal(val, pos)] == []:
+            other_cols.append(pos)
+    if transpose:
+        return swapXY(left_cols), swapXY(bottom_cols), swapXY(other_cols)
+    else:
+        return left_cols, bottom_cols, other_cols
+
+
+def change_stat_model_name(db, sm=None, new_sm=None):
+    if (sm == None) or (new_sm == None):
+        raise ValueError("Must provide stat_model name (sm) and what it\
+                will be changed to (new_sm).")
+    stat_models = db["stat_model"].to_numpy()
+    indices = np.where(db["stat_model"].to_numpy() == sm)[0]
+    for index in indices:
+        #row = db.iloc[[index]]
+        stat_models[index] = new_sm
+    db["stat_model"] = stat_models
+    return db
+
+
+def compute_f0(u, nblocks=10):
+    """Computes f_0 = -ln <exp(-u)>.
+
+    INPUT
+    u       - a np.array of sampled -ln P values
+
+    PARAMETERS
+    nblocks - number of blocks for uncertainty analysis
+
+    RETURNS
+    f_0   - free energy -ln Z_0/Z_off
+    df_0  - uncertainty from from block-avearge analysis."""
+
+    u = np.array(u)  # make sure u is an array, not a list
+    u_min = np.min(u)
+
+    nsamples = len(u)
+    blocksamples = int(nsamples/nblocks)
+    f0_estimates = []
+    for i in range(nblocks):
+        u_block = u[i*blocksamples:(i+1)*blocksamples]
+        exp_avg = np.mean( np.exp(-1.0*(u_block - u_min)))
+        f0_estimates.append( u_min - np.log(exp_avg) )
+        print(i, f0_estimates[-1])
+
+    return np.mean(f0_estimates), np.std(f0_estimates)
+
+
+
+# Information Criterion functions:{{{
+def aic(llf, nobs, df_modelwc):
+    """
+    Akaike information criterion
+    Parameters
+    ----------
+    llf : {float, array_like}
+        value of the loglikelihood
+    nobs : int
+        number of observations
+    df_modelwc : int
+        number of parameters including constant
+    Returns
+    -------
+    aic : float
+        information criterion
+    References
+    ----------
+    https://en.wikipedia.org/wiki/Akaike_information_criterion
+    """
+
+    return -2.0 * llf + 2.0 * df_modelwc
+
+
+def bic(llf, nobs, df_modelwc):
+    """
+    Bayesian information criterion (BIC) or Schwarz criterion
+    Parameters
+    ----------
+    llf : {float, array_like}
+        value of the loglikelihood
+    nobs : int
+        number of observations
+    df_modelwc : int
+        number of parameters including constant
+    Returns
+    -------
+    bic : float
+        information criterion
+    References
+    ----------
+    https://en.wikipedia.org/wiki/Bayesian_information_criterion
+    """
+
+    return -2.0 * llf + np.log(nobs) * df_modelwc
+
+
+def hqic(llf, nobs, df_modelwc):
+    """
+    Hannan-Quinn information criterion (HQC)
+    Parameters
+    ----------
+    llf : {float, array_like}
+        value of the loglikelihood
+    nobs : int
+        number of observations
+    df_modelwc : int
+        number of parameters including constant
+    Returns
+    -------
+    hqic : float
+        information criterion
+    References
+    ----------
+    Wikipedia does not say much
+    """
+    return -2.0 * llf + 2 * np.log(np.log(nobs)) * df_modelwc
+
+
+def aicc(llf, nobs, df_modelwc):
+    """
+    Akaike information criterion (AIC) with small sample correction
+
+    Parameters
+    ----------
+    llf : {float, array_like}
+        value of the loglikelihood
+    nobs : int
+        number of observations
+    df_modelwc : int
+        number of parameters including constant
+    Returns
+    -------
+    aicc : float
+        information criterion
+    References
+    ----------
+    https://en.wikipedia.org/wiki/Akaike_information_criterion#AICc
+    """
+    #return -2.0 * llf + 2.0 * df_modelwc * nobs / (nobs - df_modelwc - 1.0)
+    # These might be equiv. This equation is more common:
+    return -2.0 * llf + 2.0*df_modelwc + 2.0* df_modelwc * (df_modelwc + 1.0) / (nobs - df_modelwc - 1.0)
+# }}}
+
+
+def get_size(bytes, suffix="B"):
+    """
+    Scale bytes to its proper format
+    e.g:
+        1253656 => '1.20MB'
+        1253656678 => '1.17GB'
+    """
+    factor = 1024
+    for unit in ["", "K", "M", "G", "T", "P"]:
+        if bytes < factor:
+            #return f"{bytes:.2f}{unit}{suffix}"
+            return (bytes, f"{unit}{suffix}")
+        bytes /= factor
+
+def get_mem_details():
+    # get the memory details
+    svmem = psutil.virtual_memory()
+    swap = psutil.swap_memory()
+    #vmem = rxr.get_size(svmem.used)
+    #swapmem = rxr.get_size(swap.used)
+    return (svmem, swap)
+
+
+def convert_to_Bytes(column):
+    result = []
+    for tuple in column:
+        #print(tuple)
+        try:
+            if np.isnan(tuple):# == np.NAN:
+                result.append(np.NAN)
+                continue
+        except(Exception) as e:
+            pass
+        val, unit = tuple
+        if unit == "MB": val = np.float(float(val)*1e6)
+        if unit == "GB": val = np.float(float(val)*1e9)
+        result.append(val)
+    return np.array(result)
+
+
+def pyObjSize(input_obj, label=None, verbose=1):
+    """https://towardsdatascience.com/the-strange-size-of-python-objects-in-memory-ce87bdfbb97f
+    """
+
+    memory_size = 0
+    ids = set()
+    objects = [input_obj]
+    while objects:
+        new = []
+        for obj in objects:
+            if id(obj) not in ids:
+                ids.add(id(obj))
+                memory_size += sys.getsizeof(obj)
+                new.append(obj)
+        objects = gc.get_referents(*new)
+    result = get_size(memory_size)
+    if verbose:
+        if label:
+            print(f"Memory of {label}".split("=")[0]+f": {result[0]} {result[1]}")
+        else:
+            print(f"Memory of object".split("=")[0]+f": {result[0]} {result[1]}")
+    return result
+
+
+def time_function(func, *args, **kwargs):
+    """
+    Computes the time taken to execute a function.
+
+    Parameters:
+        func (callable): The function to evaluate.
+        *args: Positional arguments for the function.
+        **kwargs: Keyword arguments for the function.
+
+    Returns:
+        result: The result of the function call.
+        elapsed_time (float): Time taken in seconds.
+    """
+    start_time = time.time()
+    result = func(*args, **kwargs)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"Function {func.__name__} took {elapsed_time:.6f} seconds to execute.")
+    return result, elapsed_time
 
 
 
