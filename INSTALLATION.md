@@ -11,6 +11,11 @@ conda activate biceps
 conda install --file requirements.txt
 ```
 
+Note: If you haven't already, you may need to add the `conda-forge` channel for conda to find these packages:
+```
+conda config --add channels conda-forge
+```
+
 NOTE: I was able to install all the packages if I commented out the `autoapi` package
 
 ### Compile the C++ code parts of the package
