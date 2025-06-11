@@ -194,7 +194,7 @@ total 8208
 
 In `examples/simple_three_state_reweighting.py`,  I needed to install the following to get it to work:
 ```
-conda install h5py Bio uncertainties
+conda install h5py biopython uncertainties
 pip install pynmrstar
 ```
 
