@@ -3,7 +3,6 @@ sphinx
 nbsphinx
 sphinx_rtd_theme
 sphinx-autoapi
-autoapi
 recommonmark
 numpydoc
 notebook
